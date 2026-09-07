@@ -1,13 +1,13 @@
 "use client";
 
-import { AppStaggeredMenu } from "@/components/AppStaggeredMenu";
+import { SidebarNav } from "@/components/SidebarNav";
 import { Topbar } from "@/components/Topbar";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { useAiraNotification } from "@/features/aira/useAiraNotification";
 import { AiraPeriodicToast } from "@/features/aira/components/AiraPeriodicToast";
 import { SleepDrawer } from "@/features/sleep/components/SleepDrawer";
 import { LearningDrawer } from "@/features/learning/components/LearningDrawer";
-import { PixelSunsetBackground } from "@/components/ui/pixel/PixelSunsetBackground";
+import { PixelCelestialNightBackground } from "@/components/ui/pixel/PixelCelestialNightBackground";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   useAiraNotification();
@@ -15,13 +15,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       suppressHydrationWarning
-      className="flex h-screen h-[100dvh] min-h-screen w-full bg-[#1A0B2E] text-zinc-100 overflow-hidden font-sans relative"
+      className="flex h-screen h-[100dvh] min-h-screen w-full bg-[#060412] text-zinc-100 overflow-hidden font-sans relative"
     >
-      {/* === 8-BIT AUTHENTIC DITHER SUNSET SKY (MOON, SHADED CLOUDS & STARS) === */}
-      <PixelSunsetBackground />
+      {/* === 16-BIT AUTHENTIC CELESTIAL NIGHT SKY (AURORAS, CONSTELLATIONS & SHOOTING STARS) === */}
+      <PixelCelestialNightBackground />
 
-      {/* === REACT BITS STAGGERED MENU AS THE MAIN NAVIGATION === */}
-      <AppStaggeredMenu position="left" isFixed={true} />
+      <SidebarNav />
 
       <div
         suppressHydrationWarning

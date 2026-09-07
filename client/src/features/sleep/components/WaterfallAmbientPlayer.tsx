@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useId } from "react";
-import { Volume2, VolumeX, Headphones, Waves, Radio, CloudRain } from "lucide-react";
+import {
+  PixelVolumeHighIcon,
+  PixelVolumeMuteIcon,
+  PixelHeadphonesIcon,
+  PixelWaterfallIcon,
+  PixelSparklesIcon,
+  PixelRainCloudIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { playUIMenuSFX } from "@/utils/audio";
 import { cn } from "@/lib/utils";
 
@@ -154,14 +161,14 @@ export const WaterfallAmbientPlayer: React.FC<{ className?: string }> = ({ class
               <span className="w-1 h-2.5 bg-[#d97706] animate-pulse" style={{ animationDelay: "0.4s" }} />
             </div>
           ) : (
-            <Headphones className="w-5 h-5 text-slate-500" />
+            <PixelHeadphonesIcon className="w-5 h-5 text-slate-500" />
           )}
         </div>
 
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-pixel font-bold text-[#fbbf24] flex items-center gap-1.5">
-              <Waves className="w-4 h-4 text-[#f59e0b]" />
+              <PixelWaterfallIcon className="w-4 h-4 text-[#38bdf8]" />
               Sanctuary Soundscape
             </span>
             {audioMode !== "MUTE" && (
@@ -189,12 +196,13 @@ export const WaterfallAmbientPlayer: React.FC<{ className?: string }> = ({ class
               setAudioMode("MUTE");
             }}
             className={cn(
-              "px-3.5 py-2 text-xs sm:text-sm font-pixel font-bold border transition-colors cursor-pointer",
+              "px-3.5 py-2 text-xs sm:text-sm font-pixel font-bold border transition-colors cursor-pointer flex items-center gap-1.5",
               audioMode === "MUTE"
                 ? "bg-[#2a1347] text-[#fbbf24] border-[#6b21a8]"
                 : "bg-transparent text-slate-300 border-transparent hover:text-white hover:bg-[#1a0c30]"
             )}
           >
+            <PixelVolumeMuteIcon className="w-3.5 h-3.5 text-slate-400" />
             Silent
           </button>
           <button
@@ -210,7 +218,7 @@ export const WaterfallAmbientPlayer: React.FC<{ className?: string }> = ({ class
                 : "bg-transparent text-slate-300 border-transparent hover:text-white hover:bg-[#1a0c30]"
             )}
           >
-            <CloudRain className="w-4 h-4 text-[#34d399]" />
+            <PixelRainCloudIcon className="w-4 h-4 text-[#34d399]" />
             Stream
           </button>
           <button
@@ -226,7 +234,7 @@ export const WaterfallAmbientPlayer: React.FC<{ className?: string }> = ({ class
                 : "bg-transparent text-slate-300 border-transparent hover:text-white hover:bg-[#1a0c30]"
             )}
           >
-            <Radio className="w-4 h-4 text-[#f59e0b]" />
+            <PixelSparklesIcon className="w-4 h-4 text-[#f59e0b]" />
             432Hz
           </button>
         </div>
@@ -236,9 +244,9 @@ export const WaterfallAmbientPlayer: React.FC<{ className?: string }> = ({ class
           <div className="flex items-center gap-2.5 px-3 py-1.5 bg-[#0a0412] border border-[#2e1548]">
             <label htmlFor={volumeSliderId} className="cursor-pointer">
               {volume === 0 ? (
-                <VolumeX className="w-4 h-4 text-slate-500" />
+                <PixelVolumeMuteIcon className="w-4 h-4 text-slate-500" />
               ) : (
-                <Volume2 className="w-4 h-4 text-[#fbbf24]" />
+                <PixelVolumeHighIcon className="w-4 h-4 text-[#fbbf24]" />
               )}
               <span className="sr-only">Volume Slider</span>
             </label>

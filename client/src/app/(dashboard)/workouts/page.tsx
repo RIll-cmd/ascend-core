@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useWorkoutStore } from "@/features/workouts/store/useWorkoutStore";
+import { useThemeStore } from "@/store/useThemeStore";
 import { ActiveWorkout } from "@/features/workouts/components/ActiveWorkout";
 import { ExerciseRankCard } from "@/features/workouts/components/ExerciseRankCard";
 import { CreateCustomWorkoutModal } from "@/features/workouts/components/CreateCustomWorkoutModal";
@@ -13,8 +14,21 @@ import {
 import { MuscleGroupKey } from "@/features/workouts/types/muscleRecovery";
 import { useUser } from "@/context/UserContext";
 import { AiraAvatar } from "@/components/ui/AiraAvatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { PixelButton } from "@/components/ui/pixel/PixelButton";
+import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
+import { PixelCard } from "@/components/ui/pixel/PixelCard";
+import {
+  PixelSwordIcon,
+  PixelShieldIcon,
+  PixelSkullIcon,
+  PixelActivityIcon,
+  PixelFlameIcon,
+  PixelLaurelWreathIcon,
+  PixelRomanColumnIcon,
+  PixelDumbbellIcon,
+  PixelPlusIcon,
+  PixelTrashIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import {
   Dumbbell,
   Activity,
@@ -39,7 +53,6 @@ import ReactMarkdown from "react-markdown";
 import { API_BASE_URL } from "@/constants";
 import { SystemTooltip } from "@/components/ui/SystemTooltip";
 import { WORKOUT_LORE } from "@/features/lore/loreData";
-import { FloatingRuneField } from "@/components/shared/FloatingRuneField";
 import {
   playUIMenuSFX,
   playBattleSFX,
@@ -52,7 +65,8 @@ const PREDEFINED_SPLITS = [
   {
     name: "Push Split",
     target: "Chest • Shoulders • Triceps",
-    statGain: "+Strength & Endurance",
+    statGain: "+STR & END",
+    statGainFull: "+Strength & Endurance",
     accentColor: "from-amber-500/20 via-orange-600/10 to-transparent",
     borderColor: "border-amber-500/30 hover:border-amber-400/60",
     glowColor: "shadow-[0_0_20px_rgba(245,158,11,0.15)]",
@@ -68,11 +82,12 @@ const PREDEFINED_SPLITS = [
   {
     name: "Pull Split",
     target: "Back • Biceps • Rear Delts",
-    statGain: "+Strength & Endurance",
-    accentColor: "from-indigo-500/20 via-blue-600/10 to-transparent",
-    borderColor: "border-indigo-500/30 hover:border-indigo-400/60",
-    glowColor: "shadow-[0_0_20px_rgba(99,102,241,0.15)]",
-    badgeColor: "bg-indigo-950/80 text-indigo-300 border-indigo-500/40",
+    statGain: "+STR & END",
+    statGainFull: "+Strength & Endurance",
+    accentColor: "from-zinc-500/20 via-stone-600/10 to-transparent",
+    borderColor: "border-zinc-500/30 hover:border-zinc-400/60",
+    glowColor: "shadow-[0_0_20px_rgba(161,161,170,0.15)]",
+    badgeColor: "bg-stone-900/90 text-stone-200 border-stone-600/40",
     exercises: [
       { id: "ex3", name: "Barbell Deadlift", primaryMuscle: "Back", equipment: "Barbell" },
       { id: "ex12", name: "Lat Pulldown", primaryMuscle: "Back", equipment: "Cable" },
@@ -84,7 +99,8 @@ const PREDEFINED_SPLITS = [
   {
     name: "Legs Split",
     target: "Quads • Hamstrings • Calves",
-    statGain: "+Strength & Endurance",
+    statGain: "+STR & END",
+    statGainFull: "+Strength & Endurance",
     accentColor: "from-emerald-500/20 via-teal-600/10 to-transparent",
     borderColor: "border-emerald-500/30 hover:border-emerald-400/60",
     glowColor: "shadow-[0_0_20px_rgba(16,185,129,0.15)]",
@@ -100,11 +116,12 @@ const PREDEFINED_SPLITS = [
   {
     name: "Core & Cardio",
     target: "Abs • Obliques • Stability",
-    statGain: "+Endurance & Consistency",
-    accentColor: "from-cyan-500/20 via-sky-600/10 to-transparent",
-    borderColor: "border-cyan-500/30 hover:border-cyan-400/60",
-    glowColor: "shadow-[0_0_20px_rgba(6,182,212,0.15)]",
-    badgeColor: "bg-cyan-950/80 text-cyan-300 border-cyan-500/40",
+    statGain: "+END & CON",
+    statGainFull: "+Endurance & Consistency",
+    accentColor: "from-red-500/20 via-amber-600/10 to-transparent",
+    borderColor: "border-red-500/30 hover:border-red-400/60",
+    glowColor: "shadow-[0_0_20px_rgba(239,68,68,0.15)]",
+    badgeColor: "bg-red-950/80 text-red-300 border-red-500/40",
     exercises: [
       { id: "ex17", name: "Cable Woodchoppers", primaryMuscle: "Core", equipment: "Cable" },
       { id: "ex18", name: "Hanging Leg Raises", primaryMuscle: "Core", equipment: "Bodyweight" },
@@ -126,6 +143,7 @@ export default function WorkoutsPage() {
     resetMuscleRecovery,
     isLoadingRecovery,
   } = useWorkoutStore();
+  const { workoutTheme } = useThemeStore();
   const { user } = useUser();
 
   const [ranks, setRanks] = useState<any[]>([]);
@@ -247,8 +265,8 @@ export default function WorkoutsPage() {
         playAIRASound("CONFIRMED");
         toast.info(
           <div className="flex flex-col gap-2">
-            <div className="font-bold flex items-center gap-2 text-cyan-400">
-              <Bot className="w-4 h-4 text-cyan-400 animate-pulse" /> AIRA Analysis Telemetry
+            <div className="font-bold flex items-center gap-2 text-amber-400">
+              <Bot className="w-4 h-4 text-amber-400 animate-pulse" /> AIRA Analysis Telemetry
             </div>
             <div className="text-xs text-slate-200">
               <ReactMarkdown>{data.analysis}</ReactMarkdown>
@@ -276,86 +294,75 @@ export default function WorkoutsPage() {
 
   return (
     <div className="space-y-8 pb-16 font-sans animate-in fade-in duration-300 relative text-slate-100 max-w-6xl mx-auto p-4 md:p-6">
-      {/* Background Floating Runes */}
-      <FloatingRuneField density="low" className="opacity-60" />
 
       {/* ========================================================= */}
       {/* 1. HERO & TOP TELEMETRY COMMAND BAR */}
       {/* ========================================================= */}
-      <div className="relative rounded-[28px] bg-gradient-to-br from-[#0B1126]/95 via-[#070D1E]/95 to-[#040814]/98 border border-indigo-500/25 p-6 md:p-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden backdrop-blur-2xl">
-        <FloatingRuneField density="high" />
-
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500/60 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent pointer-events-none" />
-
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
-        <div
-          className="absolute -bottom-24 -left-24 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow"
-          style={{ animationDelay: "2s" }}
-        />
-
+      <div className="relative pixel-stone-slab p-5 sm:p-7 select-none">
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
-            {/* Holographic Dumbbell Pedestal */}
-            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-[#12193b] to-[#070c20] border-2 border-indigo-500/40 flex items-center justify-center text-indigo-400 shadow-[0_0_30px_rgba(99,102,241,0.3)] shrink-0 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-indigo-500/10 pointer-events-none" />
-              <Dumbbell className="w-8 h-8 drop-shadow-[0_0_12px_rgba(99,102,241,0.7)] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
+            {/* Raw Iron Pedestal */}
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#140e0c] border-2 border-[#4a3830] shadow-[inset_2px_2px_0_0_#2a1f1b] flex items-center justify-center text-[#f59e0b] shrink-0">
+              <PixelSwordIcon className="w-8 h-8 text-[#f59e0b]" />
             </div>
 
-            <div className="space-y-1">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <span className="text-[11px] font-mono font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5" />
-                  KINETIC ASCENSION HUB
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-indigo-950/80 text-indigo-300 border border-indigo-500/40 text-[10px] font-mono font-bold shadow-[0_0_10px_rgba(99,102,241,0.25)] flex items-center gap-1">
-                  RECOVERY & HEATMAP ENGINE
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="pixel-roman-stele px-3 py-1 text-[11px] sm:text-xs flex items-center gap-2 font-bold tracking-wider">
+                  <PixelLaurelWreathIcon className="w-3.5 h-3.5 text-[#fde047]" />
+                  LVDVS ARENA • PROVING GROUNDS
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold font-heading text-white tracking-tight drop-shadow-[0_0_20px_rgba(255,255,255,0.15)]">
-                Workout Command & Muscle Heatmap
+              <h1 className="font-pixel text-base sm:text-xl font-bold text-white uppercase tracking-wider">
+                Workout Dashboard
               </h1>
-              <p className="text-xs text-slate-300 max-w-xl font-sans leading-relaxed">
-                Track real-time anatomical muscle fatigue, time-decay recovery, progressive overload e1RM power ranks, and boss damage.
+              <p className="font-sans text-xs sm:text-sm text-stone-200 font-medium max-w-lg leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                Track muscle fatigue, recovery time, personal records, and strength progress across all your workouts.
               </p>
             </div>
           </div>
 
           {/* Action Controls */}
-          <div className="flex flex-wrap items-center gap-3 z-10 w-full lg:w-auto justify-end">
-            <Button
+          <div className="flex flex-wrap items-center gap-2.5 z-10 w-full lg:w-auto justify-start lg:justify-end">
+            <PixelButton
+              variant="gold"
+              size="md"
               onClick={() => {
                 playUIMenuSFX("click");
                 setIsLoggerModalOpen(true);
               }}
-              className="h-11 px-5 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-mono font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] active:scale-95 transition-all cursor-pointer flex items-center gap-2"
+              className="flex items-center gap-2"
             >
-              <Dumbbell className="w-4 h-4" />
-              <span>Log Targeted Workout</span>
-            </Button>
+              <PixelDumbbellIcon className="w-4 h-4" />
+              <span>LOG WORKOUT</span>
+            </PixelButton>
 
             <Link href="/workouts/boss-pr">
-              <button
+              <PixelButton
+                variant="danger"
+                size="md"
                 onClick={() => playBattleSFX("encounter")}
-                className="px-4 py-2.5 rounded-xl border border-red-500/50 bg-gradient-to-r from-red-950/80 via-[#18080f] to-red-950/60 hover:from-red-900/90 hover:to-red-950 text-red-200 font-mono text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer shadow-[0_0_20px_rgba(239,68,68,0.3)] active:scale-95 group"
+                className="flex items-center gap-2"
               >
-                <Swords className="w-4 h-4 text-red-400 group-hover:scale-110 transition-transform" />
-                <span>Weekly Boss PR</span>
-              </button>
+                <PixelSwordIcon className="w-4 h-4 text-white" />
+                <span>STRENGTH CHALLENGE (BOSS PR)</span>
+              </PixelButton>
             </Link>
 
-            <button
+            <PixelButton
+              variant="iron"
+              size="md"
               onClick={handleCielAnalysis}
               disabled={isAnalyzing}
-              className="px-3.5 py-2.5 rounded-xl border border-cyan-500/40 bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 font-mono text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-lg disabled:opacity-50 active:scale-95"
+              className="flex items-center gap-2"
             >
               {isAnalyzing ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
-                <AiraAvatar mood="ANALYZING" className="w-4 h-4 border-none shadow-none rounded-full" />
+                <AiraAvatar mood="ANALYZING" className="w-4 h-4 border-none shadow-none rounded-none" />
               )}
-              <span>AIRA Intel</span>
-            </button>
+              <span>AI COACH INSIGHTS</span>
+            </PixelButton>
           </div>
         </div>
       </div>
@@ -402,81 +409,83 @@ export default function WorkoutsPage() {
       {/* ========================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Fitness Power Card */}
-        <div className="p-6 rounded-[24px] bg-gradient-to-br from-[#0C1226]/95 via-[#080E20]/95 to-[#050914]/98 border border-emerald-500/25 shadow-xl relative overflow-hidden backdrop-blur-2xl flex flex-col justify-between group hover:border-emerald-400/50 transition-all">
-          <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Activity className="w-28 h-28 text-emerald-400" />
-          </div>
-
-          <div className="flex items-center justify-between relative z-10">
-            <span className="text-[10.5px] font-mono font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Activity className="w-4 h-4 text-emerald-400" />
-              Fitness Power
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
-              <Flame className="w-4 h-4 fill-emerald-400/30 animate-pulse" />
+        <div className="pixel-stone-slab p-5 relative select-none flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <PixelBadge variant="gold" size="sm">
+                <PixelActivityIcon className="w-3 h-3 mr-1 text-[#f59e0b]" />
+                TOTAL POWER RATING
+              </PixelBadge>
+              <div className="w-7 h-7 bg-[#140e0c] border border-[#4a3830] flex items-center justify-center text-[#22c55e]">
+                <PixelFlameIcon className="w-4 h-4 text-[#22c55e]" />
+              </div>
             </div>
-          </div>
 
-          <div className="mt-4 relative z-10">
-            <div className="text-4xl font-black text-white font-mono drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-              {user?.power || 0}
-            </div>
-            <div className="mt-2 flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold flex items-center gap-1">
-                <Flame className="w-3 h-3 fill-emerald-400" /> Level {user?.level || 1} Character
-              </span>
+            <div className="mt-4">
+              <div className="font-pixel-chunky text-5xl font-bold text-white tracking-wider">
+                {user?.power || 0}
+              </div>
+              <div className="mt-2">
+                <PixelBadge variant="success" size="sm">
+                  LEVEL {user?.level || 1} ATHLETE
+                </PixelBadge>
+              </div>
             </div>
           </div>
 
           {/* Quick Boss PR Status Banner */}
           {activeBoss && (
-            <div className="mt-5 pt-4 border-t border-slate-800/80 relative z-10">
-              <Link href="/workouts/boss-pr">
-                <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 hover:border-red-400/60 transition-all flex items-center justify-between group/boss cursor-pointer">
-                  <div className="flex items-center gap-2.5">
-                    <Swords className="w-4 h-4 text-red-400 group-hover/boss:rotate-12 transition-transform" />
-                    <div>
-                      <div className="text-xs font-bold text-slate-200">
-                        {activeBoss.name || "Weekly Boss"}
-                      </div>
-                      <div className="text-[10px] font-mono text-red-400 font-bold">
-                        {activeBoss.isDefeated ? "DEFEATED" : `Target: ${activeBoss.targetExercise}`}
-                      </div>
+            <div className="mt-5 pt-3 border-t-2 border-[#4a3830]">
+              <Link
+                href="/workouts/boss-pr"
+                className="block p-3 bg-[#140e0c] border-2 border-[#4a3830] hover:border-[#f59e0b] transition-all flex items-center justify-between cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  <PixelSwordIcon className="w-4 h-4 text-[#ef4444]" />
+                  <div>
+                    <div className="font-sans font-bold text-xs text-white">
+                      {activeBoss.name || "Strength Challenge"}
+                    </div>
+                    <div className="font-sans font-semibold text-xs text-[#ef4444] uppercase">
+                      {activeBoss.isDefeated ? "DEFEATED" : `Target: ${activeBoss.targetExercise}`}
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-500 group-hover/boss:text-white group-hover/boss:translate-x-0.5 transition-all" />
                 </div>
+                <ChevronRight className="w-4 h-4 text-stone-400" />
               </Link>
             </div>
           )}
         </div>
 
         {/* Recent Personal Records Card */}
-        <div className="p-6 rounded-[24px] bg-gradient-to-br from-[#0C1226]/95 via-[#080E20]/95 to-[#050914]/98 border border-amber-500/25 shadow-xl relative overflow-hidden backdrop-blur-2xl lg:col-span-2 flex flex-col justify-between">
-          <div className="flex items-center justify-between border-b border-amber-500/15 pb-3">
+        <div className="pixel-stone-slab p-5 relative select-none lg:col-span-2 flex flex-col justify-between">
+          <div className="flex items-center justify-between border-b-2 border-[#4a3830] pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-amber-950/80 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.3)]">
-                <Trophy className="w-4 h-4" />
+              <div className="w-7 h-7 bg-[#140e0c] border border-[#4a3830] flex items-center justify-center text-[#f59e0b]">
+                <Trophy className="w-4 h-4 text-[#f59e0b]" />
               </div>
               <div>
-                <h3 className="text-sm font-extrabold text-white font-heading tracking-tight flex items-center gap-2">
-                  Personal Record RPG Ranks
-                </h3>
-                <p className="text-[10.5px] font-mono text-slate-400">
-                  Estimated 1-Rep Max benchmarks & Tier Thresholds
+                <h2 className="font-pixel text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
+                  Personal Records (PR)
+                </h2>
+                <p className="font-sans text-xs text-stone-300 mt-0.5">
+                  Estimated 1-Rep Max (1RM) benchmarks & Tier Ranks
                 </p>
               </div>
             </div>
+            <PixelBadge variant="gold" size="sm">
+              STRENGTH BENCHMARKS
+            </PixelBadge>
           </div>
 
           <div className="mt-4">
             {isLoadingRanks ? (
-              <div className="flex items-center justify-center py-10 text-slate-400 font-mono text-xs gap-2">
-                <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
-                <span>Syncing Exercise Ranks...</span>
+              <div className="flex items-center justify-center py-10 font-sans text-xs text-stone-300 gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-[#f59e0b]" />
+                <span>Loading Personal Records...</span>
               </div>
             ) : ranks.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 list-none p-0 m-0">
                 {ranks.map((r, i) => (
                   <ExerciseRankCard
                     key={i}
@@ -488,10 +497,32 @@ export default function WorkoutsPage() {
                     progress={r.progress}
                   />
                 ))}
-              </div>
+              </ul>
             ) : (
-              <div className="text-center py-8 text-slate-400 font-mono text-xs border border-dashed border-slate-800 rounded-2xl p-4 bg-[#050914]/50">
-                No exercise sets logged yet. Log a workout above to establish your e1RM ranks!
+              <div className="text-center py-8 px-4 border border-dashed border-[#4a3830]/80 flex flex-col items-center justify-center gap-3">
+                <div className="w-10 h-10 bg-[#1c1412] border border-[#4a3830] flex items-center justify-center text-[#f59e0b]">
+                  <PixelDumbbellIcon className="w-5 h-5 text-[#f59e0b]" />
+                </div>
+                <div className="space-y-1 max-w-sm">
+                  <h3 className="font-pixel text-xs font-bold text-white uppercase tracking-wider">
+                    No Personal Records Logged Yet
+                  </h3>
+                  <p className="font-sans text-xs text-stone-300 leading-relaxed">
+                    Record your workout sets to calculate your estimated 1-rep max (1RM), track progress, and unlock higher strength tiers.
+                  </p>
+                </div>
+                <PixelButton
+                  variant="gold"
+                  size="sm"
+                  onClick={() => {
+                    playUIMenuSFX("click");
+                    setIsLoggerModalOpen(true);
+                  }}
+                  className="mt-1 text-xs flex items-center gap-1.5"
+                >
+                  <PixelSwordIcon className="w-3.5 h-3.5" />
+                  <span>LOG FIRST WORKOUT</span>
+                </PixelButton>
               </div>
             )}
           </div>
@@ -501,145 +532,216 @@ export default function WorkoutsPage() {
       {/* ========================================================= */}
       {/* 5. USER CUSTOM WORKOUT PLANS */}
       {/* ========================================================= */}
-      {customTemplates.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-extrabold text-white font-heading tracking-tight flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-cyan-400" />
-              Custom Workout Protocols ({customTemplates.length})
-            </h3>
-            <button
-              onClick={() => {
-                playUIMenuSFX();
-                setIsCreateModalOpen(true);
-              }}
-              className="text-xs text-cyan-400 hover:text-cyan-300 font-mono font-bold flex items-center gap-1 cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5" /> + New Custom Routine
-            </button>
+      <div className="relative pixel-stone-slab p-5 sm:p-7 select-none space-y-5">
+        {/* Stone Masonry Corner Brackets */}
+        <div className="absolute top-1 left-1 w-3.5 h-3.5 border-t-2 border-l-2 border-[#f59e0b] pointer-events-none" />
+        <div className="absolute top-1 right-1 w-3.5 h-3.5 border-t-2 border-r-2 border-[#f59e0b] pointer-events-none" />
+        <div className="absolute bottom-1 left-1 w-3.5 h-3.5 border-b-2 border-l-2 border-[#f59e0b] pointer-events-none" />
+        <div className="absolute bottom-1 right-1 w-3.5 h-3.5 border-b-2 border-r-2 border-[#f59e0b] pointer-events-none" />
+
+        {/* Unified Section Header inside Main Box */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b-2 border-[#4a3830]">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 bg-[#140e0c] border border-[#4a3830] flex items-center justify-center text-[#f59e0b] shrink-0">
+                <PixelSwordIcon className="w-4 h-4 text-[#f59e0b]" />
+              </div>
+              <h2 className="font-pixel text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
+                Custom Workout Routines ({customTemplates.length})
+              </h2>
+            </div>
+            <p className="font-sans text-xs text-stone-300 ml-10">
+              Craft, manage, and execute personalized training routines tailored to your discipline.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <PixelButton
+            variant="gold"
+            size="sm"
+            onClick={() => {
+              playUIMenuSFX();
+              setIsCreateModalOpen(true);
+            }}
+            className="text-xs shrink-0 self-start sm:self-auto"
+          >
+            <span className="flex items-center gap-1.5">
+              <PixelPlusIcon className="w-3.5 h-3.5" /> CREATE ROUTINE
+            </span>
+          </PixelButton>
+        </div>
+
+        {/* Content inside Main Box */}
+        {customTemplates.length > 0 ? (
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 list-none p-0 m-0">
             {customTemplates.map((plan) => (
-              <div
+              <li
                 key={plan.id}
-                className="p-5 rounded-[22px] bg-gradient-to-br from-[#0C1226]/95 via-[#080E20]/95 to-[#050914]/98 border border-cyan-500/30 hover:border-cyan-400/60 shadow-xl hover:shadow-[0_0_25px_rgba(6,182,212,0.2)] transition-all overflow-hidden flex flex-col justify-between group relative backdrop-blur-xl"
+                className="p-4 bg-[#140e0c] border-2 border-[#4a3830] hover:border-[#f59e0b]/70 transition-all flex flex-col justify-between relative select-none shadow-[inset_1px_1px_0_0_#2a1f1b]"
               >
-                <div className="flex items-start justify-between pb-3 border-b border-cyan-500/20">
+                <div className="flex items-start justify-between pb-3 border-b-2 border-[#4a3830]">
                   <div>
-                    <h4 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors font-sans">
+                    <h3 className="font-sans font-bold text-sm text-white">
                       {plan.name}
-                    </h4>
-                    <p className="text-[10px] text-cyan-400 font-mono mt-0.5">{plan.target}</p>
+                    </h3>
+                    <p className="font-sans text-xs text-[#f59e0b] font-medium mt-0.5">{plan.target}</p>
                   </div>
                   <button
                     onClick={() => {
                       playUIMenuSFX("decline");
                       deleteCustomTemplate(plan.id);
-                      toast.info(`Deleted custom plan "${plan.name}"`);
+                      toast.info(`Deleted custom routine "${plan.name}"`);
                     }}
-                    className="text-slate-500 hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-950/40 cursor-pointer"
-                    title="Delete Plan"
+                    className="text-stone-500 hover:text-[#ef4444] transition-colors p-1 cursor-pointer"
+                    title="Delete Routine"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <PixelTrashIcon className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                <div className="py-3 font-mono flex-1 flex flex-col justify-between">
+                <div className="py-3 text-xs flex-1 flex flex-col justify-between">
                   <div>
-                    <span className="block text-[10px] text-slate-400 font-bold mb-2 uppercase tracking-wider">
-                      {plan.exercises.length} Movements Included:
+                    <span className="block text-stone-300 font-sans font-bold mb-2 uppercase text-[11px] tracking-wider">
+                      {plan.exercises.length} Exercises Included:
                     </span>
-                    <ul className="text-xs text-slate-300 space-y-1.5">
+                    <ul className="space-y-1.5 text-stone-200 font-sans font-medium text-xs">
                       {plan.exercises.slice(0, 3).map((ex, idx) => (
-                        <li key={idx} className="truncate flex items-center gap-1.5 text-slate-300">
-                          <span className="w-1 h-1 rounded-full bg-cyan-400" />
-                          <span>{ex.name}</span>
+                        <li key={idx} className="truncate flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-[#f59e0b] shrink-0" />
+                          <span className="truncate">{ex.name}</span>
                         </li>
                       ))}
                       {plan.exercises.length > 3 && (
-                        <li className="text-[10px] text-cyan-400/90 font-mono italic">
-                          + {plan.exercises.length - 3} more movements
+                        <li className="text-xs text-[#f59e0b] font-sans font-semibold italic pt-1">
+                          + {plan.exercises.length - 3} more exercises
                         </li>
                       )}
                     </ul>
                   </div>
 
-                  <button
+                  <PixelButton
+                    variant="gold"
+                    size="sm"
                     disabled={isWorkoutActive}
                     onClick={() => handleStartTemplate(plan.name, plan.exercises)}
-                    className="w-full mt-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-indigo-600 to-cyan-500 hover:from-cyan-500 hover:to-indigo-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-[0_0_15px_rgba(6,182,212,0.3)] flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 active:scale-95"
+                    className="w-full mt-4 text-xs"
                   >
-                    <Play className="w-3.5 h-3.5 fill-slate-950" />
-                    <span>Launch {plan.name}</span>
-                  </button>
+                    START WORKOUT
+                  </PixelButton>
                 </div>
-              </div>
+              </li>
             ))}
+          </ul>
+        ) : (
+          <div className="p-8 bg-[#140e0c]/70 border-2 border-dashed border-[#4a3830] flex flex-col items-center justify-center text-center gap-3 select-none">
+            <div className="w-10 h-10 bg-[#1c1412] border border-[#4a3830] flex items-center justify-center text-[#f59e0b]">
+              <PixelDumbbellIcon className="w-5 h-5 text-[#f59e0b]" />
+            </div>
+            <div className="space-y-1 max-w-md">
+              <h3 className="font-pixel text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
+                No Custom Routines Created
+              </h3>
+              <p className="font-sans text-xs text-stone-300 leading-relaxed">
+                Create personalized routines to target specific muscle groups and track your strength progress.
+              </p>
+            </div>
+            <PixelButton
+              variant="gold"
+              size="sm"
+              onClick={() => {
+                playUIMenuSFX();
+                setIsCreateModalOpen(true);
+              }}
+              className="mt-1 text-xs"
+            >
+              <span className="flex items-center gap-1.5">
+                <PixelPlusIcon className="w-3.5 h-3.5" /> CREATE ROUTINE
+              </span>
+            </PixelButton>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* ========================================================= */}
       {/* 6. PREDEFINED SPLIT ROUTINES MATRIX */}
       {/* ========================================================= */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-extrabold text-white font-heading tracking-tight flex items-center gap-2">
-              <Layers className="w-5 h-5 text-indigo-400" />
-              Standard Split Routines
-            </h3>
-            <p className="text-xs text-slate-400 font-sans">
-              Choose a tactical routine to target primary muscle groups and build progressive power.
+      <div className="relative pixel-stone-slab p-5 sm:p-7 select-none space-y-5">
+        {/* Stone Masonry Corner Brackets */}
+        <div className="absolute top-1 left-1 w-3.5 h-3.5 border-t-2 border-l-2 border-[#f59e0b] pointer-events-none" />
+        <div className="absolute top-1 right-1 w-3.5 h-3.5 border-t-2 border-r-2 border-[#f59e0b] pointer-events-none" />
+        <div className="absolute bottom-1 left-1 w-3.5 h-3.5 border-b-2 border-l-2 border-[#f59e0b] pointer-events-none" />
+        <div className="absolute bottom-1 right-1 w-3.5 h-3.5 border-b-2 border-r-2 border-[#f59e0b] pointer-events-none" />
+
+        {/* Unified Section Header inside Main Box */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b-2 border-[#4a3830]">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 bg-[#140e0c] border border-[#4a3830] flex items-center justify-center text-[#f59e0b] shrink-0">
+                <PixelShieldIcon className="w-4 h-4 text-[#f59e0b]" />
+              </div>
+              <h2 className="font-pixel text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
+                Recommended Workout Splits
+              </h2>
+            </div>
+            <p className="font-sans text-xs text-stone-300 ml-10">
+              Choose a battle-tested routine to target specific muscle groups and build strength.
             </p>
           </div>
+
+          <PixelBadge variant="gold" size="sm" className="font-pixel text-[10px] tracking-wider uppercase shrink-0 self-start sm:self-auto">
+            {PREDEFINED_SPLITS.length} TRAINING SPLITS
+          </PixelBadge>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Split Cards Grid inside Main Box */}
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 list-none p-0 m-0">
           {PREDEFINED_SPLITS.map((split, i) => (
-            <div
+            <li
               key={i}
-              className={`p-5 rounded-[22px] bg-gradient-to-br ${split.accentColor} bg-[#080D1E]/90 border ${split.borderColor} ${split.glowColor} transition-all duration-300 flex flex-col justify-between group relative overflow-hidden backdrop-blur-xl`}
+              className="p-4 bg-[#140e0c] border-2 border-[#4a3830] hover:border-[#f59e0b]/70 transition-all flex flex-col justify-between relative select-none shadow-[inset_1px_1px_0_0_#2a1f1b]"
             >
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span
-                    className={`px-2 py-0.5 rounded-md border text-[9px] font-mono font-black uppercase ${split.badgeColor}`}
+                <div className="flex items-center justify-between mb-3 border-b border-[#4a3830] pb-2.5 gap-2">
+                  <PixelBadge
+                    variant={i === 0 ? "gold" : i === 1 ? "iron" : i === 2 ? "success" : "danger"}
+                    size="sm"
+                    className="font-sans font-bold text-[11px] px-2 py-0.5 tracking-wide uppercase whitespace-nowrap shrink-0"
+                    title={split.statGainFull}
                   >
                     {split.statGain}
-                  </span>
-                  <span className="text-[10px] font-mono text-slate-400">
-                    {split.exercises.length} Exercises
+                  </PixelBadge>
+                  <span className="font-pixel text-[10px] text-[#fde047] bg-[#241712] px-2 py-0.5 border border-[#5c4033] shrink-0 font-bold whitespace-nowrap">
+                    SPLIT {["I", "II", "III", "IV"][i]} • {split.exercises.length} EX
                   </span>
                 </div>
 
-                <h4 className="text-base font-extrabold font-heading text-white group-hover:text-cyan-300 transition-colors">
+                <h3 className="font-sans font-bold text-sm text-white">
                   {split.name}
-                </h4>
-                <p className="text-xs text-slate-300 font-sans mt-0.5">{split.target}</p>
+                </h3>
+                <p className="font-sans text-xs text-stone-400 mt-0.5">{split.target}</p>
 
-                <ul className="mt-4 space-y-1.5 text-xs text-slate-300 font-sans">
+                <ul className="mt-3.5 space-y-2">
                   {split.exercises.map((ex, idx) => (
-                    <li key={idx} className="truncate flex items-center gap-1.5">
-                      <span className="w-1 h-1 rounded-full bg-cyan-400/80" />
-                      <span>{ex.name}</span>
+                    <li key={idx} className="truncate flex items-center gap-2 font-sans font-semibold text-xs text-stone-200">
+                      <span className="w-1.5 h-1.5 bg-[#f59e0b] shrink-0" />
+                      <span className="truncate">{ex.name}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <button
+              <PixelButton
+                variant="gold"
+                size="sm"
                 disabled={isWorkoutActive}
                 onClick={() => handleStartTemplate(split.name, split.exercises)}
-                className="w-full mt-5 py-2.5 rounded-xl bg-slate-900/90 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 font-mono font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md disabled:opacity-40 active:scale-95"
+                className="w-full mt-4 text-xs"
               >
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Start Routine</span>
-              </button>
-            </div>
+                <PixelSwordIcon className="w-3.5 h-3.5 mr-1" />
+                <span>START WORKOUT</span>
+              </PixelButton>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
 
       {/* ========================================================= */}

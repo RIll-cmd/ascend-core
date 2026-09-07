@@ -2,21 +2,22 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  Play,
-  Pause,
-  RotateCcw,
-  SkipForward,
-  BookOpen,
-  Coffee,
-  Sparkles,
-  Flame,
-  Award,
-  Scroll,
-  Eye,
-  EyeOff,
-  Feather,
-  CheckCircle,
-} from "lucide-react";
+  PixelPlayIcon,
+  PixelPauseIcon,
+  PixelRefreshIcon,
+  PixelSkipForwardIcon,
+  PixelBookIcon,
+  PixelTeacupIcon,
+  PixelSparklesIcon,
+  PixelFlameIcon,
+  PixelAwardIcon,
+  PixelScrollIcon,
+  PixelEyeIcon,
+  PixelEyeOffIcon,
+  PixelQuillIcon,
+  PixelHourglassIcon,
+  PixelWaxSealIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { useLearningStore, PomodoroMode } from "../store/useLearningStore";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { PixelProgress } from "@/components/ui/pixel/PixelProgress";
@@ -802,7 +803,7 @@ function CitadelWaxSealStamp() {
         {/* Glowing Citadel Red Wax Seal */}
         <div className="w-18 h-18 bg-[#991b1b] border-4 border-[#7f1d1d] rounded-full flex items-center justify-center shadow-[0_0_24px_rgba(239,68,68,0.7),inset_2px_2px_0_#ef4444] animate-bounce">
           <div className="w-12 h-12 border-2 border-dashed border-[#fecaca] rounded-full flex items-center justify-center">
-            <span className="text-xl">📜</span>
+            <PixelWaxSealIcon className="w-7 h-7 text-[#fecaca]" />
           </div>
         </div>
 
@@ -920,7 +921,7 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
                 : "bg-[#251006] text-[#fde68a] border-[#542d17] hover:bg-[#3b190a] hover:text-white hover:border-[#8a4e1d]"
             )}
           >
-            <BookOpen className="w-4 h-4 text-[#d97706] shrink-0" />
+            <PixelBookIcon className="w-4 h-4 text-[#d97706] shrink-0" />
             <span>Scholar Focus</span>
             <span
               className={cn(
@@ -948,7 +949,7 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
                 : "bg-[#0f1f17] text-[#a7f3d0] border-[#1e3a2b] hover:bg-[#193326] hover:text-white hover:border-[#10b981]"
             )}
           >
-            <Coffee className="w-4 h-4 text-[#10b981] shrink-0" />
+            <PixelTeacupIcon className="w-4 h-4 text-[#10b981] shrink-0" />
             <span>Short Respite</span>
             <span
               className={cn(
@@ -976,7 +977,7 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
                 : "bg-[#1c0c29] text-[#e9d5ff] border-[#401a5c] hover:bg-[#2e1342] hover:text-white hover:border-[#a855f7]"
             )}
           >
-            <Sparkles className="w-4 h-4 text-[#a855f7] shrink-0" />
+            <PixelSparklesIcon className="w-4 h-4 text-[#a855f7] shrink-0" />
             <span>Grand Rest</span>
             <span
               className={cn(
@@ -1005,15 +1006,15 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
             title="Toggle Strict Archivist Sanctuary (Dim background distractions)"
           >
             {isArchivistMode ? (
-              <EyeOff className="w-4 h-4 text-black shrink-0" />
+              <PixelEyeOffIcon className="w-4 h-4 text-black shrink-0" />
             ) : (
-              <Eye className="w-4 h-4 text-[#fbbf24] shrink-0" />
+              <PixelEyeIcon className="w-4 h-4 text-[#fbbf24] shrink-0" />
             )}
             <span>{isArchivistMode ? "Archivist Active" : "Archivist Mode"}</span>
           </button>
 
           <div className="h-10 sm:h-11 px-3.5 inline-flex items-center gap-1.5 bg-[#251006] text-[#fef08a] border-2 border-[#542d17] text-xs sm:text-sm font-pixel font-bold shrink-0 shadow-[0_3px_0_0_#000] whitespace-nowrap">
-            <Flame className="w-4 h-4 text-[#f59e0b] shrink-0" />
+            <PixelFlameIcon className="w-4 h-4 text-[#f59e0b] shrink-0" />
             <span><NumberTicker value={completedCycles} /> Rites</span>
           </div>
         </div>
@@ -1067,25 +1068,27 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
                   type="button"
                   onClick={() => setChronometerType("CANDLE")}
                   className={cn(
-                    "px-3 py-1 text-xs font-pixel font-bold border transition-colors cursor-pointer shadow-[0_1px_0_0_#000]",
+                    "px-3 py-1 text-xs font-pixel font-bold border transition-colors cursor-pointer shadow-[0_1px_0_0_#000] inline-flex items-center gap-1.5",
                     chronometerType === "CANDLE"
                       ? "bg-[#854d0e] text-[#fef08a] border-[#b45309]"
                       : "bg-[#dfca9f] text-[#5c2f10] border-[#9c693b]/60 hover:bg-[#caa97e]"
                   )}
                 >
-                  🕯️ Candle
+                  <PixelFlameIcon className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Candle</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setChronometerType("HOURGLASS")}
                   className={cn(
-                    "px-3 py-1 text-xs font-pixel font-bold border transition-colors cursor-pointer shadow-[0_1px_0_0_#000]",
+                    "px-3 py-1 text-xs font-pixel font-bold border transition-colors cursor-pointer shadow-[0_1px_0_0_#000] inline-flex items-center gap-1.5",
                     chronometerType === "HOURGLASS"
                       ? "bg-[#854d0e] text-[#fef08a] border-[#b45309]"
                       : "bg-[#dfca9f] text-[#5c2f10] border-[#9c693b]/60 hover:bg-[#caa97e]"
                   )}
                 >
-                  ⏳ Hourglass
+                  <PixelHourglassIcon className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Hourglass</span>
                 </button>
               </div>
 
@@ -1125,8 +1128,8 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
             {/* Altar Motto Ribbon */}
             <div className="w-full text-center py-2 px-2 bg-[#dfca9f]/80 border-t border-[#9c693b]/40 text-xs font-pixel text-[#5c2f10] font-bold">
               {status === "RUNNING"
-                ? "🔥 Flame Illuminates the Mind"
-                : "🕯️ Inscribe Rite to Ignite Focus"}
+                ? "Flame Illuminates the Mind"
+                : "Inscribe Rite to Ignite Focus"}
             </div>
           </div>
 
@@ -1156,7 +1159,7 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
                   </span>
                   <span className="text-xs sm:text-sm font-sans font-bold text-[#78350f] block mt-0.5">
                     {activeTome
-                      ? `📖 Bound Study Tome: "${activeTome.title}"`
+                      ? `Bound Study Tome: "${activeTome.title}"`
                       : linkedHabitName
                       ? `Inscribed to Quest: "${linkedHabitName}"`
                       : sessionIntent
@@ -1185,7 +1188,7 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
               <div className="text-xs sm:text-sm font-sans font-bold text-[#78350f]">
                 {status === "RUNNING" ? (
                   <span className="text-[#047857] flex items-center gap-1.5 justify-center">
-                    <Feather className="w-4 h-4 animate-bounce" /> Deep Scribing State Active
+                    <PixelQuillIcon className="w-4 h-4 text-[#10b981] drop-shadow-[0_0_6px_rgba(16,185,129,0.7)] animate-bounce" /> Deep Scribing State Active
                   </span>
                 ) : status === "PAUSED" ? (
                   <span className="text-[#b45309]">Scribe Rite Paused • Quill at Rest</span>
@@ -1216,10 +1219,10 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
                   playUIMenuSFX("confirm");
                   resetTimer();
                 }}
-                className="w-12 h-12 flex items-center justify-center cursor-pointer shadow-[0_3px_0_0_#000]"
+                className="w-12 h-12 flex items-center justify-center cursor-pointer shadow-[0_3px_0_0_#000] group"
                 title="Reset Scribe Rite"
               >
-                <RotateCcw className="w-5 h-5 text-[#fbbf24]" />
+                <PixelRefreshIcon className="w-5 h-5 text-[#fbbf24] group-hover:text-[#ef4444] transition-colors" />
               </PixelButton>
 
               {/* Main Play / Pause Button */}
@@ -1231,7 +1234,7 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
                   onClick={pauseTimer}
                   className="flex-1 h-13 text-sm sm:text-base font-pixel font-bold tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-[0_3px_0_0_#000]"
                 >
-                  <Pause className="w-5 h-5 fill-current" />
+                  <PixelPauseIcon className="w-5 h-5 fill-current" />
                   Pause Scribe Rite
                 </PixelButton>
               ) : (
@@ -1246,7 +1249,7 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
                   }}
                   className="flex-1 h-13 text-sm sm:text-base font-pixel font-bold tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-[0_3px_0_0_#000]"
                 >
-                  <Play className="w-5 h-5 fill-current" />
+                  <PixelPlayIcon className="w-5 h-5 fill-current" />
                   {status === "PAUSED" ? "Resume Scribe Rite" : "Begin Scribe Rite"}
                 </PixelButton>
               )}
@@ -1260,10 +1263,10 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
                   playUIMenuSFX("confirm");
                   skipTimer();
                 }}
-                className="w-12 h-12 flex items-center justify-center cursor-pointer shadow-[0_3px_0_0_#000]"
+                className="w-12 h-12 flex items-center justify-center cursor-pointer shadow-[0_3px_0_0_#000] group"
                 title="Skip to Next Phase"
               >
-                <SkipForward className="w-5 h-5 text-[#fbbf24]" />
+                <PixelSkipForwardIcon className="w-5 h-5 text-[#fbbf24] group-hover:text-white transition-colors" />
               </PixelButton>
             </div>
 
@@ -1271,7 +1274,7 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
             {!isArchivistMode && (
               <div className="pt-3 border-t border-[#9c693b]/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 font-pixel text-xs sm:text-sm text-[#3a1d0b]">
                 <div className="flex items-center gap-1.5 font-bold text-[#78350f]">
-                  <Award className="w-4 h-4 text-[#d97706]" />
+                  <PixelAwardIcon className="w-4 h-4 text-[#d97706]" />
                   <span>Citadel Scribe Bounty:</span>
                 </div>
                 <div className="flex items-center gap-3.5 font-bold font-mono text-xs sm:text-sm flex-wrap">

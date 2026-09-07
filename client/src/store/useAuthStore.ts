@@ -60,6 +60,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   hydrateAuth: () => {
     if (typeof window === "undefined") return;
+    if (get().isHydrated || get().isLoading) return;
+
     const initialUser = getStoredUser();
     const initialToken = getStoredToken();
     const hasAuth = !!(initialUser || initialToken);
@@ -67,7 +69,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       user: initialUser,
       token: initialToken,
       isAuthenticated: hasAuth,
-      isHydrated: true,
+      isHydrated: !hasAuth,
+      isLoading: hasAuth,
     });
     if (hasAuth) {
       get().checkAuth();
@@ -143,13 +146,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           } catch {}
         }
       } else {
-        const cachedUser = getStoredUser();
-        const cachedToken = getStoredToken();
-        if (!cachedUser && !cachedToken) {
-          set({ user: null, token: null, isAuthenticated: false, isLoading: false, isHydrated: true });
-        } else {
-          set({ isLoading: false, isHydrated: true });
-        }
+        set({ user: null, token: null, isAuthenticated: false, isLoading: false, isHydrated: true });
+        clearCookie();
+        try {
+          localStorage.removeItem("ascend_session");
+          localStorage.removeItem("ascend_user");
+        } catch {}
       }
     } catch {
       const cachedUser = getStoredUser();
@@ -157,7 +159,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (!cachedUser && !cachedToken) {
         set({ user: null, token: null, isAuthenticated: false, isLoading: false, isHydrated: true });
       } else {
-        set({ isLoading: false, isHydrated: true });
+        set({ isLoading: false, isHydrated: true, isAuthenticated: true });
       }
     }
   },

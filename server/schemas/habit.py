@@ -2,6 +2,21 @@ from enum import Enum
 from typing import Optional, Literal, List
 from pydantic import BaseModel, Field
 
+class HabitType(str, Enum):
+    POSITIVE = "POSITIVE"
+    NEGATIVE = "NEGATIVE"
+
+class PenaltyTarget(str, Enum):
+    HP = "HP"
+    EXP = "EXP"
+    VITALITY = "VITALITY"
+    DISCIPLINE = "DISCIPLINE"
+    STRENGTH = "STRENGTH"
+    KNOWLEDGE = "KNOWLEDGE"
+    FOCUS = "FOCUS"
+    RECOVERY = "RECOVERY"
+    CONSISTENCY = "CONSISTENCY"
+
 class HabitStatus(str, Enum):
     ACTIVE = "ACTIVE"
     PAUSED = "PAUSED"
@@ -53,6 +68,9 @@ class HabitCreateSchema(BaseModel):
     scheduleType: ScheduleType = Field(ScheduleType.DAILY)
     rrule: Optional[str] = None
     preferredTime: Optional[str] = None
+    type: HabitType = HabitType.POSITIVE
+    affectedStat: PenaltyTarget = PenaltyTarget.HP
+    statModifier: int = Field(10, ge=1, le=100000)
     
     schedule: Optional[HabitScheduleCreateSchema] = None
     tiers: List[HabitTierCreateSchema] = Field(default_factory=list)
@@ -76,6 +94,9 @@ class HabitUpdateSchema(BaseModel):
     scheduleType: Optional[ScheduleType] = None
     rrule: Optional[str] = None
     preferredTime: Optional[str] = None
+    type: Optional[HabitType] = None
+    affectedStat: Optional[PenaltyTarget] = None
+    statModifier: Optional[int] = Field(None, ge=1, le=100000)
     schedule: Optional[HabitScheduleCreateSchema] = None
     tiers: Optional[List[HabitTierCreateSchema]] = None
 
@@ -83,5 +104,4 @@ class HabitLogSchema(BaseModel):
     completionType: Tier = Field(Tier.NORMAL)
     targetValue: Optional[float] = None
     notes: Optional[str] = None
-
 

@@ -7,6 +7,7 @@ import {
   OctagonX,
   TriangleAlert,
 } from "lucide-react";
+import { useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Toaster as Sonner } from "sonner";
 
@@ -14,6 +15,21 @@ type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
+
+  useEffect(() => {
+    // Remove layout-transition (height) from Sonner's injected style tag to adhere to Web Interface Guidelines
+    const sanitizeSonnerStyle = () => {
+      document.querySelectorAll("style").forEach((st) => {
+        if (st.textContent && st.textContent.includes("[data-sonner-toaster]") && st.textContent.includes("height .4s")) {
+          st.textContent = st.textContent.replace(/height\s*\.4s,?/g, "");
+        }
+      });
+    };
+    sanitizeSonnerStyle();
+    const observer = new MutationObserver(sanitizeSonnerStyle);
+    observer.observe(document.head, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div suppressHydrationWarning>

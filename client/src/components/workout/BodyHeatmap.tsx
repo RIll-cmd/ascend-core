@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   MuscleGroupKey,
@@ -26,8 +26,23 @@ import {
   CheckCircle2,
   TrendingUp,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { PixelButton } from "@/components/ui/pixel/PixelButton";
+import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
+import { PixelProgress } from "@/components/ui/pixel/PixelProgress";
+import {
+  PixelActivityIcon,
+  PixelSwordIcon,
+  PixelShieldIcon,
+  PixelSkullIcon,
+  PixelLaurelWreathIcon,
+  PixelInfoIcon,
+  PixelHistoryIcon,
+  PixelDumbbellIcon,
+  PixelChevronLeftIcon,
+  PixelChevronRightIcon,
+  PixelFlameIcon,
+  PixelLightningIcon,
+} from "@/components/ui/pixel/PixelIcons";
 
 interface BodyHeatmapProps {
   recoveryStatus?: MuscleRecoveryStatusResponse | null;
@@ -111,23 +126,24 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
     );
   };
 
-  // Color mapper based on dynamic freshness
+  // Color mapper based on Iron Colosseum 16-bit rules
   const getMuscleFill = (key: MuscleGroupKey, isHovered: boolean, isSelected: boolean) => {
     const data = getMuscleData(key);
     const f = data.freshness;
 
-    let baseColor = "#06b6d4"; // 100% fresh default cyan
-    let glowColor = "rgba(6,182,212,0.4)";
+    // 16-bit RPG Palette:
+    // Fresh (>=80%): Emerald Gladiator Green (#22c55e)
+    // Recovering (40%-79%): Molten Arena Gold (#f59e0b)
+    // Fatigued (<40%): Colosseum Blood Crimson (#ef4444)
+    let baseColor = "#22c55e";
+    let edgeStroke = "#0c2615";
 
     if (f < 40) {
-      baseColor = "#ef4444"; // Fatigued Red
-      glowColor = "rgba(239,68,68,0.6)";
+      baseColor = "#ef4444"; // Blood Crimson
+      edgeStroke = "#2b0a0a";
     } else if (f < 80) {
-      baseColor = "#f59e0b"; // Recovering Amber
-      glowColor = "rgba(245,158,11,0.5)";
-    } else {
-      baseColor = "#06b6d4"; // Fresh Cyan
-      glowColor = "rgba(6,182,212,0.5)";
+      baseColor = "#f59e0b"; // Molten Amber
+      edgeStroke = "#3a2408";
     }
 
     if (isSelected) {
@@ -135,25 +151,24 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
         fill: baseColor,
         stroke: "#ffffff",
         strokeWidth: 2.5,
-        filter: "drop-shadow(0 0 8px rgba(255,255,255,0.8))",
+        filter: "drop-shadow(0 0 6px #ffffff)",
       };
     }
 
     if (isHovered) {
       return {
         fill: baseColor,
-        stroke: "#38bdf8",
-        strokeWidth: 2.0,
-        filter: `drop-shadow(0 0 10px ${glowColor})`,
+        stroke: "#fde047",
+        strokeWidth: 2.2,
+        filter: "drop-shadow(0 0 8px #f59e0b)",
       };
     }
 
     return {
       fill: baseColor,
-      fillOpacity: 0.85,
-      stroke: "#0f172a",
-      strokeWidth: 1.2,
-      filter: f < 40 ? `drop-shadow(0 0 6px ${glowColor})` : undefined,
+      fillOpacity: 0.92,
+      stroke: edgeStroke,
+      strokeWidth: 1.4,
     };
   };
 
@@ -186,45 +201,38 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
   const renderFrontSilhouette = () => (
     <svg
       viewBox="0 0 240 400"
-      className="w-full h-auto max-h-[390px] select-none transition-all duration-300 drop-shadow-2xl"
+      className="w-full h-auto max-h-[390px] select-none transition-all duration-300 drop-shadow-[0_8px_16px_rgba(0,0,0,0.8)]"
+      style={{ imageRendering: "pixelated" }}
     >
       <defs>
-        <filter id="neon-glow-cyan" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="3.5" result="blur" />
-          <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#06b6d4" floodOpacity="0.8" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-        <filter id="neon-glow-amber" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="3.5" result="blur" />
-          <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#f59e0b" floodOpacity="0.8" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-        <filter id="neon-glow-red" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="3.5" result="blur" />
-          <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#f43f5e" floodOpacity="0.8" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
+        {/* 16-Bit Pixel Grid Matrix */}
+        <pattern id="pixel-grid-front" width="4" height="4" patternUnits="userSpaceOnUse">
+          <rect width="4" height="4" fill="none" stroke="#000000" strokeWidth="0.8" strokeOpacity="0.45" />
+        </pattern>
+        {/* Retro 8-Bit Stone Training Dummy Dither */}
+        <pattern id="pixel-dither-front" width="8" height="8" patternUnits="userSpaceOnUse">
+          <rect x="0" y="0" width="2" height="2" fill="rgba(245,158,11,0.08)" />
+          <rect x="4" y="4" width="2" height="2" fill="rgba(245,158,11,0.08)" />
+        </pattern>
       </defs>
 
-      {/* Organic Anatomical Background Silhouette Layer */}
-      <g className="fill-[#090e1d] stroke-[#1e293b] stroke-[1.2]">
+      {/* 8-Bit Stone Training Manikin Silhouette Layer */}
+      <g className="fill-[#1c1412] stroke-[#4a3830] stroke-[2]" shapeRendering="crispEdges">
         {/* Head & Cranium */}
         <path d="M120 14 C110 14 104 22 104 34 C104 46 111 54 120 54 C129 54 136 46 136 34 C136 22 130 14 120 14 Z" />
         {/* Neck, Torso & Athletic Body Outer Outline */}
         <path d="M112 52 C104 60 92 68 76 74 C62 80 52 94 50 110 C48 126 50 146 44 162 C38 178 34 204 36 222 C37 232 45 236 52 234 C58 226 62 208 66 188 C70 172 74 154 78 136 C80 152 82 180 84 200 C86 210 92 216 98 218 C88 228 80 248 78 270 C76 290 80 306 86 312 C82 322 80 340 82 358 C84 374 90 384 98 386 C104 386 108 376 108 360 C108 340 106 322 104 314 C108 306 112 290 114 274 C116 256 118 238 120 226 C122 238 124 256 126 274 C128 290 132 306 136 314 C134 322 132 340 132 360 C132 376 136 386 142 386 C150 384 156 374 158 358 C160 340 158 322 154 312 C160 306 164 290 162 270 C160 248 152 228 142 218 C148 216 154 210 156 200 C158 180 160 152 162 136 C166 154 170 172 174 188 C178 208 182 226 188 234 C195 236 203 232 204 222 C206 204 202 178 196 162 C190 146 192 126 190 110 C188 94 178 80 164 74 C148 68 136 60 128 52 Z" />
+        {/* Stone Puppet Articulation Joint Seams */}
+        <line x1="110" y1="52" x2="130" y2="52" stroke="#5c4033" strokeWidth="2" />
+        <line x1="72" y1="134" x2="84" y2="134" stroke="#5c4033" strokeWidth="2" />
+        <line x1="156" y1="134" x2="168" y2="134" stroke="#5c4033" strokeWidth="2" />
+        <line x1="102" y1="216" x2="138" y2="216" stroke="#5c4033" strokeWidth="2" />
+        <line x1="84" y1="308" x2="104" y2="308" stroke="#5c4033" strokeWidth="2" />
+        <line x1="136" y1="308" x2="156" y2="308" stroke="#5c4033" strokeWidth="2" />
       </g>
 
       {/* Discrete Organic Anatomical Muscle Paths (Front View) */}
-      <g id="muscles_front">
+      <g id="muscles_front" shapeRendering="crispEdges">
         {/* CHEST (Pectoralis Major & Minor) */}
         <path
           id="chest_left"
@@ -366,35 +374,48 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
           {...getPathProps("CALVES")}
         />
       </g>
+
+      {/* 16-Bit Pixel Matrix & Stone Dither Overlay */}
+      <rect width="240" height="400" fill="url(#pixel-grid-front)" pointerEvents="none" />
+      <rect width="240" height="400" fill="url(#pixel-dither-front)" pointerEvents="none" />
     </svg>
   );
 
   const renderBackSilhouette = () => (
     <svg
       viewBox="0 0 240 400"
-      className="w-full h-auto max-h-[390px] select-none transition-all duration-300 drop-shadow-2xl"
+      className="w-full h-auto max-h-[390px] select-none transition-all duration-300 drop-shadow-[0_8px_16px_rgba(0,0,0,0.8)]"
+      style={{ imageRendering: "pixelated" }}
     >
       <defs>
-        <filter id="neon-glow-cyan-back" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="3.5" result="blur" />
-          <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#06b6d4" floodOpacity="0.8" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
+        {/* 16-Bit Pixel Grid Matrix */}
+        <pattern id="pixel-grid-back" width="4" height="4" patternUnits="userSpaceOnUse">
+          <rect width="4" height="4" fill="none" stroke="#000000" strokeWidth="0.8" strokeOpacity="0.45" />
+        </pattern>
+        {/* Retro 8-Bit Stone Training Dummy Dither */}
+        <pattern id="pixel-dither-back" width="8" height="8" patternUnits="userSpaceOnUse">
+          <rect x="0" y="0" width="2" height="2" fill="rgba(245,158,11,0.08)" />
+          <rect x="4" y="4" width="2" height="2" fill="rgba(245,158,11,0.08)" />
+        </pattern>
       </defs>
 
-      {/* Organic Anatomical Background Silhouette Layer (Posterior) */}
-      <g className="fill-[#090e1d] stroke-[#1e293b] stroke-[1.2]">
+      {/* 8-Bit Stone Training Manikin Silhouette Layer (Posterior) */}
+      <g className="fill-[#1c1412] stroke-[#4a3830] stroke-[2]" shapeRendering="crispEdges">
         {/* Head & Occipital Bone */}
         <path d="M120 14 C110 14 104 22 104 34 C104 46 111 54 120 54 C129 54 136 46 136 34 C136 22 130 14 120 14 Z" />
         {/* Posterior Athletic Body Outer Outline */}
         <path d="M112 52 C104 60 92 68 76 74 C62 80 52 94 50 110 C48 126 50 146 44 162 C38 178 34 204 36 222 C37 232 45 236 52 234 C58 226 62 208 66 188 C70 172 74 154 78 136 C80 152 82 180 84 200 C86 210 92 216 98 218 C88 228 80 248 78 270 C76 290 80 306 86 312 C82 322 80 340 82 358 C84 374 90 384 98 386 C104 386 108 376 108 360 C108 340 106 322 104 314 C108 306 112 290 114 274 C116 256 118 238 120 226 C122 238 124 256 126 274 C128 290 132 306 136 314 C134 322 132 340 132 360 C132 376 136 386 142 386 C150 384 156 374 158 358 C160 340 158 322 154 312 C160 306 164 290 162 270 C160 248 152 228 142 218 C148 216 154 210 156 200 C158 180 160 152 162 136 C166 154 170 172 174 188 C178 208 182 226 188 234 C195 236 203 232 204 222 C206 204 202 178 196 162 C190 146 192 126 190 110 C188 94 178 80 164 74 C148 68 136 60 128 52 Z" />
+        {/* Posterior Stone Puppet Articulation Joint Seams */}
+        <line x1="110" y1="52" x2="130" y2="52" stroke="#5c4033" strokeWidth="2" />
+        <line x1="72" y1="134" x2="84" y2="134" stroke="#5c4033" strokeWidth="2" />
+        <line x1="156" y1="134" x2="168" y2="134" stroke="#5c4033" strokeWidth="2" />
+        <line x1="102" y1="216" x2="138" y2="216" stroke="#5c4033" strokeWidth="2" />
+        <line x1="84" y1="308" x2="104" y2="308" stroke="#5c4033" strokeWidth="2" />
+        <line x1="136" y1="308" x2="156" y2="308" stroke="#5c4033" strokeWidth="2" />
       </g>
 
       {/* Discrete Interactive Muscle Paths (Back View) */}
-      <g id="muscles_back">
+      <g id="muscles_back" shapeRendering="crispEdges">
         {/* TRAPS (Upper & Mid Back Kite Diamond) */}
         <path
           id="traps_back"
@@ -486,6 +507,10 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
           {...getPathProps("CALVES")}
         />
       </g>
+
+      {/* 16-Bit Pixel Matrix & Stone Dither Overlay */}
+      <rect width="240" height="400" fill="url(#pixel-grid-back)" pointerEvents="none" />
+      <rect width="240" height="400" fill="url(#pixel-dither-back)" pointerEvents="none" />
     </svg>
   );
 
@@ -513,66 +538,57 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
 
   return (
     <div
-      className={`relative rounded-3xl bg-gradient-to-br from-[#0B1020]/95 via-[#070C18]/95 to-[#040710]/98 border-2 border-cyan-500/30 p-5 sm:p-6 shadow-2xl overflow-hidden backdrop-blur-xl ${className}`}
+      className={`relative pixel-stone-slab p-5 sm:p-6 select-none ${className}`}
     >
-      {/* Background Cyber Ambient Radiance */}
-      <div className="absolute -top-20 -left-20 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
       {/* Header & View Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-cyan-500/20 pb-4 relative z-10">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded-md bg-cyan-950/80 text-cyan-400 border border-cyan-500/40 text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1">
-              <Activity className="w-3 h-3 text-cyan-400" />
-              BIO-METRIC SCANNER
-            </span>
-            <span className="text-xs text-slate-400 font-mono font-bold">
-              SYSTEM FRESHNESS:{" "}
-              <span className="text-cyan-300 font-black">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-[#4a3830] pb-4 relative z-10">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h2 className="font-pixel text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
+              Anatomical Recovery & Exercise Guide
+            </h2>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#140e0c] border border-[#4a3830] text-[11px] font-pixel text-[#f59e0b]">
+              <span>OVERALL:</span>
+              <span className="font-pixel-chunky text-sm text-white tabular-nums">
                 {recoveryStatus?.summary.overallFreshness ?? 100}%
               </span>
-            </span>
+            </div>
           </div>
-          <h3 className="text-lg sm:text-xl font-black font-heading text-white tracking-tight mt-1">
-            Anatomical Muscle Heatmap & Workout Recommender
-          </h3>
+          <p className="font-sans text-xs text-stone-300 font-medium">
+            Interactive biomechanical load map • Select any muscle group to inspect recovery status
+          </p>
         </div>
 
         {/* View Switcher Controls */}
         {allowToggleView && variant !== "compact" && (
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-950/80 border border-cyan-500/30">
-            <button
-              onClick={() => setActiveView("dual")}
-              className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                activeView === "dual"
-                  ? "bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.4)]"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              DUAL VIEW
-            </button>
-            <button
-              onClick={() => setActiveView("front")}
-              className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                activeView === "front"
-                  ? "bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.4)]"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              FRONT
-            </button>
-            <button
-              onClick={() => setActiveView("back")}
-              className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                activeView === "back"
-                  ? "bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.4)]"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              BACK
-            </button>
-          </div>
+          <nav className="flex items-center gap-1.5 bg-[#140e0c] p-1 border-2 border-[#4a3830]">
+            {(["dual", "front", "back"] as const).map((view) => (
+              <PixelButton
+                key={view}
+                variant={activeView === view ? "gold" : "iron"}
+                size="sm"
+                onClick={() => setActiveView(view)}
+                className="text-[11px] min-h-[28px] px-2.5 py-1 uppercase"
+              >
+                {view === "dual" ? (
+                  <span className="flex items-center gap-1.5">
+                    <PixelSwordIcon className="w-3.5 h-3.5 text-[#fde047]" />
+                    FRONT & BACK
+                  </span>
+                ) : view === "front" ? (
+                  <span className="flex items-center gap-1.5">
+                    <PixelChevronLeftIcon className="w-3 h-3 text-stone-400" />
+                    FRONT VIEW
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <PixelChevronRightIcon className="w-3 h-3 text-stone-400" />
+                    BACK VIEW
+                  </span>
+                )}
+              </PixelButton>
+            ))}
+          </nav>
         )}
       </div>
 
@@ -590,8 +606,8 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
         >
           {(activeView === "front" || activeView === "dual") && (
             <div className="flex-1 flex flex-col items-center">
-              <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest mb-1">
-                ANTERIOR (FRONT)
+              <span className="font-pixel text-xs text-[#f59e0b] uppercase tracking-widest mb-1.5 font-bold">
+                FRONT VIEW
               </span>
               <div className="w-full max-w-[220px]">{renderFrontSilhouette()}</div>
             </div>
@@ -599,8 +615,8 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
 
           {(activeView === "back" || activeView === "dual") && (
             <div className="flex-1 flex flex-col items-center">
-              <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest mb-1">
-                POSTERIOR (BACK)
+              <span className="font-pixel text-xs text-[#f59e0b] uppercase tracking-widest mb-1.5 font-bold">
+                BACK VIEW
               </span>
               <div className="w-full max-w-[220px]">{renderBackSilhouette()}</div>
             </div>
@@ -610,114 +626,114 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
         {/* Live Muscle Inspector HUD Card (Desktop / Full View) */}
         {variant !== "compact" && (
           <div
-            className={`flex flex-col space-y-4 rounded-2xl bg-black/40 border border-cyan-500/25 p-5 shadow-xl ${
+            className={`bg-[#140e0c]/90 p-4 sm:p-5 flex flex-col space-y-4 relative ${
               activeView === "dual" ? "lg:col-span-5" : "lg:col-span-6"
             }`}
           >
             {/* Header info */}
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-widest flex items-center gap-1">
-                  <Info className="w-3 h-3 text-cyan-400" />
-                  TARGET GROUP INSPECTOR
+                <span className="font-pixel text-[11px] text-[#f59e0b] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <PixelInfoIcon className="w-3.5 h-3.5 text-[#f59e0b]" />
+                  SELECTED MUSCLE
                 </span>
-                <Badge
-                  className={`text-[9px] font-mono font-bold uppercase px-2 py-0.5 ${
+                <PixelBadge
+                  variant={
                     focusedData.status === "FATIGUED"
-                      ? "bg-red-950 text-red-300 border-red-500/40"
+                      ? "danger"
                       : focusedData.status === "RECOVERING"
-                      ? "bg-amber-950 text-amber-300 border-amber-500/40"
-                      : "bg-cyan-950 text-cyan-300 border-cyan-500/40"
-                  }`}
+                      ? "warning"
+                      : "success"
+                  }
+                  size="sm"
                 >
-                  {focusedData.status} ({Math.round(focusedData.freshness)}%)
-                </Badge>
+                  {focusedData.status === "FATIGUED"
+                    ? "REST RECOMMENDED"
+                    : focusedData.status === "RECOVERING"
+                    ? "RECOVERING"
+                    : "READY TO TRAIN"}{" "}
+                  ({Math.round(focusedData.freshness)}%)
+                </PixelBadge>
               </div>
 
-              <h4 className="text-xl font-black font-heading text-white tracking-wide mt-1">
+              <h3 className="font-sans font-extrabold text-base sm:text-lg text-white tracking-tight mt-1.5">
                 {focusedGuide.name}
-              </h4>
-              <span className="text-xs text-slate-400 font-mono">
+              </h3>
+              <span className="font-sans font-medium text-xs text-amber-300/90 block mt-0.5">
                 {focusedGuide.anatomicalName} • {focusedGuide.category}
               </span>
             </div>
 
             {/* Inspector Navigation Tabs */}
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-950/80 border border-slate-800 text-xs font-mono">
-              <button
+            <nav className="flex items-center gap-1 bg-[#140e0c] p-1 border-2 border-[#4a3830]">
+              <PixelButton
+                variant={inspectorTab === "telemetry" ? "gold" : "iron"}
+                size="sm"
                 onClick={() => setInspectorTab("telemetry")}
-                className={`flex-1 py-1 px-2 rounded-lg text-center font-bold transition-all ${
-                  inspectorTab === "telemetry"
-                    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
-                    : "text-slate-400 hover:text-white"
-                }`}
+                className="flex-1 text-[11px] font-sans font-bold min-h-[28px] py-1 px-1 tracking-wider"
               >
-                Telemetry
-              </button>
-              <button
+                RECOVERY
+              </PixelButton>
+              <PixelButton
+                variant={inspectorTab === "exercises" ? "gold" : "iron"}
+                size="sm"
                 onClick={() => setInspectorTab("exercises")}
-                className={`flex-1 py-1 px-2 rounded-lg text-center font-bold transition-all ${
-                  inspectorTab === "exercises"
-                    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
-                    : "text-slate-400 hover:text-white"
-                }`}
+                className="flex-1 text-[11px] font-sans font-bold min-h-[28px] py-1 px-1 tracking-wider"
               >
-                Exercises
-              </button>
-              <button
+                EXERCISES
+              </PixelButton>
+              <PixelButton
+                variant={inspectorTab === "cues" ? "gold" : "iron"}
+                size="sm"
                 onClick={() => setInspectorTab("cues")}
-                className={`flex-1 py-1 px-2 rounded-lg text-center font-bold transition-all ${
-                  inspectorTab === "cues"
-                    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
-                    : "text-slate-400 hover:text-white"
-                }`}
+                className="flex-1 text-[11px] font-sans font-bold min-h-[28px] py-1 px-1 tracking-wider"
               >
-                Form Cues
-              </button>
-            </div>
+                TECHNIQUE TIPS
+              </PixelButton>
+            </nav>
 
             {/* Dynamic Inspector Tab Contents */}
             {inspectorTab === "telemetry" && (
               <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-slate-300">Freshness Rating:</span>
-                  <span className="text-cyan-300 font-black text-sm">
+                <div className="flex items-center justify-between font-sans text-xs">
+                  <span className="text-stone-300 font-bold uppercase tracking-wider">RECOVERY LEVEL:</span>
+                  <span className="font-pixel-chunky text-base text-[#f59e0b] tabular-nums font-bold">
                     {Math.round(focusedData.freshness)}%
                   </span>
                 </div>
-                <div className="w-full h-3 rounded-full bg-slate-900 border border-slate-700 overflow-hidden relative">
-                  <div
-                    className={`h-full transition-all duration-500 rounded-full ${
-                      focusedData.freshness < 40
-                        ? "bg-gradient-to-r from-red-600 to-rose-500 shadow-[0_0_12px_rgba(239,68,68,0.8)]"
-                        : focusedData.freshness < 80
-                        ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_0_12px_rgba(245,158,11,0.8)]"
-                        : "bg-gradient-to-r from-cyan-500 to-teal-400 shadow-[0_0_12px_rgba(6,182,212,0.8)]"
-                    }`}
-                    style={{ width: `${Math.max(5, focusedData.freshness)}%` }}
-                  />
-                </div>
+                <PixelProgress
+                  value={focusedData.freshness}
+                  max={100}
+                  variant={
+                    focusedData.freshness < 40
+                      ? "danger"
+                      : focusedData.freshness < 80
+                      ? "warning"
+                      : "success"
+                  }
+                  height="md"
+                />
 
                 {/* Recovery Countdown Box */}
-                <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-500/20 text-xs font-mono space-y-1">
-                  <div className="flex items-center justify-between text-slate-400">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-cyan-400" />
-                      Recovery ETA:
+                <div className="py-2.5 px-1 border-y-2 border-[#4a3830] font-sans text-xs space-y-2 text-stone-300">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-stone-300 font-medium">
+                      <PixelHistoryIcon className="w-3.5 h-3.5 text-[#f59e0b]" />
+                      ESTIMATED RECOVERY TIME:
                     </span>
-                    <span className="text-white font-bold">
+                    <span className="text-white font-bold tabular-nums">
                       {formatTimeRemaining(focusedData.hoursRemaining)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-slate-400 text-[11px]">
-                    <span>Full Recovery Cycle:</span>
-                    <span className="text-cyan-300 font-bold">
-                      {focusedData.fullRecoveryHours} Hours
+                  <div className="flex items-center justify-between text-stone-400">
+                    <span>FULL RECOVERY TIME:</span>
+                    <span className="text-[#f59e0b] font-bold tabular-nums">
+                      {focusedData.fullRecoveryHours} HOURS
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-slate-400 text-[11px] pt-1 border-t border-white/5">
-                    <span>RPG Stat Growth:</span>
-                    <span className="text-emerald-400 font-bold">
+                  <div className="flex items-center justify-between pt-1.5 border-t border-[#3e2a22]">
+                    <span className="text-stone-400">TRAINING BENEFITS:</span>
+                    <span className="text-[#22c55e] font-bold uppercase">
                       {focusedGuide.statBonus}
                     </span>
                   </div>
@@ -726,74 +742,86 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
             )}
 
             {inspectorTab === "exercises" && (
-              <div className="space-y-2 max-h-56 overflow-y-auto custom-scrollbar pr-1 text-xs">
-                <span className="text-[10px] font-mono text-cyan-300 uppercase tracking-wider block font-bold">
-                  Recommended Exercises to Train & Improve:
-                </span>
+              <ul className="space-y-2 max-h-56 overflow-y-auto custom-scrollbar pr-1 list-none p-0 m-0">
+                <li className="font-sans text-xs text-[#f59e0b] uppercase tracking-wider block font-bold">
+                  Recommended Exercises:
+                </li>
                 {focusedGuide.recommendedExercises.map((ex, idx) => (
-                  <div
+                  <li
                     key={idx}
-                    className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col gap-0.5"
+                    className="p-2.5 bg-[#140e0c] border border-[#4a3830] flex flex-col gap-1 list-none"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-white font-sans flex items-center gap-1.5">
-                        <Dumbbell className="w-3.5 h-3.5 text-cyan-400" />
-                        {ex.name}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-sans text-xs font-bold text-white flex items-center gap-1.5">
+                        <PixelDumbbellIcon className="w-3.5 h-3.5 text-[#f59e0b] shrink-0" />
+                        <span className="truncate">{ex.name}</span>
                       </span>
-                      <span className="text-[9.5px] font-mono text-cyan-400 bg-cyan-950/60 px-1.5 py-0.5 rounded">
+                      <span className="font-sans font-bold text-[11px] text-[#f59e0b] bg-[#241712] border border-[#4a3830] px-1.5 py-0.5 uppercase shrink-0">
                         {ex.type}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
-                      <span>{ex.setsReps}</span>
-                      <span className="text-slate-500 text-[10px] truncate max-w-[140px]">
+                    <div className="flex items-center justify-between font-sans text-xs text-stone-300">
+                      <span className="tabular-nums font-semibold text-amber-200">{ex.setsReps}</span>
+                      <span className="text-stone-400 truncate max-w-[150px]">
                         {ex.benefit}
                       </span>
                     </div>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
 
             {inspectorTab === "cues" && (
-              <div className="space-y-2 text-xs">
-                <span className="text-[10px] font-mono text-cyan-300 uppercase tracking-wider block font-bold">
-                  Actionable Biomechanical Cues:
+              <div className="space-y-2.5 font-sans text-xs">
+                <span className="text-[#f59e0b] uppercase tracking-wider block font-bold text-xs">
+                  Key Technique & Form Tips:
                 </span>
-                <ul className="space-y-1.5">
+                <ul className="space-y-2">
                   {focusedGuide.actionableCues.map((cue, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-[11.5px] text-slate-300 leading-relaxed">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
+                    <li key={idx} className="flex items-start gap-2 text-stone-200 leading-relaxed font-normal">
+                      <span className="w-1.5 h-1.5 bg-[#f59e0b] mt-1 shrink-0" />
                       <span>{cue}</span>
                     </li>
                   ))}
                 </ul>
-                <p className="text-[11px] text-purple-300 italic pt-1 border-t border-white/5">
+                <p className="text-xs text-amber-200/90 italic pt-2 border-t border-[#3e2a22] leading-relaxed">
                   &ldquo;{focusedGuide.recoveryLore}&rdquo;
                 </p>
               </div>
             )}
 
             {/* Quick Muscle Selector Pills */}
-            <div className="pt-2 border-t border-cyan-500/20">
-              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1.5">
-                Select Muscle to Analyze:
+            <div className="pt-2.5 border-t-2 border-[#4a3830]">
+              <span className="font-sans font-bold text-xs text-stone-300 uppercase tracking-wider block mb-2">
+                Select Muscle to Inspect:
               </span>
-              <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto pr-1">
+              <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1 custom-scrollbar">
                 {(Object.keys(CANONICAL_MUSCLES_LIST) as MuscleGroupKey[]).map((key) => {
                   const m = getMuscleData(key);
                   const isCur = currentFocusedKey === key;
+                  const isFresh = m.freshness >= 80;
+                  const isRecovering = m.freshness >= 40 && m.freshness < 80;
                   return (
                     <button
                       key={key}
                       onClick={() => handleMuscleClick(key)}
-                      className={`px-2 py-0.5 rounded text-[9.5px] font-mono transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-2.5 py-1 font-sans text-xs transition-all cursor-pointer ${
                         isCur
-                          ? "bg-cyan-500 text-slate-950 font-black shadow-md scale-105"
-                          : "bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800"
+                          ? "bg-[#2a1a12] text-amber-300 font-bold border-2 border-[#f59e0b] shadow-[inset_1px_1px_0_0_#fde047]"
+                          : "bg-[#140e0c] text-stone-300 hover:text-white hover:border-stone-500 border border-[#3e2a22]"
                       }`}
                     >
-                      {m.name.split(" ")[0]} ({Math.round(m.freshness)}%)
+                      <span
+                        className={`w-2 h-2 rounded-none border shrink-0 ${
+                          isFresh
+                            ? "bg-[#22c55e] border-[#4ade80] shadow-[0_0_4px_#22c55e]"
+                            : isRecovering
+                            ? "bg-[#f59e0b] border-[#fde047] shadow-[0_0_4px_#f59e0b]"
+                            : "bg-[#ef4444] border-[#f87171] shadow-[0_0_4px_#ef4444]"
+                        }`}
+                      />
+                      <span>{MUSCLE_SHORT_NAMES[key] || m.name}</span>
+                      <span className="text-[11px] opacity-75 font-mono">({Math.round(m.freshness)}%)</span>
                     </button>
                   );
                 })}
@@ -804,30 +832,28 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
       </div>
 
       {/* Heatmap Legend Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-cyan-500/20 text-xs font-mono relative z-10">
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t-2 border-[#4a3830] font-sans text-xs relative z-10">
         <div className="flex items-center gap-4 flex-wrap">
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.6)]" />
-            <span className="text-slate-300">80% - 100% Fresh (Prime Condition)</span>
+          <div className="flex items-center gap-2">
+            <span className="w-3.5 h-3.5 bg-[#22c55e] border border-black shadow-[inset_1px_1px_0_#4ade80]" />
+            <span className="text-stone-300 font-semibold uppercase text-xs">80% - 100% READY TO TRAIN</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.6)]" />
-            <span className="text-slate-300">40% - 79% Recovering</span>
+          <div className="flex items-center gap-2">
+            <span className="w-3.5 h-3.5 bg-[#f59e0b] border border-black shadow-[inset_1px_1px_0_#fde047]" />
+            <span className="text-stone-300 font-semibold uppercase text-xs">40% - 79% RECOVERING</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]" />
-            <span className="text-slate-300">0% - 39% Fatigued (Rest)</span>
+          <div className="flex items-center gap-2">
+            <span className="w-3.5 h-3.5 bg-[#ef4444] border border-black shadow-[inset_1px_1px_0_#f87171]" />
+            <span className="text-stone-300 font-semibold uppercase text-xs">0% - 39% REST RECOMMENDED</span>
           </div>
         </div>
 
-        <div className="text-[11px] text-slate-400 font-sans italic">
-          *Hover over any muscle for 1 second to view recommended workouts & recovery.
+        <div className="text-xs text-stone-400 italic">
+          *Hover over any muscle to view recovery status and recommended exercises.
         </div>
       </div>
 
-      {/* ========================================================= */}
-      {/* 4. 1-SECOND HOVER FLOATING PORTAL TOOLTIP (NO CUTS) */}
-      {/* ========================================================= */}
+      {/* 1-SECOND HOVER FLOATING PORTAL TOOLTIP */}
       {mounted && tooltipMuscle && hoverGuide && hoverData && typeof document !== "undefined" && createPortal(
         <div
           className="fixed z-[999999] pointer-events-none animate-in fade-in-0 zoom-in-95 duration-150"
@@ -837,49 +863,51 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
             width: `${tooltipWidth}px`,
           }}
         >
-          <div className="p-4 rounded-2xl bg-[#080E20]/98 border border-cyan-500/50 text-slate-100 shadow-[0_0_50px_rgba(0,0,0,0.95)] backdrop-blur-3xl font-sans text-left space-y-2.5">
+          <div className="pixel-stone-slab p-4 bg-[#18110e] border-2 border-[#5a463a] text-stone-100 shadow-[0_8px_24px_rgba(0,0,0,0.9)] space-y-2.5">
             {/* Header */}
-            <div className="flex items-start justify-between gap-2 border-b border-cyan-500/20 pb-2">
+            <div className="flex items-start justify-between gap-2 border-b-2 border-[#4a3830] pb-2">
               <div>
-                <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-cyan-400 bg-cyan-950/80 px-1.5 py-0.5 rounded">
+                <PixelBadge variant="gold" size="sm" className="font-sans font-bold text-[11px] px-1.5 py-0.5 uppercase">
                   {hoverGuide.category}
-                </span>
-                <h5 className="font-extrabold text-sm text-white font-heading mt-0.5">
+                </PixelBadge>
+                <h5 className="font-sans font-extrabold text-sm text-white mt-1">
                   {hoverGuide.name}
                 </h5>
-                <span className="text-[10px] text-slate-400 font-mono">
+                <span className="font-sans font-medium text-xs text-amber-300/90 block">
                   {hoverGuide.anatomicalName}
                 </span>
               </div>
-              <Badge
-                className={`text-[9px] font-mono font-bold uppercase px-2 py-0.5 ${
+              <PixelBadge
+                variant={
                   hoverData.status === "FATIGUED"
-                    ? "bg-red-950 text-red-300 border-red-500/40"
+                    ? "danger"
                     : hoverData.status === "RECOVERING"
-                    ? "bg-amber-950 text-amber-300 border-amber-500/40"
-                    : "bg-cyan-950 text-cyan-300 border-cyan-500/40"
-                }`}
+                    ? "warning"
+                    : "success"
+                }
+                size="sm"
+                className="font-sans font-bold text-[11px] px-1.5 py-0.5 uppercase shrink-0"
               >
-                {Math.round(hoverData.freshness)}% Fresh
-              </Badge>
+                {Math.round(hoverData.freshness)}% RECOVERED
+              </PixelBadge>
             </div>
 
             {/* Recommended Exercises to Improve */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-mono text-cyan-300 font-bold uppercase tracking-wider flex items-center gap-1">
-                <Dumbbell className="w-3 h-3 text-cyan-400" />
-                Recommended Workouts to Improve:
+              <span className="font-sans text-xs text-[#f59e0b] font-bold uppercase tracking-wider flex items-center gap-1">
+                <Dumbbell className="w-3 h-3 text-[#f59e0b]" />
+                RECOMMENDED EXERCISES:
               </span>
               <div className="space-y-1">
                 {hoverGuide.recommendedExercises.slice(0, 3).map((ex, idx) => (
                   <div
                     key={idx}
-                    className="p-1.5 px-2 rounded-lg bg-slate-900/90 border border-white/5 flex items-center justify-between text-[11px]"
+                    className="p-1.5 px-2 bg-[#140e0c] border border-[#3e2a22] flex items-center justify-between font-sans text-xs"
                   >
-                    <span className="font-bold text-white font-sans truncate max-w-[180px]">
+                    <span className="text-white font-medium truncate max-w-[190px]">
                       {ex.name}
                     </span>
-                    <span className="text-[10px] font-mono text-cyan-300">
+                    <span className="text-[#f59e0b] font-bold tabular-nums">
                       {ex.setsReps}
                     </span>
                   </div>
@@ -888,12 +916,12 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
             </div>
 
             {/* RPG Stat Growth & Recovery */}
-            <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10.5px] font-mono">
-              <span className="text-slate-400 flex items-center gap-1">
-                <Zap className="w-3 h-3 text-amber-400" />
-                Stat Yield:
+            <div className="pt-2 border-t-2 border-[#4a3830] flex items-center justify-between font-sans text-xs">
+              <span className="text-stone-300 flex items-center gap-1 font-medium">
+                <Zap className="w-3 h-3 text-[#f59e0b]" />
+                BENEFITS:
               </span>
-              <span className="text-emerald-400 font-bold">
+              <span className="text-[#22c55e] font-bold uppercase">
                 {hoverGuide.statBonus}
               </span>
             </div>
@@ -903,6 +931,25 @@ export const BodyHeatmap: React.FC<BodyHeatmapProps> = ({
       )}
     </div>
   );
+};
+
+const MUSCLE_SHORT_NAMES: Record<MuscleGroupKey, string> = {
+  CHEST: "Chest",
+  FRONT_DELTS: "Front Delts",
+  SHOULDERS: "Side Delts",
+  REAR_DELTS: "Rear Delts",
+  TRAPS: "Traps",
+  LATS: "Lats",
+  LOWER_BACK: "Lower Back",
+  BICEPS: "Biceps",
+  TRICEPS: "Triceps",
+  FOREARMS: "Forearms",
+  ABS: "Abs",
+  OBLIQUES: "Obliques",
+  QUADS: "Quads",
+  HAMSTRINGS: "Hamstrings",
+  GLUTES: "Glutes",
+  CALVES: "Calves",
 };
 
 const CANONICAL_MUSCLES_LIST: Record<MuscleGroupKey, boolean> = {

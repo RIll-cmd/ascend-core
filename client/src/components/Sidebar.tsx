@@ -123,9 +123,9 @@ export function Sidebar() {
           </div>
           <div suppressHydrationWarning>
             <div suppressHydrationWarning className="flex items-center gap-2">
-              <h1 className="font-bold tracking-[0.12em] text-base font-heading text-white group-hover:text-cyan-300 transition-colors">
+              <span className="font-bold tracking-[0.12em] text-base font-heading text-white group-hover:text-cyan-300 transition-colors">
                 ASCEND OS
-              </h1>
+              </span>
             </div>
             <div suppressHydrationWarning className="flex items-center gap-1.5 -mt-0.5">
               <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-bold tracking-wider">

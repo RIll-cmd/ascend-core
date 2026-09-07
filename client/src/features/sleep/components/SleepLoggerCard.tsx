@@ -2,20 +2,21 @@
 
 import React, { useState, useId } from "react";
 import {
-  Moon,
-  Clock,
-  Zap,
-  CheckCircle2,
-  HeartPulse,
-  Droplets,
-  Plus,
-  Minus,
-  BrainCircuit,
-  Sparkles,
-  Waves,
-  AlertTriangle,
-  Sun,
-} from "lucide-react";
+  PixelMoonSleepIcon,
+  PixelClockIcon,
+  PixelSparklesIcon,
+  PixelCheckIcon,
+  PixelHeartIcon,
+  PixelWaterDropIcon,
+  PixelPlusIcon,
+  PixelMinusIcon,
+  PixelBrainIcon,
+  PixelWaterfallIcon,
+  PixelLotusIcon,
+  PixelLightningIcon,
+  PixelSkullIcon,
+  PixelSunriseIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { useSleepStore, SleepQuality, calculateSleepEfficiency } from "../store/useSleepStore";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { playUIMenuSFX } from "@/utils/audio";
@@ -36,7 +37,7 @@ const QUALITY_OPTIONS: {
     id: "DEEP_REM",
     label: "Deep REM & Delta",
     sublabel: "+15% Somatic Bonus",
-    icon: BrainCircuit,
+    icon: PixelBrainIcon,
     desc: "Uninterrupted neural recovery, HGH release & cellular repair",
     badge: "1.15x Boost",
     selectedBg: "bg-[#2d1607]",
@@ -47,7 +48,7 @@ const QUALITY_OPTIONS: {
     id: "RESTFUL",
     label: "Serene Stream",
     sublabel: "1.00x Base Standard",
-    icon: Waves,
+    icon: PixelWaterfallIcon,
     desc: "Woke up recharged in the mist, full energetic stamina",
     badge: "1.00x Standard",
     selectedBg: "bg-[#0f2420]",
@@ -58,7 +59,7 @@ const QUALITY_OPTIONS: {
     id: "MODERATE",
     label: "Tranquil Pond",
     sublabel: "0.85x Recovery Yield",
-    icon: Moon,
+    icon: PixelLotusIcon,
     desc: "Mild restlessness or brief early awakenings in the night",
     badge: "0.85x Yield",
     selectedBg: "bg-[#1f103d]",
@@ -69,7 +70,7 @@ const QUALITY_OPTIONS: {
     id: "FRAGMENTED",
     label: "Turbulent Stream",
     sublabel: "0.65x Reduced Yield",
-    icon: Zap,
+    icon: PixelLightningIcon,
     desc: "Interrupted cycles, broken sleep, morning somatic inertia",
     badge: "0.65x Reduced",
     selectedBg: "bg-[#261304]",
@@ -80,7 +81,7 @@ const QUALITY_OPTIONS: {
     id: "POOR",
     label: "Dry Drought",
     sublabel: "0.50x Severe Fatigue",
-    icon: AlertTriangle,
+    icon: PixelSkullIcon,
     desc: "Acute sleep deficit, elevated cortisol & somatic strain",
     badge: "0.50x Deficit",
     selectedBg: "bg-[#290814]",
@@ -141,11 +142,11 @@ export const SleepLoggerCard: React.FC<{ onLogSuccess?: () => void; className?: 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#3c1860]/60 pb-5">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-[#251040] border-2 border-[#f59e0b] flex items-center justify-center flex-shrink-0">
-            <Moon className="w-6 h-6 text-[#fbbf24] animate-pulse" />
+            <PixelMoonSleepIcon className="w-6 h-6 text-[#fbbf24] animate-pulse" />
           </div>
           <div>
             <span className="text-xs sm:text-sm font-pixel font-bold text-[#fbbf24] flex items-center gap-1.5">
-              <HeartPulse className="w-4 h-4 text-[#f59e0b]" />
+              <PixelHeartIcon className="w-4 h-4 text-[#f59e0b]" />
               Night Pagoda Protocol
             </span>
             <h2 className="text-xl sm:text-2xl font-pixel font-bold text-white tracking-wide mt-1">
@@ -156,7 +157,7 @@ export const SleepLoggerCard: React.FC<{ onLogSuccess?: () => void; className?: 
 
         {todayLogged && (
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#064e3b] text-[#6ee7b7] border border-[#10b981] text-xs sm:text-sm font-pixel font-bold self-start sm:self-auto">
-            <CheckCircle2 className="w-4 h-4 text-[#34d399]" />
+            <PixelCheckIcon className="w-4 h-4 text-[#34d399]" />
             Today Synced
           </div>
         )}
@@ -169,7 +170,7 @@ export const SleepLoggerCard: React.FC<{ onLogSuccess?: () => void; className?: 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <span className="text-sm font-pixel font-bold text-[#fbbf24] flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#f59e0b]" />
+                <PixelClockIcon className="w-4 h-4 text-[#f59e0b]" />
                 Rest Duration & Circadian Phase
               </span>
             </div>
@@ -182,7 +183,7 @@ export const SleepLoggerCard: React.FC<{ onLogSuccess?: () => void; className?: 
                 className="w-9 h-9 bg-[#1f0d36] hover:bg-[#321557] active:bg-[#150924] border border-[#4c1d7c] text-white flex items-center justify-center cursor-pointer transition-colors"
                 title="Decrease 15 mins"
               >
-                <Minus className="w-4 h-4 text-[#fbbf24]" />
+                <PixelMinusIcon className="w-4 h-4 text-[#fbbf24]" />
               </button>
 
               <div className="text-center font-pixel min-w-[110px] px-3 py-1.5 bg-[#1a0c2e] border-2 border-[#f59e0b]">
@@ -198,7 +199,7 @@ export const SleepLoggerCard: React.FC<{ onLogSuccess?: () => void; className?: 
                 className="w-9 h-9 bg-[#1f0d36] hover:bg-[#321557] active:bg-[#150924] border border-[#4c1d7c] text-white flex items-center justify-center cursor-pointer transition-colors"
                 title="Increase 15 mins"
               >
-                <Plus className="w-4 h-4 text-[#fbbf24]" />
+                <PixelPlusIcon className="w-4 h-4 text-[#fbbf24]" />
               </button>
             </div>
           </div>
@@ -251,7 +252,7 @@ export const SleepLoggerCard: React.FC<{ onLogSuccess?: () => void; className?: 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pb-5 border-b border-[#3c1860]/40">
           <div className="space-y-2">
             <label className="text-sm font-pixel font-bold text-[#fbbf24] flex items-center gap-2">
-              <Moon className="w-4 h-4 text-[#f59e0b]" />
+              <PixelMoonSleepIcon className="w-4 h-4 text-[#f59e0b]" />
               Retreat to Rest (Bedtime)
             </label>
             <input
@@ -264,7 +265,7 @@ export const SleepLoggerCard: React.FC<{ onLogSuccess?: () => void; className?: 
 
           <div className="space-y-2">
             <label className="text-sm font-pixel font-bold text-[#fbbf24] flex items-center gap-2">
-              <Sun className="w-4 h-4 text-[#f59e0b]" />
+              <PixelSunriseIcon className="w-4 h-4 text-[#f59e0b]" />
               Dawn Awakening (Wake Time)
             </label>
             <input
@@ -280,7 +281,7 @@ export const SleepLoggerCard: React.FC<{ onLogSuccess?: () => void; className?: 
         <div className="space-y-3 pb-5 border-b border-[#3c1860]/40">
           <div className="flex items-center justify-between">
             <label className="text-sm font-pixel font-bold text-[#fbbf24] flex items-center gap-2">
-              <Droplets className="w-4 h-4 text-[#f59e0b]" />
+              <PixelWaterDropIcon className="w-4 h-4 text-[#f59e0b]" />
               Rest Chamber Quality & Sensation
             </label>
             <span className="text-xs sm:text-sm font-pixel text-slate-300">
@@ -352,7 +353,7 @@ export const SleepLoggerCard: React.FC<{ onLogSuccess?: () => void; className?: 
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-mono pt-2">
           <div>
             <span className="text-sm font-pixel font-bold text-[#fbbf24] block flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#f59e0b]" />
+              <PixelSparklesIcon className="w-4 h-4 text-[#f59e0b]" />
               Predicted Somatic Yield & Stat Gains
             </span>
             <div className="flex items-center gap-2 mt-1">
@@ -386,7 +387,7 @@ export const SleepLoggerCard: React.FC<{ onLogSuccess?: () => void; className?: 
           disabled={isSubmitting}
           className="w-full h-14 text-sm sm:text-base font-pixel font-bold tracking-wider shadow-[0_4px_0_0_#000] flex items-center justify-center gap-2.5 cursor-pointer"
         >
-          <Moon className="w-5 h-5 fill-current" />
+          <PixelMoonSleepIcon className="w-5 h-5 text-current" />
           {todayLogged
             ? "Update Sanctuary Chronicle & Sync REC"
             : "Record Rest & Channel Somatic Recovery"}

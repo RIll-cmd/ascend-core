@@ -34,15 +34,15 @@ export function AiraPeriodicToast() {
         >
           <div
             onClick={dismissPeriodicToast}
-            className="bg-[#0B1020]/95 border border-cyan-500/40 rounded-2xl p-4 shadow-[0_0_40px_rgba(6,182,212,0.35)] backdrop-blur-xl relative overflow-hidden group cursor-pointer hover:border-cyan-400/80 transition-all flex items-start gap-3.5"
+            className="bg-[#0B1020]/95 border-2 border-cyan-500/40 rounded-xl p-4 shadow-[0_12px_32px_rgba(0,0,0,0.7)] backdrop-blur-xl relative overflow-hidden group cursor-pointer hover:border-cyan-400/80 transition-all flex items-start gap-3.5"
           >
             {/* Background Holographic Ambient Glow */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/15 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-indigo-500/15 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-cyan-400 via-indigo-500 to-purple-500" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-cyan-500" />
 
             {/* Glowing Orb Avatar */}
-            <div className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden ring-2 ring-cyan-500/50 shadow-[0_0_18px_rgba(6,182,212,0.6)] bg-slate-900 relative mt-0.5">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden ring-2 ring-cyan-500/50 shadow-md shadow-cyan-950/80 bg-slate-900 relative mt-0.5">
               <AiraAvatar mood={currentMood as AiraMood} className="w-full h-full rounded-none border-none shadow-none" />
             </div>
 

@@ -60,6 +60,12 @@ const TITLE_OPTIONS = [
 
 const THEME_SWATCHES = [
   {
+    name: "Crimson Berserker",
+    value: "crimson-berserker",
+    hex: "#EF4444",
+    bg: "bg-gradient-to-br from-red-600 to-amber-600 shadow-[0_0_15px_rgba(239,68,68,0.6)]",
+  },
+  {
     name: "Blue",
     value: "blue-rpg",
     hex: "#2563EB",
@@ -88,6 +94,49 @@ const THEME_SWATCHES = [
     value: "gold-rpg",
     hex: "#F59E0B",
     bg: "bg-amber-500",
+  },
+];
+
+const WORKOUT_THEME_OPTIONS = [
+  {
+    id: "crimson-berserker" as const,
+    name: "Crimson Berserker / Blood Monarch",
+    desc: "Deep Obsidian void (#030712) with Crimson Plasma (#EF4444), Molten Amber (#F97316) PR combustion, and pure white tabular numbers.",
+    badge: "RECOMMENDED",
+    badgeColor: "bg-red-950/80 text-red-300 border-red-500/50",
+    gradient: "from-red-600 to-amber-600",
+    border: "border-red-500/40",
+    glow: "shadow-[0_0_20px_rgba(239,68,68,0.25)]",
+  },
+  {
+    id: "shadow-monarch" as const,
+    name: "Shadow Monarch / Abyssal Plasma",
+    desc: "Pitch black void with shadow violet flames and cold silver runes.",
+    badge: "SOLO LEVELING",
+    badgeColor: "bg-purple-950/80 text-purple-300 border-purple-500/50",
+    gradient: "from-purple-600 to-indigo-700",
+    border: "border-purple-500/40",
+    glow: "shadow-[0_0_20px_rgba(147,51,234,0.25)]",
+  },
+  {
+    id: "cyber-kinetic" as const,
+    name: "Solar Ion / Cyber Kinetic",
+    desc: "Jet black telemetry HUD with electric volt yellow and telemetry cyan lines.",
+    badge: "HIGH CONTRAST",
+    badgeColor: "bg-yellow-950/80 text-yellow-300 border-yellow-500/50",
+    gradient: "from-yellow-500 to-teal-500",
+    border: "border-yellow-500/40",
+    glow: "shadow-[0_0_20px_rgba(234,179,8,0.25)]",
+  },
+  {
+    id: "titan-vanguard" as const,
+    name: "Titan Vanguard / Tactical Biometrics",
+    desc: "Gunmetal charcoal with phosphor amber instruments and mechanical gauges.",
+    badge: "TACTICAL",
+    badgeColor: "bg-amber-950/80 text-amber-300 border-amber-500/50",
+    gradient: "from-amber-600 to-slate-600",
+    border: "border-amber-500/40",
+    glow: "shadow-[0_0_20px_rgba(217,119,6,0.25)]",
   },
 ];
 
@@ -136,7 +185,7 @@ const AVATAR_ARCHETYPES = [
 
 export default function SettingsPage() {
   const { character, updateIdentity } = useCharacterStore();
-  const { theme: mode, setTheme: setMode } = useThemeStore();
+  const { theme: mode, setTheme: setMode, workoutTheme, setWorkoutTheme } = useThemeStore();
   const {
     soundEnabled,
     sfxVolume,
@@ -930,43 +979,111 @@ export default function SettingsPage() {
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Palette className="w-4 h-4 text-amber-400" />
-              <span>6. Theme Accent Color</span>
+              <span>6. Theme Accent & Workout Terminal Aesthetics</span>
             </CardTitle>
             <CardDescription className="text-xs text-slate-400">
-              Choose your favorite RPG energy color scheme.
+              Choose your favorite RPG energy color scheme and specialized Kinetic Workout Terminal theme.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
-              {THEME_SWATCHES.map((swatch) => {
-                const isActive =
-                  accentTheme.includes(swatch.name.toLowerCase()) ||
-                  accentTheme === swatch.value;
-                return (
-                  <button
-                    key={swatch.name}
-                    type="button"
-                    onClick={() => setAccentTheme(swatch.value)}
-                    className={`w-12 h-12 rounded-[14px] ${
-                      swatch.bg
-                    } flex items-center justify-center transition-all cursor-pointer relative shadow-md ${
-                      isActive
-                        ? `ring-4 ring-white/80 scale-110 shadow-xl`
-                        : "opacity-75 hover:opacity-100 hover:scale-105"
-                    }`}
-                    title={swatch.name}
-                  >
-                    {isActive && (
-                      <Check className="w-5 h-5 text-white drop-shadow-md" />
-                    )}
-                  </button>
-                );
-              })}
+          <CardContent className="space-y-6">
+            <div>
+              <label className="text-xs font-mono font-bold text-slate-300 block mb-2 uppercase tracking-wider">
+                RPG Global Energy Swatches
+              </label>
+              <div className="flex items-center gap-4 flex-wrap">
+                {THEME_SWATCHES.map((swatch) => {
+                  const isActive =
+                    accentTheme.includes(swatch.name.toLowerCase()) ||
+                    accentTheme === swatch.value;
+                  return (
+                    <button
+                      key={swatch.name}
+                      type="button"
+                      onClick={() => setAccentTheme(swatch.value)}
+                      className={`w-12 h-12 rounded-[14px] ${
+                        swatch.bg
+                      } flex items-center justify-center transition-all cursor-pointer relative shadow-md ${
+                        isActive
+                          ? `ring-4 ring-white/80 scale-110 shadow-xl`
+                          : "opacity-75 hover:opacity-100 hover:scale-105"
+                      }`}
+                      title={swatch.name}
+                    >
+                      {isActive && (
+                        <Check className="w-5 h-5 text-white drop-shadow-md" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-slate-400 font-mono mt-2">
+                Selected Theme Accent:{" "}
+                <strong className="text-white capitalize">{accentTheme}</strong>
+              </p>
             </div>
-            <p className="text-xs text-slate-400 font-mono">
-              Selected Theme Accent:{" "}
-              <strong className="text-white capitalize">{accentTheme}</strong>
-            </p>
+
+            {/* WORKOUT TERMINAL DEDICATED THEME */}
+            <div className="pt-4 border-t border-white/10 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold font-mono text-white block uppercase tracking-wider">
+                    Kinetic Workout Terminal Theme (Gym HUD)
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    High-contrast biometric theme engineered for gym visibility, tabular numbers, and PR combustion.
+                  </span>
+                </div>
+                <Badge className="bg-red-950/80 border border-red-500/40 text-red-300 font-mono text-[10px]">
+                  {workoutTheme.toUpperCase()}
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                {WORKOUT_THEME_OPTIONS.map((wTheme) => {
+                  const isSelected = workoutTheme === wTheme.id;
+                  return (
+                    <button
+                      key={wTheme.id}
+                      type="button"
+                      onClick={() => {
+                        setWorkoutTheme(wTheme.id);
+                        playUIMenuSFX("confirm");
+                        toast.success(`${wTheme.name} activated for Workout Terminal`);
+                      }}
+                      className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden cursor-pointer flex flex-col justify-between gap-2 ${
+                        isSelected
+                          ? `bg-[#0B0F19] ${wTheme.border} ${wTheme.glow} ring-2 ring-red-500/40`
+                          : "bg-[#0B1020] border-white/10 hover:border-white/20 hover:bg-[#0E152B]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`w-3.5 h-3.5 rounded-full bg-gradient-to-r ${wTheme.gradient}`}
+                          />
+                          <span className="text-xs font-bold text-white font-mono">
+                            {wTheme.name}
+                          </span>
+                        </div>
+                        <Badge
+                          className={`${wTheme.badgeColor} border font-mono text-[9px] px-1.5 py-0.2`}
+                        >
+                          {wTheme.badge}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-slate-400 font-sans leading-relaxed">
+                        {wTheme.desc}
+                      </p>
+                      {isSelected && (
+                        <div className="flex items-center gap-1 text-[10px] font-mono text-amber-400 font-bold mt-1">
+                          <Check className="w-3.5 h-3.5" /> ACTIVE WORKOUT THEME
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </CardContent>
         </Card>
 

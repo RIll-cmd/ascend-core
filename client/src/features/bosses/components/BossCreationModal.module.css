@@ -1,0 +1,144 @@
+.ritualDialog {
+  color-scheme: dark;
+  scrollbar-color: #155e75 #070a12;
+  scrollbar-width: thin;
+  background:
+    radial-gradient(circle at 50% -10%, rgb(14 116 144 / 18%), transparent 34rem),
+    radial-gradient(circle at 100% 100%, rgb(217 119 6 / 10%), transparent 30rem),
+    #0b0f19;
+  box-shadow: 0 28px 90px rgb(0 0 0 / 72%), 0 8px 30px rgb(8 145 178 / 10%);
+}
+
+.ritualDialog::before {
+  position: absolute;
+  inset: 7px;
+  z-index: -1;
+  border: 1px solid rgb(8 145 178 / 22%);
+  content: "";
+  pointer-events: none;
+}
+
+.ritualDialog > button {
+  top: 0.75rem;
+  right: 0.75rem;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid rgb(71 85 105 / 80%);
+  border-radius: 0.25rem;
+  background: #111827;
+  color: #cbd5e1;
+}
+
+.ritualDialog > button:hover {
+  border-color: #0891b2;
+  color: #67e8f9;
+}
+
+.ritualDialog > button:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+.ritualDialog svg {
+  shape-rendering: geometricPrecision;
+}
+
+.ritualDialog ::selection {
+  background: #b45309;
+  color: #fff7ed;
+}
+
+.healthFill {
+  transform-origin: left center;
+  transition: transform 520ms cubic-bezier(0.16, 1, 0.3, 1), filter 520ms ease-out;
+}
+
+.ritualSeal {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ritualSeal[data-active="true"] {
+  animation: ritual-seal 780ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ritualSeal[data-sealed="true"] {
+  animation: contract-sealed 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.spark {
+  animation: rune-spark 720ms steps(6, end) infinite;
+}
+
+.spark:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.spark:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+@keyframes ritual-seal {
+  0% {
+    opacity: 0;
+    transform: scale(0.78) rotate(-8deg);
+    filter: blur(8px);
+  }
+  45% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0.72;
+    transform: scale(1) rotate(0);
+    filter: drop-shadow(0 0 18px rgb(34 211 238 / 48%));
+  }
+}
+
+@keyframes contract-sealed {
+  0% {
+    opacity: 0.72;
+    transform: scale(1);
+    filter: drop-shadow(0 0 18px rgb(34 211 238 / 48%));
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 28px rgb(245 158 11 / 76%));
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.22);
+    filter: blur(4px);
+  }
+}
+
+@keyframes rune-spark {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.7);
+  }
+  40% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0;
+    transform: translateY(-22px) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .healthFill {
+    transition: none;
+  }
+
+  .ritualSeal[data-active="true"],
+  .ritualSeal[data-sealed="true"],
+  .spark {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
+}

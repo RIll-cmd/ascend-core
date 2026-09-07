@@ -103,6 +103,16 @@ client/.impeccable/
 .vscode/
 .idea/
 
+# AI Agent Artifacts & Skill Locks
+skills-lock.json
+.agents/
+.agent/
+
+# Temporary Screenshots & Visual Dumps
+/*.png
+**/.codex-*
+**/.tmp-*
+
 # OS & System Logs
 *.log
 npm-debug.log*

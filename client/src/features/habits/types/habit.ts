@@ -1,5 +1,7 @@
 export type HabitDifficulty = 'EASY' | 'MEDIUM' | 'HARD';
 export type HabitStatus = 'ACTIVE' | 'PAUSED' | 'ARCHIVED' | 'DELETED';
+export type HabitType = 'POSITIVE' | 'NEGATIVE';
+export type PenaltyTarget = 'HP' | 'EXP' | 'VITALITY' | 'DISCIPLINE' | 'STRENGTH' | 'KNOWLEDGE' | 'FOCUS' | 'RECOVERY' | 'CONSISTENCY';
 
 export type PrimaryStat =
   | 'strength'
@@ -79,6 +81,12 @@ export interface Habit {
   updatedAt: string | Date;
   pausedAt?: string | Date | null;
   archivedAt?: string | Date | null;
+  type?: HabitType;
+  affectedStat?: PenaltyTarget | string;
+  statModifier?: number;
+  relapseCount?: number;
+  streakDays?: number;
+  lastTriggeredAt?: string | Date | null;
   schedule?: HabitSchedule | null;
   tiers?: HabitTier[];
   metrics?: HabitMetrics | null;
@@ -98,4 +106,3 @@ export interface Mission {
   completedAt?: string | Date | null;
   habit?: Habit | null;
 }
-

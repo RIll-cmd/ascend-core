@@ -1,13 +1,19 @@
 // This is your Prisma schema file for Ascend OS (SaaS MVP Skeleton)
 
 generator pyclient {
-  provider = "prisma-client-py"
+  provider             = "prisma-client-py"
+  recursive_type_depth = 5
 }
 
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+enum HabitType {
+  POSITIVE
+  NEGATIVE
 }
 
 
@@ -45,6 +51,8 @@ model Character {
   title     String?
   level     Int      @default(1)
   exp       Int      @default(0)
+  currentHp Int      @default(100)
+  maxHp     Int      @default(100)
   power     Int      @default(0)
   rank      String   @default("F")
   gold      Int      @default(0)
@@ -86,6 +94,10 @@ model Character {
   beasts           Beast[]
   dailyStepLogs    DailyStepLog[]
   muscleRecoveryStates MuscleRecoveryState[]
+  relapseLogs         HabitRelapseLog[]
+  integrationObservations IntegrationObservation[]
+  automationRules     AutomationRule[]
+  automationExecutions AutomationExecution[]
 }
 
 model CharacterStats {
@@ -113,6 +125,57 @@ model ProgressHistory {
   createdAt   DateTime @default(now())
 }
 
+model IntegrationObservation {
+  id          String    @id @default(uuid())
+  eventId     String    @unique
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  source      String
+  eventType   String
+  observedAt  DateTime
+  payloadJson String
+  createdAt   DateTime  @default(now())
+  automationExecutions AutomationExecution[]
+
+  @@index([characterId, observedAt])
+  @@index([characterId, eventType, observedAt])
+}
+
+model AutomationRule {
+  id              String                @id @default(uuid())
+  characterId     String
+  character       Character             @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  name            String
+  enabled         Boolean               @default(true)
+  triggerType     String
+  matchMode       String                @default("all")
+  conditionsJson  String                @default("[]")
+  actionsJson     String
+  cooldownSeconds Int                   @default(0)
+  lastTriggeredAt DateTime?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  executions      AutomationExecution[]
+
+  @@index([characterId, triggerType, enabled])
+}
+
+model AutomationExecution {
+  id            String                 @id @default(uuid())
+  ruleId        String
+  rule          AutomationRule         @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  characterId   String
+  character     Character              @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  observationId String
+  observation   IntegrationObservation @relation(fields: [observationId], references: [id], onDelete: Cascade)
+  status        String
+  executedAt    DateTime               @default(now())
+  resultJson    String                 @default("{}")
+
+  @@unique([ruleId, observationId])
+  @@index([characterId, executedAt])
+}
+
 model Habit {
   id            String    @id @default(uuid())
   characterId   String
@@ -136,11 +199,34 @@ model Habit {
   updatedAt     DateTime  @updatedAt
   pausedAt      DateTime?
   archivedAt    DateTime?
+  type          HabitType @default(POSITIVE)
+  affectedStat  String    @default("HP")
+  statModifier  Int       @default(10)
+  relapseCount  Int       @default(0)
+  streakDays    Int       @default(0)
+  lastTriggeredAt DateTime?
 
   schedule HabitSchedule?
   metrics  HabitMetrics?
   tiers    HabitTier[]
   missions Mission[]
+  relapseLogs HabitRelapseLog[]
+}
+
+model HabitRelapseLog {
+  id            String   @id @default(uuid())
+  habitId       String
+  habit         Habit   @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  characterId   String
+  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  affectedStat  String
+  requestedAmount Int
+  actualAmount  Int
+  previousValue Int
+  newValue      Int
+  createdAt     DateTime @default(now())
+
+  @@index([characterId, createdAt])
 }
 
 model DailyCompletionSnapshot {
@@ -586,8 +672,13 @@ model Boss {
   description String?
   category    String
   difficulty  String
+  archetype   String?
   maxHp       Int
   currentHp   Int
+  rewardGold  Int?
+  rewardExp   Int?
+  rewardTitle String?
+  realWorldReward String?
   deadline    DateTime?
   status      String   @default("ACTIVE") // 'ACTIVE', 'DEFEATED', 'FAILED', 'ARCHIVED'
   createdAt   DateTime @default(now())
@@ -742,7 +833,3 @@ model DailyStepLog {
   date        DateTime  @default(now())
   createdAt   DateTime  @default(now())
 }
-
-
-
-

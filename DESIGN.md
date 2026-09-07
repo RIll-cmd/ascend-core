@@ -1,5 +1,19 @@
 # Design System: Ascend OS
 
+## Live armory surfaces: Royal Smithy & Oak Vault
+
+The live `/inventory` and `/crafting` routes use the Royal Smithy & Oak Vault direction. This section takes precedence over the cybernetic defaults below for those routes and their feature components. Other routes retain their existing visual system.
+
+- Materials: coal embers `#ea580c`, molten highlights `#f59e0b`, wrought iron `#1c1917` / `#292524`, oiled oak `#3f2c1d` / `#451a03`, antique brass `#d97706` / `#b45309`, and velvet insets `#1e1b18` / `#2d1515`.
+- Typography: pixel headers and brass badges; readable sans-serif descriptions and monospace statistics with tabular numerals. Item icons, equipment slots, and decorative frames use pixelated rendering.
+- Inventory: a banded oak trunk beside a symmetrical knight's rack. A leather belt shows occupied-slot capacity, including true zero. Stored stack units are explicitly labeled; the schema does not supply physical item weight.
+- Crafting: four iron discipline filters—Heavy Armaments, Plate & Mail, Lapidary, and Alchemist's Hearth—lead from a blueprint folio to an anvil inspector. Craft confirmation triggers a hammer strike and sparks, respecting reduced-motion preferences.
+- Accessibility and feedback: visible keyboard focus, pressed filter buttons, themed error/retry states, and Radix dialogs with focus trapping, Escape dismissal, and focus restoration. Rarity border colors are separate from readable text colors; metadata meets 4.5:1 contrast against velvet.
+- Ownership: shared styling lives in `client/src/features/armory/styles/RoyalSmithy.module.css`. Existing inventory/crafting stores and mutation contracts remain authoritative; both routes bind to the active character.
+- Scene assets: `client/public/backgrounds/royal-smithy-forge.png` and `royal-oak-vault.png` were generated with OpenAI's built-in imagegen. Each source PNG carries its exact generation prompt and origin in embedded metadata.
+
+Finish review: **SHIP**. Desktop and mobile live-route inspection, eight focused tests, focused lint, TypeScript, and the final production build passed. Repository-wide lint and the unrelated progression-engine test retain separately reported existing failures.
+
 ## Visual World & Aesthetics
 Ascend OS is built on a dark, sleek cybernetic aesthetic with crisp luminous accents, subtle layered glassmorphism, dynamic data telemetry, and responsive micro-interactions.
 

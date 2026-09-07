@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Clock, Plus } from "lucide-react";
+import { PixelClockIcon, PixelPlusIcon } from "@/components/ui/pixel/PixelIcons";
 import { cn } from "@/lib/utils";
 import { RivetedBoilerCard } from "./RivetedBoilerCard";
 import { NixieDisplay } from "./NixieDigit";
@@ -50,7 +50,7 @@ export function ChronoIntelCard({
         <div className="flex items-center justify-between border-b border-[#542d17] pb-3 mb-4">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 bg-[#120703] border-2 border-[#78350f] flex items-center justify-center text-[#fbbf24] shadow-[inset_0_1px_3px_#000]">
-              <Clock className="w-5 h-5" />
+              <PixelClockIcon className="w-5 h-5 text-[#f59e0b]" />
             </div>
             <div>
               <h4 className="text-sm sm:text-base font-pixel font-bold uppercase text-[#f59e0b]">
@@ -134,7 +134,7 @@ export function ChronoIntelCard({
         onClick={handleInscribe}
         className="w-full font-pixel font-bold text-sm sm:text-base py-3 flex items-center justify-center gap-2 cursor-pointer shadow-[0_2px_0_#000]"
       >
-        <Plus className="w-4.5 h-4.5" />
+        <PixelPlusIcon className="w-4.5 h-4.5" />
         <span>Inscribe Directive For {selectedDate}</span>
       </PixelButton>
     </RivetedBoilerCard>

@@ -1,7 +1,11 @@
 "use client";
 
 import React from "react";
-import { ChevronLeft, ChevronRight, Compass } from "lucide-react";
+import {
+  PixelChevronLeftIcon,
+  PixelChevronRightIcon,
+  PixelCompassIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { cn } from "@/lib/utils";
 import { SteampunkCog } from "./SteampunkGearTrain";
 import { playClockworkRatchet, playChronoChime } from "@/utils/steampunkAudio";
@@ -67,7 +71,7 @@ export function ChronometerNavigator({
         type="button"
         onClick={handlePrev}
         aria-label="Previous Month Gear Shift"
-        className="relative px-4 py-2 bg-[#231006] hover:bg-[#34180a] active:bg-[#120703] border-2 border-[#78350f] hover:border-[#f59e0b] text-[#fde047] font-pixel text-sm sm:text-base font-bold flex items-center gap-2 cursor-pointer shadow-[0_2px_0_#000] transition-all outline-none focus-visible:ring-2 focus-visible:ring-[#f59e0b] group"
+        className="relative px-4 py-2.5 bg-[#231006] hover:bg-[#34180a] active:bg-[#120703] border-2 border-[#78350f] hover:border-[#f59e0b] text-[#fde047] font-pixel text-xs sm:text-sm font-bold flex items-center gap-2 cursor-pointer shadow-[0_2px_0_#000] transition-all outline-none focus-visible:ring-2 focus-visible:ring-[#f59e0b] group"
       >
         <SteampunkCog
           teeth={8}
@@ -75,7 +79,7 @@ export function ChronometerNavigator({
           variant="brass"
           className="group-hover:-rotate-90 transition-transform duration-300"
         />
-        <ChevronLeft className="w-4.5 h-4.5 text-[#f59e0b]" />
+        <PixelChevronLeftIcon className="w-4 h-4 text-[#f59e0b]" />
         <span>PREV CYCLE</span>
       </button>
 
@@ -111,10 +115,10 @@ export function ChronometerNavigator({
           type="button"
           onClick={handleNext}
           aria-label="Next Month Gear Shift"
-          className="relative px-4 py-2 bg-[#231006] hover:bg-[#34180a] active:bg-[#120703] border-2 border-[#78350f] hover:border-[#f59e0b] text-[#fde047] font-pixel text-sm sm:text-base font-bold flex items-center gap-2 cursor-pointer shadow-[0_2px_0_#000] transition-all outline-none focus-visible:ring-2 focus-visible:ring-[#f59e0b] group"
+          className="relative px-4 py-2.5 bg-[#231006] hover:bg-[#34180a] active:bg-[#120703] border-2 border-[#78350f] hover:border-[#f59e0b] text-[#fde047] font-pixel text-xs sm:text-sm font-bold flex items-center gap-2 cursor-pointer shadow-[0_2px_0_#000] transition-all outline-none focus-visible:ring-2 focus-visible:ring-[#f59e0b] group"
         >
           <span>NEXT CYCLE</span>
-          <ChevronRight className="w-4.5 h-4.5 text-[#f59e0b]" />
+          <PixelChevronRightIcon className="w-4 h-4 text-[#f59e0b]" />
           <SteampunkCog
             teeth={8}
             size={18}
@@ -128,9 +132,9 @@ export function ChronometerNavigator({
             type="button"
             onClick={handleToday}
             aria-label="Align Chronometer to Today"
-            className="px-3 py-2 bg-[#381a0c] hover:bg-[#4d2410] border border-[#f59e0b] text-[#fef08a] font-pixel text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer shadow-[0_0_8px_rgba(245,158,11,0.25)] transition-all animate-pulse"
+            className="px-3.5 py-2.5 bg-[#381a0c] hover:bg-[#4d2410] border border-[#f59e0b] text-[#fef08a] font-pixel text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer shadow-[0_0_8px_rgba(245,158,11,0.25)] transition-all animate-pulse"
           >
-            <Compass className="w-4 h-4 text-[#fde047]" />
+            <PixelCompassIcon className="w-4 h-4 text-[#fde047]" />
             <span>TODAY</span>
           </button>
         )}

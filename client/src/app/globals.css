@@ -269,6 +269,23 @@ h6 {
   50% { opacity: 0.06; }
 }
 
+@keyframes merchant-idle {
+  0%, 100% {
+    transform: translateY(2px) scale(1.12);
+    filter: drop-shadow(0 0 4px rgba(52, 211, 153, 0.45)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+  }
+  50% {
+    transform: translateY(-2px) scale(1.12);
+    filter: drop-shadow(0 0 9px rgba(52, 211, 153, 0.8)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7));
+  }
+}
+
+.animate-merchant-idle {
+  animation: merchant-idle 2.5s ease-in-out infinite;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
 @keyframes bar-fill {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
@@ -282,6 +299,16 @@ h6 {
 @keyframes number-glow {
   0%, 100% { text-shadow: 0 0 10px rgba(6, 182, 212, 0.3); }
   50% { text-shadow: 0 0 25px rgba(6, 182, 212, 0.6), 0 0 50px rgba(6, 182, 212, 0.2); }
+}
+
+@keyframes damage-float {
+  0% { opacity: 0; transform: translateY(8px) scale(0.94); }
+  18% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-26px) scale(1.04); }
+}
+
+.animate-damage-float {
+  animation: damage-float 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* === UTILITY ANIMATION CLASSES === */
@@ -541,6 +568,94 @@ h6 {
     inset 2px 2px 0 0 #ffffff,
     inset -2px -2px 0 0 #b38847,
     0 8px 16px rgba(0, 0, 0, 0.7);
+}
+
+/* ======================================================================= */
+/* 🏛️ THE IRON COLOSSEUM & GLADIATOR ARENA SYSTEM                          */
+/* Palette: Granite Flagstone (#1e1614 / #2a1f1b), Iron Rivets (#4a3830), Molten Gold (#f59e0b), Blood Crimson (#ef4444) */
+/* ======================================================================= */
+
+.pixel-stone-slab {
+  background-color: #231814;
+  background-image: 
+    radial-gradient(circle at 12% 18%, rgba(245, 158, 11, 0.04) 0%, transparent 25%),
+    radial-gradient(circle at 85% 80%, rgba(0, 0, 0, 0.6) 0%, transparent 40%),
+    linear-gradient(180deg, #2f201a 0%, #201511 45%, #150d09 100%);
+  border: 4px solid #5a3e30;
+  box-shadow: 
+    inset 2px 2px 0 0 #7e5c49,
+    inset -2px -2px 0 0 #0a0604,
+    0 -4px 0 0 #000,
+    0 4px 0 0 #000,
+    -4px 0 0 0 #000,
+    4px 0 0 0 #000;
+  position: relative;
+}
+
+.pixel-stone-slab-elevated {
+  background-color: #2a1c17;
+  background-image: 
+    radial-gradient(circle at 20% 15%, rgba(254, 240, 138, 0.05) 0%, transparent 25%),
+    linear-gradient(180deg, #3a2820 0%, #291b15 50%, #19100c 100%);
+  border: 3px solid #6b4d3d;
+  box-shadow: 
+    inset 2px 2px 0 0 #966f57,
+    inset -2px -2px 0 0 #0d0806,
+    0 4px 0 0 #000;
+}
+
+/* 🏛️ Roman Stele / Carved Colosseum Inscription Tablet (Like "AVREVM ARENAM" Plaque) */
+.pixel-roman-stele {
+  background: linear-gradient(180deg, #32221b 0%, #241712 50%, #19100c 100%);
+  border: 2px solid #785642;
+  box-shadow: 
+    inset 1px 1px 0 0 #a97f66,
+    inset -1px -1px 0 0 #0d0806,
+    0 2px 0 0 #000;
+  color: #fde047;
+  font-family: var(--font-pixel);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* 🏛️ Imperial Crimson Ribbon Banner */
+.pixel-imperial-ribbon {
+  background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 60%, #450a0a 100%);
+  border: 2px solid #b91c1c;
+  box-shadow: 
+    inset 1px 1px 0 0 #f87171,
+    inset -1px -1px 0 0 #280505,
+    0 2px 0 0 #000;
+  color: #ffffff;
+  font-family: var(--font-pixel);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* 🏛️ Colosseum Sand Pit Floor & Dais */
+.pixel-arena-dirt {
+  background-color: #24180e;
+  background-image: 
+    radial-gradient(circle at 35% 35%, rgba(217, 179, 106, 0.16) 0%, transparent 45%),
+    radial-gradient(circle at 75% 75%, rgba(220, 38, 38, 0.08) 0%, transparent 50%),
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.25) 0px, rgba(0, 0, 0, 0.25) 2px, transparent 2px, transparent 6px);
+  border: 2px solid #6b4d32;
+}
+
+.pixel-chain-divider {
+  height: 8px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #4a3830 0px,
+    #4a3830 6px,
+    #140e0c 6px,
+    #140e0c 8px,
+    #7a5e50 8px,
+    #7a5e50 12px,
+    #140e0c 12px,
+    #140e0c 14px
+  );
+  box-shadow: 0 2px 0 0 #000;
 }
 
 /* ======================================================================= */
@@ -1690,6 +1805,192 @@ h6 {
   .animate-nixie-flicker,
   .animate-gear-spin {
     animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   THEME: CRIMSON BERSERKER / BLOOD MONARCH (KINETIC WORKOUT TERMINAL)
+   Visual Identity: Deep Obsidian base (#030712) with aggressive Crimson Plasma (#EF4444)
+   and Molten Amber (#F97316) energy accents. High-contrast pure white (#FFFFFF) tabular numbers.
+   ========================================================================== */
+
+:root[data-workout-theme="crimson-berserker"],
+.theme-crimson-berserker {
+  --workout-bg: #030712;
+  --workout-deck: #0b0f19;
+  --workout-deck-elevated: #111728;
+  --workout-primary: #ef4444;
+  --workout-primary-glow: rgba(239, 68, 68, 0.4);
+  --workout-secondary: #f97316;
+  --workout-amber: #f59e0b;
+  --workout-border: rgba(239, 68, 68, 0.15);
+  --workout-border-active: rgba(239, 68, 68, 0.5);
+  --workout-text-num: #ffffff;
+}
+
+@keyframes combustion-flash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    background-color: rgba(239, 68, 68, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 40px 10px rgba(249, 115, 22, 0.5);
+    background-color: rgba(249, 115, 22, 0.15);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    background-color: transparent;
+  }
+}
+
+@keyframes crimson-pulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+    border-color: rgba(239, 68, 68, 0.7);
+  }
+}
+
+.animate-combustion {
+  animation: combustion-flash 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-crimson-pulse {
+  animation: crimson-pulse 2.5s infinite ease-in-out;
+}
+
+/* ==========================================================================
+   CELESTIAL STARCHART & ASTROLABE OBSERVATORY DESIGN SYSTEM
+   ========================================================================== */
+
+@keyframes astrolabe-spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes astrolabe-spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes star-ember-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    border-color: rgba(100, 116, 139, 0.5);
+  }
+  50% {
+    opacity: 0.9;
+    border-color: rgba(148, 163, 184, 0.9);
+  }
+}
+
+@keyframes star-ready-flare {
+  0%, 100% {
+    border-color: #facc15;
+    transform: scale(1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+  }
+  50% {
+    border-color: #fef08a;
+    transform: scale(1.04);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
+  }
+}
+
+@keyframes constellation-pulse-beam {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes stardust-drift {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(180deg); }
+  100% { transform: translateY(0px) rotate(360deg); }
+}
+
+.animate-astrolabe-spin {
+  animation: astrolabe-spin-slow 45s linear infinite;
+}
+
+.animate-astrolabe-reverse {
+  animation: astrolabe-spin-reverse 30s linear infinite;
+}
+
+.animate-star-ember {
+  animation: star-ember-pulse 3s infinite ease-in-out;
+}
+
+.animate-star-ready {
+  animation: star-ready-flare 1.8s infinite ease-in-out;
+}
+
+.animate-constellation-beam {
+  animation: constellation-pulse-beam 2s infinite ease-in-out;
+}
+
+/* Celestial Observatory Card */
+.celestial-observatory-panel {
+  background: radial-gradient(circle at 50% 20%, #0d1527 0%, #050914 65%, #02040a 100%);
+  border: 2px solid #785a28;
+  border-radius: 0 !important;
+  box-shadow: 3px 3px 0 0 #000;
+  position: relative;
+}
+
+/* Brass Astrolabe Plate */
+.astrolabe-brass-frame {
+  background: linear-gradient(135deg, #131d31 0%, #090e1a 100%);
+  border: 2px solid #785a28;
+  border-radius: 0 !important;
+  box-shadow: 2px 2px 0 0 #000;
+}
+
+/* Brass Engraved Tab Button */
+.astrolabe-tab-btn {
+  background: #0d1424;
+  border: 1px solid #785a28;
+  border-radius: 0 !important;
+  box-shadow: 2px 2px 0 0 #000;
+  color: #d4b277;
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.astrolabe-tab-btn:hover {
+  background: #18233c;
+  border-color: #ca9e54;
+  color: #fef08a;
+}
+
+.astrolabe-tab-btn-active {
+  background: #231a0e;
+  border: 1px solid #ca9e54;
+  border-radius: 0 !important;
+  box-shadow: 2px 2px 0 0 #000;
+  color: #fef08a;
+}
+
+@layer components {
+  .automation-panel {
+    @apply border-2 border-slate-700 bg-[#101722] shadow-[3px_3px_0_0_#06090e];
+  }
+
+  .automation-button {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 border border-slate-600 bg-[#172235] px-3 py-2 font-mono text-xs font-bold uppercase tracking-wide text-white transition-colors hover:border-amber-400 hover:bg-[#26364e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .automation-field {
+    @apply grid gap-1 font-mono text-[10px] uppercase tracking-wide text-slate-200;
+  }
+
+  .automation-field input, .automation-field select {
+    @apply min-h-10 border border-slate-600 bg-[#080c13] px-3 font-sans text-sm normal-case tracking-normal text-white outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400;
   }
 }
 

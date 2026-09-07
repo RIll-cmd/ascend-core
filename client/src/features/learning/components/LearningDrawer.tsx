@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X, BookOpen } from "lucide-react";
+import { PixelCloseIcon, PixelBookIcon } from "@/components/ui/pixel/PixelIcons";
 import { useLearningStore } from "../store/useLearningStore";
 import { PomodoroTimer } from "./PomodoroTimer";
 import { HabitLinkSelector } from "./HabitLinkSelector";
@@ -48,7 +48,7 @@ export const LearningDrawer: React.FC = () => {
         <div className="flex items-center justify-between border-b border-[#542d17]/70 pb-3.5">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-[#281308] border border-[#f59e0b] text-[#fbbf24]">
-              <BookOpen className="w-5 h-5" />
+              <PixelBookIcon className="w-5 h-5 text-[#f59e0b]" />
             </div>
             <div>
               <span className="text-[10px] font-pixel font-bold text-[#f59e0b] uppercase tracking-widest block">
@@ -67,7 +67,7 @@ export const LearningDrawer: React.FC = () => {
             }}
             className="w-8 h-8 bg-[#251208] border border-[#542d17] text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
           >
-            <X className="w-4 h-4" />
+            <PixelCloseIcon className="w-4 h-4 text-slate-400 hover:text-white" />
           </button>
         </div>
 

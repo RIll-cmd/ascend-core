@@ -8,22 +8,25 @@ import { KanbanQuest } from "@/features/habits/types/kanban";
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
 import { toast } from "sonner";
 import {
-  Flame,
-  Shield,
-  Award,
-  Loader2,
-  RefreshCw,
-  Clock,
-  Compass,
-  Plus,
-  Activity,
-} from "lucide-react";
+  PixelFlameIcon,
+  PixelShieldIcon,
+  PixelAwardIcon,
+  PixelRefreshIcon,
+  PixelClockIcon,
+  PixelCompassIcon,
+  PixelPlusIcon,
+  PixelActivityIcon,
+  PixelMoonSleepIcon,
+  PixelHourglassIcon,
+  PixelStarIcon,
+} from "@/components/ui/pixel/PixelIcons";
 
 import { API_BASE_URL } from "@/constants";
 import { SystemTooltip } from "@/components/ui/SystemTooltip";
 import { CURRENCY_LORE } from "@/features/lore/loreData";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { cn } from "@/lib/utils";
+import { CalendarSchedulePanel } from "@/features/calendar/components/CalendarSchedulePanel";
 import {
   SteampunkCog,
   SteampunkGearTrain,
@@ -490,21 +493,17 @@ export default function CalendarPage() {
             </div>
 
             <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-xs font-pixel font-bold text-[#f59e0b] uppercase tracking-widest flex items-center gap-1.5">
-                  <Compass className="w-4 h-4" />
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <span className="text-xs sm:text-sm font-pixel font-bold text-[#f59e0b] uppercase tracking-widest flex items-center gap-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                  <PixelCompassIcon className="w-4 h-4 text-[#fbbf24]" />
                   GRAND CHRONOMETER SANCTUARY
                 </span>
-                <span className="px-2.5 py-0.5 bg-[#120703] text-[#fef08a] border border-[#542d17] text-xs font-pixel font-bold shadow-sm flex items-center gap-1.5">
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#fbbf24]" />
-                      <span>SYNCING TELEMETRY...</span>
-                    </>
-                  ) : (
-                    <span>TEMPORAL GEAR MATRIX</span>
-                  )}
-                </span>
+                {isLoading && (
+                  <span className="text-xs font-mono text-[#fbbf24] flex items-center gap-1.5 animate-pulse ml-2">
+                    <PixelRefreshIcon className="w-3.5 h-3.5 animate-spin" />
+                    <span>Syncing Telemetry...</span>
+                  </span>
+                )}
               </div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-pixel font-bold text-[#fef08a] tracking-tight uppercase drop-shadow-[0_2px_0_rgba(0,0,0,0.9)] leading-tight">
                 The Clockwork Calendar
@@ -530,15 +529,15 @@ export default function CalendarPage() {
                   handleBuyShield();
                 }}
                 disabled={isBuyingShield || streakFreezes >= 3}
-                className="h-9 px-3 bg-[#241006] hover:bg-[#381809] border-2 border-[#78350f] hover:border-[#f59e0b] text-[#fef08a] font-pixel text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-[0_2px_0_0_#000] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-11 px-4 bg-[#241006] hover:bg-[#381809] border-2 border-[#78350f] hover:border-[#f59e0b] text-[#fef08a] font-pixel text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-[0_3px_0_0_#000] active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Forge Aegis Shield with 300 Gold"
               >
                 {isBuyingShield ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#f59e0b]" />
+                  <PixelRefreshIcon className="w-4 h-4 animate-spin text-[#f59e0b]" />
                 ) : (
-                  <Shield className="w-3.5 h-3.5 text-[#f59e0b] fill-[#f59e0b]/20" />
+                  <PixelShieldIcon className={cn("w-4 h-4", streakFreezes >= 3 ? "text-[#10b981]" : "text-[#f59e0b]")} />
                 )}
-                <span>Buy Shield (300g)</span>
+                <span>{streakFreezes >= 3 ? "Aegis Full (3/3)" : "Buy Shield (300g)"}</span>
               </button>
 
               <button
@@ -548,40 +547,41 @@ export default function CalendarPage() {
                   handleSimulateDecay();
                 }}
                 disabled={isSimulating}
-                className="h-9 px-3 bg-[#381a0c] hover:bg-[#4d2410] border-2 border-[#f59e0b] text-[#fef08a] font-pixel text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-[0_2px_0_0_#000] disabled:opacity-50"
+                className="h-11 px-4 bg-[#381a0c] hover:bg-[#4d2410] border-2 border-[#b45309] hover:border-[#f59e0b] text-[#fef08a] font-pixel text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-[0_3px_0_0_#000] active:translate-y-0.5 disabled:opacity-50"
+                title="Advance Chronometer to test day rollover"
               >
                 {isSimulating ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#fbbf24]" />
+                  <PixelRefreshIcon className="w-4 h-4 animate-spin text-[#fbbf24]" />
                 ) : (
-                  <RefreshCw className="w-3.5 h-3.5 text-[#fbbf24]" />
+                  <PixelMoonSleepIcon className="w-4 h-4 text-[#fbbf24]" />
                 )}
                 <span>Simulate Midnight</span>
               </button>
             </div>
 
             {/* Bottom Primary Actions Dock */}
-            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto justify-start sm:justify-end">
+            <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap w-full sm:w-auto justify-start sm:justify-end">
               <PixelButton
                 variant="dark"
-                size="sm"
+                size="md"
                 onClick={handleJumpToToday}
-                className="font-pixel text-xs font-bold flex items-center gap-1.5 cursor-pointer h-9 px-3"
+                className="font-pixel text-xs sm:text-sm font-bold flex items-center gap-2 cursor-pointer h-11 px-4"
               >
-                <Compass className="w-3.5 h-3.5 text-[#fbbf24]" />
+                <PixelCompassIcon className="w-4 h-4 text-[#fbbf24]" />
                 <span>Jump Today</span>
               </PixelButton>
 
               <PixelButton
                 variant="gold"
-                size="sm"
+                size="md"
                 onClick={() => {
                   playUIMenuSFX("confirm");
                   setIsCreateDeadlineOpen(true);
                 }}
-                className="font-pixel text-xs font-bold flex items-center gap-1.5 cursor-pointer h-9 px-3.5"
+                className="font-pixel text-xs sm:text-sm font-bold flex items-center gap-2 cursor-pointer h-11 px-5 shadow-[0_0_16px_rgba(245,158,11,0.35)]"
               >
-                <Plus className="w-4 h-4" />
-                <span>+ Inscribe Directive</span>
+                <PixelPlusIcon className="w-4 h-4 text-[#231006]" />
+                <span>Inscribe Directive</span>
               </PixelButton>
             </div>
           </div>
@@ -591,7 +591,7 @@ export default function CalendarPage() {
       {/* =========================================================
           2. 4 STEAMPUNK BOURDON PRESSURE MANOMETERS
           ========================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
         {/* Active Logged Days */}
         <SystemTooltip
           title={CURRENCY_LORE.loggedDays.name}
@@ -601,15 +601,16 @@ export default function CalendarPage() {
           lore={CURRENCY_LORE.loggedDays.lore}
           mechanics={CURRENCY_LORE.loggedDays.mechanics}
           tags={CURRENCY_LORE.loggedDays.tags}
-          className="w-full"
+          className="w-full flex"
         >
           <BourdonGauge
             label="Active Logged Days"
             value={`${activeDaysCount} Days`}
             subtext="Recorded Chrono-Sanctuary sessions"
-            icon={Activity}
+            icon={PixelActivityIcon}
             variant="amber"
             pct={Math.min(100, Math.round((activeDaysCount / 365) * 100))}
+            className="w-full"
           />
         </SystemTooltip>
 
@@ -622,15 +623,16 @@ export default function CalendarPage() {
           lore={CURRENCY_LORE.activeStreak.lore}
           mechanics={CURRENCY_LORE.activeStreak.mechanics}
           tags={CURRENCY_LORE.activeStreak.tags}
-          className="w-full"
+          className="w-full flex"
         >
           <BourdonGauge
             label="Current Streak"
             value={`${currentStreak}d`}
             subtext="Unhalted consecutive execution"
-            icon={Flame}
+            icon={PixelFlameIcon}
             variant="copper"
             pct={Math.min(100, Math.round((currentStreak / 30) * 100))}
+            className="w-full"
           />
         </SystemTooltip>
 
@@ -643,15 +645,16 @@ export default function CalendarPage() {
           lore={CURRENCY_LORE.bestStreak.lore}
           mechanics={CURRENCY_LORE.bestStreak.mechanics}
           tags={CURRENCY_LORE.bestStreak.tags}
-          className="w-full"
+          className="w-full flex"
         >
           <BourdonGauge
             label="Record Streak"
             value={`${bestStreak}d`}
             subtext="All-time peak chronometer record"
-            icon={Award}
+            icon={PixelAwardIcon}
             variant="gold"
             pct={Math.min(100, Math.round((bestStreak / 30) * 100))}
+            className="w-full"
           />
         </SystemTooltip>
 
@@ -664,15 +667,16 @@ export default function CalendarPage() {
           lore={CURRENCY_LORE.protectionShields.lore}
           mechanics={CURRENCY_LORE.protectionShields.mechanics}
           tags={CURRENCY_LORE.protectionShields.tags}
-          className="w-full"
+          className="w-full flex"
         >
           <BourdonGauge
             label="Aegis Shields"
             value={`${streakFreezes} / 3`}
             subtext="Active decay buffer capacitors"
-            icon={Shield}
+            icon={PixelShieldIcon}
             variant="crimson"
             pct={(streakFreezes / 3) * 100}
+            className="w-full"
           />
         </SystemTooltip>
       </div>
@@ -749,7 +753,7 @@ export default function CalendarPage() {
                         <span className="w-2.5 h-2.5 bg-[#f59e0b] border border-black shadow-[0_0_6px_#f59e0b] animate-pulse" title={`${day.missions.length} Deadlines`} />
                       )}
                       {rate !== undefined && rate >= 100 && (
-                        <span className="text-sm text-[#fef08a] font-bold" title="100% Habit Quota Complete">✦</span>
+                        <PixelStarIcon className="w-3.5 h-3.5 text-[#fef08a]" />
                       )}
                     </div>
                   </div>
@@ -827,8 +831,10 @@ export default function CalendarPage() {
       <RivetedBoilerCard variant="default" className="space-y-4">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[#542d17] pb-3">
-          <div className="flex items-center gap-2.5">
-            <span className="text-2xl">⏳</span>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#120703] border-2 border-[#78350f] flex items-center justify-center text-[#fbbf24] shadow-[inset_0_1px_3px_#000] shrink-0">
+              <PixelHourglassIcon className="w-5 h-5 text-[#f59e0b]" />
+            </div>
             <div>
               <h3 className="text-base sm:text-lg font-pixel font-bold text-[#fef08a] uppercase tracking-wider">
                 52-Week Jacquard Punch-Tape Horizon
@@ -876,12 +882,12 @@ export default function CalendarPage() {
         {/* Right 2 Columns: Mission Deadlines Directive Deck */}
         <RivetedBoilerCard variant="default" className="lg:col-span-2 space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[#542d17] pb-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 bg-[#120703] border-2 border-[#78350f] flex items-center justify-center text-[#fbbf24]">
-                <Clock className="w-5 h-5" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[#120703] border-2 border-[#78350f] flex items-center justify-center text-[#fbbf24] shadow-[inset_0_1px_3px_#000] shrink-0">
+                <PixelClockIcon className="w-5 h-5 text-[#f59e0b]" />
               </div>
               <div>
-                <h4 className="text-xs sm:text-sm font-pixel font-bold uppercase text-[#fef08a]">
+                <h4 className="text-sm sm:text-base font-pixel font-bold uppercase text-[#fef08a]">
                   Chrono-Directive Pneumatic Deck
                 </h4>
                 <p className="text-xs sm:text-sm font-sans text-amber-200/80">
@@ -915,20 +921,20 @@ export default function CalendarPage() {
           {/* Deadlines List */}
           {filteredDeadlines.length === 0 ? (
             <div className="py-12 text-center space-y-3 font-mono">
-              <Clock className="w-8 h-8 text-[#542d17] mx-auto" />
+              <PixelClockIcon className="w-8 h-8 text-[#542d17] mx-auto" />
               <p className="text-xs sm:text-sm text-slate-300">
                 No pneumatic mission directives recorded for the <span className="text-[#f59e0b] font-bold">{deadlineFilter}</span> filter.
               </p>
               <PixelButton
                 variant="gold"
-                size="sm"
+                size="md"
                 onClick={() => {
                   playUIMenuSFX("confirm");
                   setIsCreateDeadlineOpen(true);
                 }}
-                className="font-pixel text-xs sm:text-sm font-bold"
+                className="font-pixel text-xs sm:text-sm font-bold h-11 px-5"
               >
-                <Plus className="w-4 h-4 mr-1" />
+                <PixelPlusIcon className="w-4 h-4 mr-1.5" />
                 <span>Inscribe New Directive Canister</span>
               </PixelButton>
             </div>
@@ -965,6 +971,8 @@ export default function CalendarPage() {
         </RivetedBoilerCard>
       </div>
 
+      <CalendarSchedulePanel selectedDate={selectedDate} />
+
       {/* Create Deadline Modal */}
       <CreateQuestModal
         isOpen={isCreateDeadlineOpen}
@@ -974,5 +982,4 @@ export default function CalendarPage() {
     </div>
   );
 }
-
 

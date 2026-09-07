@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Clock } from "lucide-react";
+import { PixelClockIcon, PixelGearIcon, PixelStarIcon } from "@/components/ui/pixel/PixelIcons";
 import { cn } from "@/lib/utils";
 import { VacuumTubeBar } from "./VacuumTubeBar";
 import { MonocleLoupeTooltipData } from "./types";
@@ -44,7 +44,7 @@ export function MonocleLoupeTooltip({
       {/* Loupe Header: Date & Weekday */}
       <div className="flex items-center justify-between border-b border-[#542d17] pb-2.5 mb-3.5">
         <div className="flex items-center gap-2">
-          <span className="text-[#f59e0b] text-sm">⚙</span>
+          <PixelGearIcon className="w-4 h-4 text-[#f59e0b] shrink-0" />
           <span className="font-pixel text-base font-bold text-[#fef08a] tracking-wide">
             {data.dateStr}
           </span>
@@ -92,7 +92,7 @@ export function MonocleLoupeTooltip({
       {data.missions.length > 0 && (
         <div className="pt-3 border-t border-[#542d17] space-y-2">
           <div className="text-sm font-pixel font-bold uppercase text-[#fbbf24] flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-[#f59e0b]" />
+            <PixelClockIcon className="w-4 h-4 text-[#f59e0b]" />
             <span>Directives Due ({data.missions.length})</span>
           </div>
           <div className="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar pr-0.5">
@@ -119,8 +119,10 @@ export function MonocleLoupeTooltip({
       )}
 
       {/* Loupe Footer Reticle Prompt */}
-      <div className="mt-3 pt-2.5 border-t border-[#45200c] text-xs font-pixel text-[#fbbf24] text-center tracking-wider font-bold">
-        ✦ Click to calibrate date & inscribe directive ✦
+      <div className="mt-3 pt-2.5 border-t border-[#45200c] text-xs font-pixel text-[#fbbf24] text-center tracking-wider font-bold flex items-center justify-center gap-2">
+        <PixelStarIcon className="w-3 h-3 text-[#f59e0b] shrink-0" />
+        <span>Click to calibrate date & inscribe directive</span>
+        <PixelStarIcon className="w-3 h-3 text-[#f59e0b] shrink-0" />
       </div>
     </div>
   );

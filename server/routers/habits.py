@@ -4,9 +4,10 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from db import db
 from db_utils import ensure_character_exists
 from auth_utils import get_current_user, get_current_user_optional, verify_character_ownership
-from schemas.habit import HabitCreateSchema, HabitStatus, HabitStatusUpdateSchema, HabitUpdateSchema, HabitLogSchema
+from schemas.habit import HabitCreateSchema, HabitStatus, HabitStatusUpdateSchema, HabitUpdateSchema, HabitLogSchema, HabitType
 from services.mission_generator import generate_daily_missions, recalculate_habit_strength
 from services.boss_engine import deal_boss_damage
+from services.habit_trigger_service import trigger_negative_habit
 
 router = APIRouter(prefix="/api/habits", tags=["habits"])
 
@@ -60,6 +61,9 @@ async def create_habit(character_id: str, payload: HabitCreateSchema, current_us
             "icon": payload.icon,
             "color": payload.color,
             "status": HabitStatus.ACTIVE.value,
+            "type": payload.type.value,
+            "affectedStat": payload.affectedStat.value,
+            "statModifier": payload.statModifier,
             "schedule": {
                 "create": schedule_data
             },
@@ -301,6 +305,24 @@ async def log_habit(habit_id: str, payload: HabitLogSchema, current_user: Option
     }
 
 
+@router.post("/{habit_id}/trigger")
+async def trigger_habit(habit_id: str, current_user: Optional[dict] = Depends(get_current_user_optional)):
+    """Trigger a habit. Negative habits apply an immediate, clamped penalty."""
+    habit = await db.habit.find_unique(where={"id": habit_id})
+    if not habit:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Habit not found")
+
+    is_owner = await verify_character_ownership(habit.characterId, current_user)
+    if not is_owner:
+        raise HTTPException(status_code=403, detail="Forbidden: You do not own this habit.")
+
+    habit_type = getattr(getattr(habit, "type", "POSITIVE"), "value", getattr(habit, "type", "POSITIVE"))
+    if habit_type != HabitType.NEGATIVE.value:
+        return await log_habit(habit_id, HabitLogSchema(), current_user)
+
+    return await trigger_negative_habit(habit_id, habit.characterId)
+
+
 @router.patch("/{habit_id}/status")
 async def update_habit_status(habit_id: str, payload: HabitStatusUpdateSchema, current_user: Optional[dict] = Depends(get_current_user_optional)):
     """
@@ -373,6 +395,12 @@ async def update_habit(habit_id: str, payload: HabitUpdateSchema, current_user: 
         habit_update_data["scheduleType"] = payload.scheduleType.value if hasattr(payload.scheduleType, "value") else str(payload.scheduleType)
     if payload.preferredTime is not None:
         habit_update_data["preferredTime"] = payload.preferredTime
+    if payload.type is not None:
+        habit_update_data["type"] = payload.type.value
+    if payload.affectedStat is not None:
+        habit_update_data["affectedStat"] = payload.affectedStat.value
+    if payload.statModifier is not None:
+        habit_update_data["statModifier"] = payload.statModifier
 
     if habit_update_data:
         await db.habit.update(where={"id": habit_id}, data=habit_update_data)
@@ -525,4 +553,3 @@ async def buy_streak_freeze(character_id: str, current_user: Optional[dict] = De
         "streakFreezes": updated.streakFreezes,
         "gold": updated.gold
     }
-

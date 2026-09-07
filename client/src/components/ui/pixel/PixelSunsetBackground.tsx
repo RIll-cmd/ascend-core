@@ -284,7 +284,7 @@ export function PixelSunsetBackground() {
   return (
     <div
       suppressHydrationWarning
-      className="fixed inset-0 pointer-events-none overflow-hidden z-0 select-none"
+      className="fixed inset-0 pointer-events-none z-0 select-none"
     >
       {/* 1. PIXEL-PERFECT BAYER DITHERED CANVAS */}
       <canvas

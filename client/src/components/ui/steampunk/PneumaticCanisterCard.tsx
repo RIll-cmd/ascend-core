@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Clock } from "lucide-react";
+import { PixelClockIcon, PixelGearIcon } from "@/components/ui/pixel/PixelIcons";
 import { CurrencyIcon } from "@/components/CurrencyDisplay";
 import { KnifeSwitchToggle } from "./KnifeSwitchToggle";
 import { SteamVent } from "./SteamVent";
@@ -89,14 +89,14 @@ export function PneumaticCanisterCard({
             {/* Wax-Seal / Engraved Medallion Rank Badge */}
             <span
               className={cn(
-                "px-2.5 py-0.5 border text-xs sm:text-sm font-pixel font-bold tracking-wider rounded-xs flex items-center gap-1 shrink-0",
+                "px-2.5 py-0.5 border text-xs sm:text-sm font-pixel font-bold tracking-wider rounded-xs flex items-center gap-1.5 shrink-0",
                 seal.bg,
                 seal.border,
                 seal.text,
                 seal.glow
               )}
             >
-              <span className="text-xs">⚙</span>
+              <PixelGearIcon className="w-3.5 h-3.5 shrink-0" />
               RANK {rank}
             </span>
 
@@ -135,7 +135,7 @@ export function PneumaticCanisterCard({
               : "bg-[#120703] text-amber-200 border-[#542d17]"
           )}
         >
-          <Clock className="w-4 h-4 text-[#f59e0b]" />
+          <PixelClockIcon className="w-4 h-4 text-[#f59e0b]" />
           <span>Due: {dueDateStr}</span>
         </div>
 

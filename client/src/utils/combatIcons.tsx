@@ -1,25 +1,20 @@
 import React from "react";
 import {
-  Dumbbell,
-  BookOpen,
-  Shield,
-  Target,
-  Heart,
-  RefreshCw,
-  Flame,
-  Snowflake,
-  Zap,
-  Moon,
-  Sun,
-  Sparkles,
-  Wind,
-  Droplets,
-  Swords,
-  Activity,
-  HeartPulse,
-  Eye,
-  Crosshair,
-} from "lucide-react";
+  PixelDumbbellIcon,
+  PixelBookIcon,
+  PixelShieldIcon,
+  PixelCrosshairIcon,
+  PixelTargetIcon,
+  PixelHeartIcon,
+  PixelRefreshIcon,
+  PixelFlameIcon,
+  PixelSparklesIcon,
+  PixelLightningIcon,
+  PixelMoonSleepIcon,
+  PixelSunriseIcon,
+  PixelRunningBootIcon,
+  PixelWaterDropIcon,
+} from "@/components/ui/pixel/PixelIcons";
 
 export interface WeaknessIconConfig {
   icon: React.ComponentType<{ className?: string }>;
@@ -36,7 +31,7 @@ export function getAttributeWeaknessConfig(stat: string): WeaknessIconConfig {
   
   if (norm.includes("str") || norm.includes("strength") || norm.includes("power") || norm.includes("melee")) {
     return {
-      icon: Dumbbell,
+      icon: PixelDumbbellIcon,
       label: "Strength",
       color: "text-red-400",
       bg: "bg-red-950/60",
@@ -48,7 +43,7 @@ export function getAttributeWeaknessConfig(stat: string): WeaknessIconConfig {
   
   if (norm.includes("knw") || norm.includes("knowledge") || norm.includes("int") || norm.includes("intelligence") || norm.includes("magic") || norm.includes("spell")) {
     return {
-      icon: BookOpen,
+      icon: PixelBookIcon,
       label: "Knowledge",
       color: "text-blue-400",
       bg: "bg-blue-950/60",
@@ -60,7 +55,7 @@ export function getAttributeWeaknessConfig(stat: string): WeaknessIconConfig {
   
   if (norm.includes("dis") || norm.includes("discipline") || norm.includes("will") || norm.includes("defense")) {
     return {
-      icon: Shield,
+      icon: PixelShieldIcon,
       label: "Discipline",
       color: "text-amber-400",
       bg: "bg-amber-950/60",
@@ -72,7 +67,7 @@ export function getAttributeWeaknessConfig(stat: string): WeaknessIconConfig {
   
   if (norm.includes("fcs") || norm.includes("focus") || norm.includes("crit") || norm.includes("agi") || norm.includes("precision")) {
     return {
-      icon: Target,
+      icon: PixelCrosshairIcon,
       label: "Focus",
       color: "text-purple-400",
       bg: "bg-purple-950/60",
@@ -84,7 +79,7 @@ export function getAttributeWeaknessConfig(stat: string): WeaknessIconConfig {
   
   if (norm.includes("end") || norm.includes("endurance") || norm.includes("stamina") || norm.includes("vitality")) {
     return {
-      icon: Heart,
+      icon: PixelHeartIcon,
       label: "Endurance",
       color: "text-emerald-400",
       bg: "bg-emerald-950/60",
@@ -96,7 +91,7 @@ export function getAttributeWeaknessConfig(stat: string): WeaknessIconConfig {
   
   if (norm.includes("rec") || norm.includes("recovery") || norm.includes("regen") || norm.includes("heal")) {
     return {
-      icon: RefreshCw,
+      icon: PixelRefreshIcon,
       label: "Recovery",
       color: "text-cyan-400",
       bg: "bg-cyan-950/60",
@@ -108,7 +103,7 @@ export function getAttributeWeaknessConfig(stat: string): WeaknessIconConfig {
   
   if (norm.includes("con") || norm.includes("consistency") || norm.includes("streak") || norm.includes("momentum")) {
     return {
-      icon: Flame,
+      icon: PixelFlameIcon,
       label: "Consistency",
       color: "text-orange-400",
       bg: "bg-orange-950/60",
@@ -119,7 +114,7 @@ export function getAttributeWeaknessConfig(stat: string): WeaknessIconConfig {
   }
 
   return {
-    icon: Target,
+    icon: PixelTargetIcon,
     label: stat || "Knowledge",
     color: "text-indigo-300",
     bg: "bg-indigo-950/60",
@@ -134,7 +129,7 @@ export function getElementalVulnerabilityConfig(element: string): WeaknessIconCo
 
   if (norm.includes("flame") || norm.includes("fire") || norm.includes("pyro") || norm.includes("burn") || norm.includes("infernal")) {
     return {
-      icon: Flame,
+      icon: PixelFlameIcon,
       label: "Flame",
       color: "text-orange-400",
       bg: "bg-orange-950/60",
@@ -146,7 +141,7 @@ export function getElementalVulnerabilityConfig(element: string): WeaknessIconCo
 
   if (norm.includes("frost") || norm.includes("ice") || norm.includes("cryo") || norm.includes("freeze") || norm.includes("cold") || norm.includes("water") || norm.includes("hydro")) {
     return {
-      icon: Snowflake,
+      icon: PixelSparklesIcon,
       label: "Frost",
       color: "text-cyan-400",
       bg: "bg-cyan-950/60",
@@ -158,7 +153,7 @@ export function getElementalVulnerabilityConfig(element: string): WeaknessIconCo
 
   if (norm.includes("zap") || norm.includes("lightning") || norm.includes("thunder") || norm.includes("electric") || norm.includes("shock") || norm.includes("volt")) {
     return {
-      icon: Zap,
+      icon: PixelLightningIcon,
       label: "Lightning",
       color: "text-yellow-400",
       bg: "bg-yellow-950/60",
@@ -170,7 +165,7 @@ export function getElementalVulnerabilityConfig(element: string): WeaknessIconCo
 
   if (norm.includes("shadow") || norm.includes("dark") || norm.includes("void") || norm.includes("abyss") || norm.includes("necrotic")) {
     return {
-      icon: Moon,
+      icon: PixelMoonSleepIcon,
       label: "Shadow",
       color: "text-purple-400",
       bg: "bg-purple-950/60",
@@ -182,7 +177,7 @@ export function getElementalVulnerabilityConfig(element: string): WeaknessIconCo
 
   if (norm.includes("holy") || norm.includes("light") || norm.includes("radiant") || norm.includes("solar") || norm.includes("aether") || norm.includes("celestial")) {
     return {
-      icon: Sun,
+      icon: PixelSunriseIcon,
       label: "Holy",
       color: "text-amber-300",
       bg: "bg-amber-950/60",
@@ -194,7 +189,7 @@ export function getElementalVulnerabilityConfig(element: string): WeaknessIconCo
 
   if (norm.includes("wind") || norm.includes("air") || norm.includes("gale") || norm.includes("storm") || norm.includes("aero")) {
     return {
-      icon: Wind,
+      icon: PixelRunningBootIcon,
       label: "Wind",
       color: "text-teal-400",
       bg: "bg-teal-950/60",
@@ -206,7 +201,7 @@ export function getElementalVulnerabilityConfig(element: string): WeaknessIconCo
 
   if (norm.includes("poison") || norm.includes("acid") || norm.includes("nature") || norm.includes("earth") || norm.includes("toxin")) {
     return {
-      icon: Droplets,
+      icon: PixelWaterDropIcon,
       label: "Poison",
       color: "text-lime-400",
       bg: "bg-lime-950/60",
@@ -217,7 +212,7 @@ export function getElementalVulnerabilityConfig(element: string): WeaknessIconCo
   }
 
   return {
-    icon: Flame,
+    icon: PixelFlameIcon,
     label: element || "Flame",
     color: "text-amber-400",
     bg: "bg-amber-950/60",

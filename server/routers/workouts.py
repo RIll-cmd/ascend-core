@@ -655,16 +655,11 @@ async def reset_muscle_recovery(character_id: str, current_user: dict = Depends(
     }
 
 
-@router.post("/log")
-async def log_workout(data: WorkoutLogInput, current_user: dict = Depends(get_current_user)):
+async def _record_workout(data: WorkoutLogInput):
     """
     Logs a workout session, computes 1RM PRs, applies Boss damage,
     updates muscle recovery fatigue and timestamps, and rewards character stats & EXP.
     """
-    is_owner = await verify_character_ownership(data.characterId, current_user)
-    if not is_owner:
-        raise HTTPException(status_code=403, detail="Forbidden: You do not own this character.")
-
     from db_utils import ensure_character_exists
     character = await ensure_character_exists(data.characterId)
     char_id = character.id if character else data.characterId
@@ -846,10 +841,24 @@ async def log_workout(data: WorkoutLogInput, current_user: dict = Depends(get_cu
         "recoveryStatus": updated_recovery
     }
 
+@router.post("/log")
+async def log_workout(data: WorkoutLogInput, current_user: dict = Depends(get_current_user)):
+    """Logs a workout from the authenticated Ascend client."""
+    is_owner = await verify_character_ownership(data.characterId, current_user)
+    if not is_owner:
+        raise HTTPException(status_code=403, detail="Forbidden: You do not own this character.")
+    return await _record_workout(data)
+
+
+async def log_workout_from_integration(data: WorkoutLogInput):
+    """Internal trusted-client adapter; never exposed as an HTTP route."""
+    return await _record_workout(data)
+
+
 @router.post("/finish")
-async def finish_workout(data: WorkoutLogInput):
+async def finish_workout(data: WorkoutLogInput, current_user: dict = Depends(get_current_user)):
     """Alias endpoint for finishing workout sessions."""
-    return await log_workout(data)
+    return await log_workout(data, current_user)
 
 @router.get("/ranks/{character_id}")
 async def get_workout_ranks(character_id: str):

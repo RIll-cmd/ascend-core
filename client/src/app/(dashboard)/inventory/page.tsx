@@ -4,138 +4,242 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useInventoryStore } from '@/features/inventory/store/useInventoryStore';
 import { ItemCard } from '@/features/inventory/components/ItemCard';
 import { ItemDetailModal } from '@/features/inventory/components/ItemDetailModal';
+import { PaperDoll } from '@/features/inventory/components/PaperDoll';
 import { PlayerItem } from '@/features/inventory/types/inventory';
-import { Search, Filter, Backpack } from 'lucide-react';
-
-type FilterTab = 'All' | 'Equipment' | 'Consumables' | 'Materials';
+import {
+  filterInventoryItems,
+  getInventoryLoad,
+  type InventoryFilterTab,
+} from '@/features/inventory/utils/inventoryPresentation';
+import smithy from '@/features/armory/styles/RoyalSmithy.module.css';
+import { useCharacterStore } from '@/store/useCharacterStore';
+import { AlertTriangle, Search, Filter, Scale, PackageOpen, RefreshCcw } from 'lucide-react';
+import { InventoryBadgeButton, PixelAdventurerPackIcon } from '@/features/inventory/components/InventoryBadgeButton';
 
 export default function InventoryPage() {
-  const { items, isLoading, fetchInventory, equipItem, toggleLock, toggleFavorite, useItem } = useInventoryStore();
+  const {
+    items,
+    isLoading,
+    error: inventoryError,
+    fetchInventory,
+    equipItem,
+    toggleLock,
+    toggleFavorite,
+    useItem: consumeItem,
+  } = useInventoryStore();
+  const { character } = useCharacterStore();
   
-  const [activeTab, setActiveTab] = useState<FilterTab>('All');
+  const [activeTab, setActiveTab] = useState<InventoryFilterTab>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<PlayerItem | null>(null);
 
+  const charId = character?.id;
+
   useEffect(() => {
-    // Standard char ID across the app during this prototype phase
-    fetchInventory("char-id-123");
-  }, [fetchInventory]);
+    if (charId) {
+      void fetchInventory(charId);
+    }
+  }, [charId, fetchInventory]);
 
   const filteredItems = useMemo(() => {
-    return items.filter(item => {
-      // Tab Filtering
-      if (activeTab === 'Equipment') {
-        if (["MATERIAL", "CONSUMABLE"].includes(item.itemDefinition.type)) return false;
-      }
-      if (activeTab === 'Consumables') {
-        if (item.itemDefinition.type !== 'CONSUMABLE') return false;
-      }
-      if (activeTab === 'Materials') {
-        if (item.itemDefinition.type !== 'MATERIAL') return false;
-      }
-
-      // Search Filtering
-      if (searchQuery) {
-        if (!item.itemDefinition.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-          return false;
-        }
-      }
-
-      return true;
-    });
+    return filterInventoryItems(items, activeTab, searchQuery);
   }, [items, activeTab, searchQuery]);
 
+  const inventoryLoad = useMemo(() => getInventoryLoad(items, 500), [items]);
+  const equippedItems = useMemo(() => items.filter((item) => item.isEquipped), [items]);
+
   return (
-    <div className="space-y-6 flex flex-col h-full">
-      {/* Header Area */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white font-heading uppercase tracking-wider flex items-center gap-3">
-            <Backpack className="text-purple-500 w-7 h-7" />
-            Inventory
-          </h1>
-          <p className="text-slate-400 text-xs font-mono mt-1">Manage your equipment, consumables, and materials.</p>
-        </div>
-
-        {/* Capacity & Quick Stats */}
-        <div className="bg-[#0B1020] border border-white/10 rounded-xl px-4 py-2 flex items-center gap-6 shadow-xl">
-          <div className="flex flex-col items-center">
-            <span className="text-[9px] text-slate-500 font-mono tracking-widest uppercase">Capacity</span>
-            <span className="text-sm font-bold text-white font-mono">{items.length} / 500</span>
-          </div>
-          <div className="w-px h-8 bg-white/10" />
-          <div className="flex flex-col items-center">
-            <span className="text-[9px] text-slate-500 font-mono tracking-widest uppercase">Equipment</span>
-            <span className="text-sm font-bold text-purple-400 font-mono">
-              {items.filter(i => !["MATERIAL", "CONSUMABLE"].includes(i.itemDefinition.type)).length}
-            </span>
-          </div>
-        </div>
+    <div className={`${smithy.surface} ${smithy.inventorySurface}`}>
+      {/* FULL-BLEED FIXED OAK VAULT BASE BACKGROUND */}
+      <div
+        className="fixed inset-0 -z-10 w-full h-full bg-[#0d0b09] pointer-events-none select-none overflow-hidden"
+        aria-hidden="true"
+      >
+        <div
+          className="absolute inset-0 w-full h-full bg-cover bg-top bg-no-repeat pointer-events-none"
+          style={{
+            backgroundImage: "url('/backgrounds/royal-oak-vault.png')",
+            imageRendering: "pixelated",
+            opacity: 0.72,
+          }}
+        />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(13, 11, 9, 0.58) 0%, rgba(13, 11, 9, 0.82) 58%, #0d0b09 100%), radial-gradient(circle at 16% 2%, rgba(234, 88, 12, 0.22), transparent 34%), radial-gradient(circle at 88% 16%, rgba(217, 119, 6, 0.12), transparent 28%)",
+          }}
+        />
       </div>
 
-      {/* Controls: Search & Tabs */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-[#0B1020] p-2 rounded-xl border border-white/5 shadow-lg">
-        <div className="flex gap-1 w-full sm:w-auto p-1 bg-black/40 rounded-lg">
-          {(['All', 'Equipment', 'Consumables', 'Materials'] as FilterTab[]).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider transition-all ${
-                activeTab === tab 
-                  ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.2)]' 
-                  : 'text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent'
-              }`}
+      <div className={smithy.content}>
+        <header className={smithy.header}>
+          <div className={smithy.titleGroup}>
+            <InventoryBadgeButton
+              size="lg"
+              capacity={{
+                occupied: inventoryLoad.occupiedSlots,
+                total: inventoryLoad.capacity,
+              }}
+              onClick={() => {
+                if (charId) {
+                  void fetchInventory(charId);
+                }
+              }}
+              ariaLabel="The Oak Vault Adventurer Rucksack. Click to refresh inventory."
+            />
+            <div>
+              <h1 className={smithy.title}>The Oak Vault</h1>
+              <p className={smithy.subtitle}>
+                Quartermaster&apos;s armory for equipped relics, field supplies, and hard-won materials.
+              </p>
+            </div>
+          </div>
+
+          <section className={smithy.loadBelt} aria-label="Rucksack capacity and load">
+            <div className={smithy.beltMetric}>
+              <span className={smithy.beltLabel}>Capacity</span>
+              <strong className={smithy.beltValue}>
+                {inventoryLoad.occupiedSlots} / {inventoryLoad.capacity}
+              </strong>
+            </div>
+            <div
+              className={smithy.beltTrack}
+              role="progressbar"
+              aria-label="Occupied inventory slots"
+              aria-valuemin={0}
+              aria-valuemax={inventoryLoad.capacity}
+              aria-valuenow={inventoryLoad.occupiedSlots}
             >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        <div className="relative w-full sm:w-64">
-          <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-slate-500" />
-          </div>
-          <input
-            type="text"
-            placeholder="Search items..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-black/40 border border-white/10 text-white text-sm rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder:text-slate-600 font-mono"
-          />
-        </div>
-      </div>
-
-      {/* Item Grid */}
-      <div className="flex-1 rounded-[24px] bg-[#0B1020] border border-white/10 p-6 shadow-2xl min-h-[500px]">
-        {isLoading ? (
-          <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 space-y-4">
-            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs font-mono tracking-widest uppercase">Loading Inventory...</span>
-          </div>
-        ) : filteredItems.length > 0 ? (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-            {filteredItems.map(item => (
-              <ItemCard 
-                key={item.id} 
-                item={item} 
-                onClick={() => setSelectedItem(item)} 
+              <span
+                className={smithy.beltFill}
+                style={{ width: `${inventoryLoad.fillPercentage}%` }}
               />
-            ))}
-          </div>
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 space-y-3">
-            <Filter className="w-12 h-12 text-slate-700" />
-            <p className="text-sm font-mono uppercase tracking-widest">No items found.</p>
-          </div>
-        )}
+              <span className={smithy.beltNotches} aria-hidden="true" />
+            </div>
+            <div className={smithy.beltBuckle} aria-hidden="true">
+              <Scale className="h-4 w-4" />
+            </div>
+            <div
+              className={smithy.coinPouch}
+              title="Stored stack units are shown because individual item weights are not part of the inventory schema."
+            >
+              <PackageOpen className="h-5 w-5" aria-hidden="true" />
+              <div className={smithy.beltMetric}>
+                <span className={smithy.beltLabel}>Stored stacks</span>
+                <strong className={smithy.beltValue}>{inventoryLoad.stackUnits} units</strong>
+              </div>
+            </div>
+          </section>
+        </header>
+
+        <div className={smithy.inventoryLayout}>
+          <section className={`${smithy.oakPanel} ${smithy.rivets} ${smithy.armoryPanel}`}>
+            <h2 className={smithy.panelHeading}>
+              Knight&apos;s Rack
+              <span className={smithy.panelHint}>{equippedItems.length} socketed</span>
+            </h2>
+            <PaperDoll equippedItems={equippedItems} />
+            <div className={smithy.armoryFooter}>
+              <div className={smithy.armoryStat}>
+                Armaments
+                <strong>{inventoryLoad.equipmentCount}</strong>
+              </div>
+              <div className={smithy.armoryStat}>
+                Active loadout
+                <strong>{equippedItems.length} / 9</strong>
+              </div>
+            </div>
+          </section>
+
+          <section className={`${smithy.oakPanel} ${smithy.rivets} ${smithy.trunkPanel}`}>
+            <div className={smithy.controls}>
+              <div className={smithy.tabs} role="group" aria-label="Inventory categories">
+                {(['All', 'Equipment', 'Consumables', 'Materials'] as InventoryFilterTab[]).map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    aria-pressed={activeTab === tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`${smithy.tab} ${activeTab === tab ? smithy.activeTab : ''}`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+
+              <label className={smithy.searchWrap}>
+                <span className="sr-only">Search the oak vault</span>
+                <Search className={smithy.searchIcon} aria-hidden="true" />
+                <input
+                  type="search"
+                  placeholder="Search the vault…"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  className={smithy.searchInput}
+                />
+              </label>
+            </div>
+
+            {!charId ? (
+              <div className={smithy.statePanel}>
+                <div className={smithy.stateInner}>
+                  <PixelAdventurerPackIcon className="h-12 w-12" />
+                  <h2 className={smithy.recipeTitle}>Awaiting the quartermaster&apos;s ledger</h2>
+                  <p className={smithy.subtitle}>Select or load a character to open their Oak Vault.</p>
+                </div>
+              </div>
+            ) : inventoryError ? (
+              <div className={smithy.errorPanel} role="alert">
+                <div className={smithy.errorCopy}>
+                  <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+                  <div>
+                    <strong>The vault ledger could not be opened.</strong>
+                    <span>{inventoryError}</span>
+                  </div>
+                </div>
+                <button type="button" className={smithy.secondaryButton} onClick={() => void fetchInventory(charId)}>
+                  <RefreshCcw className="h-4 w-4" aria-hidden="true" />
+                  Retry
+                </button>
+              </div>
+            ) : isLoading ? (
+              <div className={smithy.statePanel}>
+                <div className={smithy.stateInner}>
+                  <span className={smithy.spinner} aria-hidden="true" />
+                  <span className={smithy.brassBadge}>Unlatching the armory trunk</span>
+                </div>
+              </div>
+            ) : filteredItems.length > 0 ? (
+              <div className={smithy.itemGrid}>
+                {filteredItems.map((item) => (
+                  <ItemCard key={item.id} item={item} onClick={() => setSelectedItem(item)} />
+                ))}
+              </div>
+            ) : (
+              <div className={smithy.statePanel}>
+                <div className={smithy.stateInner}>
+                  <Filter className="h-10 w-10" aria-hidden="true" />
+                  <h2 className={smithy.recipeTitle}>
+                    {items.length === 0 ? 'The trunk is empty' : 'No matching stores'}
+                  </h2>
+                  <p className={smithy.subtitle}>
+                    {items.length === 0
+                      ? 'Recovered equipment and supplies will be stowed here.'
+                      : 'Try another chest compartment or clear the search inscription.'}
+                  </p>
+                </div>
+              </div>
+            )}
+          </section>
+        </div>
       </div>
 
-      {/* Item Detail Modal */}
-      <ItemDetailModal 
-        item={selectedItem} 
-        onClose={() => setSelectedItem(null)} 
+      <ItemDetailModal
+        item={selectedItem}
+        onClose={() => setSelectedItem(null)}
         onEquip={(id) => equipItem(id)}
-        onUse={(id) => useItem(id)}
+        onUse={(id) => consumeItem(id)}
         onToggleFavorite={(id) => toggleFavorite(id)}
         onToggleLock={(id) => toggleLock(id)}
       />

@@ -151,7 +151,7 @@ export function calculateSleepEfficiency(hours: number, quality: SleepQuality): 
   const gold = Math.round(25 + (finalScore / 100) * 35);
 
   let ratingLabel = "Sub-Optimal Rest";
-  if (finalScore >= 95) ratingLabel = "✦ Divine Somatic Regeneration ✦";
+  if (finalScore >= 95) ratingLabel = "Divine Somatic Regeneration";
   else if (finalScore >= 85) ratingLabel = "Optimal Restorative Sleep";
   else if (finalScore >= 70) ratingLabel = "Good Recovery";
   else if (finalScore >= 50) ratingLabel = "Moderate Rest";

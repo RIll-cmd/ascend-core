@@ -2,21 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  BookOpen,
-  ChevronLeft,
-  ChevronRight,
-  RotateCw,
-  CheckCircle,
-  Sparkles,
-  Award,
-  Scroll,
-  Plus,
-  Trash2,
-  Bookmark,
-  Feather,
-  Layers,
-  X,
-} from "lucide-react";
+  PixelBrainIcon,
+  PixelScrollIcon,
+  PixelCrossedSwordsIcon,
+  PixelQuillIcon,
+  PixelBookIcon,
+  PixelChevronLeftIcon,
+  PixelChevronRightIcon,
+  PixelRefreshIcon,
+  PixelCheckSquareIcon,
+  PixelSparklesIcon,
+  PixelPlusIcon,
+  PixelTrashIcon,
+  PixelCloseIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { PixelAgedParchment } from "@/components/ui/pixel/PixelAgedParchment";
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
@@ -40,7 +39,7 @@ export interface Flashcard {
 interface TomeDeck {
   id: string;
   title: string;
-  icon: string;
+  icon: React.ComponentType<{ className?: string }>;
   description: string;
   badgeColor: string;
 }
@@ -49,28 +48,28 @@ const TOMES: TomeDeck[] = [
   {
     id: "NEUROSCIENCE",
     title: "Neuroscience of Flow",
-    icon: "🧠",
+    icon: PixelBrainIcon,
     description: "Cortical circuits, acetylcholine spotlights, and dopamine dynamics.",
     badgeColor: "bg-[#1e3a8a] text-[#93c5fd] border-[#3b82f6]",
   },
   {
     id: "SPACED_REP",
     title: "Memory & Consolidation",
-    icon: "📜",
+    icon: PixelScrollIcon,
     description: "Ebbinghaus curve, active recall rites, and synaptic plasticity.",
     badgeColor: "bg-[#064e3b] text-[#a7f3d0] border-[#10b981]",
   },
   {
     id: "WILLPOWER",
     title: "Ultradian & Focus Rites",
-    icon: "⚔️",
+    icon: PixelCrossedSwordsIcon,
     description: "Beta-wave endurance, 90m cycles, and cognitive recovery sanctuaries.",
     badgeColor: "bg-[#581c87] text-[#e9d5ff] border-[#a855f7]",
   },
   {
     id: "CUSTOM",
     title: "Scholar's Personal Codex",
-    icon: "✍️",
+    icon: PixelQuillIcon,
     description: "Your hand-inscribed knowledge folios and custom flashcard study cards.",
     badgeColor: "bg-[#78350f] text-[#fef08a] border-[#f59e0b]",
   },
@@ -304,7 +303,7 @@ export const ForbiddenGrimoireCard: React.FC<{ className?: string }> = ({ classN
           }}
           className="whitespace-nowrap px-3 py-2 text-xs font-pixel font-bold flex items-center gap-1.5 cursor-pointer shadow-[0_2px_0_0_#000] shrink-0"
         >
-          {isCreatingCard ? <X className="w-4 h-4 shrink-0" /> : <Plus className="w-4 h-4 shrink-0" />}
+          {isCreatingCard ? <PixelCloseIcon className="w-4 h-4 shrink-0" /> : <PixelPlusIcon className="w-4 h-4 shrink-0" />}
           <span className="whitespace-nowrap">{isCreatingCard ? "Close Quill" : "Inscribe Lore"}</span>
         </PixelButton>
       </div>
@@ -339,7 +338,7 @@ export const ForbiddenGrimoireCard: React.FC<{ className?: string }> = ({ classN
               )}
             >
               <div className="flex items-center justify-between gap-1 w-full pb-1 border-b border-[#45200c]/40">
-                <span className="text-base shrink-0">{tome.icon}</span>
+                <tome.icon className={cn("w-4 h-4 shrink-0 transition-colors", isSelected ? "text-[#fef08a]" : "text-amber-400")} />
                 <span className="text-[10px] font-mono font-bold bg-[#100602] px-1.5 py-0.5 border border-[#45200c] text-amber-400 shrink-0 tabular-nums">
                   {count} Folios
                 </span>
@@ -361,7 +360,7 @@ export const ForbiddenGrimoireCard: React.FC<{ className?: string }> = ({ classN
           className="p-4 sm:p-5 bg-[#edd9b6] text-[#221208] border-2 border-[#82542a] shadow-[inset_0_0_16px_rgba(110,64,28,0.35)] space-y-3.5 animate-in fade-in duration-200"
         >
           <div className="flex items-center gap-2 border-b border-[#82542a]/40 pb-2 text-xs sm:text-sm font-pixel font-bold text-[#5c2f10] uppercase">
-            <Feather className="w-4 h-4 text-[#854d0e]" />
+            <PixelQuillIcon className="w-4 h-4 text-[#854d0e]" />
             Inscribe New Folio into Personal Codex
           </div>
 
@@ -424,7 +423,7 @@ export const ForbiddenGrimoireCard: React.FC<{ className?: string }> = ({ classN
         <div className="space-y-3">
           {currentDeckCards.length === 0 ? (
             <div className="p-8 bg-[#180a04] border-2 border-[#45200c] text-center space-y-3">
-              <span className="text-3xl block">🪶</span>
+              <PixelQuillIcon className="w-8 h-8 text-amber-400/80 mx-auto block" />
               <p className="font-pixel text-sm text-[#fef08a] font-bold">
                 Your Personal Codex is Empty
               </p>
@@ -472,7 +471,7 @@ export const ForbiddenGrimoireCard: React.FC<{ className?: string }> = ({ classN
                   </div>
 
                   <span className="text-xs sm:text-sm font-mono font-bold text-[#5c2d12] flex items-center gap-1.5 group-hover:text-[#231006]">
-                    <RotateCw className="w-3.5 h-3.5 animate-spin group-hover:rotate-180 transition-transform" />
+                    <PixelRefreshIcon className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform text-[#78350f]" />
                     {isFlipped ? "Deciphered Solution" : "Click to Inscribe / Flip"}
                   </span>
                 </div>
@@ -493,14 +492,14 @@ export const ForbiddenGrimoireCard: React.FC<{ className?: string }> = ({ classN
                 {/* Card Bottom Strip */}
                 <div className="flex items-center justify-between pt-2.5 border-t-2 border-[#5c2b10]/40 text-xs sm:text-sm font-mono">
                   <div className="flex items-center gap-1.5 font-bold text-[#065f46]">
-                    <Sparkles className="w-4 h-4 text-[#d97706]" />
+                    <PixelSparklesIcon className="w-4 h-4 text-[#d97706]" />
                     <span>Reward: {currentCard.statReward}</span>
                   </div>
 
                   <div className="flex items-center gap-2.5 font-bold">
                     {isMastered ? (
                       <span className="text-[#047857] flex items-center gap-1 bg-[#d1fae5] px-2.5 py-0.5 border border-[#10b981]">
-                        <CheckCircle className="w-4 h-4" /> Mastered
+                        <PixelCheckSquareIcon className="w-4 h-4 text-[#047857]" /> Mastered
                       </span>
                     ) : (
                       <span className="text-[#854d0e]">Unmastered</span>
@@ -513,10 +512,10 @@ export const ForbiddenGrimoireCard: React.FC<{ className?: string }> = ({ classN
                           e.stopPropagation();
                           handleDeleteCard(currentCard.id);
                         }}
-                        className="text-red-700 hover:text-red-900 p-1 cursor-pointer"
+                        className="text-red-700 hover:text-red-900 p-1 cursor-pointer transition-colors"
                         title="Erase Folio"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <PixelTrashIcon className="w-4 h-4 text-[#dc2626] hover:text-[#ef4444]" />
                       </button>
                     )}
                   </div>
@@ -536,7 +535,7 @@ export const ForbiddenGrimoireCard: React.FC<{ className?: string }> = ({ classN
                     className="w-11 h-11 flex items-center justify-center cursor-pointer shadow-[0_2px_0_0_#000]"
                     title="Previous Folio"
                   >
-                    <ChevronLeft className="w-5 h-5 text-[#fbbf24]" />
+                    <PixelChevronLeftIcon className="w-5 h-5 text-[#fbbf24]" />
                   </PixelButton>
 
                   <span className="text-xs sm:text-sm font-mono font-bold text-[#fef08a] bg-[#1a0b04] px-3.5 py-2.5 border-2 border-[#542d17] shadow-[0_2px_0_0_#000] tabular-nums">
@@ -552,7 +551,7 @@ export const ForbiddenGrimoireCard: React.FC<{ className?: string }> = ({ classN
                     className="w-11 h-11 flex items-center justify-center cursor-pointer shadow-[0_2px_0_0_#000]"
                     title="Next Folio"
                   >
-                    <ChevronRight className="w-5 h-5 text-[#fbbf24]" />
+                    <PixelChevronRightIcon className="w-5 h-5 text-[#fbbf24]" />
                   </PixelButton>
                 </div>
 
@@ -565,7 +564,7 @@ export const ForbiddenGrimoireCard: React.FC<{ className?: string }> = ({ classN
                   disabled={isMastered}
                   className="flex-1 h-11 text-xs sm:text-sm font-pixel font-bold flex items-center justify-center gap-2 cursor-pointer shadow-[0_2px_0_0_#000]"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <PixelSparklesIcon className="w-4 h-4" />
                   {isMastered ? "Inscription Mastered (+KNO)" : "Master Inscription (+0.5 KNO)"}
                 </PixelButton>
               </div>

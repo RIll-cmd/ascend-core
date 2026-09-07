@@ -2,8 +2,11 @@ import os
 from pathlib import Path
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
+
 # Auto-detect bundled Prisma query engine binary on Linux/Render
 server_dir = Path(__file__).resolve().parent
+load_dotenv(server_dir / ".env", override=False)
 for engine_candidate in [
     server_dir / "prisma-query-engine-debian-openssl-3.0.x",
     server_dir / "prisma-query-engine-rhel-openssl-3.0.x",
@@ -22,7 +25,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from prisma.errors import RecordNotFoundError
 from db import db
-from routers import auth, character, habits, missions, progression, achievements, analytics, tower, inventory, aira, fitness, skills, bosses, workouts, shop, season_pass, crafting, beasts
+from routers import auth, character, habits, missions, progression, achievements, analytics, tower, inventory, aira, fitness, skills, bosses, workouts, shop, season_pass, crafting, beasts, integration, automations
 
 
 @asynccontextmanager
@@ -166,6 +169,8 @@ app.include_router(workouts.router, prefix="/api/workouts", tags=["workouts"])
 app.include_router(shop.router, prefix="/api/shop", tags=["shop"])
 app.include_router(crafting.router)
 app.include_router(beasts.router)
+app.include_router(integration.router)
+app.include_router(automations.router)
 
 @app.get("/")
 def read_root():
@@ -238,4 +243,3 @@ async def get_user(user_id_or_email: str):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-

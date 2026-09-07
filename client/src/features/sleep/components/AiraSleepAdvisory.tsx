@@ -1,7 +1,11 @@
 "use client";
 
 import React from "react";
-import { Moon, Zap, Droplets } from "lucide-react";
+import {
+  PixelMoonSleepIcon,
+  PixelLightningIcon,
+  PixelWaterDropIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { AiraAvatar } from "@/components/ui/AiraAvatar";
 import { useSleepStore } from "../store/useSleepStore";
 import { useCharacterStore } from "@/store/useCharacterStore";
@@ -68,7 +72,7 @@ export const AiraSleepAdvisory: React.FC<{ className?: string }> = ({ className 
         <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#3c1860]/40 border-y border-[#3c1860]/40 py-2.5 font-pixel text-xs sm:text-sm">
           <div className="px-3 py-1 space-y-1">
             <span className="text-[#fbbf24] font-bold block flex items-center gap-1.5">
-              <Droplets className="w-4 h-4 text-[#fbbf24]" />
+              <PixelWaterDropIcon className="w-4 h-4 text-[#fbbf24]" />
               Optimal Temp
             </span>
             <span className="text-white font-bold block text-sm sm:text-base">18.5°C (65°F)</span>
@@ -76,7 +80,7 @@ export const AiraSleepAdvisory: React.FC<{ className?: string }> = ({ className 
 
           <div className="px-3 py-1 space-y-1">
             <span className="text-[#fbbf24] font-bold block flex items-center gap-1.5">
-              <Moon className="w-4 h-4 text-[#fbbf24]" />
+              <PixelMoonSleepIcon className="w-4 h-4 text-[#fbbf24]" />
               Melatonin Gate
             </span>
             <span className="text-white font-bold block text-sm sm:text-base">22:30 – 23:00</span>
@@ -84,7 +88,7 @@ export const AiraSleepAdvisory: React.FC<{ className?: string }> = ({ className 
 
           <div className="px-3 py-1 space-y-1">
             <span className="text-[#fbbf24] font-bold block flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-[#fbbf24]" />
+              <PixelLightningIcon className="w-4 h-4 text-[#fbbf24]" />
               REC Multiplier
             </span>
             <span className="text-[#34d399] font-bold block text-sm sm:text-base">

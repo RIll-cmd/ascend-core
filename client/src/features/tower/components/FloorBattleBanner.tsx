@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
-import { getEnemySpriteUrl } from "@/utils/spriteUtils";
 import { CHARACTER_AVATAR_PREVIEW } from "@/utils/sprites";
+import Image from "next/image";
+import { getEnemySpriteUrl } from "@/utils/spriteUtils";
 import { SystemTooltip } from "@/components/ui/SystemTooltip";
 import { getEnemyLore } from "@/features/lore/loreData";
 
@@ -15,81 +15,131 @@ interface FloorBattleBannerProps {
   isBoss?: boolean;
 }
 
-export function FloorBattleBanner({
-  playerName = "Player",
-  playerPower = 0,
-  enemyName,
-  enemyLevel,
-  floorNumber,
-  isBoss = false,
-}: FloorBattleBannerProps) {
+export function FloorBattleBanner({ playerName = "Player", playerPower = 0, enemyName, enemyLevel, floorNumber, isBoss = false }: FloorBattleBannerProps) {
   const spriteUrl = getEnemySpriteUrl(enemyName, { floorOrLevel: floorNumber, isBoss });
   const enemyLore = getEnemyLore(enemyName, floorNumber, isBoss);
 
   return (
-    <div className="relative p-5 rounded-2xl bg-gradient-to-r from-purple-950/60 via-[#151C33] to-red-950/60 border border-indigo-500/30 overflow-visible flex items-center justify-between shadow-inner min-h-[140px]">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/10 via-transparent to-transparent pointer-events-none rounded-2xl" />
+    <section aria-label="Combatants" className="relative min-h-[220px] overflow-hidden rounded-xl border-3 border-[#785b34] bg-[#120d09] px-4 pt-4 shadow-[0_12px_28px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(255,255,255,0.1)] group select-none">
+      {/* Detailed 16-Bit Pixel Art Stone Arena Diorama Backdrop */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-bottom pointer-events-none select-none"
+        style={{
+          backgroundImage: "url('/backgrounds/stone_arena_diorama.jpg')",
+          imageRendering: "pixelated",
+          filter: "contrast(1.08) brightness(0.95)",
+        }}
+      />
 
-      {/* Player Side (Left) */}
-      <div className="flex flex-col items-center gap-1 relative z-10">
-        <div className="w-20 h-20 rounded-2xl bg-indigo-950/60 border border-cyan-500/40 p-1 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)] overflow-hidden">
-          <img
-            src={CHARACTER_AVATAR_PREVIEW}
-            alt={playerName}
-            onError={(e) => { e.currentTarget.src = CHARACTER_AVATAR_PREVIEW; }}
-            className="w-16 h-16 object-contain drop-shadow-[0_0_10px_rgba(6,182,212,0.6)]"
-            style={{ imageRendering: "pixelated" }}
+      {/* Ambient Depth & Fog Vignette Overlays */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-t from-[#0d0a08]/90 via-[#0d0a08]/35 to-black/55 pointer-events-none"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-radial from-amber-500/10 via-transparent to-transparent pointer-events-none"
+      />
+
+      {/* 4 Corner Brass Rivets */}
+      <div className="absolute top-1.5 left-1.5 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none z-20" />
+      <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none z-20" />
+      <div className="absolute bottom-1.5 left-1.5 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none z-20" />
+      <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none z-20" />
+
+      {/* Symmetrical 3-Column Combatant Stage */}
+      <div className="relative z-10 grid grid-cols-[1fr_auto_1fr] items-end gap-2 sm:gap-4 w-full h-full pt-2">
+        {/* Column 1: Player Side (Centered in Left 1fr) */}
+        <div className="flex justify-center items-end w-full">
+          <Combatant
+            name={playerName}
+            detail={`${playerPower.toLocaleString()} PWR`}
+            image={CHARACTER_AVATAR_PREVIEW}
           />
         </div>
-        <span className="text-xs font-bold text-cyan-300 font-mono mt-1">{playerName}</span>
-        <span className="text-[10px] text-slate-400 font-mono">Pwr: <span className="text-amber-400 font-bold">{playerPower}</span></span>
-      </div>
 
-      {/* VS Center Badge */}
-      <div className="flex flex-col items-center justify-center relative z-10 px-2">
-        <div className="w-10 h-10 rounded-full bg-red-600/20 border border-red-500/50 flex items-center justify-center text-red-400 font-black font-mono text-sm tracking-widest shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse">
-          VS
-        </div>
-        <span className="text-[9px] text-slate-500 font-mono uppercase tracking-widest mt-1">FACE OFF</span>
-      </div>
-
-      {/* Enemy Side (Right) */}
-      <div className="relative z-10">
-        <SystemTooltip
-          title={enemyLore.name}
-          subtitle={`Floor ${floorNumber} • Level ${enemyLevel}`}
-          category={enemyLore.category}
-          rarity={enemyLore.rarity}
-          description={enemyLore.description}
-          lore={enemyLore.lore}
-          mechanics={`⚡ Weakness & Tactics: ${enemyLore.weakness}`}
-          stats={[
-            { label: "Level", value: `Lv. ${enemyLevel}` },
-            { label: "Threat Rating", value: enemyLore.threatLevel, color: isBoss ? "text-red-400" : "text-cyan-400" }
-          ]}
-          tags={["Tower", "Combat", isBoss ? "Boss" : "Enemy"]}
-        >
-          <div className="flex flex-col items-center gap-1 cursor-help group">
-            <div className="w-20 h-20 rounded-2xl bg-slate-900/50 border border-red-500/30 group-hover:border-red-400/60 p-1 flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,0.2)] overflow-hidden transition-colors">
-              <img
-                src={spriteUrl}
-                alt={enemyName}
-                onError={(e) => {
-                  const fallbackStatic = `/sprites/static/${enemyName.toLowerCase().split(' ')[0]}.png`;
-                  if (e.currentTarget.src !== fallbackStatic) {
-                    e.currentTarget.src = fallbackStatic;
-                  } else {
-                    e.currentTarget.src = "/sprites/static/slime.png";
-                  }
-                }}
-                className="w-16 h-16 object-contain transform -scale-x-100 drop-shadow-[0_0_10px_rgba(239,68,68,0.6)] group-hover:scale-110 transition-transform duration-300"
-                style={{ imageRendering: "pixelated" }}
-              />
-            </div>
-            <span className="text-xs font-bold text-red-400 font-mono mt-1 text-center truncate max-w-[120px]">{enemyName}</span>
-            <span className="text-[10px] text-slate-400 font-mono">Lv. <span className="text-red-300 font-bold">{enemyLevel}</span></span>
+        {/* Column 2: VS Emblem & Arena Tag (Centered Mathematically in Middle) */}
+        <div className="mb-8 sm:mb-9 flex shrink-0 flex-col items-center justify-end z-20">
+          <div className="relative group/vs">
+            <div className="absolute -inset-1 rounded-lg bg-[#ea580c]/30 blur-sm pointer-events-none animate-pulse" />
+            <span className="relative flex size-11 sm:size-12 rotate-2 items-center justify-center rounded-md border-2 border-[#d8b96a] bg-[#7b3529] font-pixel text-lg sm:text-xl font-black text-[#fff2bd] shadow-[0_6px_12px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.4)]">
+              VS
+            </span>
           </div>
-        </SystemTooltip>
+          <span className="mt-2 font-pixel text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-[#fde047] bg-[#1a120b]/90 px-2 py-0.5 border border-[#6d4c2b] shadow-[0_2px_4px_#000] whitespace-nowrap">
+            {isBoss ? "Boss Arena" : "Stone Arena"}
+          </span>
+        </div>
+
+        {/* Column 3: Enemy Side (Centered in Right 1fr) */}
+        <div className="flex justify-center items-end w-full">
+          <SystemTooltip
+            title={enemyLore.name}
+            subtitle={`Floor ${floorNumber} • Level ${enemyLevel}`}
+            category={enemyLore.category}
+            rarity={enemyLore.rarity}
+            description={enemyLore.description}
+            lore={enemyLore.lore}
+            mechanics={`Weakness & tactics: ${enemyLore.weakness}`}
+            stats={[
+              { label: "Level", value: `Lv. ${enemyLevel}` },
+              { label: "Threat", value: enemyLore.threatLevel },
+            ]}
+            tags={["Tower", "Combat", isBoss ? "Boss" : "Enemy"]}
+            className="w-full flex justify-center items-end"
+          >
+            <Combatant
+              name={enemyName}
+              detail={`Level ${enemyLevel}`}
+              image={spriteUrl}
+              flip
+              onImageError={(image) => {
+                image.src = "/sprites/static/slime.png";
+              }}
+            />
+          </SystemTooltip>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Combatant({
+  name,
+  detail,
+  image,
+  flip = false,
+  onImageError,
+}: {
+  name: string;
+  detail: string;
+  image: string;
+  flip?: boolean;
+  onImageError?: (image: HTMLImageElement) => void;
+}) {
+  return (
+    <div className="flex w-full max-w-[180px] cursor-help flex-col items-center text-center">
+      <div className="flex size-24 sm:size-28 items-end justify-center drop-shadow-[0_8px_12px_rgba(0,0,0,0.8)] transition-transform hover:scale-105 duration-200">
+        <Image
+          unoptimized
+          width={96}
+          height={96}
+          src={image}
+          alt={name}
+          onError={(event) => onImageError?.(event.currentTarget)}
+          className={`size-20 sm:size-24 object-contain [image-rendering:pixelated] ${
+            flip ? "-scale-x-100" : ""
+          }`}
+        />
+      </div>
+      <div className="mb-3 sm:mb-4 w-full min-w-0 rounded-md border border-[#9d885c] bg-[#1c1813]/95 px-3 py-1.5 shadow-[0_6px_14px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.1)]">
+        <p className="truncate font-pixel text-xs sm:text-sm font-bold text-[#fff3c4] tracking-wide drop-shadow-[0_1px_2px_#000]">
+          {name}
+        </p>
+        <p className="font-mono text-[10px] sm:text-[11px] text-[#cfc39c] font-semibold">
+          {detail}
+        </p>
       </div>
     </div>
   );

@@ -9,21 +9,13 @@ import {
 import { useWorkoutStore } from "@/features/workouts/store/useWorkoutStore";
 import { useUser } from "@/context/UserContext";
 import {
-  Dumbbell,
-  X,
-  Plus,
-  Trash2,
-  CheckCircle2,
-  Activity,
-  Flame,
-  Zap,
-  Search,
-  Trophy,
-  Sparkles,
-  Layers,
-  ChevronRight,
-  Shield,
-} from "lucide-react";
+  PixelDumbbellIcon,
+  PixelCloseIcon,
+  PixelSearchIcon,
+  PixelTrashIcon,
+  PixelPlusIcon,
+  PixelCheckIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -179,60 +171,67 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl rounded-3xl bg-gradient-to-br from-[#0E152E] via-[#091024] to-[#040815] border-2 border-cyan-500/40 p-6 sm:p-7 shadow-2xl overflow-hidden text-slate-100 space-y-6 max-h-[90vh] flex flex-col">
-        {/* Background Atmosphere */}
-        <div className="absolute -top-24 -right-24 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
+      <div
+        className="relative w-full max-w-2xl bg-[#140e0c] border-4 border-[#5c4033] p-5 sm:p-6 text-stone-100 space-y-5 max-h-[90vh] flex flex-col rounded-none select-none"
+        style={{
+          boxShadow: "0 0 0 2px #261914, 0 12px 0 0 #0d0807, 0 24px 36px rgba(0,0,0,0.9)",
+        }}
+      >
+        {/* Iron Corner Studs */}
+        <span className="absolute top-1 left-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
+        <span className="absolute top-1 right-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
+        <span className="absolute bottom-1 left-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
+        <span className="absolute bottom-1 right-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
 
         {/* Header Bar */}
-        <div className="flex items-center justify-between border-b border-cyan-500/20 pb-4 shrink-0">
+        <div className="flex items-center justify-between border-b-2 border-[#2c1e19] pb-3 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.3)]">
-              <Dumbbell className="w-5 h-5" />
+            <div className="w-8 h-8 bg-[#261914] border-2 border-[#5c4033] flex items-center justify-center text-[#f59e0b]">
+              <PixelDumbbellIcon className="w-4 h-4 text-[#f59e0b]" />
             </div>
             <div>
-              <span className="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-wider">
-                TARGETED TRAINING DISPATCH
+              <span className="font-pixel text-[8.5px] text-[#f59e0b] uppercase tracking-wider block font-bold">
+                WORKOUT TRACKER
               </span>
-              <h3 className="text-xl font-black font-heading text-white tracking-tight">
-                Log Workout & Apply Fatigue
+              <h3 className="font-pixel text-sm font-bold text-white tracking-tight mt-0.5">
+                Log Workout & Track Recovery
               </h3>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-900 border border-slate-700 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition-all hover:scale-110"
+            className="w-7 h-7 bg-[#261914] border-2 border-[#4a3830] hover:border-[#ef4444] text-stone-400 hover:text-[#ef4444] flex items-center justify-center cursor-pointer transition-colors"
           >
-            <X className="w-4 h-4" />
+            <PixelCloseIcon className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {/* Modal Scrollable Body */}
-        <div className="space-y-5 overflow-y-auto pr-1 flex-1">
+        <div className="space-y-4 overflow-y-auto pr-1 flex-1 custom-scrollbar">
           {/* Exercise Search & Selection Bar */}
           <div className="space-y-2">
-            <label className="text-xs font-mono font-bold text-slate-300 flex items-center justify-between">
-              <span>SELECT TARGET EXERCISE</span>
-              <span className="text-[10px] text-cyan-400 font-normal">
-                {availableExercises.length} Exercises Loaded
+            <label className="font-pixel text-[9px] text-[#f59e0b] flex items-center justify-between uppercase tracking-wider">
+              <span>SELECT EXERCISE</span>
+              <span className="text-stone-400 font-normal">
+                [{availableExercises.length} Exercises Available]
               </span>
             </label>
 
             <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <PixelSearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
               <input
                 type="text"
                 placeholder="Search by name, muscle (e.g. Chest, Quads, Back)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-10 pr-4 rounded-xl bg-slate-950/90 border border-cyan-500/30 text-xs font-mono text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
+                className="w-full h-10 pl-9 pr-3 bg-[#0c0a09] border-2 border-[#4a3830] focus:border-[#f59e0b] font-mono text-xs text-white placeholder:text-stone-600 focus:outline-none rounded-none"
               />
             </div>
 
             {/* Quick Exercise Carousel/Selector */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-36 overflow-y-auto pr-1">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-36 overflow-y-auto pr-1 custom-scrollbar">
               {filteredExercises.slice(0, 9).map((ex) => {
                 const isSel = ex.id === selectedExerciseId;
                 return (
@@ -242,20 +241,25 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
                       playUIMenuSFX("click");
                       setSelectedExerciseId(ex.id);
                     }}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    className={`p-2 border-2 text-left transition-all cursor-pointer rounded-none select-none ${
                       isSel
-                        ? "bg-cyan-950/90 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)] scale-[1.02]"
-                        : "bg-slate-950/60 border-slate-800 hover:border-slate-700"
+                        ? "bg-[#261914] border-[#f59e0b] text-white"
+                        : "bg-[#0c0a09] border-[#33221b] text-stone-300 hover:border-[#4a3830]"
                     }`}
+                    style={{
+                      boxShadow: isSel
+                        ? "inset 1px 1px 0 rgba(255,255,255,0.15), inset -1px -1px 0 rgba(0,0,0,0.5)"
+                        : undefined,
+                    }}
                   >
-                    <div className="text-xs font-bold font-sans text-white truncate">
+                    <div className="font-pixel text-[10px] font-bold text-white truncate">
                       {ex.name}
                     </div>
                     <div className="flex items-center gap-1 mt-1">
-                      <span className="text-[9px] font-mono text-cyan-300 font-bold px-1.5 py-0.2 rounded bg-cyan-950/60 border border-cyan-500/30">
+                      <span className="font-pixel text-[8px] text-[#f59e0b] px-1 py-0.2 bg-[#1c1412] border border-[#5c4033]">
                         {ex.primaryMuscle}
                       </span>
-                      <span className="text-[9px] font-mono text-slate-400">
+                      <span className="text-[8.5px] font-mono text-stone-400">
                         {ex.equipment}
                       </span>
                     </div>
@@ -267,15 +271,15 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
 
           {/* Selected Exercise Target Telemetry Preview */}
           {selectedExercise && (
-            <div className="p-3.5 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-3 bg-[#0c0a09] border-2 border-[#4a3830] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest block">
-                  ACTIVE TARGET MUSCLE
+                <span className="font-pixel text-[8.5px] text-stone-400 uppercase tracking-wider block">
+                  TARGET MUSCLE
                 </span>
-                <span className="text-sm font-black font-heading text-white">
+                <span className="font-pixel text-xs font-bold text-[#f59e0b] block mt-0.5">
                   {selectedExercise.name}
                 </span>
-                <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
                   <MuscleIndicatorBadge
                     muscleKey={selectedExercise.primaryMuscle}
                     name={`Primary: ${selectedExercise.primaryMuscle}`}
@@ -295,41 +299,41 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
               </div>
 
               {/* Weight Unit & Duration Setting */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center rounded-xl bg-slate-900 border border-slate-700 p-0.5">
+              <div className="flex items-center gap-2.5">
+                <div className="flex items-center bg-[#140e0c] border-2 border-[#4a3830] p-0.5">
                   <button
                     onClick={() => setWeightUnit("KG")}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition-all ${
+                    className={`px-2 py-0.5 font-pixel text-[9px] font-bold transition-all ${
                       weightUnit === "KG"
-                        ? "bg-cyan-500 text-slate-950"
-                        : "text-slate-400"
+                        ? "bg-[#b91c1c] text-white border border-[#ef4444]"
+                        : "text-stone-400 hover:text-white"
                     }`}
                   >
                     KG
                   </button>
                   <button
                     onClick={() => setWeightUnit("LBS")}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition-all ${
+                    className={`px-2 py-0.5 font-pixel text-[9px] font-bold transition-all ${
                       weightUnit === "LBS"
-                        ? "bg-cyan-500 text-slate-950"
-                        : "text-slate-400"
+                        ? "bg-[#b91c1c] text-white border border-[#ef4444]"
+                        : "text-stone-400 hover:text-white"
                     }`}
                   >
                     LBS
                   </button>
                 </div>
 
-                <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-xl text-xs font-mono">
-                  <span className="text-slate-400">Duration:</span>
+                <div className="flex items-center gap-1 bg-[#140e0c] border-2 border-[#4a3830] px-2 py-1 font-pixel text-[9px]">
+                  <span className="text-stone-400">TIME:</span>
                   <input
                     type="number"
                     value={durationMinutes}
                     onChange={(e) =>
                       setDurationMinutes(Math.max(5, parseInt(e.target.value) || 30))
                     }
-                    className="w-10 bg-transparent text-cyan-300 font-bold text-center focus:outline-none"
+                    className="w-8 bg-transparent text-[#f59e0b] font-bold text-center focus:outline-none tabular-nums font-mono text-xs"
                   />
-                  <span className="text-slate-400">min</span>
+                  <span className="text-stone-400">MIN</span>
                 </div>
               </div>
             </div>
@@ -337,24 +341,24 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
 
           {/* Dynamic Sets Table */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-300">
-              <span>SETS LOGGED</span>
-              <span>{sets.length} Sets Total</span>
+            <div className="flex items-center justify-between font-pixel text-[9px] text-stone-300">
+              <span className="uppercase tracking-wider">SETS LOGGED</span>
+              <span className="text-[#f59e0b] tabular-nums font-bold">[{sets.length} SETS TOTAL]</span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {sets.map((s, idx) => (
                 <div
                   key={s.id}
-                  className="flex items-center gap-3 p-3 rounded-2xl bg-black/40 border border-white/10"
+                  className="flex items-center gap-2 p-2 bg-[#0c0a09] border-2 border-[#2c1e19]"
                 >
-                  <span className="w-6 text-center text-xs font-mono text-cyan-400 font-bold">
+                  <span className="w-6 text-center font-pixel text-[10px] text-[#f59e0b] font-bold tabular-nums">
                     #{idx + 1}
                   </span>
 
                   {/* Weight Input */}
-                  <div className="flex-1 flex items-center gap-1 bg-slate-950/80 border border-slate-700 rounded-xl px-2.5 py-1">
-                    <span className="text-[10px] font-mono text-slate-400">WT:</span>
+                  <div className="flex-1 flex items-center gap-1 bg-[#140e0c] border-2 border-[#4a3830] px-2 py-1">
+                    <span className="font-pixel text-[8.5px] text-stone-400">WT:</span>
                     <input
                       type="number"
                       value={s.weight}
@@ -365,16 +369,16 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
                           Math.max(0, parseFloat(e.target.value) || 0)
                         )
                       }
-                      className="w-full bg-transparent font-mono text-sm font-bold text-white focus:outline-none"
+                      className="w-full bg-transparent font-mono text-xs font-bold text-white focus:outline-none tabular-nums"
                     />
-                    <span className="text-[10px] font-mono text-slate-400">
+                    <span className="font-pixel text-[8.5px] text-stone-400">
                       {weightUnit}
                     </span>
                   </div>
 
                   {/* Reps Input */}
-                  <div className="flex-1 flex items-center gap-1 bg-slate-950/80 border border-slate-700 rounded-xl px-2.5 py-1">
-                    <span className="text-[10px] font-mono text-slate-400">REPS:</span>
+                  <div className="flex-1 flex items-center gap-1 bg-[#140e0c] border-2 border-[#4a3830] px-2 py-1">
+                    <span className="font-pixel text-[8.5px] text-stone-400">REPS:</span>
                     <input
                       type="number"
                       value={s.reps}
@@ -385,13 +389,13 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
                           Math.max(1, parseInt(e.target.value) || 1)
                         )
                       }
-                      className="w-full bg-transparent font-mono text-sm font-bold text-white focus:outline-none"
+                      className="w-full bg-transparent font-mono text-xs font-bold text-white focus:outline-none tabular-nums"
                     />
                   </div>
 
                   {/* RPE Selector */}
-                  <div className="w-20 flex items-center gap-1 bg-slate-950/80 border border-slate-700 rounded-xl px-2 py-1">
-                    <span className="text-[10px] font-mono text-slate-400">RPE:</span>
+                  <div className="w-20 flex items-center gap-1 bg-[#140e0c] border-2 border-[#4a3830] px-2 py-1">
+                    <span className="font-pixel text-[8.5px] text-stone-400">RPE:</span>
                     <input
                       type="number"
                       step="0.5"
@@ -405,7 +409,7 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
                           parseFloat(e.target.value) || 8.0
                         )
                       }
-                      className="w-full bg-transparent font-mono text-xs font-bold text-amber-300 focus:outline-none"
+                      className="w-full bg-transparent font-mono text-xs font-bold text-[#f59e0b] focus:outline-none tabular-nums"
                     />
                   </div>
 
@@ -413,51 +417,48 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
                   <button
                     onClick={() => handleRemoveSet(idx)}
                     disabled={sets.length <= 1}
-                    className="p-1.5 text-slate-500 hover:text-red-400 disabled:opacity-30 cursor-pointer"
+                    className="p-1 text-stone-500 hover:text-[#ef4444] disabled:opacity-20 cursor-pointer"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <PixelTrashIcon className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={handleAddSet}
-              className="w-full h-9 rounded-xl border-dashed border-cyan-500/40 text-cyan-300 font-mono text-xs font-bold hover:bg-cyan-950/30 flex items-center justify-center gap-1.5"
+              className="w-full h-8 bg-[#261914] border-2 border-dashed border-[#5c4033] hover:border-[#f59e0b] text-[#f59e0b] font-pixel text-[9px] font-bold flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <PixelPlusIcon className="w-3.5 h-3.5" />
               ADD ANOTHER SET
-            </Button>
+            </button>
           </div>
         </div>
 
         {/* Footer / Submit Bar */}
-        <div className="pt-4 border-t border-cyan-500/20 flex items-center justify-between gap-4 shrink-0">
-          <div className="text-xs font-mono text-slate-400">
-            Estimated XP:{" "}
-            <span className="text-emerald-400 font-bold">
-              +{sets.length * 50} EXP
-            </span>{" "}
-            • Boss Damage:{" "}
-            <span className="text-cyan-300 font-bold">Applied</span>
+        <div className="pt-3 border-t-2 border-[#2c1e19] flex items-center justify-between gap-4 shrink-0">
+          <div className="font-pixel text-[9px] text-stone-400">
+            XP: <span className="text-[#f59e0b] font-bold">+{sets.length * 50} EXP</span> • BOSS DMG:{" "}
+            <span className="text-[#ef4444] font-bold">APPLIED</span>
           </div>
 
-          <Button
+          <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="h-11 px-6 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-mono font-black text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] active:scale-95 transition-all cursor-pointer flex items-center gap-2"
+            className="h-10 px-5 bg-[#b91c1c] border-2 border-[#ef4444] hover:bg-[#dc2626] text-white font-pixel font-bold text-[10px] uppercase tracking-wider cursor-pointer active:translate-y-0.5 flex items-center gap-2"
+            style={{
+              boxShadow: "inset 1px 1px 0 rgba(255,255,255,0.3), inset -1px -1px 0 rgba(0,0,0,0.6)",
+            }}
           >
             {isSubmitting ? (
               "PROCESSING..."
             ) : (
               <>
-                <CheckCircle2 className="w-4 h-4" />
-                COMPLETE & APPLY FATIGUE
+                <PixelCheckIcon className="w-3.5 h-3.5" />
+                SAVE WORKOUT LOG
               </>
             )}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

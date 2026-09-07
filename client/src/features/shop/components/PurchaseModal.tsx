@@ -1,164 +1,279 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ShopItem } from "../types/shop";
-import { useCharacterStore } from "@/store/useCharacterStore";
-import { CurrencyIcon } from "@/components/CurrencyDisplay";
-import { rarityColors } from "@/features/inventory/utils/rarityColors";
-import { useEffect } from "react";
+"use client";
+
+import { useEffect, useState, type CSSProperties } from "react";
 import Image from "next/image";
-import { playUISound } from "@/utils/audio";
+import { BookOpen, Loader2, ScrollText, ShieldCheck, Sparkles } from "lucide-react";
+import { CurrencyIcon } from "@/components/CurrencyDisplay";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { rarityColors } from "../utils/shopPresentation";
+import { useCharacterStore } from "@/store/useCharacterStore";
+import { useInventoryStore } from "@/features/inventory/store/useInventoryStore";
 import { getItemIconPath } from "@/utils/itemIcons";
 import { getItemUsageDetails } from "@/utils/itemUsageUtils";
-import { Sparkles, BookOpen, ShieldCheck } from "lucide-react";
+import { playUISound } from "@/utils/audio";
+import type { ShopItem } from "../types/shop";
+import { getMaxPurchasableQuantity } from "../utils/shopPresentation";
+import styles from "../shop.module.css";
 
 interface PurchaseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (quantity: number) => void | Promise<void>;
   item: ShopItem | null;
   isPurchasing: boolean;
 }
 
-export function PurchaseModal({ isOpen, onClose, onConfirm, item, isPurchasing }: PurchaseModalProps) {
-  const { character } = useCharacterStore();
+export function PurchaseModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  item,
+  isPurchasing,
+}: PurchaseModalProps) {
+  const character = useCharacterStore((state) => state.character);
+  const inventory = useInventoryStore((state) => state.items);
+  const inventoryLoading = useInventoryStore((state) => state.isLoading);
+  const inventoryError = useInventoryStore((state) => state.error);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    if (isOpen) {
-      playUISound("/sounds/System UI & Navigation/SYSTEM--OPEN.mp3");
+    if (!isOpen) return;
+    playUISound("/sounds/System UI & Navigation/SYSTEM--OPEN.mp3");
+  }, [isOpen, item?.id]);
+
+  useEffect(() => {
+    if (isOpen && character?.id) {
+      void useInventoryStore.getState().fetchInventory(character.id);
     }
-  }, [isOpen]);
+  }, [isOpen, character?.id]);
 
   if (!item || !character) return null;
 
-  let currentBalance = 0;
-  if (item.currencyType === "GOLD") currentBalance = character.gold;
-  if (item.currencyType === "GEMS") currentBalance = character.gems || 0;
-  if (item.currencyType === "TOWER_TOKENS") currentBalance = character.towerTokens || 0;
-
-  const remainingBalance = currentBalance - item.price;
-  const canAfford = remainingBalance >= 0;
-
-  const CurrencyIconBadge = () => (
-    <CurrencyIcon type={item.currencyType} size="sm" />
-  );
-
-  const rarityColor = (rarityColors as any)[item.rarity] || rarityColors.COMMON;
+  const currentBalance =
+    item.currencyType === "GOLD"
+      ? character.gold
+      : item.currencyType === "GEMS"
+        ? character.gems || 0
+        : character.towerTokens || 0;
+  const maxQuantity = getMaxPurchasableQuantity(item, currentBalance);
+  const safeQuantity = Math.min(quantity, Math.max(maxQuantity, 1));
+  const totalCost = item.price * safeQuantity;
+  const remainingBalance = currentBalance - totalCost;
+  const canAfford = maxQuantity > 0 && remainingBalance >= 0;
+  const rarityColor =
+    rarityColors[item.rarity as keyof typeof rarityColors] ?? rarityColors.COMMON;
+  const rarityStyle = { "--rarity": rarityColor } as CSSProperties;
   const usageDetails = getItemUsageDetails(item);
+  const equipped = inventory.find((owned) => owned.isEquipped && owned.itemDefinition.type === item.type);
+  const comparisonStats = ["attack", "defense", "strength", "knowledge", "discipline", "focus", "endurance", "recovery"] as const;
+  const itemIcon =
+    item.icon && item.icon.includes("/icons/Icon")
+      ? item.icon
+      : getItemIconPath(item.name, item.type);
+
+  const setSafeQuantity = (nextQuantity: number) => {
+    setQuantity(Math.min(Math.max(1, nextQuantity), Math.max(1, maxQuantity)));
+  };
+
+  const handleClose = () => {
+    setQuantity(1);
+    onClose();
+  };
+
+  const handleConfirm = async () => {
+    await onConfirm(safeQuantity);
+    setQuantity(1);
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md border-cyan-500/30 bg-[#0A1024]/98 backdrop-blur-xl max-h-[90vh] overflow-y-auto custom-scrollbar">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-white font-heading">
-            Confirm Purchase
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open && !isPurchasing) handleClose();
+      }}
+    >
+      <DialogContent className={styles.ledgerDialog} style={rarityStyle}>
+        <DialogHeader className={styles.ledgerHeader}>
+          <DialogTitle className={styles.ledgerTitle}>
+            Bramblewick&apos;s Bill of Sale
           </DialogTitle>
-          <DialogDescription className="text-slate-400 text-xs">
-            Review equipment stats, usage instructions, and account balance.
+          <DialogDescription className={styles.ledgerDescription}>
+            Review the appraisal, choose your quantity, and seal the transaction.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="py-3 flex flex-col items-center justify-center space-y-3">
-          <div className="relative w-16 h-16 rounded-xl bg-black/60 border flex items-center justify-center" style={{ borderColor: `${rarityColor}60` }}>
-            <Image 
-              src={getItemIconPath(item.name)} 
-              alt={item.name} 
-              fill 
-              className="object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.25)] p-2" 
-            />
-          </div>
-          <div className="text-center w-full">
-            <h3 className="font-bold text-lg text-white font-heading">{item.name}</h3>
-            <div className="flex flex-wrap items-center justify-center gap-1.5 mt-1">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border text-cyan-300" style={{ borderColor: `${rarityColor}60`, background: `${rarityColor}20` }}>
-                {item.rarity}
-              </span>
-              <span className="text-xs font-mono text-slate-300 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 uppercase">
-                {item.type}
-              </span>
-              {usageDetails.isEquipment && (
-                <span className="text-[10px] text-emerald-400 font-mono uppercase tracking-wider bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/30 flex items-center gap-0.5">
-                  <ShieldCheck className="w-3 h-3" /> Equippable
-                </span>
-              )}
+        <div className={styles.ledgerBody}>
+          <div className={styles.ledgerItemColumn}>
+            <div className={styles.ledgerIconFrame}>
+              <Image
+                src={itemIcon}
+                alt={item.name}
+                width={112}
+                height={112}
+                unoptimized
+              />
             </div>
-            {item.description && (
-              <p className="text-xs text-slate-300 leading-relaxed italic mt-2.5 px-3 bg-black/40 py-2 rounded-lg border border-white/5">
-                &quot;{item.description}&quot;
-              </p>
+            <h2 className={styles.ledgerItemName}>{item.name}</h2>
+            <p className={styles.ledgerMeta}>
+              {item.rarity} · {item.type.replaceAll("_", " ")}
+            </p>
+          </div>
+
+          <div className={styles.ledgerDetails}>
+            {usageDetails.isEquipment && (
+              <section className={styles.ledgerSection}>
+                <h3>Equipped comparison</h3>
+                <p>{inventoryLoading ? "Checking your equipment…" : inventoryError ? "Equipment comparison unavailable. Reopen the ledger to retry." : equipped ? `Compared with ${equipped.itemDefinition.name}` : "Nothing equipped in this slot."}</p>
+                {!inventoryLoading && !inventoryError && equipped && (
+                  <div className={styles.statLedger}>
+                    {comparisonStats.filter((stat) => item[stat] || equipped.itemDefinition[stat]).map((stat) => {
+                      const delta = (item[stat] ?? 0) - equipped.itemDefinition[stat];
+                      return <div key={stat} className={styles.statEntry}><span>{stat}</span><strong>{delta > 0 ? "+" : ""}{delta}</strong></div>;
+                    })}
+                  </div>
+                )}
+              </section>
             )}
-          </div>
+            <section className={styles.ledgerSection}>
+              <h3>
+                <ScrollText size={14} aria-hidden="true" /> Appraiser&apos;s note
+              </h3>
+              <p>
+                &ldquo;{item.description || "A road-worn ware with a history yet untold."}&rdquo;
+              </p>
+            </section>
 
-          {/* Equipment Stat Attributes Grid */}
-          {usageDetails.hasBonuses && (
-            <div className="w-full p-2.5 rounded-xl bg-[#0B1428] border border-cyan-500/30">
-              <span className="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-widest block mb-1.5 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                Equipment Stat Attributes
-              </span>
-              <div className="grid grid-cols-2 gap-1.5">
-                {usageDetails.statBonuses.map(s => {
-                  const Icon = s.icon;
-                  return (
-                    <div key={s.label} className={`flex justify-between items-center px-2.5 py-1 rounded-lg ${s.bg} border ${s.borderColor} text-xs font-mono`}>
-                      <span className="flex items-center gap-1 text-[11px] text-slate-300">
-                        <Icon className={`w-3.5 h-3.5 ${s.color}`} />
-                        {s.shortLabel}
-                      </span>
-                      <span className="font-bold text-white">+{s.value}</span>
+            {usageDetails.hasBonuses ? (
+              <section className={styles.ledgerSection}>
+                <h3>
+                  <Sparkles size={14} aria-hidden="true" /> Recorded attributes
+                </h3>
+                <div className={styles.statLedger}>
+                  {usageDetails.statBonuses.map((stat) => (
+                    <div key={stat.label} className={styles.statEntry}>
+                      <span>{stat.shortLabel}</span>
+                      <strong>+{stat.value}</strong>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+                  ))}
+                </div>
+              </section>
+            ) : null}
 
-          {/* How to Use / Slot Guide */}
-          <div className="w-full p-2.5 rounded-xl bg-gradient-to-br from-[#101830] to-[#080d1e] border border-indigo-500/30 text-xs leading-relaxed text-left">
-            <span className="text-[10px] font-mono font-bold text-indigo-300 uppercase tracking-wider block mb-0.5 flex items-center gap-1">
-              <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
-              How to Use & Function:
-            </span>
-            <p className="text-slate-200 font-sans text-xs">{usageDetails.usageGuide}</p>
-            <div className="mt-1 text-[10px] font-mono text-indigo-300">
-              Slot: <strong className="text-white">{usageDetails.slotLabel}</strong>
-            </div>
-          </div>
-          
-          <div className="w-full bg-muted/30 rounded-lg p-4 space-y-3 mt-4 border border-border/50">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Current Balance:</span>
-              <div className="flex items-center gap-1.5 font-medium">
-                {currentBalance.toLocaleString()} <CurrencyIconBadge />
-              </div>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Cost:</span>
-              <div className="flex items-center gap-1.5 font-bold text-destructive">
-                - {item.price.toLocaleString()} <CurrencyIconBadge />
-              </div>
-            </div>
-            <div className="w-full h-px bg-border/50" />
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Remaining Balance:</span>
-              <div className={`flex items-center gap-1.5 font-bold ${canAfford ? 'text-primary' : 'text-destructive'}`}>
-                {remainingBalance.toLocaleString()} <CurrencyIconBadge />
-              </div>
-            </div>
+            <section className={styles.ledgerSection}>
+              <h3>
+                {usageDetails.isEquipment ? (
+                  <ShieldCheck size={14} aria-hidden="true" />
+                ) : (
+                  <BookOpen size={14} aria-hidden="true" />
+                )}
+                Use &amp; equip notes
+              </h3>
+              <p>{usageDetails.usageGuide}</p>
+              <p>
+                <strong>Destination:</strong> {usageDetails.slotLabel}
+              </p>
+            </section>
           </div>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={onClose} disabled={isPurchasing} className="w-full sm:w-auto">
-            Cancel
-          </Button>
-          <Button 
-            onClick={onConfirm} 
-            disabled={!canAfford || isPurchasing}
-            className="w-full sm:w-auto font-bold"
-            style={canAfford ? { backgroundColor: rarityColor, color: '#fff' } : {}}
+        <div className={styles.balanceLedger} aria-label="Purchase balance calculation">
+          <div className={styles.balanceCell}>
+            <span>Purse</span>
+            <span className={styles.balanceValue}>
+              {currentBalance.toLocaleString()}
+              <CurrencyIcon type={item.currencyType} size="xs" />
+            </span>
+          </div>
+          <div className={styles.balanceCell}>
+            <span>Total cost</span>
+            <span className={styles.balanceValue}>
+              −{totalCost.toLocaleString()}
+              <CurrencyIcon type={item.currencyType} size="xs" />
+            </span>
+          </div>
+          <div className={styles.balanceCell}>
+            <span>After sale</span>
+            <span
+              className={`${styles.balanceValue} ${
+                canAfford ? "" : styles.balanceDanger
+              }`}
+            >
+              {remainingBalance.toLocaleString()}
+              <CurrencyIcon type={item.currencyType} size="xs" />
+            </span>
+          </div>
+        </div>
+
+        <div className={styles.quantityRow}>
+          {!canAfford && <p role="status">{!item.inStock ? "This ware is out of stock." : !item.meetsRequirements ? `Requires level ${item.requiredLevel ?? 1} and power ${item.requiredPower ?? 0}.` : "Your purse cannot cover this purchase."}</p>}
+          <span className={styles.quantityLabel}>
+            Quantity · {item.stock === null ? "open stock" : `${item.stock} on shelf`}
+          </span>
+          <div className={styles.quantityControls} aria-label="Purchase quantity">
+            <button
+              type="button"
+              className={styles.quantityButton}
+              onClick={() => setSafeQuantity(safeQuantity - 1)}
+              disabled={safeQuantity <= 1 || isPurchasing}
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+            <output className={styles.quantityValue} aria-live="polite">
+              {safeQuantity}
+            </output>
+            <button
+              type="button"
+              className={styles.quantityButton}
+              onClick={() => setSafeQuantity(safeQuantity + 1)}
+              disabled={safeQuantity >= maxQuantity || isPurchasing}
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className={styles.quantityButton}
+              onClick={() => setSafeQuantity(maxQuantity)}
+              disabled={maxQuantity <= 1 || safeQuantity === maxQuantity || isPurchasing}
+              aria-label={`Set maximum quantity of ${maxQuantity}`}
+            >
+              MAX
+            </button>
+          </div>
+        </div>
+
+        <DialogFooter className={styles.ledgerFooter}>
+          <button
+            type="button"
+            className={styles.ledgerCancel}
+            onClick={handleClose}
+            disabled={isPurchasing}
           >
-            {isPurchasing ? "Purchasing..." : "Purchase"}
-          </Button>
+            Return to shelf
+          </button>
+          <button
+            type="button"
+            className={styles.ledgerPurchase}
+            onClick={() => void handleConfirm()}
+            disabled={!canAfford || isPurchasing}
+          >
+            {isPurchasing ? (
+              <>
+                <Loader2 size={15} className={styles.spinner} aria-hidden="true" />
+                Counting coin…
+              </>
+            ) : (
+              `Purchase ${safeQuantity > 1 ? `${safeQuantity} items` : "item"}`
+            )}
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

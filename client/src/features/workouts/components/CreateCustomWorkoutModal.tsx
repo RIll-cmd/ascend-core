@@ -6,7 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useWorkoutStore, ExerciseDefinition } from "../store/useWorkoutStore";
-import { Dumbbell, Plus, Check, Trash2, Sparkles, X, Activity, Layers } from "lucide-react";
+import {
+  PixelDumbbellIcon,
+  PixelPlusIcon,
+  PixelCheckIcon,
+  PixelCloseIcon,
+  PixelTrashIcon,
+  PixelSparklesIcon,
+  PixelActivityIcon,
+  PixelLayersIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { toast } from "sonner";
 import { FloatingRuneField } from "@/components/shared/FloatingRuneField";
 import { playUIMenuSFX, playBuffSFX } from "@/utils/audio";
@@ -82,21 +91,29 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl bg-gradient-to-br from-[#0C1226]/98 via-[#080E20]/98 to-[#050914]/98 border border-cyan-500/40 text-slate-100 font-sans shadow-2xl overflow-hidden p-6 backdrop-blur-2xl rounded-[24px]">
-        {/* Floating Runes */}
-        <FloatingRuneField density="low" className="opacity-40" />
+      <DialogContent
+        className="max-w-xl bg-[#140e0c] border-4 border-[#5c4033] text-stone-100 p-6 rounded-none select-none"
+        style={{
+          boxShadow: "0 0 0 2px #261914, 0 12px 0 0 #0d0807, 0 20px 30px rgba(0,0,0,0.85)",
+        }}
+      >
+        {/* Iron Corner Studs */}
+        <span className="absolute top-1 left-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
+        <span className="absolute top-1 right-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
+        <span className="absolute bottom-1 left-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
+        <span className="absolute bottom-1 right-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
 
-        <DialogHeader className="border-b border-cyan-500/20 pb-4 relative z-10">
+        <DialogHeader className="border-b-2 border-[#2c1e19] pb-3 relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-              <Dumbbell className="w-5 h-5" />
+            <div className="w-8 h-8 bg-[#261914] border-2 border-[#5c4033] flex items-center justify-center text-[#f59e0b]">
+              <PixelDumbbellIcon className="w-4 h-4 text-[#f59e0b]" />
             </div>
             <div>
-              <DialogTitle className="text-xl font-black tracking-tight text-white flex items-center gap-2 font-heading">
-                Create Custom Workout Plan
+              <DialogTitle className="text-sm font-pixel font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                CREATE CUSTOM WORKOUT ROUTINE
               </DialogTitle>
-              <p className="text-xs text-slate-400 font-mono">
-                Assemble custom exercise protocols and target muscle chains
+              <p className="text-[10px] text-stone-400 font-pixel mt-0.5">
+                Create custom exercise sequences for your workout routines
               </p>
             </div>
           </div>
@@ -106,26 +123,26 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
           {/* Plan Name & Target Inputs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10.5px] font-mono text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-cyan-400" />
+              <label className="block font-pixel text-[9px] text-[#f59e0b] uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                <PixelSparklesIcon className="w-3 h-3 text-[#f59e0b]" />
                 Routine Name
               </label>
               <Input
-                placeholder="e.g. Upper Body Hypertrophy"
-                className="bg-[#050914] border-slate-800 focus:border-cyan-500/60 font-sans text-sm text-white rounded-xl placeholder:text-slate-600"
+                placeholder="e.g. Upper Body Strength"
+                className="bg-[#0c0a09] border-2 border-[#4a3830] focus:border-[#f59e0b] font-mono text-xs text-white rounded-none placeholder:text-stone-600 h-10"
                 value={planName}
                 onChange={(e) => setPlanName(e.target.value)}
               />
             </div>
 
             <div>
-              <label className="block text-[10.5px] font-mono text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                <Activity className="w-3 h-3 text-purple-400" />
+              <label className="block font-pixel text-[9px] text-[#f59e0b] uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                <PixelActivityIcon className="w-3 h-3 text-[#f59e0b]" />
                 Target Muscle Focus (Optional)
               </label>
               <Input
                 placeholder="e.g. Chest • Shoulders • Arms"
-                className="bg-[#050914] border-slate-800 focus:border-cyan-500/60 font-sans text-sm text-white rounded-xl placeholder:text-slate-600"
+                className="bg-[#0c0a09] border-2 border-[#4a3830] focus:border-[#f59e0b] font-mono text-xs text-white rounded-none placeholder:text-stone-600 h-10"
                 value={targetFocus}
                 onChange={(e) => setTargetFocus(e.target.value)}
               />
@@ -135,8 +152,8 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
           {/* Selected Exercises Chips */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10.5px] font-mono text-cyan-400 uppercase tracking-wider flex items-center gap-1.5 font-bold">
-                <Layers className="w-3.5 h-3.5" />
+              <span className="font-pixel text-[9px] text-[#f59e0b] uppercase tracking-wider flex items-center gap-1.5 font-bold">
+                <PixelLayersIcon className="w-3.5 h-3.5" />
                 Selected Exercises ({selectedExercises.length})
               </span>
               {selectedExercises.length > 0 && (
@@ -145,7 +162,7 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
                     playUIMenuSFX("decline");
                     setSelectedExercises([]);
                   }}
-                  className="text-[10px] text-red-400 hover:text-red-300 font-mono uppercase cursor-pointer"
+                  className="font-pixel text-[8px] text-[#ef4444] hover:text-red-300 uppercase cursor-pointer"
                 >
                   Clear All
                 </button>
@@ -153,24 +170,27 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
             </div>
 
             {selectedExercises.length === 0 ? (
-              <div className="p-4 bg-[#050914]/80 border border-dashed border-slate-800/80 rounded-xl text-center text-xs text-slate-500 font-mono">
-                Click exercises below in the library to assemble your routine.
+              <div className="p-3 bg-[#0c0a09] border-2 border-dashed border-[#4a3830] text-center font-pixel text-[9px] text-stone-500">
+                Click exercises below to add them to your routine.
               </div>
             ) : (
-              <div className="flex flex-wrap gap-2 p-3 bg-[#050914]/80 border border-cyan-500/20 rounded-xl">
+              <div className="flex flex-wrap gap-2 p-2.5 bg-[#0c0a09] border-2 border-[#4a3830]">
                 {selectedExercises.map((ex) => (
-                  <Badge
+                  <div
                     key={ex.id}
-                    className="bg-cyan-950/80 text-cyan-300 border border-cyan-500/50 flex items-center gap-1.5 px-3 py-1 text-xs shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+                    className="bg-[#261914] text-[#f59e0b] border-2 border-[#5c4033] flex items-center gap-1.5 px-2.5 py-1 font-pixel text-[9px] uppercase tracking-wider"
+                    style={{
+                      boxShadow: "inset 1px 1px 0 rgba(255,255,255,0.1), inset -1px -1px 0 rgba(0,0,0,0.4)"
+                    }}
                   >
                     <span>{ex.name}</span>
                     <button
                       onClick={() => toggleSelectExercise(ex)}
-                      className="hover:text-red-400 text-slate-400 ml-1 cursor-pointer transition-colors"
+                      className="hover:text-[#ef4444] text-stone-400 ml-1 cursor-pointer transition-colors"
                     >
-                      <X className="w-3 h-3" />
+                      <PixelCloseIcon className="w-3 h-3" />
                     </button>
-                  </Badge>
+                  </div>
                 ))}
               </div>
             )}
@@ -178,13 +198,13 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
 
           {/* Catalog Selection List */}
           <div>
-            <span className="block text-[10.5px] font-mono text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1">
-              <Dumbbell className="w-3.5 h-3.5 text-cyan-400" />
-              Exercise Library Catalog
+            <span className="block font-pixel text-[9px] text-stone-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+              <PixelDumbbellIcon className="w-3.5 h-3.5 text-[#f59e0b]" />
+              Exercise Catalog
             </span>
 
             {isLoading ? (
-              <div className="text-center p-6 text-slate-500 text-xs font-mono">Loading Catalog...</div>
+              <div className="text-center p-6 text-stone-500 font-pixel text-[10px]">Loading Exercises...</div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
                 {availableCatalog.map((ex) => {
@@ -193,26 +213,31 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
                     <button
                       key={ex.id}
                       onClick={() => toggleSelectExercise(ex)}
-                      className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                      className={`p-2.5 border-2 text-left flex items-center justify-between transition-all cursor-pointer rounded-none select-none ${
                         isSelected
-                          ? "bg-cyan-950/60 border-cyan-400 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                          : "bg-[#050914]/90 border-slate-800/80 text-slate-300 hover:border-slate-700 hover:bg-slate-900/60"
+                          ? "bg-[#261914] border-[#f59e0b] text-white"
+                          : "bg-[#0c0a09] border-[#33221b] text-stone-300 hover:border-[#4a3830] hover:bg-[#140e0c]"
                       }`}
+                      style={{
+                        boxShadow: isSelected
+                          ? "inset 1px 1px 0 rgba(255,255,255,0.15), inset -1px -1px 0 rgba(0,0,0,0.5)"
+                          : undefined,
+                      }}
                     >
                       <div>
-                        <div className="text-xs font-bold font-sans">{ex.name}</div>
-                        <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                        <div className="font-pixel text-[10px] font-bold">{ex.name}</div>
+                        <div className="text-[9px] text-stone-400 font-mono mt-0.5">
                           {ex.primaryMuscle} • {ex.equipment}
                         </div>
                       </div>
                       <div
-                        className={`w-5 h-5 rounded-full flex items-center justify-center border text-xs font-bold shrink-0 ${
+                        className={`w-5 h-5 rounded-none flex items-center justify-center border-2 text-xs font-bold shrink-0 ${
                           isSelected
-                            ? "bg-cyan-400 text-slate-950 border-cyan-300 shadow-[0_0_8px_#06b6d4]"
-                            : "border-slate-700 text-slate-500"
+                            ? "bg-[#b91c1c] border-[#ef4444] text-white"
+                            : "border-[#4a3830] bg-[#140e0c] text-stone-500"
                         }`}
                       >
-                        {isSelected ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <Plus className="w-3 h-3" />}
+                        {isSelected ? <PixelCheckIcon className="w-3.5 h-3.5" /> : <PixelPlusIcon className="w-3 h-3" />}
                       </div>
                     </button>
                   );
@@ -222,23 +247,25 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
           </div>
         </div>
 
-        <DialogFooter className="border-t border-cyan-500/20 pt-4 flex justify-end gap-2 relative z-10">
-          <Button
-            variant="ghost"
+        <DialogFooter className="border-t-2 border-[#2c1e19] pt-3 flex justify-end gap-2 relative z-10">
+          <button
             onClick={() => {
               playUIMenuSFX("decline");
               onClose();
             }}
-            className="text-slate-400 hover:text-white font-mono text-xs cursor-pointer"
+            className="px-4 py-2 bg-[#261914] border-2 border-[#4a3830] hover:border-stone-400 text-stone-400 hover:text-white font-pixel text-[10px] cursor-pointer"
           >
-            Cancel
-          </Button>
-          <Button
+            CANCEL
+          </button>
+          <button
             onClick={handleSavePlan}
-            className="bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white font-extrabold px-6 uppercase tracking-wider text-xs shadow-[0_0_20px_rgba(6,182,212,0.4)] cursor-pointer rounded-xl"
+            className="px-5 py-2 bg-[#b91c1c] border-2 border-[#ef4444] hover:bg-[#dc2626] text-white font-pixel text-[10px] font-bold uppercase tracking-wider cursor-pointer active:translate-y-0.5"
+            style={{
+              boxShadow: "inset 1px 1px 0 rgba(255,255,255,0.3), inset -1px -1px 0 rgba(0,0,0,0.5)",
+            }}
           >
-            Save Custom Routine
-          </Button>
+            SAVE ROUTINE
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

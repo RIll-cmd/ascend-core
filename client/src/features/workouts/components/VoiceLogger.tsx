@@ -96,30 +96,36 @@ export function VoiceLogger({ onParsedResult, isProcessing = false }: VoiceLogge
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-2">
-      <Button
-        variant={isListening ? "destructive" : "default"}
-        className={`w-full h-12 rounded-xl transition-all shadow-lg font-bold tracking-widest ${
-          isListening 
-            ? "bg-red-500 hover:bg-red-600 animate-pulse shadow-red-500/50" 
-            : "bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30"
-        }`}
+    <div className="flex flex-col items-center justify-center gap-2 select-none">
+      <button
         onClick={toggleListening}
         disabled={isProcessing || !isSupported}
+        className={`w-full h-11 border-2 font-pixel text-xs font-bold uppercase tracking-wider transition-all cursor-pointer active:translate-y-0.5 flex items-center justify-center gap-2 ${
+          !isSupported
+            ? "bg-[#1c1412] border-[#4a3830] text-stone-500 cursor-not-allowed"
+            : isListening 
+            ? "bg-[#b91c1c] border-[#ef4444] text-white animate-pulse" 
+            : "bg-[#261914] border-[#5c4033] hover:border-[#f59e0b] text-[#f59e0b]"
+        }`}
+        style={{
+          boxShadow: isListening 
+            ? "inset 1px 1px 0 rgba(255,255,255,0.3), inset -1px -1px 0 rgba(0,0,0,0.6)"
+            : "inset 1px 1px 0 rgba(255,255,255,0.1), inset -1px -1px 0 rgba(0,0,0,0.5)"
+        }}
       >
         {!isSupported ? (
-          <><Mic className="w-5 h-5 mr-2 opacity-50" /> UNSUPPORTED BROWSER</>
+          <><Mic className="w-4 h-4 opacity-50" /> VOICE LOGGING UNSUPPORTED</>
         ) : isProcessing ? (
-          <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> PARSING...</>
+          <><Loader2 className="w-4 h-4 animate-spin" /> PARSING COMMAND...</>
         ) : isListening ? (
-          <><StopCircle className="w-5 h-5 mr-2" /> STOP RECORDING</>
+          <><StopCircle className="w-4 h-4 text-white" /> [RECORDING] TAP TO STOP</>
         ) : (
-          <><Mic className="w-5 h-5 mr-2" /> TAP TO SPEAK</>
+          <><Mic className="w-4 h-4 text-[#f59e0b]" /> TAP TO DICTATE SET</>
         )}
-      </Button>
+      </button>
 
       {isListening && transcript && (
-        <div className="w-full bg-slate-900/80 p-3 rounded-lg border border-indigo-500/30 text-sm font-mono text-center text-indigo-300 animate-in fade-in slide-in-from-top-2">
+        <div className="w-full bg-[#0c0a09] p-2.5 border-2 border-[#5c4033] font-mono text-xs text-center text-[#f59e0b] animate-in fade-in">
           "{transcript}"
         </div>
       )}

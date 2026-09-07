@@ -2,18 +2,13 @@
 
 import React, { useEffect, useRef } from "react";
 import {
-  Volume2,
-  VolumeX,
-  CloudRain,
-  Radio,
-  Flame,
-  Scroll,
-  Headphones,
-  Sparkles,
-  Bell,
-  Music,
-  Feather,
-} from "lucide-react";
+  PixelVolumeHighIcon,
+  PixelVolumeMuteIcon,
+  PixelRainCloudIcon,
+  PixelFlameIcon,
+  PixelBellIcon,
+  PixelQuillIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { useLearningStore, AmbientSoundType } from "../store/useLearningStore";
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
 import { cn } from "@/lib/utils";
@@ -22,42 +17,42 @@ const SOUND_OPTIONS: {
   id: AmbientSoundType;
   label: string;
   desc: string;
-  icon: string;
+  icon: React.ComponentType<{ className?: string }>;
   badge: string;
 }[] = [
   {
     id: "NONE",
     label: "Study Silence",
     desc: "Pure distraction-free scholastic focus",
-    icon: "🤫",
+    icon: PixelVolumeMuteIcon,
     badge: "0 Hz",
   },
   {
     id: "BINARY_PULSE",
     label: "Scribe Quill & Clock",
     desc: "Quill friction & pendulum clock ticks",
-    icon: "📜",
+    icon: PixelQuillIcon,
     badge: "1 Hz Tick",
   },
   {
     id: "LOFI_NOISE",
     label: "Cathedral Hearth",
     desc: "Warm crackling fire & ember pops",
-    icon: "🕯️",
+    icon: PixelFlameIcon,
     badge: "450 Hz",
   },
   {
     id: "RAIN",
     label: "Stained Glass Rain",
     desc: "Heavy rain muffled by leaded windows",
-    icon: "🌧️",
+    icon: PixelRainCloudIcon,
     badge: "Rainfall",
   },
   {
     id: "SPACE_DRONE",
     label: "Monastery 528Hz",
     desc: "Tibetan bowl & Solfeggio frequency",
-    icon: "🔔",
+    icon: PixelBellIcon,
     badge: "528 Hz",
   },
 ];
@@ -270,9 +265,9 @@ export const AmbientSoundPlayer: React.FC<{ className?: string }> = ({ className
         {/* Volume Fader */}
         <div className="flex items-center gap-2.5 px-3 py-1.5 bg-[#100703] border-2 border-[#3d1d0c] shadow-[0_2px_0_0_#000] shrink-0 self-end sm:self-auto">
           {ambientVolume > 0 && ambientSound !== "NONE" ? (
-            <Volume2 className="w-4 h-4 text-[#fbbf24] shrink-0" />
+            <PixelVolumeHighIcon className="w-4 h-4 text-[#fbbf24] shrink-0" />
           ) : (
-            <VolumeX className="w-4 h-4 text-slate-500 shrink-0" />
+            <PixelVolumeMuteIcon className="w-4 h-4 text-[#78695d] shrink-0" />
           )}
           <input
             type="range"
@@ -313,7 +308,14 @@ export const AmbientSoundPlayer: React.FC<{ className?: string }> = ({ className
               {/* Top Row: Icon, Playing Dot & Frequency Badge */}
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg shrink-0">{opt.icon}</span>
+                  <opt.icon
+                    className={cn(
+                      "w-5 h-5 shrink-0 transition-colors",
+                      isSelected
+                        ? "text-[#ffd166] drop-shadow-[0_0_6px_rgba(245,158,11,0.6)]"
+                        : "text-[#8a7a6c] group-hover:text-[#fef08a]"
+                    )}
+                  />
                   {isSelected && (
                     <span className="w-2 h-2 bg-[#f59e0b] border border-[#78350f] shadow-[0_0_6px_#f59e0b] shrink-0 animate-pulse" />
                   )}

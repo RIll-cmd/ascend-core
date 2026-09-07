@@ -8,15 +8,9 @@ import {
   Sparkles,
   Zap,
   CheckCircle2,
-  Trophy,
-  Shield,
-  Flame,
-  Star,
-  ArrowRight,
   X,
 } from "lucide-react";
 import { playBattleSFX, playBuffSFX, playUIMenuSFX } from "@/utils/audio";
-import { FloatingRuneField } from "@/components/shared/FloatingRuneField";
 
 interface HatchCelebrationModalProps {
   characterId: string;
@@ -48,12 +42,18 @@ export const HatchCelebrationModal: React.FC<HatchCelebrationModalProps> = ({
         playBuffSFX("levelup");
       }, 2000);
 
+      const handleEscape = (event: KeyboardEvent) => {
+        if (event.key === "Escape") closeCelebrationModal();
+      };
+      window.addEventListener("keydown", handleEscape);
+
       return () => {
         clearTimeout(timer1);
         clearTimeout(timer2);
+        window.removeEventListener("keydown", handleEscape);
       };
     }
-  }, [isOpen]);
+  }, [isOpen, closeCelebrationModal]);
 
   if (!isOpen || !data) return null;
 
@@ -69,11 +69,11 @@ export const HatchCelebrationModal: React.FC<HatchCelebrationModalProps> = ({
     switch (rarity) {
       case "HOLOGRAPHIC":
         return {
-          border: "border-fuchsia-400 shadow-[0_0_50px_rgba(217,70,239,0.5)]",
-          bg: "from-fuchsia-950/90 via-[#180924]/95 to-[#08020d]/98",
-          text: "text-fuchsia-300",
-          badge: "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/60 shadow-[0_0_15px_rgba(217,70,239,0.4)]",
-          glow: "bg-fuchsia-500/20",
+          border: "border-amber-500",
+          bg: "from-[#fef3c7] via-[#ecfccb] to-[#fef3c7]",
+          text: "text-[#22543d]",
+          badge: "bg-[#d97706] text-[#fff7df] border-[#78350f]",
+          glow: "bg-[#f59e0b]/25",
         };
       case "LEGENDARY":
         return {
@@ -85,19 +85,19 @@ export const HatchCelebrationModal: React.FC<HatchCelebrationModalProps> = ({
         };
       case "EPIC":
         return {
-          border: "border-purple-400 shadow-[0_0_40px_rgba(168,85,247,0.4)]",
-          bg: "from-purple-950/90 via-[#130822]/95 to-[#06020c]/98",
-          text: "text-purple-300",
-          badge: "bg-purple-500/20 text-purple-300 border-purple-500/60 shadow-[0_0_15px_rgba(168,85,247,0.3)]",
-          glow: "bg-purple-500/20",
+          border: "border-[#22543d]",
+          bg: "from-[#fef3c7] via-[#dcfce7] to-[#fef3c7]",
+          text: "text-[#22543d]",
+          badge: "bg-[#22543d] text-[#fef3c7] border-[#78350f]",
+          glow: "bg-[#48bb78]/25",
         };
       case "RARE":
         return {
-          border: "border-cyan-400 shadow-[0_0_35px_rgba(6,182,212,0.4)]",
-          bg: "from-cyan-950/90 via-[#07162c]/95 to-[#020914]/98",
-          text: "text-cyan-300",
-          badge: "bg-cyan-500/20 text-cyan-300 border-cyan-500/60 shadow-[0_0_15px_rgba(6,182,212,0.3)]",
-          glow: "bg-cyan-500/20",
+          border: "border-[#48bb78]",
+          bg: "from-[#fef3c7] via-[#ecfccb] to-[#fef3c7]",
+          text: "text-[#22543d]",
+          badge: "bg-[#48bb78] text-[#17352a] border-[#22543d]",
+          glow: "bg-[#48bb78]/25",
         };
       default:
         return {
@@ -113,13 +113,10 @@ export const HatchCelebrationModal: React.FC<HatchCelebrationModalProps> = ({
   const theme = getRarityTheme(beast.rarity);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-2xl animate-in fade-in duration-300">
-      {/* Floating Particles and Runes Field */}
-      <FloatingRuneField density="high" />
-
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#14271e]/80 backdrop-blur-sm animate-in fade-in duration-300" role="dialog" aria-modal="true" aria-labelledby="hatch-celebration-title">
       {/* Main Celebration Modal Window */}
       <div
-        className={`relative w-full max-w-lg rounded-[32px] bg-gradient-to-br ${theme.bg} border-2 ${theme.border} p-6 md:p-8 shadow-2xl overflow-hidden backdrop-blur-2xl text-slate-100 flex flex-col items-center text-center space-y-6 z-10 transition-all duration-700`}
+        className={`relative w-full max-w-lg rounded-[28px] bg-gradient-to-br ${theme.bg} border-4 ${theme.border} p-6 md:p-8 shadow-[8px_10px_0_rgba(45,55,72,.3)] overflow-hidden text-[#2f2519] flex flex-col items-center text-center space-y-6 z-10 transition-all duration-700`}
       >
         {/* Cyber Header Bar & Close */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
@@ -128,7 +125,9 @@ export const HatchCelebrationModal: React.FC<HatchCelebrationModalProps> = ({
             playUIMenuSFX("confirm");
             closeCelebrationModal();
           }}
-          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-900/80 border border-slate-700/60 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition-all hover:scale-110"
+          aria-label="Close hatch celebration"
+          autoFocus
+          className="absolute top-4 right-4 min-w-11 min-h-11 rounded-full bg-[#2d3748] border-2 border-[#78350f] text-[#fef3c7] hover:bg-[#22543d] flex items-center justify-center cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f59e0b]"
         >
           <X className="w-4 h-4" />
         </button>
@@ -165,8 +164,8 @@ export const HatchCelebrationModal: React.FC<HatchCelebrationModalProps> = ({
               <h3 className="text-xl font-black font-heading text-white tracking-widest uppercase animate-pulse">
                 {phase === "VIBRATING" ? "✦ SHELL FRACTURING... ✦" : "✦ RADIANT BURST! ✦"}
               </h3>
-              <p className="text-xs font-mono text-cyan-300">
-                Incubation energy reaching critical mass...
+              <p className="text-xs font-mono text-[#22543d]">
+                A small heartbeat stirs beneath the shell...
               </p>
             </div>
           </div>
@@ -180,12 +179,12 @@ export const HatchCelebrationModal: React.FC<HatchCelebrationModalProps> = ({
             {/* Rarity & Title */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-center gap-2">
-                <span className="text-[11px] font-mono font-bold text-cyan-400 tracking-[0.2em] uppercase flex items-center gap-1">
+                <span className="text-[11px] font-mono font-bold text-[#22543d] tracking-[0.2em] uppercase flex items-center gap-1">
                   <Sparkles className="w-3.5 h-3.5" />
                   NEW BEAST DISCOVERED
                 </span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black font-heading text-white tracking-tight drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+              <h2 id="hatch-celebration-title" className="text-2xl sm:text-3xl font-black font-heading text-white tracking-tight drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
                 {beast.name}
               </h2>
               <div className="flex items-center justify-center gap-2">
@@ -250,7 +249,7 @@ export const HatchCelebrationModal: React.FC<HatchCelebrationModalProps> = ({
               <Button
                 onClick={handleEquipAndClose}
                 disabled={isEquipping}
-                className="flex-1 h-12 bg-gradient-to-r from-cyan-600 via-teal-500 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-slate-950 font-black font-mono text-xs uppercase tracking-wider rounded-xl shadow-[0_0_25px_rgba(6,182,212,0.4)] cursor-pointer active:scale-95 transition-all"
+                className="flex-1 min-h-12 bg-[#22543d] hover:bg-[#173f2c] text-[#fef3c7] border-2 border-[#78350f] font-black font-mono text-xs uppercase tracking-wider rounded-xl cursor-pointer active:translate-y-0.5 transition-all focus-visible:ring-2 focus-visible:ring-[#f59e0b]"
               >
                 <CheckCircle2 className="w-4 h-4 mr-1.5" />
                 EQUIP AS COMPANION NOW

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Egg, EggShopItem } from "../types/beast";
 import { useBeastStore, EGG_SHOP_ITEMS } from "../store/useBeastStore";
 import { useCharacterStore } from "@/store/useCharacterStore";
+import { SanctuaryEggCard } from "./SanctuaryEggCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,6 +17,9 @@ import {
   Package,
   Layers,
   HelpCircle,
+  Leaf,
+  Snowflake,
+  Sun,
 } from "lucide-react";
 import { CurrencyIcon } from "@/components/CurrencyDisplay";
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
@@ -57,7 +61,7 @@ export const MysteryEggShop: React.FC<MysteryEggShopProps> = ({
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-mono font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-1.5">
               <ShoppingBag className="w-3.5 h-3.5" />
-              SANCTUARY EGG VAULT
+              NURSERY & SEED STALL
             </span>
           </div>
           <h3 className="text-xl font-black font-heading text-white tracking-wide mt-0.5">
@@ -68,6 +72,7 @@ export const MysteryEggShop: React.FC<MysteryEggShopProps> = ({
         {/* Tab Switcher */}
         <div className="flex items-center gap-2 bg-slate-950/80 p-1 rounded-2xl border border-slate-800 self-start sm:self-auto">
           <button
+            aria-pressed={activeTab === "SHOP"}
             onClick={() => {
               playUIMenuSFX("confirm");
               setActiveTab("SHOP");
@@ -81,6 +86,7 @@ export const MysteryEggShop: React.FC<MysteryEggShopProps> = ({
             Sanctuary Shop
           </button>
           <button
+            aria-pressed={activeTab === "STORAGE"}
             onClick={() => {
               playUIMenuSFX("confirm");
               setActiveTab("STORAGE");
@@ -105,108 +111,16 @@ export const MysteryEggShop: React.FC<MysteryEggShopProps> = ({
             const canAffordGold = (character?.gold || 0) >= item.goldPrice;
             const canAffordGems = item.gemPrice > 0 && (character?.gems || 0) >= item.gemPrice;
 
-            const eggLore = EGG_LORE[item.name] || {
-              origin: "Harvested from deep dimensional rifts.",
-              storyLore: item.description,
-              incubationGuide: `Accumulate ${(item.targetEnergy ?? item.targetSteps).toLocaleString()} steps to hatch this egg.`,
-              potentialBeasts: ["Mystic Dragon", "Celestial Beast"]
-            };
-
             return (
-              <SystemTooltip
+              <SanctuaryEggCard
                 key={item.id}
-                title={item.name}
-                subtitle={`${item.eggType} Element • ${(item.targetEnergy ?? item.targetSteps).toLocaleString()} Steps Target`}
-                category="Mystery Beast Egg"
-                rarity={item.rarity as any}
-                description={item.description}
-                lore={eggLore.storyLore}
-                mechanics={eggLore.incubationGuide}
-                howToImprove={`Accumulate daily walking steps (${(item.targetEnergy ?? item.targetSteps).toLocaleString()} steps) to feed kinetic energy into the Incubator Chamber.`}
-                stats={[
-                  { label: "Step Target", value: `${(item.targetEnergy ?? item.targetSteps).toLocaleString()} Steps`, color: "text-cyan-300" },
-                  { label: "Egg Element", value: item.eggType, color: "text-amber-300" }
-                ]}
-                tags={[item.eggType, item.rarity, "Incubation"]}
-                delayMs={1000}
-                className="w-full h-full"
-              >
-                <div
-                  className="w-full h-full rounded-2xl bg-gradient-to-br from-[#0B1020]/95 via-[#070C18]/95 to-[#040710]/98 border border-cyan-500/25 p-4 flex flex-col justify-between space-y-4 hover:border-cyan-500/50 transition-all shadow-lg group"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest font-bold">
-                        {item.eggType} ELEMENT
-                      </span>
-                      <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/50 text-[9px] font-mono font-bold">
-                        {item.rarity}
-                      </Badge>
-                    </div>
-
-                    {/* Egg Sprite Display */}
-                    <div className="py-3 flex items-center justify-center bg-black/40 rounded-xl border border-white/5 group-hover:scale-105 transition-transform">
-                      <img
-                        src={item.sprite}
-                        alt={item.name}
-                        className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(6,182,212,0.6)]"
-                        style={{ imageRendering: "pixelated" }}
-                      />
-                    </div>
-
-                    <div>
-                      <h4 className="text-sm font-black font-heading text-white">
-                        {item.name}
-                      </h4>
-                      <p className="text-[11px] text-slate-400 font-sans leading-relaxed mt-0.5 line-clamp-2">
-                        {item.description}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 text-[10.5px] font-mono text-slate-300 bg-cyan-950/40 p-2 rounded-xl border border-cyan-500/20">
-                      <Footprints className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                      <span>Requires {(item.targetEnergy ?? item.targetSteps).toLocaleString()} Steps</span>
-                    </div>
-                  </div>
-
-                  {/* Purchase Buttons */}
-                  <div className="space-y-2 pt-2 border-t border-white/5">
-                    <Button
-                      onClick={() => handleBuy(item, "GOLD")}
-                      disabled={isBuying || !canAffordGold}
-                      className={`w-full h-9 font-mono text-xs font-bold rounded-xl flex items-center justify-between px-3 cursor-pointer ${
-                        canAffordGold
-                          ? "bg-amber-950/80 hover:bg-amber-900 border border-amber-500/50 text-amber-200 shadow-md"
-                          : "bg-slate-900 text-slate-500 border border-slate-800 cursor-not-allowed"
-                      }`}
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <CurrencyIcon type="GOLD" size="sm" />
-                        Buy with Gold
-                      </span>
-                      <span className="font-black">{item.goldPrice.toLocaleString()} G</span>
-                    </Button>
-
-                    {item.gemPrice > 0 && (
-                      <Button
-                        onClick={() => handleBuy(item, "GEMS")}
-                        disabled={isBuying || !canAffordGems}
-                        className={`w-full h-9 font-mono text-xs font-bold rounded-xl flex items-center justify-between px-3 cursor-pointer ${
-                          canAffordGems
-                            ? "bg-purple-950/80 hover:bg-purple-900 border border-purple-500/50 text-purple-200 shadow-md"
-                            : "bg-slate-900 text-slate-500 border border-slate-800 cursor-not-allowed"
-                        }`}
-                      >
-                        <span className="flex items-center gap-1.5">
-                          <CurrencyIcon type="GEMS" size="sm" />
-                          Buy with Gems
-                        </span>
-                        <span className="font-black">{item.gemPrice} Gems</span>
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </SystemTooltip>
+                item={item}
+                canAffordGold={canAffordGold}
+                canAffordGems={canAffordGems}
+                isBuying={isBuying}
+                onBuyGold={(it) => handleBuy(it, "GOLD")}
+                onBuyGems={(it) => handleBuy(it, "GEMS")}
+              />
             );
           })}
         </div>

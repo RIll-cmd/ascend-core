@@ -9,11 +9,21 @@ import { HabitHeatmap } from "@/features/habits/components/HabitHeatmap";
 import {
   PixelPlusIcon,
   PixelSearchIcon,
-  PixelTargetIcon,
-  PixelSparklesIcon,
-  PixelFlameIcon,
-  PixelActivityIcon,
-  PixelLayersIcon,
+  PixelGrimoireIcon,
+  PixelAnvilIcon,
+  PixelScrollIcon,
+  PixelCampfireIcon,
+  PixelHourglassIcon,
+  PixelOpenGrimoireIcon,
+  PixelCompassIcon,
+  PixelPotionIcon,
+  PixelCrossedSwordsIcon,
+  PixelQuillIcon,
+  PixelBookIcon,
+  PixelLotusIcon,
+  PixelCoinPouchIcon,
+  PixelSunriseIcon,
+  PixelMoonSleepIcon,
 } from "@/components/ui/pixel/PixelIcons";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { playUIMenuSFX } from "@/utils/audio";
@@ -88,6 +98,20 @@ export default function HabitsDashboardPage() {
 
   const charId = character?.id || (typeof window !== "undefined" ? localStorage.getItem("ascend_character_id") : null) || "char-id-123";
 
+  const getCategoryIcon = (category: string) => {
+    const lower = category.toLowerCase();
+    if (lower === "all") return <PixelCompassIcon className="w-3.5 h-3.5 shrink-0" />;
+    if (lower.includes("health")) return <PixelPotionIcon className="w-3.5 h-3.5 shrink-0" />;
+    if (lower.includes("fitness")) return <PixelCrossedSwordsIcon className="w-3.5 h-3.5 shrink-0" />;
+    if (lower.includes("productivity")) return <PixelQuillIcon className="w-3.5 h-3.5 shrink-0" />;
+    if (lower.includes("learning") || lower.includes("education")) return <PixelBookIcon className="w-3.5 h-3.5 shrink-0" />;
+    if (lower.includes("mindset") || lower.includes("spirit")) return <PixelLotusIcon className="w-3.5 h-3.5 shrink-0" />;
+    if (lower.includes("finance") || lower.includes("wealth")) return <PixelCoinPouchIcon className="w-3.5 h-3.5 shrink-0" />;
+    if (lower.includes("daily") || lower.includes("routine")) return <PixelSunriseIcon className="w-3.5 h-3.5 shrink-0" />;
+    if (lower.includes("sleep")) return <PixelMoonSleepIcon className="w-3.5 h-3.5 shrink-0" />;
+    return <PixelScrollIcon className="w-3.5 h-3.5 shrink-0" />;
+  };
+
   return (
     <div className="space-y-5 pb-12 font-pixel select-none animate-in fade-in duration-200">
       
@@ -104,9 +128,9 @@ export default function HabitsDashboardPage() {
 
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-4">
-            {/* Habit Flame Icon Slot */}
+            {/* Habit Grimoire Tome Icon Slot */}
             <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#2f3640] border-2 border-[#1d2d2a] flex items-center justify-center text-[#ffb03a] shadow-[inset_0_0_8px_rgba(0,0,0,0.8),2px_2px_0_0_#1d2d2a] shrink-0">
-              <PixelFlameIcon className="w-7 h-7 text-[#ffb03a]" />
+              <PixelGrimoireIcon className="w-7 h-7 text-[#ffb03a]" />
             </div>
 
             <div className="space-y-1">
@@ -128,7 +152,7 @@ export default function HabitsDashboardPage() {
               className="px-4 py-2.5 bg-[#ffb03a] hover:bg-[#ffd166] text-[#1d2d2a] font-pixel font-bold text-xs border-2 border-[#1d2d2a] shadow-[3px_3px_0_0_#1d2d2a] active:translate-y-0.5 cursor-pointer flex items-center gap-2 shrink-0 transition-all focus-visible:ring-2 focus-visible:ring-[#ffb03a]"
             >
               <PixelPlusIcon className="w-4 h-4 text-[#1d2d2a]" />
-              <span>+ Create New Habit</span>
+              <span>Create New Habit</span>
             </button>
           </Link>
         </div>
@@ -146,7 +170,7 @@ export default function HabitsDashboardPage() {
               Active Habits
             </span>
             <div className="w-7 h-7 bg-[#2f3640] text-[#ffd166] border border-[#1d2d2a] flex items-center justify-center shadow-inner">
-              <PixelLayersIcon className="w-3.5 h-3.5 text-[#ffb03a]" />
+              <PixelScrollIcon className="w-4 h-4 text-[#ffd166]" />
             </div>
           </div>
           <div>
@@ -162,7 +186,7 @@ export default function HabitsDashboardPage() {
               Habit Strength
             </span>
             <div className="w-7 h-7 bg-[#2f3640] text-[#ffd166] border border-[#1d2d2a] flex items-center justify-center shadow-inner">
-              <PixelActivityIcon className="w-3.5 h-3.5 text-[#ffb03a]" />
+              <PixelAnvilIcon className="w-4 h-4 text-[#ffb03a]" />
             </div>
           </div>
           <div className="space-y-1">
@@ -183,7 +207,7 @@ export default function HabitsDashboardPage() {
               Combined Streaks
             </span>
             <div className="w-7 h-7 bg-[#2f3640] text-[#ffd166] border border-[#1d2d2a] flex items-center justify-center shadow-inner">
-              <PixelFlameIcon className="w-3.5 h-3.5 text-[#ffb03a]" />
+              <PixelCampfireIcon className="w-4 h-4 text-[#ffb03a]" />
             </div>
           </div>
           <div>
@@ -199,7 +223,7 @@ export default function HabitsDashboardPage() {
               Consistency Index
             </span>
             <div className="w-7 h-7 bg-[#2f3640] text-[#ffd166] border border-[#1d2d2a] flex items-center justify-center shadow-inner">
-              <PixelSparklesIcon className="w-3.5 h-3.5 text-[#ffb03a]" />
+              <PixelHourglassIcon className="w-4 h-4 text-[#ffd166]" />
             </div>
           </div>
           <div>
@@ -237,13 +261,14 @@ export default function HabitsDashboardPage() {
                   playUIMenuSFX();
                   setSelectedCategory(cat);
                 }}
-                className={`px-3 py-1.5 font-pixel font-bold text-xs uppercase border-2 border-[#1d2d2a] transition-all active:translate-y-0.5 cursor-pointer shrink-0 ${
+                className={`px-2.5 py-1.5 font-pixel font-bold text-xs uppercase border-2 border-[#1d2d2a] transition-all active:translate-y-0.5 cursor-pointer shrink-0 flex items-center gap-1.5 ${
                   isSelected
                     ? "bg-[#ffb03a] text-[#1d2d2a] shadow-[2px_2px_0_0_#111a18]"
-                    : "bg-[#1f242b] text-[#b0b8c4] hover:border-[#ffb03a]/60"
+                    : "bg-[#1f242b] text-[#b0b8c4] hover:border-[#ffb03a]/60 hover:text-white"
                 }`}
               >
-                {cat}
+                {getCategoryIcon(cat)}
+                <span>{cat}</span>
               </button>
             );
           })}
@@ -262,7 +287,7 @@ export default function HabitsDashboardPage() {
         <div className="bg-[#d1d6dc] bg-[linear-gradient(180deg,#e2e7ec_0%,#d1d6dc_50%,#b0b8c4_100%)] border-4 border-dashed border-[#3b424c] p-8 text-center flex flex-col items-center justify-center space-y-3 text-[#1d2d2a] shadow-[4px_4px_0_0_#1d2d2a]">
           <div className="flex items-center gap-3 flex-wrap justify-center">
             <div className="w-12 h-12 bg-[#2f3640] text-[#ffd166] border-2 border-[#1d2d2a] flex items-center justify-center shadow-[2px_2px_0_0_#1d2d2a] shrink-0">
-              <PixelTargetIcon className="w-7 h-7 text-[#ffb03a]" />
+              <PixelOpenGrimoireIcon className="w-7 h-7 text-[#ffb03a]" />
             </div>
             <h2 className="text-sm sm:text-base font-bold uppercase text-[#1d2d2a]">
               No Active Habits Found

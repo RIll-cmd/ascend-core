@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X, Waves, Droplets, Moon, Sparkles, Activity, Clock, ShieldCheck, HeartPulse } from "lucide-react";
+import { PixelMoonSleepIcon, PixelCloseIcon } from "@/components/ui/pixel/PixelIcons";
 import { useSleepStore } from "../store/useSleepStore";
 import { SleepLoggerCard } from "./SleepLoggerCard";
 import { SleepHistoryChart } from "./SleepHistoryChart";
@@ -42,7 +42,7 @@ export const SleepDrawer: React.FC = () => {
         <div className="flex items-center justify-between border-b-2 border-[#3c1860] pb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-[#251040] border-2 border-[#f59e0b] shadow-[0_0_12px_rgba(245,158,11,0.4),inset_1px_1px_0_0_#fef08a] flex items-center justify-center flex-shrink-0">
-              <Moon className="w-5 h-5 text-[#fbbf24]" />
+              <PixelMoonSleepIcon className="w-5 h-5 text-[#fbbf24]" />
             </div>
             <div>
               <span className="text-[9px] font-pixel text-[#fbbf24] uppercase tracking-wider block">
@@ -58,7 +58,7 @@ export const SleepDrawer: React.FC = () => {
             onClick={closeDrawer}
             className="w-8 h-8 bg-[#1f0d36] hover:bg-[#321557] active:bg-[#150924] border-2 border-[#4c1d7c] text-white flex items-center justify-center cursor-pointer transition-colors"
           >
-            <X className="w-4 h-4 text-[#fbbf24]" />
+            <PixelCloseIcon className="w-4 h-4 text-[#fbbf24]" />
           </button>
         </div>
 

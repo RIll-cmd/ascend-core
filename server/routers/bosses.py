@@ -14,8 +14,17 @@ async def create_boss(character_id: str, payload: BossCreate):
         character = await ensure_character_exists(character_id)
         char_id = character.id if character else character_id
         
-        # Calculate HP based on difficulty
-        max_hp = calculate_boss_hp(payload.difficulty)
+        # Existing clients may omit ritual calibration and retain difficulty-derived HP.
+        max_hp = payload.maxHp or calculate_boss_hp(payload.difficulty)
+
+        if payload.rewardTitle:
+            existing_title = await db.title.find_unique(
+                where={"name": payload.rewardTitle.strip()}
+            )
+            if existing_title and existing_title.requirementType != "BOSS_RITUAL":
+                raise ValueError(
+                    "That cosmetic title is protected; choose a unique conquest title"
+                )
         
         # Create the Boss
         boss = await db.boss.create(
@@ -25,8 +34,13 @@ async def create_boss(character_id: str, payload: BossCreate):
                 "description": payload.description,
                 "category": payload.category,
                 "difficulty": payload.difficulty,
+                "archetype": payload.archetype,
                 "maxHp": max_hp,
                 "currentHp": max_hp,
+                "rewardGold": payload.rewardGold,
+                "rewardExp": payload.rewardExp,
+                "rewardTitle": payload.rewardTitle,
+                "realWorldReward": payload.realWorldReward,
                 "deadline": payload.deadline,
                 "status": "ACTIVE"
             }
@@ -84,5 +98,3 @@ async def get_bosses(character_id: str):
     except Exception as e:
         print(f"[Bosses API Warning] Error fetching bosses for {character_id}: {e}")
         return []
-
-

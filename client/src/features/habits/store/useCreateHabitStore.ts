@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { HabitDifficulty, ScheduleType, CompletionType } from "../types";
+import { HabitDifficulty, ScheduleType, CompletionType, HabitType, PenaltyTarget } from "../types";
 import { HabitCreatePayload, HabitScheduleCreatePayload, HabitTierCreatePayload } from "../services/habit.service";
 import { getBaseReward, calculateFinalReward } from "../utils/rewardFormula";
 
@@ -13,6 +13,9 @@ interface DraftHabit {
   preferredTime?: string | null;
   schedule: HabitScheduleCreatePayload;
   tiers: Record<CompletionType, HabitTierCreatePayload>;
+  type: HabitType;
+  affectedStat: PenaltyTarget;
+  statModifier: number;
 }
 
 const initialDraft: DraftHabit = {
@@ -22,6 +25,9 @@ const initialDraft: DraftHabit = {
   primaryStat: "discipline",
   difficulty: "EASY",
   scheduleType: "DAILY",
+  type: "POSITIVE",
+  affectedStat: "HP",
+  statModifier: 10,
   schedule: {
     daysOfWeek: null,
     timesPerWeek: null,
@@ -130,6 +136,9 @@ export const useCreateHabitStore = create<CreateHabitStore>((set, get) => ({
       preferredTime: draft.preferredTime,
       schedule: draft.schedule,
       tiers: tiersArray,
+      type: draft.type,
+      affectedStat: draft.affectedStat,
+      statModifier: draft.statModifier,
     };
   },
 }));

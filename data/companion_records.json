@@ -1,0 +1,19 @@
+{
+  "activities": [],
+  "sleep_records": [
+    {
+      "id": "sleep_1788700811",
+      "hours": 7.5,
+      "quality": "good",
+      "timestamp": "2026-09-06T13:20:11.845801+00:00"
+    },
+    {
+      "id": "sleep_1788700978",
+      "hours": 7.5,
+      "quality": "good",
+      "timestamp": "2026-09-06T13:22:58.028913+00:00"
+    }
+  ],
+  "missions": [],
+  "calendar_events": []
+}

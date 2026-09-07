@@ -17,6 +17,7 @@ export interface PixelButtonProps
     | "gold"
     | "cyan"
     | "dark"
+    | "iron"
     | "outline";
   size?: "sm" | "md" | "lg";
 }
@@ -41,7 +42,8 @@ export function PixelButton({
     purple: "bg-[#7c3aed] text-white hover:bg-[#9333ea] hover:brightness-110 active:bg-[#5b21b6]",
     gold: "bg-[#d97706] !text-[#180b02] hover:!bg-[#f59e0b] hover:brightness-110 active:!bg-[#b45309]",
     cyan: "bg-[#0891b2] text-white hover:bg-[#06b6d4] hover:brightness-110 active:bg-[#155e75]",
-    dark: "bg-[#25133d] text-[#fef08a] hover:bg-[#3d1e63] hover:brightness-115 active:bg-[#1a0c2e]",
+    dark: "bg-[#18110e] text-stone-200 hover:bg-[#2a1d18] hover:text-white hover:brightness-115 active:bg-[#120b08]",
+    iron: "bg-[#221713] text-stone-200 hover:bg-[#35251f] hover:text-white hover:brightness-110 active:bg-[#180f0c]",
     outline:
       "bg-transparent text-[#221208] border-2 border-[#4a2813] hover:bg-[#caa97e]/60 hover:border-[#221208]",
   };

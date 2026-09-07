@@ -4,7 +4,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 export interface PixelBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: "primary" | "success" | "warning" | "danger" | "purple" | "cyan" | "gold" | "dark" | "default";
+  variant?: "primary" | "success" | "warning" | "danger" | "purple" | "cyan" | "gold" | "dark" | "iron" | "default";
   size?: "sm" | "md";
 }
 
@@ -16,15 +16,16 @@ export function PixelBadge({
   ...props
 }: PixelBadgeProps) {
   const variantStyles = {
-    default: "bg-[#160b29] text-white border-[#3b1861]",
+    default: "bg-[#18110e] text-stone-200 border-[#4a3830]",
     primary: "bg-[#182a4d] text-white border-[#2b599e]",
     success: "bg-[#143324] text-white border-[#246944]",
-    warning: "bg-[#382310] text-white border-[#7a481c]",
-    danger: "bg-[#3a1219] text-white border-[#7a2230]",
-    purple: "bg-[#281545] text-white border-[#582799]",
+    warning: "bg-[#382310] text-amber-200 border-[#7a481c]",
+    danger: "bg-[#3a1219] text-red-200 border-[#7a2230]",
+    purple: "bg-[#281545] text-purple-200 border-[#582799]",
     cyan: "bg-[#0c2438] text-cyan-300 border-cyan-500/60",
     gold: "bg-[#382405] text-amber-300 border-amber-500/60",
-    dark: "bg-[#160b29] text-white border-[#3b1861]",
+    dark: "bg-[#140e0c] text-stone-200 border-[#4a3830]",
+    iron: "bg-[#221713] text-stone-200 border-[#5a4235]",
   };
 
   const sizeStyles = {

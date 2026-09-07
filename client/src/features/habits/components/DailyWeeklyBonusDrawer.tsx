@@ -131,8 +131,15 @@ export function DailyWeeklyBonusDrawer() {
                     <span>BONUSES</span>
                     <PixelChevronLeftIcon className="w-3 h-3 text-cyan-400" />
                   </span>
-                  <span className="text-xs text-white/70">
-                    {!dailyEggClaimed ? "🎁 EGG READY" : `${habitBoostCharges}/5 Charges`}
+                  <span className="text-xs text-white/70 flex items-center gap-1">
+                    {!dailyEggClaimed ? (
+                      <>
+                        <PixelSparklesIcon className="w-3 h-3 text-amber-400" />
+                        <span>EGG READY</span>
+                      </>
+                    ) : (
+                      `${habitBoostCharges}/5 Charges`
+                    )}
                   </span>
                 </div>
               </button>

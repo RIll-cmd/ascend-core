@@ -10,6 +10,8 @@ import {
   updateHabitStatus,
   updateHabitDetails,
   logHabit,
+  triggerHabit,
+  HabitTriggerResponse,
   HabitCreatePayload,
 } from "../services/habit.service";
 import { eventBus } from "@/features/progression/services/EventBus";
@@ -36,6 +38,7 @@ export interface HabitStore {
   ) => Promise<void>;
   updateHabitStatus: (habitId: string, status: HabitStatus) => Promise<void>;
   updateHabitDetails: (habitId: string, payload: Partial<HabitCreatePayload>) => Promise<Habit | null>;
+  triggerBadHabit: (habitId: string) => Promise<{ success: boolean; penalty?: HabitTriggerResponse["penalty"] }>;
 }
 
 const getStoredCharacterId = (): string => {
@@ -196,6 +199,16 @@ export const useHabitStore = create<HabitStore>((set, get) => ({
     }
   },
 
+  triggerBadHabit: async (habitId: string) => {
+    const response = await triggerHabit(habitId);
+    if (!response?.success) return { success: false };
+    set((state) => ({
+      habits: state.habits.map((habit) => habit.id === habitId ? response.habit : habit),
+    }));
+    useCharacterStore.getState().setCharacter(response.character);
+    return { success: true, penalty: response.penalty };
+  },
+
   executeMissionCompletion: async (
     missionId: string,
     habit: Habit,
@@ -272,4 +285,3 @@ export const useHabitStore = create<HabitStore>((set, get) => ({
     }
   },
 }));
-

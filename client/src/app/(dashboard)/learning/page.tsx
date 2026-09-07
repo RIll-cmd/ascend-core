@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { BookOpen, Sparkles, Scroll, Flame, Award } from "lucide-react";
+import { PixelFlameIcon, PixelAwardIcon } from "@/components/ui/pixel/PixelIcons";
 import { PomodoroTimer } from "@/features/learning/components/PomodoroTimer";
 import { HabitLinkSelector } from "@/features/learning/components/HabitLinkSelector";
 import { AmbientSoundPlayer } from "@/features/learning/components/AmbientSoundPlayer";
@@ -34,13 +34,6 @@ export default function LearningPage() {
 
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] font-pixel font-bold text-[#f59e0b] uppercase tracking-widest bg-[#150904] px-2 py-0.5 border border-[#542d17]">
-                ✦ Grand Citadel Scriptorium ✦
-              </span>
-              <span className="text-xs font-mono text-slate-400">Bibliotheca Arcana</span>
-            </div>
-
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-pixel font-bold text-[#fef08a] tracking-wide drop-shadow-[0_2px_0_#000]">
               Archives & Scribe Chamber
             </h1>
@@ -57,7 +50,15 @@ export default function LearningPage() {
                 Scribe Streak
               </span>
               <span className="text-base sm:text-lg font-bold text-[#34d399] flex items-center gap-1.5 justify-start sm:justify-end tabular-nums">
-                <Flame className="w-4 h-4 text-[#f59e0b]" /> <NumberTicker value={streak} /> Days
+                <PixelFlameIcon
+                  className={cn(
+                    "w-4 h-4 transition-colors",
+                    streak > 0
+                      ? "text-[#f59e0b] drop-shadow-[0_0_6px_rgba(245,158,11,0.7)] animate-pulse"
+                      : "text-[#78695d]"
+                  )}
+                />
+                <NumberTicker value={streak} /> Days
               </span>
             </div>
 
@@ -68,7 +69,15 @@ export default function LearningPage() {
                 Focus Blocks
               </span>
               <span className="text-base sm:text-lg font-bold text-[#fef08a] flex items-center gap-1.5 justify-start sm:justify-end tabular-nums">
-                <Award className="w-4 h-4 text-[#f59e0b]" /> <NumberTicker value={completedCycles} /> Rites
+                <PixelAwardIcon
+                  className={cn(
+                    "w-4 h-4 transition-colors",
+                    completedCycles > 0
+                      ? "text-[#f59e0b] drop-shadow-[0_0_6px_rgba(245,158,11,0.7)]"
+                      : "text-[#78695d]"
+                  )}
+                />
+                <NumberTicker value={completedCycles} /> Rites
               </span>
             </div>
           </div>

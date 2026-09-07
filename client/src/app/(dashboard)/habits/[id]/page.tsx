@@ -12,12 +12,17 @@ import {
   PixelPencilIcon,
   PixelTrashIcon,
   PixelTargetIcon,
-  PixelActivityIcon,
+  PixelAnvilIcon,
   PixelFlameIcon,
   PixelCoinsIcon,
-  PixelLayersIcon,
+  PixelHourglassIcon,
   PixelCheckIcon,
+  PixelGearIcon,
+  PixelPauseIcon,
+  PixelPlayIcon,
+  PixelArchiveIcon,
 } from "@/components/ui/pixel/PixelIcons";
+import { HabitIconRenderer } from "@/features/habits/components/HabitIconRenderer";
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
@@ -156,10 +161,11 @@ export default function HabitDetailPage() {
                 playUIMenuSFX();
                 setIsMenuOpen(!isMenuOpen);
               }}
-              className="px-2.5 py-1.5 bg-[#2f3640] hover:bg-[#3b424c] text-[#ffd166] border-2 border-[#1d2d2a] shadow-[2px_2px_0_0_#111a18] active:translate-y-0.5 cursor-pointer text-xs focus-visible:ring-2 focus-visible:ring-[#ffb03a]"
+              className="px-2.5 py-1.5 bg-[#2f3640] hover:bg-[#3b424c] text-[#ffd166] border-2 border-[#1d2d2a] shadow-[2px_2px_0_0_#111a18] active:translate-y-0.5 cursor-pointer text-xs focus-visible:ring-2 focus-visible:ring-[#ffb03a] flex items-center gap-1.5"
               aria-label="Habit Options"
             >
-              ⚙ Options
+              <PixelGearIcon className="w-3.5 h-3.5 text-[#ffb03a]" />
+              <span>Options</span>
             </button>
 
             {isMenuOpen && (
@@ -181,14 +187,16 @@ export default function HabitDetailPage() {
                     onClick={() => handleStatusChange("PAUSED")}
                     className="w-full text-left px-3 py-2 text-[#ffb03a] hover:bg-[#3b424c] flex items-center gap-2 cursor-pointer uppercase font-bold"
                   >
-                    <span>⏸ Pause Habit</span>
+                    <PixelPauseIcon className="w-3 h-3 text-[#ffb03a]" />
+                    <span>Pause Habit</span>
                   </button>
                 ) : (
                   <button
                     onClick={() => handleStatusChange("ACTIVE")}
                     className="w-full text-left px-3 py-2 text-emerald-400 hover:bg-[#3b424c] flex items-center gap-2 cursor-pointer uppercase font-bold"
                   >
-                    <span>▶ Resume Habit</span>
+                    <PixelPlayIcon className="w-3 h-3 text-emerald-400" />
+                    <span>Resume Habit</span>
                   </button>
                 )}
 
@@ -196,7 +204,8 @@ export default function HabitDetailPage() {
                   onClick={() => handleStatusChange("ARCHIVED")}
                   className="w-full text-left px-3 py-2 text-[#d1d6dc] hover:bg-[#3b424c] flex items-center gap-2 cursor-pointer uppercase font-bold"
                 >
-                  <span>📁 Archive</span>
+                  <PixelArchiveIcon className="w-3 h-3 text-[#d1d6dc]" />
+                  <span>Archive</span>
                 </button>
 
                 <button
@@ -214,8 +223,8 @@ export default function HabitDetailPage() {
         {/* Hero Content */}
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5">
-            <div className="w-12 h-12 bg-[#2f3640] border-2 border-[#1d2d2a] flex items-center justify-center text-2xl shadow-[2px_2px_0_0_#1d2d2a] text-[#ffb03a] shrink-0">
-              {habit.icon || "✓"}
+            <div className="w-12 h-12 bg-[#2f3640] border-2 border-[#1d2d2a] flex items-center justify-center shadow-[2px_2px_0_0_#1d2d2a] shrink-0">
+              <HabitIconRenderer habit={habit} className="w-7 h-7 text-[#ffd166]" />
             </div>
 
             <div className="space-y-1">
@@ -253,7 +262,7 @@ export default function HabitDetailPage() {
           <div className="p-3 bg-[#b0b8c4]/60 border-2 border-[#3b424c] space-y-1.5 shadow-[inset_0_0_6px_rgba(0,0,0,0.1)]">
             <div className="flex justify-between items-center text-[10px]">
               <span className="text-[#3b424c] font-bold uppercase flex items-center gap-1">
-                <PixelActivityIcon className="w-3.5 h-3.5 text-[#ea580c]" />
+                <PixelAnvilIcon className="w-3.5 h-3.5 text-[#ea580c]" />
                 Habit Strength & Momentum
               </span>
               <span className="text-[#ea580c] font-bold text-xs tabular-nums font-mono">
@@ -287,8 +296,8 @@ export default function HabitDetailPage() {
         {isCompletedToday ? (
           <div className="p-3.5 bg-[#1b3d2b] border-2 border-emerald-500 shadow-[inset_0_0_6px_rgba(0,0,0,0.4)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-white">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-emerald-500 text-[#1d2d2a] flex items-center justify-center font-bold">
-                ✓
+              <div className="w-7 h-7 bg-emerald-500 text-[#1d2d2a] flex items-center justify-center">
+                <PixelCheckIcon className="w-4 h-4 text-[#1d2d2a]" />
               </div>
               <div>
                 <p className="text-xs font-bold text-emerald-300 uppercase">
@@ -439,7 +448,7 @@ export default function HabitDetailPage() {
             <span className="text-2xl font-bold text-[#1d2d2a] tabular-nums font-mono">{Math.round(consistency)}%</span>
           </div>
           <div className="w-8 h-8 bg-[#2f3640] text-[#ffd166] border border-[#1d2d2a] flex items-center justify-center shadow-inner">
-            <PixelLayersIcon className="w-4 h-4 text-[#ffb03a]" />
+            <PixelHourglassIcon className="w-4 h-4 text-[#ffd166]" />
           </div>
         </div>
       </div>

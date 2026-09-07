@@ -2,18 +2,16 @@
 
 import React from "react";
 import {
-  Link2,
-  Unlink,
-  BookOpen,
-  Code,
-  Scroll,
-  Briefcase,
-  Palette,
-  Zap,
-  Sparkles,
-  Feather,
-  CheckCircle,
-} from "lucide-react";
+  PixelScrollIcon,
+  PixelCodeBracketsIcon,
+  PixelBookIcon,
+  PixelBriefcaseIcon,
+  PixelPaletteIcon,
+  PixelSparklesIcon,
+  PixelQuillIcon,
+  PixelLinkIcon,
+  PixelUnlinkIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { useHabitStore } from "@/features/habits/store";
 import { useLearningStore, FocusCategory } from "../store/useLearningStore";
 import { playUIMenuSFX } from "@/utils/audio";
@@ -23,7 +21,7 @@ interface DomainSphere {
   id: FocusCategory;
   label: string;
   sublabel: string;
-  sealIcon: string;
+  sealIcon: React.ComponentType<{ className?: string }>;
   statBonus: string;
 }
 
@@ -32,42 +30,42 @@ const DOMAINS: DomainSphere[] = [
     id: "STUDY",
     label: "Ancient Lore & Study",
     sublabel: "Knowledge",
-    sealIcon: "📜",
+    sealIcon: PixelScrollIcon,
     statBonus: "+0.4 KNO",
   },
   {
     id: "CODING",
     label: "Arcane Code & Logic",
     sublabel: "Intelligence",
-    sealIcon: "🔮",
+    sealIcon: PixelCodeBracketsIcon,
     statBonus: "+0.4 INT",
   },
   {
     id: "READING",
     label: "Grimoire Reading",
     sublabel: "Perception",
-    sealIcon: "📖",
+    sealIcon: PixelBookIcon,
     statBonus: "+0.4 FOC",
   },
   {
     id: "WORK",
     label: "Citadel Guild Work",
     sublabel: "Discipline",
-    sealIcon: "⚔️",
+    sealIcon: PixelBriefcaseIcon,
     statBonus: "+0.3 DIS",
   },
   {
     id: "CREATIVE",
     label: "Artisan & Creative",
     sublabel: "Charisma",
-    sealIcon: "🎨",
+    sealIcon: PixelPaletteIcon,
     statBonus: "+0.4 CHA",
   },
   {
     id: "GENERAL",
     label: "Meditation & Core Flow",
     sublabel: "Recovery",
-    sealIcon: "🕯️",
+    sealIcon: PixelSparklesIcon,
     statBonus: "+0.3 REC",
   },
 ];
@@ -140,7 +138,7 @@ export const HabitLinkSelector: React.FC<{ className?: string }> = ({ className 
                         : "bg-[#120703] border-[#542d17] text-[#fbbf24] group-hover:border-[#854d0e]"
                     )}
                   >
-                    {domain.sealIcon}
+                    <domain.sealIcon className="w-4 h-4 text-amber-400" />
                   </div>
                   <span className="text-xs sm:text-sm font-pixel font-bold tracking-wide leading-tight text-pretty text-[#fef08a]">
                     {domain.label}
@@ -169,7 +167,7 @@ export const HabitLinkSelector: React.FC<{ className?: string }> = ({ className 
       {/* Scriptorium Session Objective Line */}
       <div className="p-4 bg-[#120703] border-2 border-[#45200c] space-y-2">
         <div className="flex items-center gap-2 text-xs sm:text-sm font-pixel font-bold text-[#fbbf24]">
-          <Feather className="w-4 h-4 text-[#f59e0b]" />
+          <PixelQuillIcon className="w-4 h-4 text-[#f59e0b]" />
           <span>Inscribe Session Objective into Ledger:</span>
         </div>
         <input
@@ -185,7 +183,7 @@ export const HabitLinkSelector: React.FC<{ className?: string }> = ({ className 
       <div className="pt-3 border-t border-[#542d17]/80 space-y-2.5">
         <div className="flex items-center justify-between">
           <label className="text-xs sm:text-sm font-pixel font-bold text-[#fbbf24] flex items-center gap-2">
-            <Link2 className="w-4 h-4 text-[#f59e0b]" />
+            <PixelLinkIcon className="w-4 h-4 text-[#f59e0b]" />
             Inscribe Directly to Daily Quest / Habit
           </label>
           {linkedHabitId && (
@@ -195,9 +193,9 @@ export const HabitLinkSelector: React.FC<{ className?: string }> = ({ className 
                 playUIMenuSFX("confirm");
                 setLinkedHabit(null);
               }}
-              className="text-xs sm:text-sm font-pixel text-[#fb7185] hover:text-[#f43f5e] flex items-center gap-1.5 cursor-pointer font-bold"
+              className="text-xs sm:text-sm font-pixel text-[#ef4444] hover:text-[#f87171] flex items-center gap-1.5 cursor-pointer font-bold transition-colors"
             >
-              <Unlink className="w-4 h-4" /> Unlink Quest
+              <PixelUnlinkIcon className="w-4 h-4 text-[#ef4444]" /> Unlink Quest
             </button>
           )}
         </div>
@@ -226,7 +224,7 @@ export const HabitLinkSelector: React.FC<{ className?: string }> = ({ className 
         {/* Golden Tether Ribbon Indicator */}
         {linkedHabitId && (
           <div className="p-2.5 bg-[#381a0c] border-2 border-[#f59e0b] flex items-center gap-2 text-xs sm:text-sm font-sans text-[#fef08a] shadow-[inset_0_0_12px_rgba(245,158,11,0.2)] animate-in fade-in duration-200 font-bold">
-            <Sparkles className="w-4 h-4 text-[#f59e0b] shrink-0" />
+            <PixelSparklesIcon className="w-4 h-4 text-[#f59e0b] shrink-0" />
             <span>Chrono-Chamber tethered to &quot;{linkedHabitName}&quot; — completing this rite advances daily quest streaks!</span>
           </div>
         )}

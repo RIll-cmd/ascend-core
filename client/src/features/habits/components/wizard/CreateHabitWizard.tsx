@@ -9,7 +9,7 @@ import { useHabitStore } from "../../store/useHabitStore";
 import { useCharacterStore } from "@/store/useCharacterStore";
 import { useRouter } from "next/navigation";
 import {
-  PixelTargetIcon,
+  PixelGrimoireIcon,
   PixelArrowRightIcon,
   PixelArrowLeftIcon,
   PixelCheckIcon,
@@ -98,7 +98,7 @@ export const CreateHabitWizard: React.FC = () => {
         <div className="flex items-center justify-between pb-4 border-b-2 border-[#3b424c]/30 mb-5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-[#2f3640] border-2 border-[#1d2d2a] flex items-center justify-center text-[#ffb03a] shadow-[2px_2px_0_0_#1d2d2a]">
-              <PixelTargetIcon className="w-6 h-6" />
+              <PixelGrimoireIcon className="w-6 h-6 text-[#ffb03a]" />
             </div>
             <div>
               <h2 className="text-sm sm:text-base font-bold uppercase text-[#1d2d2a]">

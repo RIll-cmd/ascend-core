@@ -7,7 +7,7 @@ import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 import { API_BASE_URL } from "@/constants";
 import {
-  PixelCalendarIcon,
+  PixelMonolithIcon,
   PixelSparklesIcon,
   PixelFlameIcon,
 } from "@/components/ui/pixel/PixelIcons";
@@ -63,7 +63,7 @@ export function HabitHeatmap({ characterId }: { characterId: string }) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 border-b-2 border-[#1d2d2a] pb-3 relative z-10">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 bg-[#1d2d2a] border-2 border-[#ffb03a] flex items-center justify-center text-[#ffd166] shadow-[inset_0_0_6px_rgba(0,0,0,0.8)] shrink-0">
-            <PixelCalendarIcon className="w-5 h-5 text-[#ffb03a]" />
+            <PixelMonolithIcon className="w-5 h-5 text-[#ffb03a]" />
           </div>
           <div>
             <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#ffd166] flex items-center gap-1.5">

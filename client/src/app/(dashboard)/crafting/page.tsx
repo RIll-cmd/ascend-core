@@ -1,28 +1,54 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
-import { useCraftingStore } from "@/features/crafting/store/useCraftingStore";
-import { useCharacterStore } from "@/store/useCharacterStore";
-import { useInventoryStore } from "@/features/inventory/store/useInventoryStore";
-import { RecipeCard } from "@/features/crafting/components/RecipeCard";
-import { CraftSuccessModal } from "@/features/crafting/components/CraftSuccessModal";
-import { CurrencyIcon } from "@/components/CurrencyDisplay";
+import React, { type CSSProperties, useEffect, useMemo, useState } from "react";
 import {
+  AlertTriangle,
+  Anvil,
+  FlaskConical,
+  Gem,
   Hammer,
-  Sparkles,
   Search,
-  Flame,
+  RefreshCcw,
   Shield,
   Sword,
-  Gem,
-  FlaskConical,
-  Package,
-  Layers,
-  ArrowRight,
 } from "lucide-react";
-import Link from "next/link";
+import { CurrencyIcon } from "@/components/CurrencyDisplay";
+import smithy from "@/features/armory/styles/RoyalSmithy.module.css";
+import { CraftSuccessModal } from "@/features/crafting/components/CraftSuccessModal";
+import { ForgeWorkbench } from "@/features/crafting/components/ForgeWorkbench";
+import { RecipeCard } from "@/features/crafting/components/RecipeCard";
+import { CraftingHeader } from "@/features/crafting/components/CraftingHeader";
+import { useCraftingStore } from "@/features/crafting/store/useCraftingStore";
+import {
+  filterCraftingRecipes,
+  resolveSelectedRecipeId,
+  type SmithyCategory,
+} from "@/features/crafting/utils/craftingPresentation";
+import { useInventoryStore } from "@/features/inventory/store/useInventoryStore";
+import { useCharacterStore } from "@/store/useCharacterStore";
 
-type CategoryFilter = "ALL" | "WEAPONS" | "ARMOR" | "ACCESSORIES" | "ALCHEMY";
+const CATEGORY_TABS: Array<{
+  id: SmithyCategory;
+  label: string;
+  icon: React.ElementType;
+}> = [
+  { id: "WEAPONS", label: "Heavy Armaments", icon: Sword },
+  { id: "ARMOR", label: "Plate & Mail", icon: Shield },
+  { id: "ACCESSORIES", label: "Lapidary", icon: Gem },
+  { id: "ALCHEMY", label: "Alchemist's Hearth", icon: FlaskConical },
+];
+
+const EMBERS = [
+  ["8%", "9s", "-2s"],
+  ["15%", "12s", "-7s"],
+  ["28%", "10s", "-4s"],
+  ["38%", "14s", "-10s"],
+  ["52%", "11s", "-6s"],
+  ["64%", "13s", "-1s"],
+  ["75%", "9s", "-5s"],
+  ["86%", "15s", "-11s"],
+  ["94%", "12s", "-8s"],
+] as const;
 
 export default function CraftingPage() {
   const { character } = useCharacterStore();
@@ -31,209 +57,238 @@ export default function CraftingPage() {
     recipes,
     isLoading,
     isCrafting,
+    error: craftingError,
     fetchRecipes,
     craftRecipe,
     lastCraftedResult,
     clearLastCrafted,
   } = useCraftingStore();
 
-  const [activeCategory, setActiveCategory] = useState<CategoryFilter>("ALL");
+  const [activeCategory, setActiveCategory] = useState<SmithyCategory>("WEAPONS");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
+  const [strikeSequence, setStrikeSequence] = useState(0);
+  const smithyTitleRef = React.useRef<HTMLHeadingElement>(null);
+  const craftTriggerRef = React.useRef<HTMLButtonElement | null>(null);
+  const shouldRestoreCraftFocusRef = React.useRef(false);
 
-  const charId = character?.id || "char-id-123";
+  const charId = character?.id;
 
   useEffect(() => {
-    fetchRecipes(charId);
-    fetchInventory(charId);
+    if (charId) {
+      void fetchRecipes(charId);
+      void fetchInventory(charId);
+    }
   }, [charId, fetchRecipes, fetchInventory]);
 
-  const filteredRecipes = useMemo(() => {
-    return recipes.filter((r) => {
-      if (activeCategory !== "ALL" && r.category !== activeCategory) {
-        return false;
+  useEffect(() => {
+    if (lastCraftedResult || !shouldRestoreCraftFocusRef.current) return;
+
+    shouldRestoreCraftFocusRef.current = false;
+    const animationFrame = requestAnimationFrame(() => {
+      const trigger = craftTriggerRef.current;
+      if (trigger?.isConnected && !trigger.disabled) {
+        trigger.focus();
+      } else {
+        smithyTitleRef.current?.focus();
       }
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        const matchTitle = r.title.toLowerCase().includes(q);
-        const matchOutput = r.output.name.toLowerCase().includes(q);
-        const matchDesc = r.description.toLowerCase().includes(q);
-        if (!matchTitle && !matchOutput && !matchDesc) return false;
-      }
-      return true;
     });
-  }, [recipes, activeCategory, searchQuery]);
 
-  const craftableCount = useMemo(() => {
-    return recipes.filter((r) => r.canCraft).length;
-  }, [recipes]);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [lastCraftedResult]);
 
-  const materialItemsCount = useMemo(() => {
-    return items.filter((i) => i.itemDefinition.type === "MATERIAL").length;
-  }, [items]);
+  const filteredRecipes = useMemo(
+    () => filterCraftingRecipes(recipes, activeCategory, searchQuery),
+    [recipes, activeCategory, searchQuery],
+  );
 
-  const handleCraft = async (recipeId: string) => {
+  const activeRecipeId = resolveSelectedRecipeId(filteredRecipes, selectedRecipeId);
+  const activeRecipe = filteredRecipes.find((recipe) => recipe.id === activeRecipeId) ?? null;
+
+  const craftableCount = useMemo(
+    () => recipes.filter((recipe) => recipe.canCraft).length,
+    [recipes],
+  );
+  const materialItemsCount = useMemo(
+    () => items.filter((item) => item.itemDefinition.type === "MATERIAL").length,
+    [items],
+  );
+
+  const handleCraft = async (recipeId: string, trigger: HTMLButtonElement) => {
+    if (!charId) return;
+    craftTriggerRef.current = trigger;
+    setStrikeSequence((sequence) => sequence + 1);
     await craftRecipe(charId, recipeId);
   };
 
+  const handleCloseCraftResult = () => {
+    shouldRestoreCraftFocusRef.current = true;
+    clearLastCrafted();
+  };
+
   return (
-    <div suppressHydrationWarning className="max-w-7xl mx-auto w-full space-y-6 text-slate-100 pb-16 animate-in fade-in duration-300">
-      {/* Top Cyber Forge Hero Banner */}
-      <div
-        suppressHydrationWarning
-        className="relative rounded-3xl bg-gradient-to-r from-[#070D1E] via-[#0E1630] to-[#0A1024] border border-cyan-500/30 p-6 md:p-8 shadow-2xl overflow-hidden shrink-0"
-      >
-        {/* Glow particles and forge background ambience */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-                <Hammer className="w-5 h-5 text-cyan-300 animate-bounce" />
-              </div>
-              <span className="text-xs font-mono font-bold tracking-[0.25em] text-cyan-400 uppercase">
-                ANCIENT GATE WORKSHOP
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white font-heading tracking-wider">
-              CYBER FORGE & ALCHEMY
-            </h1>
-            <p className="text-slate-300 text-xs sm:text-sm max-w-xl leading-relaxed">
-              Synthesize raw dungeon materials, gate cores, and dragon scales into high-tier
-              armaments, sovereign relics, and powerful attribute elixirs.
-            </p>
-          </div>
-
-          {/* Quick HUD Vault Badges */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="px-4 py-2.5 rounded-2xl bg-black/60 border border-amber-500/30 flex items-center gap-3 shadow-lg">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <CurrencyIcon type="GOLD" size="sm" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest">
-                  Gold Vault
-                </span>
-                <span className="text-sm font-bold text-amber-300 font-mono">
-                  {character?.gold?.toLocaleString() || "0"}
-                </span>
-              </div>
-            </div>
-
-            <div className="px-4 py-2.5 rounded-2xl bg-black/60 border border-cyan-500/30 flex items-center gap-3 shadow-lg">
-              <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center">
-                <Package className="w-4 h-4 text-cyan-400" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest">
-                  Materials
-                </span>
-                <span className="text-sm font-bold text-cyan-300 font-mono">
-                  {materialItemsCount} In Stock
-                </span>
-              </div>
-            </div>
-
-            <div className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-purple-950/50 to-indigo-950/50 border border-purple-500/40 flex items-center gap-3 shadow-lg">
-              <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-purple-300 animate-pulse" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[9px] font-mono text-purple-300 uppercase tracking-widest">
-                  Ready to Forge
-                </span>
-                <span className="text-sm font-bold text-white font-mono">
-                  {craftableCount} / {recipes.length}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Filter Tabs & Search Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 bg-[#090E20] p-2.5 rounded-2xl border border-white/10 shadow-lg">
-        {/* Category Tabs */}
-        <div className="flex flex-wrap gap-1.5 p-1 bg-black/40 rounded-xl">
-          {[
-            { id: "ALL", label: "All Recipes", icon: Layers },
-            { id: "WEAPONS", label: "Weapons", icon: Sword },
-            { id: "ARMOR", label: "Armor & Plate", icon: Shield },
-            { id: "ACCESSORIES", label: "Relics & Rings", icon: Gem },
-            { id: "ALCHEMY", label: "Alchemy & Potions", icon: FlaskConical },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeCategory === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveCategory(tab.id as CategoryFilter)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
-                  isActive
-                    ? "bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)] border border-cyan-400/40"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent"
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-cyan-200" : "text-slate-400"}`} />
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Search Input */}
-        <div className="relative w-full md:w-72">
-          <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-slate-500" />
-          </div>
-          <input
-            type="text"
-            placeholder="Search forge recipes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-black/50 border border-white/15 text-white text-xs font-mono rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all placeholder:text-slate-600"
+    <div className={`${smithy.surface} ${smithy.craftingSurface}`}>
+      <div className={smithy.emberField} aria-hidden="true">
+        {EMBERS.map(([left, duration, delay]) => (
+          <span
+            key={left}
+            className={smithy.ember}
+            style={
+              {
+                left,
+                "--ember-duration": duration,
+                "--ember-delay": delay,
+              } as CSSProperties
+            }
           />
-        </div>
+        ))}
+      </div>
+      <div className={smithy.smokeField} aria-hidden="true">
+        <span
+          className={smithy.smoke}
+          style={
+            {
+              "--smoke-left": "14%",
+              "--smoke-duration": "13s",
+              "--smoke-delay": "-4s",
+            } as CSSProperties
+          }
+        />
+        <span
+          className={smithy.smoke}
+          style={
+            {
+              "--smoke-left": "76%",
+              "--smoke-duration": "16s",
+              "--smoke-delay": "-11s",
+            } as CSSProperties
+          }
+        />
       </div>
 
-      {/* Recipe Cards Grid */}
-      <div className="flex-1">
-        {isLoading ? (
-          <div className="w-full py-24 flex flex-col items-center justify-center text-slate-500 space-y-3">
-            <div className="w-10 h-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs font-mono tracking-widest uppercase text-cyan-300">
-              Calibrating Forge Conduits...
-            </span>
+      <div className={smithy.content}>
+        <CraftingHeader
+          gold={character?.gold || 0}
+          materialItemsCount={materialItemsCount}
+          craftableCount={craftableCount}
+          recipesCount={recipes.length}
+          titleRef={smithyTitleRef}
+        />
+
+        <section className={`${smithy.ironPanel} ${smithy.rivets} ${smithy.categoryBar}`}>
+          <div className={smithy.categoryTabs} role="group" aria-label="Smithy disciplines">
+            {CATEGORY_TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeCategory === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => setActiveCategory(tab.id)}
+                  className={`${smithy.categoryTab} ${isActive ? smithy.activeTab : ""}`}
+                >
+                  <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
-        ) : filteredRecipes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {filteredRecipes.map((recipe) => (
-              <RecipeCard
-                key={recipe.id}
-                recipe={recipe}
-                onCraft={handleCraft}
-                isCrafting={isCrafting}
-                playerGold={character?.gold || 0}
-              />
-            ))}
+
+          <label className={smithy.searchWrap}>
+            <span className="sr-only">Search smithy blueprints</span>
+            <Search className={smithy.searchIcon} aria-hidden="true" />
+            <input
+              type="search"
+              placeholder="Search blueprints…"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              className={smithy.searchInput}
+            />
+          </label>
+        </section>
+
+        {craftingError ? (
+          <div className={smithy.errorPanel} role="alert">
+            <div className={smithy.errorCopy}>
+              <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+              <div>
+                <strong>The forge ledger reported a fault.</strong>
+                <span>{craftingError}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              className={smithy.secondaryButton}
+              disabled={!charId}
+              onClick={() => {
+                if (!charId) return;
+                void fetchRecipes(charId);
+                void fetchInventory(charId);
+              }}
+            >
+              <RefreshCcw className="h-4 w-4" aria-hidden="true" />
+              Refresh ledgers
+            </button>
+          </div>
+        ) : null}
+
+        {!charId ? (
+          <div className={`${smithy.ironPanel} ${smithy.statePanel}`}>
+            <div className={smithy.stateInner}>
+              <Anvil className="h-10 w-10" aria-hidden="true" />
+              <h2 className={smithy.recipeTitle}>Awaiting the royal seal</h2>
+              <p className={smithy.subtitle}>Select or load a character to open their smithy ledger.</p>
+            </div>
+          </div>
+        ) : isLoading ? (
+          <div className={`${smithy.ironPanel} ${smithy.statePanel}`}>
+            <div className={smithy.stateInner}>
+              <span className={smithy.spinner} aria-hidden="true" />
+              <span className={smithy.brassBadge}>Heating the royal forge</span>
+            </div>
+          </div>
+        ) : filteredRecipes.length > 0 && activeRecipe ? (
+          <div className={smithy.blueprintLayout}>
+            <aside className={`${smithy.oakPanel} ${smithy.rivets} ${smithy.blueprintRail}`}>
+              <h2 className={smithy.panelHeading}>
+                Blueprint folio
+                <span className={smithy.panelHint}>{filteredRecipes.length} patterns</span>
+              </h2>
+              <div className={smithy.blueprintList}>
+                {filteredRecipes.map((recipe) => (
+                  <RecipeCard
+                    key={recipe.id}
+                    recipe={recipe}
+                    isSelected={activeRecipeId === recipe.id}
+                    onSelect={setSelectedRecipeId}
+                  />
+                ))}
+              </div>
+            </aside>
+
+            <ForgeWorkbench
+              recipe={activeRecipe}
+              isCrafting={isCrafting}
+              playerGold={character?.gold || 0}
+              strikeSequence={strikeSequence}
+              onCraft={handleCraft}
+            />
           </div>
         ) : (
-          <div className="w-full py-20 flex flex-col items-center justify-center text-center bg-[#070D1E]/60 rounded-3xl border border-white/10 p-8 space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-slate-900 flex items-center justify-center text-slate-500">
-              <Hammer className="w-7 h-7" />
+          <div className={`${smithy.oakPanel} ${smithy.emptyWorkbench}`}>
+            <div className={smithy.stateInner}>
+              <Hammer className="h-10 w-10" aria-hidden="true" />
+              <h2 className={smithy.recipeTitle}>No pattern on the bench</h2>
+              <p className={smithy.subtitle}>
+                Search another smithing discipline or clear the blueprint inscription.
+              </p>
             </div>
-            <h3 className="text-lg font-bold text-white">No Recipes Found</h3>
-            <p className="text-xs text-slate-400 max-w-sm">
-              No crafting blueprints match your search criteria. Switch category tabs or clear your
-              search query.
-            </p>
           </div>
         )}
       </div>
 
-      {/* Crafting Success Modal */}
-      <CraftSuccessModal result={lastCraftedResult} onClose={clearLastCrafted} />
+      <CraftSuccessModal result={lastCraftedResult} onClose={handleCloseCraftResult} />
     </div>
   );
 }

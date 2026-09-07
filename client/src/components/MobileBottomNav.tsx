@@ -19,7 +19,7 @@ export function MobileBottomNav() {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#0a0514]/95 backdrop-blur-2xl border-t border-[#3c1860]/80 flex items-center justify-around z-50 px-2 font-sans shadow-[0_-4px_20px_rgba(0,0,0,0.6)] relative overflow-hidden">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#0a0514]/95 backdrop-blur-2xl border-t border-[#3c1860]/80 flex items-center justify-around z-50 px-2 font-sans shadow-[0_-4px_20px_rgba(0,0,0,0.6)] overflow-hidden">
       {navItems.map((item) => {
         const Icon = item.icon;
         const isActive =

@@ -3,10 +3,30 @@
 import React, { useEffect, useState } from "react";
 import { useCharacterStore } from "@/store/useCharacterStore";
 import { API_BASE_URL } from "@/constants";
-import { Sparkles, CheckCircle2, Target, Trophy, Filter, Award, Lock, Check, Dumbbell, Flame, MessageSquare, Layers } from "lucide-react";
-import { playUIMenuSFX, playBuffSFX, playAIRASound } from "@/utils/audio";
+import {
+  Sparkles,
+  CheckCircle2,
+  Target,
+  Lock,
+  Check,
+} from "lucide-react";
+import {
+  playUIMenuSFX,
+  playBuffSFX,
+  playAIRASound,
+  playBattleSFX,
+} from "@/utils/audio";
 import { SystemTooltip } from "@/components/ui/SystemTooltip";
 import { ACHIEVEMENT_LORE } from "@/features/lore/loreData";
+import {
+  PixelShadowSanctuaryBackground,
+  ShadowMonarchSigil,
+  AllConstellationsCluster,
+  StormRocConstellation,
+  StoneTitanConstellation,
+  FireDrakeConstellation,
+  SovereignCrownConstellation,
+} from "@/components/ui/pixel";
 
 interface Achievement {
   id: string;
@@ -23,7 +43,8 @@ interface Achievement {
   unlockRequirement?: string;
 }
 
-const CATEGORIES = ["ALL", "HABITS", "WORKOUT", "TOWER", "SOCIAL"];
+const CATEGORIES = ["ALL", "HABITS", "WORKOUT", "TOWER", "SOCIAL"] as const;
+type CategoryType = typeof CATEGORIES[number];
 type StatusFilter = "ALL" | "OBTAINED" | "NOT_OBTAINED";
 
 const FALLBACK_ACHIEVEMENTS: Achievement[] = [
@@ -253,12 +274,21 @@ const FALLBACK_ACHIEVEMENTS: Achievement[] = [
   },
 ];
 
+function getRarity(ach: Achievement): "COMMON" | "RARE" | "EPIC" | "LEGENDARY" {
+  if (ach.targetValue >= 30 || ach.rewardGold >= 1000) return "LEGENDARY";
+  if (ach.targetValue >= 15 || ach.rewardGold >= 500) return "EPIC";
+  if (ach.targetValue >= 7 || ach.rewardGold >= 250) return "RARE";
+  return "COMMON";
+}
+
 export default function AchievementsPage() {
   const { character, loadCharacter } = useCharacterStore();
   const [achievements, setAchievements] = useState<Achievement[]>(FALLBACK_ACHIEVEMENTS);
-  const [activeCategory, setActiveCategory] = useState("ALL");
+  const [activeCategory, setActiveCategory] = useState<string>("ALL");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [loading, setLoading] = useState(true);
+  const [claimingId, setClaimingId] = useState<string | null>(null);
+  const [recentlyClaimedId, setRecentlyClaimedId] = useState<string | null>(null);
 
   const characterId = character?.id || "char-id-123";
 
@@ -284,18 +314,25 @@ export default function AchievementsPage() {
 
   const claimReward = async (achId: string) => {
     try {
-      playUIMenuSFX("confirm");
+      setClaimingId(achId);
+      playBattleSFX("magic", 0.7);
+      playBuffSFX("levelup", 0.85);
+      playAIRASound("NEW_RESISTANCE", 0.9);
+
       const res = await fetch(`${API_BASE_URL}/api/achievements/claim/${characterId}/${achId}`, {
         method: "POST",
       });
+
       if (res.ok) {
-        playBuffSFX();
-        playAIRASound("NEW_RESISTANCE");
-        fetchAchievements();
-        loadCharacter();
+        setRecentlyClaimedId(achId);
+        setTimeout(() => setRecentlyClaimedId(null), 3000);
+        await fetchAchievements();
+        await loadCharacter();
       }
     } catch (err) {
       console.error("Error claiming reward", err);
+    } finally {
+      setClaimingId(null);
     }
   };
 
@@ -323,341 +360,433 @@ export default function AchievementsPage() {
     .reduce((sum, a) => sum + a.rewardGold, 0);
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-8 pb-24 space-y-6 text-slate-100">
-      {/* Header Banner */}
-      <div className="relative rounded-3xl bg-gradient-to-r from-[#151C33] via-[#1A223D] to-[#151C33] border border-amber-500/30 p-6 md:p-8 shadow-2xl overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+    <>
+      {/* === 16-BIT SHADOW MONARCH SANCTUARY BACKGROUND === */}
+      <PixelShadowSanctuaryBackground />
 
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="p-4 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400">
-              <Trophy className="w-8 h-8" />
-            </div>
-            <div>
-              <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest">
-                SYSTEM MILESTONE REPOSITORY
-              </span>
-              <h1 className="text-2xl md:text-3xl font-bold font-heading text-white tracking-tight mt-0.5">
-                Obtainable Achievements & Trophies
-              </h1>
-              <p className="text-xs text-slate-400 mt-1 max-w-lg">
-                View all obtainable milestones, complete objectives to claim Gold and Gems, and filter between your unlocked and locked achievements.
-              </p>
-            </div>
-          </div>
+      <div className="relative z-10 max-w-6xl mx-auto p-4 md:p-8 pb-24 space-y-6 text-slate-100">
+        {/* =========================================================
+            HEADER BANNER: CHRONICLES OF THE SHADOW MONARCH
+            ========================================================= */}
+        <div className="relative rounded-3xl bg-gradient-to-r from-[#120722]/95 via-[#1a0c32]/90 to-[#0e051c]/95 border border-purple-500/40 p-6 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.6)] backdrop-blur-md overflow-hidden">
+          {/* Ambient Ethereal Glow Orbs */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-fuchsia-600/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Telemetry Stats Pill Box */}
-          <div className="flex items-center gap-4 bg-[#0B1020]/90 border border-white/10 p-3.5 rounded-2xl font-mono text-xs shadow-xl">
-            <div className="text-center px-2">
-              <span className="block text-[10px] text-slate-400 uppercase">UNLOCKED</span>
-              <span className="text-lg font-bold text-amber-400">
-                {obtainedCount} / {totalCount}
-              </span>
+          {/* Runic Trim Watermark */}
+          <div className="absolute -top-10 -right-10 w-44 h-44 border border-purple-500/15 rounded-full pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="relative p-2.5 rounded-2xl bg-gradient-to-b from-[#240c42]/90 via-[#15072b]/95 to-[#090214]/95 border-2 border-purple-400/60 shadow-[0_0_25px_rgba(192,132,252,0.4)] shrink-0 group">
+                <div className="absolute inset-0 rounded-2xl bg-fuchsia-500/10 blur-md pointer-events-none group-hover:bg-fuchsia-500/20 transition-all" />
+                <ShadowMonarchSigil size={60} className="relative z-10 drop-shadow-[0_0_14px_rgba(232,121,249,0.85)]" />
+              </div>
+              <div>
+                <div>
+                  <span className="text-xs font-pixel font-bold text-purple-400 uppercase tracking-widest">
+                    SHADOW MONARCH CHRONICLES
+                  </span>
+                </div>
+                <h1 className="text-2xl md:text-3xl font-bold font-pixel text-white tracking-wide mt-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                  The Monarch&apos;s Shadow Sanctuary
+                </h1>
+                <p className="text-sm text-purple-200/80 mt-1 max-w-xl font-sans leading-relaxed">
+                  Ancient obsidian monuments memorializing your feats of willpower. Complete daily trials to unlock permanent sovereign rewards in Gold and Gems.
+                </p>
+              </div>
             </div>
-            <div className="h-8 w-px bg-slate-800" />
-            <div className="text-center px-2">
-              <span className="block text-[10px] text-slate-400 uppercase">PROGRESS</span>
-              <span className="text-lg font-bold text-cyan-400">{completionPercent}%</span>
-            </div>
-            <div className="h-8 w-px bg-slate-800" />
-            <div className="text-center px-2">
-              <span className="block text-[10px] text-slate-400 uppercase">GOLD EARNED</span>
-              <span className="text-lg font-bold text-emerald-400">+{totalGoldEarned}g</span>
+
+            {/* High-Contrast Telemetry Stats Pill Box */}
+            <div className="flex items-center gap-4 bg-[#090314]/95 border border-purple-500/30 p-4 rounded-2xl shadow-2xl backdrop-blur-md shrink-0">
+              <div className="text-center px-3">
+                <span className="block text-xs font-bold font-pixel text-purple-300/80 uppercase tracking-widest">
+                  UNLOCKED
+                </span>
+                <span className="text-2xl font-black font-pixel text-purple-300 drop-shadow-[0_0_10px_rgba(192,132,252,0.5)]">
+                  {obtainedCount} <span className="text-sm font-normal font-sans text-purple-400/60">/ {totalCount}</span>
+                </span>
+              </div>
+
+              <div className="h-10 w-px bg-purple-900/60" />
+
+              <div className="text-center px-3">
+                <span className="block text-xs font-bold font-pixel text-cyan-300/80 uppercase tracking-widest">
+                  PROGRESS
+                </span>
+                <span className="text-2xl font-black font-pixel text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
+                  {completionPercent}%
+                </span>
+              </div>
+
+              <div className="h-10 w-px bg-purple-900/60" />
+
+              <div className="text-center px-3">
+                <span className="block text-xs font-bold font-pixel text-amber-300/80 uppercase tracking-widest">
+                  TRIBUTE
+                </span>
+                <span className="text-2xl font-black font-pixel text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]">
+                  +{totalGoldEarned}g
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Filter Toolbar: Status Toggles & Category Tabs */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#151C33]/90 border border-white/10 rounded-2xl p-4 shadow-xl">
-        {/* Status Filter (ALL / OBTAINED / NOT OBTAINED) */}
-        <div className="flex items-center gap-2 font-mono text-xs bg-[#0B1020] p-1 rounded-xl border border-slate-800">
-          <button
-            onClick={() => {
-              playUIMenuSFX("confirm");
-              setStatusFilter("ALL");
-            }}
-            className={`px-3.5 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 ${
-              statusFilter === "ALL"
-                ? "bg-blue-600 text-white shadow-md"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <Trophy className="w-3.5 h-3.5" />
-            <span>ALL ({achievements.length})</span>
-          </button>
-
-          <button
-            onClick={() => {
-              playUIMenuSFX("confirm");
-              setStatusFilter("OBTAINED");
-            }}
-            className={`px-3.5 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 ${
-              statusFilter === "OBTAINED"
-                ? "bg-emerald-600 text-white shadow-md"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-            <span>OBTAINED ({obtainedCount})</span>
-          </button>
-
-          <button
-            onClick={() => {
-              playUIMenuSFX("confirm");
-              setStatusFilter("NOT_OBTAINED");
-            }}
-            className={`px-3.5 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 ${
-              statusFilter === "NOT_OBTAINED"
-                ? "bg-amber-600 text-white shadow-md"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            <Lock className="w-3.5 h-3.5 text-amber-300" />
-            <span>NOT OBTAINED ({totalCount - obtainedCount})</span>
-          </button>
-        </div>
-
-        {/* Category Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 font-mono text-xs">
-          {CATEGORIES.map((cat) => (
+        {/* =========================================================
+            FILTER TOOLBAR: STATUS TOGGLES & MYTHIC CONSTELLATIONS
+            ========================================================= */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#0e061c]/90 border border-purple-500/30 rounded-2xl p-4 shadow-xl backdrop-blur-md">
+          {/* Status Filters */}
+          <div className="flex items-center gap-1.5 font-pixel text-xs bg-[#070210] p-1.5 rounded-xl border border-purple-900/40">
             <button
-              key={cat}
               onClick={() => {
                 playUIMenuSFX("confirm");
-                setActiveCategory(cat);
+                setStatusFilter("ALL");
               }}
-              className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 border ${
-                activeCategory === cat
-                  ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-[0_0_12px_rgba(6,182,212,0.3)]"
-                  : "bg-slate-900/60 text-slate-400 border-slate-800 hover:text-white"
+              className={`px-3 py-1.5 rounded-lg font-bold tracking-wider transition-all flex items-center gap-1.5 ${
+                statusFilter === "ALL"
+                  ? "bg-purple-600 text-white shadow-[0_0_12px_rgba(147,51,234,0.5)]"
+                  : "text-purple-300/70 hover:text-white"
               }`}
             >
-              {cat === "ALL" && (
-                <span className="flex items-center gap-1.5">
-                  <Layers className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>ALL CATEGORIES</span>
-                </span>
-              )}
-              {cat === "HABITS" && (
-                <span className="flex items-center gap-1.5">
-                  <Target className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>HABITS</span>
-                </span>
-              )}
-              {cat === "WORKOUT" && (
-                <span className="flex items-center gap-1.5">
-                  <Dumbbell className="w-3.5 h-3.5 text-amber-400" />
-                  <span>WORKOUT</span>
-                </span>
-              )}
-              {cat === "TOWER" && (
-                <span className="flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 text-red-400" />
-                  <span>TOWER</span>
-                </span>
-              )}
-              {cat === "SOCIAL" && (
-                <span className="flex items-center gap-1.5">
-                  <MessageSquare className="w-3.5 h-3.5 text-purple-400" />
-                  <span>SOCIAL</span>
-                </span>
-              )}
+              <AllConstellationsCluster size={15} className="text-purple-200" />
+              <span>ALL</span>
+              <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${statusFilter === "ALL" ? "bg-purple-800 text-purple-100" : "bg-purple-950/60 text-purple-300"}`}>
+                {achievements.length}
+              </span>
             </button>
-          ))}
-        </div>
-      </div>
 
-      {/* Achievement Cards Grid */}
-      {loading ? (
-        <div className="py-20 text-center text-slate-400 font-mono animate-pulse">
-          Loading system achievement gallery...
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAchievements.map((ach) => {
-            const isUnlocked = ach.isCompleted || ach.isClaimed;
-            const unlockHow = ach.unlockRequirement || ach.description;
+            <button
+              onClick={() => {
+                playUIMenuSFX("confirm");
+                setStatusFilter("OBTAINED");
+              }}
+              className={`px-3 py-1.5 rounded-lg font-bold tracking-wider transition-all flex items-center gap-1.5 ${
+                statusFilter === "OBTAINED"
+                  ? "bg-emerald-600 text-white shadow-[0_0_12px_rgba(16,185,129,0.5)]"
+                  : "text-purple-300/70 hover:text-white"
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+              <span>OBTAINED</span>
+              <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${statusFilter === "OBTAINED" ? "bg-emerald-800 text-emerald-100" : "bg-emerald-950/60 text-emerald-300"}`}>
+                {obtainedCount}
+              </span>
+            </button>
 
-            return (
-              <div
-                key={ach.id}
-                className={`bg-[#151C33] border rounded-2xl p-5 flex flex-col relative overflow-hidden group transition-all ${
-                  ach.isClaimed
-                    ? "border-emerald-500/30 bg-emerald-950/10"
-                    : ach.isCompleted
-                    ? "border-amber-500/50 bg-amber-950/20 shadow-[0_0_20px_rgba(245,158,11,0.15)]"
-                    : "border-white/10 hover:border-blue-500/40"
+            <button
+              onClick={() => {
+                playUIMenuSFX("confirm");
+                setStatusFilter("NOT_OBTAINED");
+              }}
+              className={`px-3 py-1.5 rounded-lg font-bold tracking-wider transition-all flex items-center gap-1.5 ${
+                statusFilter === "NOT_OBTAINED"
+                  ? "bg-amber-600 text-white shadow-[0_0_12px_rgba(217,119,6,0.5)]"
+                  : "text-purple-300/70 hover:text-white"
+              }`}
+            >
+              <Lock className="w-3.5 h-3.5 text-amber-300" />
+              <span>LOCKED</span>
+              <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${statusFilter === "NOT_OBTAINED" ? "bg-amber-800 text-amber-100" : "bg-amber-950/60 text-amber-300"}`}>
+                {totalCount - obtainedCount}
+              </span>
+            </button>
+          </div>
+
+          {/* Category Tabs with Mythic Constellation SVG Emblems */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 font-pixel text-xs">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => {
+                  playUIMenuSFX("confirm");
+                  setActiveCategory(cat);
+                }}
+                className={`px-3 py-1.5 rounded-xl font-bold tracking-wider transition-all shrink-0 border flex items-center gap-1.5 ${
+                  activeCategory === cat
+                    ? "bg-purple-600/30 text-purple-200 border-purple-400 shadow-[0_0_14px_rgba(168,85,247,0.35)]"
+                    : "bg-[#0a0314]/80 text-purple-300/60 border-purple-900/30 hover:text-white hover:border-purple-600/40"
                 }`}
               >
-                {/* Background glow if completed but unclaimed */}
-                {ach.isCompleted && !ach.isClaimed && (
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-transparent pointer-events-none" />
+                {cat === "ALL" && (
+                  <>
+                    <AllConstellationsCluster size={16} className="text-purple-300" />
+                    <span>ALL MONUMENTS</span>
+                  </>
                 )}
+                {cat === "HABITS" && (
+                  <>
+                    <StormRocConstellation size={16} className="text-cyan-300" />
+                    <span>HABITS</span>
+                    <span className="text-[11px] opacity-80 tracking-normal font-sans font-medium">STORM ROC</span>
+                  </>
+                )}
+                {cat === "WORKOUT" && (
+                  <>
+                    <StoneTitanConstellation size={16} className="text-amber-300" />
+                    <span>WORKOUT</span>
+                    <span className="text-[11px] opacity-80 tracking-normal font-sans font-medium">STONE TITAN</span>
+                  </>
+                )}
+                {cat === "TOWER" && (
+                  <>
+                    <FireDrakeConstellation size={16} className="text-red-400" />
+                    <span>TOWER</span>
+                    <span className="text-[11px] opacity-80 tracking-normal font-sans font-medium">FIRE DRAKE</span>
+                  </>
+                )}
+                {cat === "SOCIAL" && (
+                  <>
+                    <SovereignCrownConstellation size={16} className="text-fuchsia-300" />
+                    <span>SOCIAL</span>
+                    <span className="text-[11px] opacity-80 tracking-normal font-sans font-medium">MONARCH CROWN</span>
+                  </>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
 
-                {/* Header: Icon, Title & Status */}
-                {(() => {
-                  const loreEntry = ACHIEVEMENT_LORE[ach.title] || {
-                    storyLore: "An ancient testament of hunter willpower preserved within the System Chronicles.",
-                    historicalContext: "Forged during the primordial awakening of Ascend OS to reward kinetic momentum.",
-                    unlockWisdom: unlockHow
-                  };
+        {/* =========================================================
+            ACHIEVEMENT SOUL-MONOLITHS GRID
+            ========================================================= */}
+        {loading ? (
+          <div className="py-20 text-center text-purple-300/80 font-pixel tracking-wider text-base animate-pulse bg-[#0a0314]/80 rounded-2xl border border-purple-900/40">
+            Unsealing the Monarch&apos;s Memory Vault...
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredAchievements.map((ach) => {
+              const isUnlocked = ach.isCompleted || ach.isClaimed;
+              const unlockHow = ach.unlockRequirement || ach.description;
+              const rarity = getRarity(ach);
+              const isClaimingThis = claimingId === ach.id;
+              const justClaimedThis = recentlyClaimedId === ach.id;
 
-                  return (
-                    <div className="flex gap-4 items-start relative z-10 mb-3">
-                      <SystemTooltip
-                        title={ach.title}
-                        subtitle={`Achievement Milestone • ${ach.category}`}
-                        category="System Chronicle"
-                        rarity={ach.isClaimed ? "LEGENDARY" : isUnlocked ? "EPIC" : "RARE"}
-                        description={ach.description}
-                        lore={loreEntry.storyLore}
-                        mechanics={loreEntry.historicalContext}
-                        howToImprove={loreEntry.unlockWisdom}
-                        stats={[
-                          { label: "Current Progress", value: `${Math.min(ach.currentProgress, ach.targetValue)} / ${ach.targetValue}` },
-                          { label: "Status", value: ach.isClaimed ? "Claimed" : isUnlocked ? "Unlocked" : "Locked", color: isUnlocked ? "text-emerald-400" : "text-amber-400" },
-                          { label: "Gold Bounty", value: `+${ach.rewardGold}g`, color: "text-amber-400" },
-                          { label: "Gems Bounty", value: `+${ach.rewardGems}`, color: "text-cyan-400" }
-                        ]}
-                        tags={["Achievement", ach.category, isUnlocked ? "Unlocked" : "Locked"]}
-                        delayMs={1000}
-                      >
-                        <div
-                          className={`w-16 h-16 rounded-2xl bg-gradient-to-b from-[#131B33] to-[#0A0F22] border flex items-center justify-center shrink-0 p-2 relative shadow-inner cursor-help ${
-                            isUnlocked
-                              ? "border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.25)]"
-                              : "border-white/10"
-                          }`}
+              // Rarity-based styling
+              let borderClass = "border-slate-800 bg-[#0d0718]/90";
+              let badgeColor = "text-slate-400 bg-slate-900 border-slate-700";
+              let auraClass = "";
+
+              if (rarity === "LEGENDARY") {
+                borderClass = "border-fuchsia-500/60 bg-gradient-to-b from-[#1c0b33]/95 via-[#110722]/95 to-[#090314]/95 shadow-[0_0_24px_rgba(217,70,239,0.22)]";
+                badgeColor = "text-fuchsia-300 bg-fuchsia-950/80 border-fuchsia-500/50";
+              } else if (rarity === "EPIC") {
+                borderClass = "border-purple-500/50 bg-gradient-to-b from-[#160a2c]/95 via-[#0e071e]/95 to-[#070312]/95 shadow-[0_0_18px_rgba(168,85,247,0.18)]";
+                badgeColor = "text-purple-300 bg-purple-950/80 border-purple-500/50";
+              } else if (rarity === "RARE") {
+                borderClass = "border-cyan-500/45 bg-gradient-to-b from-[#0c142c]/95 via-[#070e20]/95 to-[#040816]/95 shadow-[0_0_16px_rgba(6,182,212,0.15)]";
+                badgeColor = "text-cyan-300 bg-cyan-950/80 border-cyan-500/50";
+              } else {
+                borderClass = "border-slate-700/60 bg-gradient-to-b from-[#121420]/95 via-[#0c0d18]/95 to-[#070810]/95 shadow-[0_0_10px_rgba(30,41,59,0.15)]";
+                badgeColor = "text-slate-300 bg-slate-900/80 border-slate-700";
+              }
+
+              if (ach.isCompleted && !ach.isClaimed) {
+                auraClass = "ring-2 ring-purple-400/80 shadow-[0_0_28px_rgba(192,132,252,0.45)] animate-pulse";
+              }
+
+              return (
+                <div
+                  key={ach.id}
+                  className={`relative rounded-2xl border p-5 flex flex-col overflow-hidden transition-all duration-300 group ${borderClass} ${auraClass} ${
+                    !isUnlocked ? "opacity-80 hover:opacity-100" : ""
+                  }`}
+                >
+                  {/* Ready to claim pulsing ambient overlay */}
+                  {ach.isCompleted && !ach.isClaimed && (
+                    <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/15 via-purple-600/10 to-transparent pointer-events-none animate-pulse" />
+                  )}
+
+                  {/* Just Claimed Shockwave Ripple */}
+                  {justClaimedThis && (
+                    <div className="absolute inset-0 rounded-2xl bg-purple-500/25 border-2 border-fuchsia-400 animate-ping pointer-events-none" />
+                  )}
+
+                  {/* Header: Icon, Title & Status */}
+                  {(() => {
+                    const loreEntry = ACHIEVEMENT_LORE[ach.title] || {
+                      storyLore: "An ancient testament of hunter willpower preserved within the System Chronicles.",
+                      historicalContext: "Forged during the primordial awakening of Ascend OS to reward kinetic momentum.",
+                      unlockWisdom: unlockHow,
+                    };
+
+                    return (
+                      <div className="flex gap-4 items-start relative z-10 mb-3">
+                        <SystemTooltip
+                          title={ach.title}
+                          subtitle={`Monarch Soul Monolith • ${ach.category}`}
+                          category="System Chronicle"
+                          rarity={rarity}
+                          description={ach.description}
+                          lore={loreEntry.storyLore}
+                          mechanics={loreEntry.historicalContext}
+                          howToImprove={loreEntry.unlockWisdom}
+                          stats={[
+                            {
+                              label: "Current Progress",
+                              value: `${Math.min(ach.currentProgress, ach.targetValue)} / ${ach.targetValue}`,
+                            },
+                            {
+                              label: "Status",
+                              value: ach.isClaimed ? "Claimed" : isUnlocked ? "Unlocked" : "Locked",
+                              color: isUnlocked ? "text-emerald-400" : "text-amber-400",
+                            },
+                            {
+                              label: "Gold Bounty",
+                              value: `+${ach.rewardGold}g`,
+                              color: "text-amber-400",
+                            },
+                            {
+                              label: "Gems Bounty",
+                              value: `+${ach.rewardGems}`,
+                              color: "text-cyan-400",
+                            },
+                          ]}
+                          tags={["Achievement", ach.category, rarity, isUnlocked ? "Unlocked" : "Locked"]}
+                          delayMs={600}
                         >
-                      <img
-                        src={ach.icon}
-                        alt={ach.title}
-                        onError={(e) => {
-                          e.currentTarget.src = "/achievements_icons/sliced/ach_icon_1.png";
-                        }}
-                        className={`w-12 h-12 object-contain transition-all duration-300 ${
-                          !isUnlocked
-                            ? "opacity-70 filter contrast-125 brightness-90"
-                            : "drop-shadow-[0_0_10px_rgba(245,158,11,0.7)] scale-105"
-                        }`}
-                      />
-                      {ach.isClaimed ? (
-                        <div className="absolute -bottom-1.5 -right-1.5 bg-emerald-500 text-slate-950 rounded-full p-0.5 shadow-lg border border-emerald-400">
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
-                        </div>
-                      ) : !isUnlocked ? (
-                        <div className="absolute -bottom-1 -right-1 bg-slate-900/90 text-slate-400 rounded-md p-1 border border-slate-700 shadow">
-                          <Lock className="w-2.5 h-2.5" />
-                        </div>
-                      ) : null}
-                    </div>
-                  </SystemTooltip>
+                          <div
+                            className={`w-16 h-16 rounded-2xl bg-gradient-to-b from-[#180928] to-[#090212] border flex items-center justify-center shrink-0 p-2 relative shadow-inner cursor-help group-hover:scale-105 transition-all duration-300 ${
+                              isUnlocked
+                                ? "border-purple-400/60 shadow-[0_0_16px_rgba(192,132,252,0.35)]"
+                                : "border-purple-900/40"
+                            }`}
+                          >
+                            <img
+                              src={ach.icon}
+                              alt={ach.title}
+                              onError={(e) => {
+                                e.currentTarget.src = "/achievements_icons/sliced/ach_icon_1.png";
+                              }}
+                              className={`w-12 h-12 object-contain transition-all duration-300 ${
+                                !isUnlocked
+                                  ? "opacity-60 filter grayscale contrast-125 brightness-90"
+                                  : "drop-shadow-[0_0_12px_rgba(192,132,252,0.8)] scale-105"
+                              }`}
+                            />
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="text-[10px] font-mono font-bold uppercase text-cyan-400 bg-cyan-950/60 border border-cyan-500/30 px-1.5 py-0.5 rounded">
-                        {ach.category}
+                            {ach.isClaimed ? (
+                              <div className="absolute -bottom-1.5 -right-1.5 bg-emerald-500 text-emerald-950 rounded-full p-0.5 shadow-lg border border-emerald-300">
+                                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                              </div>
+                            ) : !isUnlocked ? (
+                              <div className="absolute -bottom-1 -right-1 bg-slate-950/90 text-purple-300 rounded-md p-1 border border-purple-800 shadow">
+                                <Lock className="w-2.5 h-2.5" />
+                              </div>
+                            ) : null}
+                          </div>
+                        </SystemTooltip>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                            <span className={`text-[11px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${badgeColor}`}>
+                              {rarity}
+                            </span>
+                            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-purple-300/80 bg-purple-950/60 border border-purple-500/30 px-1.5 py-0.5 rounded">
+                              {ach.category}
+                            </span>
+                            {isUnlocked ? (
+                              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-300 bg-emerald-950/60 border border-emerald-500/40 px-1.5 py-0.5 rounded">
+                                UNLOCKED
+                              </span>
+                            ) : (
+                              <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-900/90 border border-slate-800 px-1.5 py-0.5 rounded">
+                                LOCKED
+                              </span>
+                            )}
+                          </div>
+
+                          <h3 className="text-base font-bold text-white font-pixel tracking-wide leading-snug truncate drop-shadow">
+                            {ach.title}
+                          </h3>
+                          <p className="text-xs text-purple-200/80 mt-1 line-clamp-2 leading-relaxed font-sans">
+                            {ach.description}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Clear Unlock Requirement Callout Box */}
+                  <div className="my-2 p-2.5 rounded-xl bg-[#080210]/90 border border-purple-900/40 text-[11px] flex items-start gap-2">
+                    <Target className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                    <div>
+                      <span className="block text-[11px] font-bold text-purple-300 uppercase font-pixel tracking-wider">TRIAL REQUIREMENT:</span>
+                      <span className="text-slate-200 font-sans text-xs leading-normal">{unlockHow}</span>
+                    </div>
+                  </div>
+
+                  {/* Progress Tracker with Liquid Mana Bar */}
+                  <div className="my-3 relative z-10">
+                    <div className="flex justify-between text-[11px] text-purple-300/80 mb-1">
+                      <span className="font-pixel text-xs tracking-wider">MONUMENT CHARGE</span>
+                      <span className="font-pixel text-xs font-bold text-slate-100 tracking-wide">
+                        {Math.min(ach.currentProgress, ach.targetValue)} / {ach.targetValue}
                       </span>
-                      {isUnlocked ? (
-                        <span className="text-[10px] font-mono font-bold uppercase text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-1.5 py-0.5 rounded">
-                          UNLOCKED
+                    </div>
+                    <div className="h-2 w-full bg-slate-950 rounded-full overflow-hidden border border-purple-900/30">
+                      <div
+                        className={`h-full rounded-full transition-all duration-700 ${
+                          ach.isCompleted || ach.isClaimed
+                            ? "bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 shadow-[0_0_10px_rgba(16,185,129,0.8)]"
+                            : "bg-gradient-to-r from-purple-700 via-fuchsia-600 to-cyan-400 shadow-[0_0_8px_rgba(168,85,247,0.6)]"
+                        }`}
+                        style={{
+                          width: `${Math.min((ach.currentProgress / ach.targetValue) * 100, 100)}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Footer: Rewards & Extraction Action */}
+                  <div className="mt-auto pt-3 border-t border-purple-900/30 flex items-center justify-between relative z-10">
+                    <div className="flex gap-3">
+                      {ach.rewardGold > 0 && (
+                        <span className="text-xs font-bold font-pixel tracking-wide text-amber-400 flex items-center gap-1">
+                          +{ach.rewardGold}g Gold
                         </span>
-                      ) : (
-                        <span className="text-[10px] font-mono font-bold uppercase text-slate-500 bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded">
-                          LOCKED
+                      )}
+                      {ach.rewardGems > 0 && (
+                        <span className="text-xs font-bold font-pixel tracking-wide text-cyan-400 flex items-center gap-1">
+                          +{ach.rewardGems} Gems
                         </span>
                       )}
                     </div>
 
-                    <h3 className="text-sm font-bold text-white font-heading leading-snug truncate">
-                      {ach.title}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-0.5 line-clamp-2 leading-relaxed font-sans">
-                      {ach.description}
-                    </p>
+                    {ach.isClaimed ? (
+                      <span className="text-xs font-bold font-pixel tracking-wider text-emerald-300 px-3 py-1 bg-emerald-950/60 rounded-lg border border-emerald-500/40 flex items-center gap-1.5 shadow-[0_0_10px_rgba(16,185,129,0.25)]">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> SOVEREIGN SEALED
+                      </span>
+                    ) : ach.isCompleted ? (
+                      <button
+                        onClick={() => claimReward(ach.id)}
+                        disabled={isClaimingThis}
+                        className="text-xs font-black font-pixel tracking-wider text-slate-950 bg-gradient-to-r from-fuchsia-400 via-purple-300 to-amber-300 hover:from-fuchsia-300 hover:to-amber-200 px-4 py-1.5 rounded-lg shadow-[0_0_20px_rgba(217,70,239,0.6)] transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                      >
+                        {isClaimingThis ? "EXTRACTING..." : "EXTRACT TRIBUTE"}
+                      </button>
+                    ) : (
+                      <span className="text-[11px] font-bold font-pixel tracking-wider text-purple-300/60 flex items-center gap-1 bg-slate-950/80 px-2.5 py-1 rounded-md border border-purple-900/40">
+                        <Lock className="w-3 h-3" /> IN TRIAL
+                      </span>
+                    )}
                   </div>
                 </div>
               );
-            })()}
+            })}
 
-                {/* Clear Unlock Requirement Callout Box */}
-                <div className="my-2 p-2.5 rounded-xl bg-[#0B1020] border border-slate-800/80 text-[11px] font-mono flex items-start gap-2">
-                  <Target className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="block text-[9px] font-bold text-cyan-400 uppercase">HOW TO GET:</span>
-                    <span className="text-slate-300 font-sans">{unlockHow}</span>
-                  </div>
-                </div>
-
-                {/* Progress Tracker */}
-                <div className="my-3 relative z-10">
-                  <div className="flex justify-between text-[10px] font-mono text-slate-400 mb-1">
-                    <span>PROGRESS</span>
-                    <span className="font-bold text-slate-200">
-                      {Math.min(ach.currentProgress, ach.targetValue)} / {ach.targetValue}
-                    </span>
-                  </div>
-                  <div className="h-1.5 w-full bg-slate-950 rounded-full overflow-hidden border border-white/5">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        ach.isCompleted || ach.isClaimed
-                          ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"
-                          : "bg-gradient-to-r from-blue-600 to-indigo-400"
-                      }`}
-                      style={{
-                        width: `${Math.min((ach.currentProgress / ach.targetValue) * 100, 100)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Footer Rewards & Claim Action */}
-                <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between relative z-10 font-mono">
-                  <div className="flex gap-2.5">
-                    {ach.rewardGold > 0 && (
-                      <span className="text-xs font-bold text-amber-400 flex items-center gap-1">
-                        +{ach.rewardGold}g Gold
-                      </span>
-                    )}
-                    {ach.rewardGems > 0 && (
-                      <span className="text-xs font-bold text-cyan-400 flex items-center gap-1">
-                        +{ach.rewardGems} Gems
-                      </span>
-                    )}
-                  </div>
-
-                  {ach.isClaimed ? (
-                    <span className="text-[11px] font-bold text-emerald-400/80 px-2.5 py-1 bg-emerald-950/40 rounded-lg border border-emerald-500/20 flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> CLAIMED
-                    </span>
-                  ) : ach.isCompleted ? (
-                    <button
-                      onClick={() => claimReward(ach.id)}
-                      className="text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 px-3.5 py-1.5 rounded-lg shadow-[0_0_15px_rgba(245,158,11,0.5)] transition-all hover:scale-105 active:scale-95"
-                    >
-                      CLAIM REWARD
-                    </button>
-                  ) : (
-                    <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-md border border-slate-800">
-                      <Lock className="w-3 h-3" /> IN PROGRESS
-                    </span>
-                  )}
-                </div>
+            {filteredAchievements.length === 0 && (
+              <div className="col-span-full py-16 text-center text-purple-300/70 bg-[#0c0518]/90 border border-purple-900/40 rounded-2xl space-y-3">
+                <ShadowMonarchSigil size={56} className="mx-auto opacity-50 drop-shadow-[0_0_12px_rgba(168,85,247,0.4)]" />
+                <p className="text-lg font-bold font-pixel tracking-wide text-white">No Soul Monuments Found</p>
+                <p className="text-xs text-purple-200/80 font-sans">Try selecting another constellation category or status filter.</p>
               </div>
-            );
-          })}
-
-          {filteredAchievements.length === 0 && (
-            <div className="col-span-full py-16 text-center text-slate-500 font-mono bg-[#151C33] border border-slate-800 rounded-2xl space-y-2">
-              <Trophy className="w-10 h-10 text-slate-600 mx-auto" />
-              <p className="text-sm font-bold text-slate-300">No Achievements Found</p>
-              <p className="text-xs text-slate-500">Try adjusting your category or status filters above.</p>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+            )}
+          </div>
+        )}
+      </div>
+    </>
   );
 }

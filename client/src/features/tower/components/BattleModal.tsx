@@ -3,7 +3,12 @@
 import { useEffect, useState, useRef } from "react";
 import { useTowerStore } from "@/features/tower/store/useTowerStore";
 import { useCharacterStore } from "@/store/useCharacterStore";
-import { CheckCircle2, ShieldAlert, Sparkles, BrainCircuit } from "lucide-react";
+import {
+  PixelTrophyIcon,
+  PixelSkullIcon,
+  PixelSparklesIcon,
+  PixelBotIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { playUISound, playAIRASound } from "@/utils/audio";
 import { getEnemySpritePath, CHARACTER_AVATAR_PREVIEW } from "@/utils/sprites";
@@ -99,9 +104,9 @@ export function BattleModal() {
         <DialogHeader className="shrink-0">
           <DialogTitle className="text-2xl flex items-center gap-2 font-bold tracking-tight">
             {combatLog?.isVictory ? (
-              <span className="text-green-500 flex items-center gap-2"><CheckCircle2 className="w-7 h-7"/> TOWER CLEARED</span>
+              <span className="text-emerald-400 flex items-center gap-2"><PixelTrophyIcon className="w-7 h-7 text-emerald-400"/> TOWER CLEARED</span>
             ) : (
-              <span className="text-red-500 flex items-center gap-2"><ShieldAlert className="w-7 h-7"/> ASCENSION FAILED</span>
+              <span className="text-rose-500 flex items-center gap-2"><PixelSkullIcon className="w-7 h-7 text-rose-500"/> ASCENSION FAILED</span>
             )}
           </DialogTitle>
         </DialogHeader>
@@ -169,7 +174,7 @@ export function BattleModal() {
             {combatLog.rewards && combatLog.isVictory && isAnimationComplete && (
               <div className="border border-indigo-500/20 p-4 rounded-xl bg-indigo-500/5 shrink-0 animate-in fade-in zoom-in-95 duration-500 shadow-sm shadow-indigo-500/10">
                 <h4 className="font-bold text-indigo-400 mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
-                  <Sparkles className="w-4 h-4"/> Loot Drops
+                  <PixelSparklesIcon className="w-4 h-4 text-indigo-400"/> Loot Drops
                 </h4>
                 <div className="flex flex-wrap gap-2.5">
                   {combatLog.rewards.gold > 0 && (
@@ -233,7 +238,7 @@ export function BattleModal() {
                   <div className="absolute top-0 left-0 w-1.5 h-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.8)]" />
                   
                   <div className="flex items-center gap-2 mb-2">
-                    <BrainCircuit className="w-5 h-5 text-cyan-400" />
+                    <PixelBotIcon className="w-5 h-5 text-cyan-400" />
                     <h4 className="font-bold text-cyan-400 uppercase tracking-widest text-xs">A.I.R.A Tactical Analysis</h4>
                   </div>
                   

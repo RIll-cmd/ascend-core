@@ -1,12 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { type CSSProperties } from "react";
 import Image from "next/image";
 import { PlayerItem, ItemType } from "../types/inventory";
 import { CHARACTER_AVATAR_PREVIEW } from "@/utils/sprites";
 import { useBeastStore } from "@/features/beasts/store/useBeastStore";
 import { EquippedBeastDisplay } from "@/features/beasts/components/EquippedBeastDisplay";
 import { SystemTooltip, SystemTooltipStat } from "@/components/ui/SystemTooltip";
+import smithy from "@/features/armory/styles/RoyalSmithy.module.css";
+import { royalRarityColors } from "@/features/armory/styles/royalRarityColors";
 
 /* =====================================================================
    AUTHENTIC 8-BIT PIXEL EQUIPMENT ICONS
@@ -221,14 +223,6 @@ const SLOT_ICONS: Record<string, React.ElementType> = {
   RELIC: PixelRelicIcon,
 };
 
-const RARITY_BORDERS: Record<string, string> = {
-  COMMON: "border-[#4a2673] bg-[#1a0e2e]",
-  RARE: "border-[#0ea5e9] bg-[#0c2338]",
-  EPIC: "border-[#a855f7] bg-[#290d45]",
-  LEGENDARY: "border-[#f59e0b] bg-[#361f06]",
-  MYTHIC: "border-[#ef4444] bg-[#3b0811]",
-};
-
 export const PaperDoll: React.FC<PaperDollProps> = ({ equippedItems = [] }) => {
   const { collection } = useBeastStore();
   const equippedBeast = collection?.equippedBeast || null;
@@ -241,9 +235,9 @@ export const PaperDoll: React.FC<PaperDollProps> = ({ equippedItems = [] }) => {
     const item = getItemForSlot(slotType);
     const Icon = SLOT_ICONS[slotType] || PixelArtifactIcon;
 
-    const slotStyle = item
-      ? RARITY_BORDERS[item.itemDefinition.rarity] || RARITY_BORDERS.COMMON
-      : "border-[#3b1861] bg-[#180c2c] hover:border-[#22c55e]";
+    const rarityColor = item
+      ? (royalRarityColors[item.itemDefinition.rarity] || royalRarityColors.COMMON).border
+      : "#765124";
 
     const tooltipStats: SystemTooltipStat[] = [];
     if (item?.itemDefinition) {
@@ -302,7 +296,7 @@ export const PaperDoll: React.FC<PaperDollProps> = ({ equippedItems = [] }) => {
             : "Empty Equipment Socket"
         }
         category={label}
-        rarity={(item?.itemDefinition?.rarity as any) || "COMMON"}
+        rarity={item?.itemDefinition?.rarity || "COMMON"}
         description={
           item
             ? item.itemDefinition.description || "Equipped armament."
@@ -316,66 +310,68 @@ export const PaperDoll: React.FC<PaperDollProps> = ({ equippedItems = [] }) => {
         stats={tooltipStats}
         delayMs={500}
       >
-        <div
-          className={`w-11 h-11 rounded-xl border-2 ${slotStyle} flex flex-col items-center justify-center transition-all duration-200 group relative shadow-[2px_2px_0_0_#000] cursor-pointer hover:scale-105`}
+        <div className={smithy.slotWrap}>
+          <div
+          className={`${smithy.slot} ${item ? smithy.occupiedSlot : ""}`}
+          style={{ "--slot-rarity": rarityColor } as CSSProperties}
+          tabIndex={0}
+          role="img"
+          aria-label={item ? `${label}: ${item.itemDefinition.name}` : `${label}: empty`}
         >
           {item && item.itemDefinition.icon ? (
             <Image
               src={item.itemDefinition.icon.replace("client/public", "")}
               alt={item.itemDefinition.name}
               fill
+              sizes="52px"
               className="object-contain p-1.5"
-              style={{ imageRendering: "pixelated" }}
             />
           ) : (
-            <Icon className="w-5 h-5 text-purple-300/60 group-hover:text-white transition-colors" />
+            <Icon className="h-5 w-5" aria-hidden="true" />
           )}
+          </div>
+          <span className={smithy.slotLabel}>{label}</span>
         </div>
       </SystemTooltip>
     );
   };
 
   return (
-    <div className="relative flex justify-center items-center h-[290px] w-full max-w-xs mx-auto mb-2">
-      {/* Left 4 Sockets */}
-      <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between py-2 z-10">
+    <div className={smithy.paperDoll}>
+      <div className={smithy.rackPost} aria-hidden="true" />
+      <div className={smithy.rackPost} aria-hidden="true" />
+
+      <div className={`${smithy.slotColumn} ${smithy.slotColumnLeft}`}>
         {renderSlot("HELMET", "Helmet")}
         {renderSlot("WEAPON", "Weapon")}
         {renderSlot("GLOVES", "Gloves")}
         {renderSlot("RING", "Ring")}
       </div>
 
-      {/* Center 8-Bit Capsule Viewport */}
-      <div className="w-[170px] h-[270px] bg-[#2B1848]/90 border-4 border-[#3B1C63] rounded-[28px] flex items-center justify-center shadow-[inset_0_0_20px_rgba(0,0,0,0.6),0_4px_0_0_#000] relative overflow-hidden z-0 group cursor-pointer">
-        {/* Capsule reflection */}
-        <div className="absolute top-2 left-3 w-8 h-12 bg-white/10 rounded-full blur-[2px] pointer-events-none transform -rotate-12" />
-
-        {/* 8-bit Character Avatar (animates only on hover) */}
-        <img
+      <div className={smithy.mannequin}>
+        <Image
           src={CHARACTER_AVATAR_PREVIEW}
-          alt="Character Avatar"
-          className="w-36 h-36 object-contain z-10 drop-shadow-[0_4px_12px_rgba(0,0,0,0.6)] group-hover:animate-pixel-bob transition-transform"
-          style={{ imageRendering: "pixelated" }}
+          alt="Carved wooden knight mannequin"
+          width={148}
+          height={148}
+          className={smithy.avatarWood}
         />
 
-        {/* Floating Equipped Companion in Corner if Active */}
         {equippedBeast && (
-          <div className="absolute top-2 right-2 z-20">
+          <div className={smithy.beastSlot}>
             <EquippedBeastDisplay beast={equippedBeast} size="sm" />
           </div>
         )}
       </div>
 
-      {/* Right 4 Sockets */}
-      <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between py-2 z-10">
+      <div className={`${smithy.slotColumn} ${smithy.slotColumnRight}`}>
         {renderSlot("ARMOR", "Armor")}
         {renderSlot("NECKLACE", "Necklace")}
         {renderSlot("BOOTS", "Boots")}
         {renderSlot("ARTIFACT", "Artifact")}
       </div>
 
-      {/* Bottom Center Socket (Relic) */}
-      <div className="absolute -bottom-3 z-20">
+      <div className={smithy.relicSlot}>
         {renderSlot("RELIC", "Relic")}
       </div>
     </div>

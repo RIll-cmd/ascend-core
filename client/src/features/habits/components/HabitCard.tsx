@@ -9,11 +9,14 @@ import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
 import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
 import {
   PixelFlameIcon,
-  PixelActivityIcon,
+  PixelAnvilIcon,
   PixelArrowRightIcon,
   PixelCoinsIcon,
   PixelCheckIcon,
+  PixelChevronRightIcon,
+  PixelCloseIcon,
 } from "@/components/ui/pixel/PixelIcons";
+import { HabitIconRenderer } from "./HabitIconRenderer";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
 
@@ -22,10 +25,12 @@ interface HabitCardProps {
 }
 
 export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
-  const { todayMissions, logHabitCompletion } = useHabitStore();
+  const { todayMissions, logHabitCompletion, triggerBadHabit } = useHabitStore();
   const { gainExp, gainGold, gainGems, addStat } = useCharacterStore();
   const [isLogging, setIsLogging] = useState(false);
   const [showTierPicker, setShowTierPicker] = useState(false);
+  const [floatingPenalty, setFloatingPenalty] = useState<string | null>(null);
+  const isNegative = habit.type === "NEGATIVE";
 
   const todayMission = todayMissions.find((m) => m.habitId === habit.id);
   const isCompletedToday = todayMission?.status === "COMPLETED";
@@ -80,12 +85,27 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
     }
   };
 
+  const handleTrigger = async () => {
+    if (isLogging) return;
+    setIsLogging(true);
+    const res = await triggerBadHabit(habit.id);
+    if (res.success && res.penalty) {
+      setFloatingPenalty(`-${res.penalty.amount} ${res.penalty.target}`);
+      toast.error(`${habit.name} logged`, { description: `-${res.penalty.amount} ${res.penalty.target}` });
+      window.setTimeout(() => setFloatingPenalty(null), 1200);
+    } else {
+      toast.error("Failed to log relapse.");
+    }
+    setIsLogging(false);
+  };
+
   return (
     <div
       className={`bg-[#d1d6dc] bg-[linear-gradient(180deg,#e2e7ec_0%,#d1d6dc_50%,#b0b8c4_100%)] border-3 p-4 font-pixel text-[#1d2d2a] shadow-[4px_4px_0_0_#1d2d2a] hover:shadow-[6px_6px_0_0_#1d2d2a] transition-all duration-75 flex flex-col justify-between space-y-3 relative overflow-hidden select-none ${
-        isCompletedToday ? "border-emerald-600 bg-[linear-gradient(180deg,#e5f3eb_0%,#d1e7db_50%,#b8d8c6_100%)]" : "border-[#3b424c] hover:border-[#ffb03a]"
+        isNegative ? "border-[#be123c] bg-[linear-gradient(180deg,#ffe4e6_0%,#fecdd3_50%,#fda4af_100%)] hover:border-[#9f1239]" : isCompletedToday ? "border-emerald-600 bg-[linear-gradient(180deg,#e5f3eb_0%,#d1e7db_50%,#b8d8c6_100%)]" : "border-[#3b424c] hover:border-[#ffb03a]"
       }`}
     >
+      {floatingPenalty && <div className="absolute right-5 top-10 z-20 text-xl font-black text-[#be123c] animate-damage-float drop-shadow-[2px_2px_0_#fff]">{floatingPenalty}</div>}
       {/* Slate Stone Corner Masonry Markers */}
       <span className="absolute top-1 left-1 w-1.5 h-1.5 bg-[#3b424c] pointer-events-none" />
       <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#3b424c] pointer-events-none" />
@@ -97,8 +117,8 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
         <div className="flex items-start justify-between gap-2.5 mb-2.5 border-b-2 border-[#3b424c]/20 pb-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
             {/* Icon Chamber */}
-            <div className="w-10 h-10 bg-[#2f3640] text-[#ffd166] border-2 border-[#1d2d2a] flex items-center justify-center text-xl shadow-[inset_0_0_8px_rgba(0,0,0,0.6)] shrink-0">
-              {habit.icon || "✓"}
+            <div className="w-10 h-10 bg-[#2f3640] text-[#ffd166] border-2 border-[#1d2d2a] flex items-center justify-center shadow-[inset_0_0_8px_rgba(0,0,0,0.6)] shrink-0">
+              <HabitIconRenderer habit={habit} className="w-6 h-6 text-[#ffd166]" />
             </div>
 
             <div className="min-w-0">
@@ -154,7 +174,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
         <div className="p-2 bg-[#b0b8c4]/60 border-2 border-[#3b424c] shadow-[inset_0_0_6px_rgba(43,50,60,0.3)] space-y-1 my-1.5">
           <div className="flex justify-between items-center text-[10px]">
             <span className="text-[#3b424c] font-bold uppercase flex items-center gap-1">
-              <PixelActivityIcon className="w-3 h-3 text-[#ea580c]" />
+              <PixelAnvilIcon className="w-3 h-3 text-[#ea580c]" />
               Habit Strength
             </span>
             <span className="text-[#1d2d2a] font-bold tabular-nums font-mono">
@@ -174,7 +194,11 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
         {/* ⚡ DIRECT HABIT LOGGING ACTION BAR                         */}
         {/* ========================================================= */}
         <div className="mt-2.5">
-          {isCompletedToday ? (
+          {isNegative ? (
+            <button type="button" onClick={handleTrigger} disabled={isLogging} className="w-full py-2 px-3 bg-[#9f1239] hover:bg-[#be123c] text-white font-pixel font-bold text-xs border-2 border-[#4c1024] shadow-[2px_2px_0_0_#4c1024] active:translate-y-0.5 cursor-pointer flex items-center justify-center gap-1.5 transition-all">
+              <span>☠</span><span>{isLogging ? "Logging Slip..." : "Relapse / Log Slip"}</span>
+            </button>
+          ) : isCompletedToday ? (
             <div className="p-2 bg-[#1b3d2b] border-2 border-emerald-500 shadow-[inset_0_0_6px_rgba(0,0,0,0.4)] flex items-center justify-between text-xs text-white">
               <div className="flex items-center gap-1.5 font-bold text-emerald-300">
                 <PixelCheckIcon className="w-4 h-4 text-emerald-400" />
@@ -206,10 +230,11 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
                       playUIMenuSFX();
                       setShowTierPicker(true);
                     }}
-                    className="py-2 px-2.5 bg-[#2f3640] hover:bg-[#3b424c] text-[#ffd166] font-pixel font-bold text-xs border-2 border-[#1d2d2a] shadow-[2px_2px_0_0_#1d2d2a] active:translate-y-0.5 cursor-pointer flex items-center justify-center transition-all"
+                    className="py-2 px-2.5 bg-[#2f3640] hover:bg-[#3b424c] text-[#ffd166] font-pixel font-bold text-xs border-2 border-[#1d2d2a] shadow-[2px_2px_0_0_#1d2d2a] active:translate-y-0.5 cursor-pointer flex items-center justify-center gap-1 transition-all"
                     title="Choose Completion Tier"
                   >
-                    <span>▾ Tiers</span>
+                    <span>Tiers</span>
+                    <PixelChevronRightIcon className="w-2.5 h-2.5 rotate-90 text-[#ffb03a]" />
                   </button>
                 </div>
               ) : (
@@ -219,9 +244,10 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
                     <button
                       type="button"
                       onClick={() => setShowTierPicker(false)}
-                      className="text-[#ffd166] hover:text-white cursor-pointer"
+                      className="text-[#ffd166] hover:text-white cursor-pointer flex items-center gap-1"
                     >
-                      ✕ Cancel
+                      <PixelCloseIcon className="w-2.5 h-2.5" />
+                      <span>Cancel</span>
                     </button>
                   </div>
                   <div className="grid grid-cols-3 gap-1">
@@ -270,16 +296,16 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
       <div className="pt-2.5 border-t-2 border-[#3b424c]/20 flex items-center justify-between gap-2 text-xs">
         {/* Rewards / Stat Pill */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="px-1.5 py-0.5 bg-[#2f3640] text-[#ffd166] border border-[#1d2d2a] text-[9px] font-bold shadow-[1px_1px_0_0_#1d2d2a] tabular-nums font-mono">
+          {!isNegative && <span className="px-1.5 py-0.5 bg-[#2f3640] text-[#ffd166] border border-[#1d2d2a] text-[9px] font-bold shadow-[1px_1px_0_0_#1d2d2a] tabular-nums font-mono">
             +{expReward} EXP
-          </span>
+          </span>}
 
-          <span className="px-1.5 py-0.5 bg-[#2f3640] text-[#ffb03a] border border-[#1d2d2a] text-[9px] font-bold flex items-center gap-0.5 shadow-[1px_1px_0_0_#1d2d2a] tabular-nums font-mono">
+          {!isNegative && <span className="px-1.5 py-0.5 bg-[#2f3640] text-[#ffb03a] border border-[#1d2d2a] text-[9px] font-bold flex items-center gap-0.5 shadow-[1px_1px_0_0_#1d2d2a] tabular-nums font-mono">
             <PixelCoinsIcon className="w-2.5 h-2.5 text-[#ffd166]" />
             +{goldReward}g
-          </span>
+          </span>}
 
-          {habit.primaryStat && (
+          {isNegative ? <span className="px-1.5 py-0.5 bg-[#9f1239] text-white border border-[#4c1024] text-[9px] font-bold shadow-[1px_1px_0_0_#4c1024]">-{habit.statModifier || 10} {(habit.affectedStat || "HP").toUpperCase()}</span> : habit.primaryStat && (
             <span className="px-1.5 py-0.5 bg-[#5a6472] text-white border border-[#1d2d2a] text-[9px] font-bold shadow-[1px_1px_0_0_#1d2d2a]">
               +{habit.primaryStat.substring(0, 3).toUpperCase()}
             </span>
@@ -300,4 +326,3 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
     </div>
   );
 };
-

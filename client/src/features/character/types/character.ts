@@ -47,6 +47,8 @@ export interface Character {
   race?: string | null;
   level: number;
   exp: number;
+  currentHp?: number;
+  maxHp?: number;
   power: number;
   rank: string;
   gold: number;

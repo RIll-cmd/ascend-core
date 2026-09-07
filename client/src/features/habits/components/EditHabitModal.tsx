@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import {
   PixelXIcon,
   PixelSaveIcon,
-  PixelTargetIcon,
+  PixelPencilIcon,
   PixelCalendarIcon,
 } from "@/components/ui/pixel/PixelIcons";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
@@ -137,7 +137,7 @@ export const EditHabitModal: React.FC<EditHabitModalProps> = ({ habit, isOpen, o
         <div className="flex items-center justify-between p-4 border-b-2 border-[#3b1861] bg-[#120824]">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-[#1A0D2E] border-2 border-[#3b1861] flex items-center justify-center text-cyan-400">
-              <PixelTargetIcon className="w-4 h-4" />
+              <PixelPencilIcon className="w-4 h-4 text-cyan-400" />
             </div>
             <div>
               <h2 className="text-xs sm:text-sm font-bold pixel-text-outlined uppercase text-white">

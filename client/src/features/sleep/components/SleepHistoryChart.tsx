@@ -2,11 +2,11 @@
 
 import React from "react";
 import {
-  Activity,
-  Flame,
-  Waves,
-  Moon,
-} from "lucide-react";
+  PixelActivityIcon,
+  PixelFlameIcon,
+  PixelWaterfallIcon,
+  PixelMoonSleepIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { useSleepStore } from "../store/useSleepStore";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +33,7 @@ export const SleepHistoryChart: React.FC<{ className?: string }> = ({ className 
       <div className="flex items-center justify-between border-b border-[#3c1860]/60 pb-4">
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 bg-[#251040] border-2 border-[#f59e0b] flex items-center justify-center flex-shrink-0">
-            <Activity className="w-5 h-5 text-[#fbbf24]" />
+            <PixelActivityIcon className="w-5 h-5 text-[#fbbf24]" />
           </div>
           <div>
             <span className="text-xs sm:text-sm font-pixel font-bold text-[#fbbf24] block">
@@ -116,7 +116,7 @@ export const SleepHistoryChart: React.FC<{ className?: string }> = ({ className 
             <span className="text-xs sm:text-sm text-slate-300 font-bold">days</span>
           </div>
           <span className="text-xs sm:text-sm font-pixel font-bold text-[#f59e0b] flex items-center gap-1 truncate">
-            <Flame className="w-4 h-4 flex-shrink-0" /> Unbroken
+            <PixelFlameIcon className="w-4 h-4 flex-shrink-0" /> Unbroken
           </span>
         </div>
       </div>
@@ -125,7 +125,7 @@ export const SleepHistoryChart: React.FC<{ className?: string }> = ({ className 
       <div className="space-y-3 pt-1">
         <div className="flex items-center justify-between">
           <span className="text-xs sm:text-sm font-pixel font-bold text-[#fbbf24] flex items-center gap-2">
-            <Waves className="w-4 h-4 text-[#f59e0b]" />
+            <PixelWaterfallIcon className="w-4 h-4 text-[#f59e0b]" />
             7-Day Rest Duration vs 8.0h Target
           </span>
           <span className="text-xs sm:text-sm font-pixel text-[#fef08a] font-bold flex items-center gap-1.5">
@@ -145,7 +145,7 @@ export const SleepHistoryChart: React.FC<{ className?: string }> = ({ className 
 
             {last7Logs.length === 0 ? (
               <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 text-xs sm:text-sm font-pixel">
-                <Moon className="w-8 h-8 mb-2 text-[#f59e0b]" />
+                <PixelMoonSleepIcon className="w-8 h-8 mb-2 text-[#f59e0b]" />
                 No sleep telemetry recorded yet.
               </div>
             ) : (

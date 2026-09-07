@@ -148,12 +148,23 @@ export function ActiveWorkout() {
     const e1rm = calculateE1RM(w, r);
     const rankInfo = evaluateRank(e1rm, exercise.name);
 
+    // Crimson Berserker Combustion Particle Flash
+    confetti({
+      particleCount: 30,
+      spread: 60,
+      origin: { y: 0.7 },
+      colors: ["#ef4444", "#f97316", "#f59e0b", "#ffffff"],
+    });
+
+    playBattleSFX("impact");
+
     toast.success(
       <div className="flex items-center gap-2 font-mono">
-        <span>
-          Set logged: {w}kg × {r} ({e1rm}kg e1RM)
+        <span className="text-white font-bold">
+          Set logged: <span className="text-amber-400">{w}kg</span> × <span className="text-amber-400">{r}</span>
         </span>
-        <Badge className={`${rankInfo.badgeBg} ${rankInfo.badgeBorder} border font-bold text-xs uppercase px-2`}>
+        <span className="text-xs text-red-400">({e1rm}kg e1RM)</span>
+        <Badge className={`${rankInfo.badgeBg} ${rankInfo.badgeBorder} border font-bold text-xs uppercase px-2 shadow-[0_0_10px_rgba(239,68,68,0.3)]`}>
           {rankInfo.rank} RANK
         </Badge>
       </div>
@@ -277,79 +288,110 @@ export function ActiveWorkout() {
   if (!isWorkoutActive) return null;
 
   return (
-    <div className="fixed inset-0 z-40 bg-[#040714]/95 backdrop-blur-2xl overflow-y-auto pb-28 font-sans">
+    <div className="fixed inset-0 z-40 bg-[#030712]/98 backdrop-blur-2xl overflow-y-auto pb-28 font-sans theme-crimson-berserker">
       {/* Background Floating Runes */}
-      <FloatingRuneField density="medium" className="opacity-40" />
+      <FloatingRuneField density="medium" className="opacity-30" />
 
-      <div className="max-w-2xl mx-auto p-4 md:p-6 space-y-6 pt-6 animate-in fade-in duration-300 relative z-10">
+      <div className="max-w-2xl mx-auto p-4 md:p-6 space-y-6 pt-6 animate-in fade-in duration-300 relative z-10 select-none">
         {/* Sticky Header Bar */}
-        <div className="flex items-center justify-between sticky top-0 bg-[#070D1E]/90 py-3 px-4 rounded-2xl z-20 border border-indigo-500/30 backdrop-blur-xl shadow-2xl">
+        <div
+          className="flex items-center justify-between sticky top-0 bg-[#140e0c] py-3 px-4 z-20 border-b-4 border-[#5c4033] rounded-none"
+          style={{
+            boxShadow: "0 0 0 2px #261914, 0 8px 0 0 #0d0807, 0 16px 20px rgba(0,0,0,0.8)",
+          }}
+        >
+          {/* Iron Corner Studs */}
+          <span className="absolute top-1 left-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
+          <span className="absolute top-1 right-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
+          <span className="absolute bottom-1 left-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
+          <span className="absolute bottom-1 right-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
+
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-950/80 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]">
-              <Dumbbell className="w-5 h-5 animate-pulse" />
+            <div className="w-8 h-8 bg-[#261914] border-2 border-[#5c4033] flex items-center justify-center text-[#f59e0b]">
+              <Dumbbell className="w-4 h-4 animate-pulse" />
             </div>
             <div>
-              <h2 className="text-lg font-black tracking-tight text-white font-heading">
-                Active Kinetic Session
+              <h2 className="text-sm font-pixel font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <span>COLOSSEUM BATTLE SESSION</span>
+                <span className="inline-block w-2 h-2 rounded-none bg-[#ef4444] animate-pulse" />
               </h2>
-              <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-mono font-bold">
-                <Timer className="w-3.5 h-3.5" />
-                <span>{formatDuration(duration)}</span>
+              <div className="flex items-center gap-1.5 text-[#f59e0b] text-xs font-mono font-bold mt-0.5">
+                <Timer className="w-3.5 h-3.5 text-[#f59e0b]" />
+                <span className="tabular-nums tracking-wider">{formatDuration(duration)}</span>
               </div>
             </div>
           </div>
 
-          <Button
+          <button
             disabled={isSubmitting}
             onClick={handleFinishWorkout}
-            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.4)] cursor-pointer"
+            className="bg-[#b91c1c] border-2 border-[#ef4444] hover:bg-[#dc2626] text-white font-pixel text-[10px] font-bold uppercase tracking-wider px-4 py-2 rounded-none cursor-pointer active:translate-y-0.5 flex items-center gap-1.5"
+            style={{
+              boxShadow: "inset 1px 1px 0 rgba(255,255,255,0.3), inset -1px -1px 0 rgba(0,0,0,0.6)",
+            }}
           >
-            {isSubmitting ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Check className="w-4 h-4 mr-1.5 stroke-[3]" />}
-            Finish Workout
-          </Button>
+            {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5 stroke-[3]" />}
+            FINISH WORKOUT
+          </button>
         </div>
 
         {/* Active Boss PR Objective Banner */}
         {activeBoss && (
-          <div className="bg-gradient-to-r from-red-950/80 via-[#120716]/90 to-amber-950/80 border-2 border-red-500/50 rounded-[22px] p-5 shadow-2xl space-y-3 relative overflow-hidden backdrop-blur-xl">
-            <FloatingRuneField density="low" className="opacity-20" />
+          <div
+            className="bg-[#1c120f] border-4 border-[#b91c1c] p-4 space-y-3 relative overflow-hidden select-none"
+            style={{
+              boxShadow: "0 0 0 2px #450a0a, 0 8px 0 0 #0d0807",
+            }}
+          >
+            {/* Iron Corner Studs */}
+            <span className="absolute top-1 left-1 font-mono text-[9px] text-[#ef4444] leading-none select-none pointer-events-none">+</span>
+            <span className="absolute top-1 right-1 font-mono text-[9px] text-[#ef4444] leading-none select-none pointer-events-none">+</span>
 
             <div className="flex items-center justify-between relative z-10">
               <div className="flex items-center gap-2">
-                <Badge className="bg-red-500/20 text-red-300 border border-red-500/60 font-black font-mono text-[10.5px] uppercase px-2.5 py-0.5 tracking-wider shadow-[0_0_10px_rgba(239,68,68,0.4)] flex items-center gap-1">
-                  <Swords className="w-3.5 h-3.5 text-red-400" />
-                  <span>WEEKLY BOSS PR ACTIVE</span>
-                </Badge>
-                <span className="text-xs font-mono text-amber-300 font-bold">{activeBoss.name}</span>
+                <div className="bg-[#450a0a] text-[#fca5a5] border-2 border-[#ef4444] font-pixel text-[9px] uppercase px-2 py-0.5 tracking-wider flex items-center gap-1">
+                  <Swords className="w-3 h-3 text-[#ef4444]" />
+                  <span>BOSS PR TARGET</span>
+                </div>
+                <span className="font-pixel text-[10px] text-[#f59e0b] font-bold">{activeBoss.name}</span>
               </div>
-              <div className="text-xs font-mono font-bold text-slate-200">
+              <div className="font-pixel text-[9px] text-stone-200">
                 HP:{" "}
-                <span className="text-red-400">
+                <span className="text-[#ef4444] tabular-nums font-bold">
                   {Math.max(0, 100 - (activeBoss.currentDamage || 0) * 100).toFixed(1)}%
                 </span>
               </div>
             </div>
 
-            <p className="text-xs font-sans text-slate-300 leading-relaxed relative z-10">
+            <p className="font-pixel text-[9.5px] text-stone-300 leading-relaxed relative z-10">
               Target: <strong className="text-white font-mono">{activeBoss.targetExercise}</strong> (
-              {activeBoss.targetWeight} KG × {activeBoss.targetReps} Reps). Every completed set near or above this target
-              deals direct HP damage to <strong className="text-red-400">{activeBoss.name}</strong>!
+              {activeBoss.targetWeight} KG × {activeBoss.targetReps} Reps). Sets logged near or above target deal direct HP damage!
             </p>
 
-            {/* Live Boss HP Bar */}
-            <div className="w-full bg-[#050208] h-3 rounded-full overflow-hidden border border-red-500/40 p-[1px] relative z-10">
-              <div
-                className="bg-gradient-to-r from-red-600 via-amber-500 to-emerald-400 h-full rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(245,158,11,0.6)]"
-                style={{
-                  width: `${Math.max(0, Math.min(100, 100 - (activeBoss.currentDamage || 0) * 100))}%`,
-                }}
-              />
+            {/* 20-Segment Live Boss HP Bar */}
+            <div className="space-y-1 relative z-10">
+              <div className="grid grid-cols-20 gap-0.5 p-1 bg-[#0c0a09] border-2 border-[#450a0a]">
+                {Array.from({ length: 20 }).map((_, idx) => {
+                  const bossHpPct = Math.max(0, 100 - (activeBoss.currentDamage || 0) * 100);
+                  const isFilled = idx < Math.round((bossHpPct / 100) * 20);
+                  return (
+                    <div
+                      key={idx}
+                      className={`h-3 transition-colors ${
+                        isFilled
+                          ? "bg-[#b91c1c] border-t border-l border-[#ef4444]"
+                          : "bg-[#261914] opacity-30"
+                      }`}
+                    />
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
 
         {/* Voice Logger Integration */}
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-[#0C1226]/90 via-[#080E20]/90 to-[#050914]/95 border border-cyan-500/30 backdrop-blur-xl">
+        <div className="p-3 bg-[#140e0c] border-2 border-[#4a3830]">
           <VoiceLogger onParsedResult={handleVoiceParse} isProcessing={isVoiceProcessing} />
         </div>
 
@@ -364,26 +406,29 @@ export function ActiveWorkout() {
             return (
               <div
                 key={ex.id}
-                className="rounded-[22px] bg-gradient-to-br from-[#0C1226]/95 via-[#080E20]/95 to-[#050914]/98 border border-indigo-500/30 overflow-hidden shadow-xl backdrop-blur-xl"
+                className="bg-[#140e0c] border-2 border-[#4a3830] overflow-hidden select-none"
+                style={{
+                  boxShadow: "inset 2px 2px 0 #261914, inset -2px -2px 0 #0d0807, 0 4px 0 #0a0706",
+                }}
               >
                 {/* Exercise Header */}
-                <div className="p-4 bg-indigo-950/30 border-b border-indigo-500/20 flex flex-row items-center justify-between">
+                <div className="p-3 bg-[#1c1412] border-b-2 border-[#2c1e19] flex flex-row items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-white font-sans">{ex.name}</h3>
-                      <Badge className="bg-indigo-950/80 text-indigo-300 border border-indigo-500/40 text-[9px] font-mono uppercase px-1.5 py-0.2">
+                      <h3 className="font-pixel text-xs font-bold text-white">{ex.name}</h3>
+                      <div className="bg-[#261914] text-[#f59e0b] border border-[#5c4033] text-[8px] font-pixel uppercase px-1.5 py-0.2">
                         {ex.primaryMuscle}
-                      </Badge>
+                      </div>
                     </div>
 
                     {overloads[ex.id] && (
-                      <div className="flex items-center gap-1.5 mt-1 text-[11px] font-mono text-cyan-300">
-                        <Sparkles className="w-3 h-3 text-cyan-400" />
+                      <div className="flex items-center gap-1.5 mt-1 font-pixel text-[9px] text-[#f59e0b]">
+                        <Sparkles className="w-3 h-3 text-[#f59e0b]" />
                         <span>
                           Target: {overloads[ex.id].recommendedWeight}kg × {overloads[ex.id].suggestedReps}
                         </span>
                         <button
-                          className="p-1 hover:bg-cyan-950 text-cyan-400 rounded-lg transition-colors cursor-pointer ml-1"
+                          className="w-5 h-5 bg-[#261914] border border-[#5c4033] hover:border-[#f59e0b] text-[#f59e0b] flex items-center justify-center cursor-pointer ml-1"
                           onClick={() => {
                             playUIMenuSFX();
                             setInputs((prev) => ({
@@ -398,7 +443,7 @@ export function ActiveWorkout() {
                           }}
                           title="Auto-fill recommended target"
                         >
-                          <Zap className="w-3 h-3 text-cyan-300" />
+                          <Zap className="w-2.5 h-2.5 text-[#f59e0b]" />
                         </button>
                       </div>
                     )}
@@ -406,15 +451,15 @@ export function ActiveWorkout() {
 
                   {activeE1RM > 0 && (
                     <div className="text-right font-mono">
-                      <span className="block text-[9.5px] text-slate-400 uppercase tracking-widest">Est. 1RM</span>
-                      <span className="text-sm font-black text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]">
-                        {activeE1RM} kg
+                      <span className="block font-pixel text-[8.5px] text-stone-400 uppercase tracking-wider">EST. 1RM</span>
+                      <span className="text-sm font-black text-white tabular-nums">
+                        {activeE1RM} <span className="font-pixel text-[9px] text-[#f59e0b]">KG</span>
                       </span>
                     </div>
                   )}
                 </div>
 
-                <div className="p-4 space-y-4 font-mono">
+                <div className="p-3 space-y-3 font-mono">
                   {/* Logged Sets List */}
                   {exSets.map((s, idx) => {
                     const setE1RM = calculateE1RM(s.weight, s.reps);
@@ -423,35 +468,35 @@ export function ActiveWorkout() {
                     return (
                       <div
                         key={s.id}
-                        className="flex items-center justify-between bg-[#050914]/90 p-3 rounded-xl border border-slate-800 text-sm"
+                        className="flex items-center justify-between bg-[#0c0a09] p-2.5 border-2 border-[#2c1e19] text-xs"
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="text-slate-500 font-bold w-4">#{idx + 1}</span>
-                          <span className="font-bold text-slate-100">
-                            {s.weight} kg × {s.reps} reps
+                        <div className="flex items-center gap-2.5">
+                          <span className="font-pixel text-[10px] text-[#f59e0b] font-bold w-4 tabular-nums">#{idx + 1}</span>
+                          <span className="font-bold text-white tabular-nums tracking-tight">
+                            {s.weight} <span className="text-stone-500 font-normal text-[10px]">kg</span> × {s.reps} <span className="text-stone-500 font-normal text-[10px]">reps</span>
                           </span>
-                          {s.rpe && <span className="text-xs text-slate-400">@ RPE {s.rpe}</span>}
+                          {s.rpe && <span className="text-[10px] text-stone-400 font-mono">@ RPE {s.rpe}</span>}
                         </div>
 
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs text-cyan-400 font-semibold">{setE1RM}kg e1RM</span>
-                          <Badge className={`${setRank.badgeBg} ${setRank.badgeBorder} border text-[10px] px-1.5 py-0.5`}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-[#f59e0b] font-mono tabular-nums">{setE1RM}kg e1RM</span>
+                          <div className="px-1.5 py-0.2 border border-[#5c4033] bg-[#261914] font-pixel text-[8px] text-[#f59e0b] uppercase">
                             {setRank.rank}
-                          </Badge>
-                          <Check className="w-4 h-4 text-emerald-400" />
+                          </div>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
                         </div>
                       </div>
                     );
                   })}
 
                   {/* Input Row */}
-                  <div className="grid grid-cols-12 gap-2 items-center pt-2">
+                  <div className="grid grid-cols-12 gap-2 items-center pt-1">
                     <div className="col-span-4">
-                      <span className="block text-[10px] text-slate-400 font-mono mb-1">WEIGHT (KG)</span>
+                      <span className="block font-pixel text-[8px] text-[#f59e0b] mb-1 uppercase tracking-wider">WEIGHT (KG)</span>
                       <Input
                         type="number"
                         placeholder="0"
-                        className="h-11 bg-[#050914] border-slate-800 focus:border-cyan-400 text-center font-mono text-base text-white rounded-xl"
+                        className="h-10 bg-[#0c0a09] border-2 border-[#4a3830] focus:border-[#f59e0b] text-center font-mono text-sm font-bold text-white rounded-none tabular-nums"
                         value={inputs[ex.id]?.weight || ""}
                         onChange={(e) =>
                           setInputs((prev) => ({
@@ -462,11 +507,11 @@ export function ActiveWorkout() {
                       />
                     </div>
                     <div className="col-span-3">
-                      <span className="block text-[10px] text-slate-400 font-mono mb-1">REPS</span>
+                      <span className="block font-pixel text-[8px] text-[#f59e0b] mb-1 uppercase tracking-wider">REPS</span>
                       <Input
                         type="number"
                         placeholder="0"
-                        className="h-11 bg-[#050914] border-slate-800 focus:border-cyan-400 text-center font-mono text-base text-white rounded-xl"
+                        className="h-10 bg-[#0c0a09] border-2 border-[#4a3830] focus:border-[#f59e0b] text-center font-mono text-sm font-bold text-white rounded-none tabular-nums"
                         value={inputs[ex.id]?.reps || ""}
                         onChange={(e) =>
                           setInputs((prev) => ({
@@ -477,11 +522,11 @@ export function ActiveWorkout() {
                       />
                     </div>
                     <div className="col-span-3">
-                      <span className="block text-[10px] text-slate-400 font-mono mb-1">RPE</span>
+                      <span className="block font-pixel text-[8px] text-[#f59e0b] mb-1 uppercase tracking-wider">RPE</span>
                       <Input
                         type="number"
                         placeholder="8"
-                        className="h-11 bg-[#050914] border-slate-800 focus:border-cyan-400 text-center font-mono text-base text-white rounded-xl"
+                        className="h-10 bg-[#0c0a09] border-2 border-[#4a3830] focus:border-[#f59e0b] text-center font-mono text-sm font-bold text-white rounded-none tabular-nums"
                         value={inputs[ex.id]?.rpe || ""}
                         onChange={(e) =>
                           setInputs((prev) => ({
@@ -491,12 +536,15 @@ export function ActiveWorkout() {
                         }
                       />
                     </div>
-                    <div className="col-span-2 pt-5">
+                    <div className="col-span-2 pt-4">
                       <button
                         onClick={() => handleLogSet(ex)}
-                        className="h-11 w-full rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)] cursor-pointer active:scale-95 transition-all"
+                        className="h-10 w-full bg-[#b91c1c] border-2 border-[#ef4444] hover:bg-[#dc2626] text-white font-pixel flex items-center justify-center cursor-pointer active:translate-y-0.5 rounded-none"
+                        style={{
+                          boxShadow: "inset 1px 1px 0 rgba(255,255,255,0.3), inset -1px -1px 0 rgba(0,0,0,0.6)",
+                        }}
                       >
-                        <Check className="w-5 h-5 stroke-[3]" />
+                        <Check className="w-4 h-4 stroke-[3]" />
                       </button>
                     </div>
                   </div>
@@ -507,14 +555,14 @@ export function ActiveWorkout() {
         </div>
 
         {/* Add Exercise Menu */}
-        <div className="pt-4 space-y-3 pb-8">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono flex items-center gap-2">
-            <Plus className="w-4 h-4 text-emerald-400" /> Add Exercise to Active Session
+        <div className="pt-2 space-y-2 pb-6">
+          <h3 className="font-pixel text-[10px] font-bold uppercase tracking-wider text-stone-400 flex items-center gap-1.5">
+            <Plus className="w-3.5 h-3.5 text-[#f59e0b]" /> Add Armory Movement to Active Session
           </h3>
           {isLoadingCatalog ? (
-            <div className="flex items-center justify-center p-6 text-slate-400 font-mono text-xs gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
-              <span>Loading Exercise Catalog...</span>
+            <div className="flex items-center justify-center p-6 text-stone-400 font-pixel text-[10px] gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-[#f59e0b]" />
+              <span>Loading Armory Catalog...</span>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -527,14 +575,14 @@ export function ActiveWorkout() {
                       playUIMenuSFX();
                       addExercise(mex);
                     }}
-                    className="p-3 rounded-xl bg-[#080E20]/90 border border-slate-800 hover:border-cyan-500/50 hover:bg-[#0C142A] text-left transition-all cursor-pointer flex items-center gap-2.5 shadow-sm group"
+                    className="p-2.5 bg-[#140e0c] border-2 border-[#33221b] hover:border-[#4a3830] text-left transition-all cursor-pointer flex items-center gap-2 rounded-none group"
                   >
-                    <Plus className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform shrink-0" />
+                    <Plus className="w-3.5 h-3.5 text-[#f59e0b] group-hover:scale-110 transition-transform shrink-0" />
                     <div>
-                      <div className="text-xs font-bold text-slate-200 group-hover:text-white font-sans">
+                      <div className="font-pixel text-[10px] font-bold text-stone-200 group-hover:text-white">
                         {mex.name}
                       </div>
-                      <div className="text-[10px] text-slate-400 font-mono uppercase">
+                      <div className="text-[9px] text-stone-400 font-mono uppercase mt-0.5">
                         {mex.primaryMuscle} • {mex.equipment}
                       </div>
                     </div>

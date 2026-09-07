@@ -3,28 +3,35 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
+import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
+import { PixelButton } from "@/components/ui/pixel/PixelButton";
+import { PixelProgress } from "@/components/ui/pixel/PixelProgress";
 import {
-  Loader2,
-  Swords,
-  Crown,
-  Play,
-  Trophy,
-  Crosshair,
-  Sparkles,
-  Flame,
-  Shield,
-  Zap,
-  Target,
-  ArrowLeft,
-  ChevronRight,
-} from "lucide-react";
+  PixelSwordIcon,
+  PixelShieldIcon,
+  PixelSkullIcon,
+  PixelFlameIcon,
+  PixelActivityIcon,
+  PixelCrownIcon,
+  PixelArrowLeftIcon,
+  PixelTrophyIcon,
+  PixelCrosshairIcon,
+  PixelTargetIcon,
+  PixelSparklesIcon,
+  PixelLightningIcon,
+  PixelDumbbellIcon,
+  PixelInfoIcon,
+  PixelScrollIcon,
+  PixelClockIcon,
+  PixelOpenGrimoireIcon,
+  PixelCheckIcon,
+  PixelSpinnerIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import { toast } from "sonner";
 import { useWorkoutStore } from "@/features/workouts/store/useWorkoutStore";
 import { API_BASE_URL } from "@/constants";
 import { getEnemySpriteUrl } from "@/utils/spriteUtils";
 import { CurrencyIcon } from "@/components/CurrencyDisplay";
-import { FloatingRuneField } from "@/components/shared/FloatingRuneField";
 import { playBattleSFX, playUIMenuSFX, playBuffSFX } from "@/utils/audio";
 import Link from "next/link";
 
@@ -79,27 +86,31 @@ export default function BossPRPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[70vh] items-center justify-center font-mono text-sm text-red-400 gap-2">
-        <Loader2 className="w-8 h-8 animate-spin text-red-500" />
-        <span>Initializing Boss PR Containment Arena...</span>
+      <div className="flex h-[70vh] items-center justify-center font-pixel text-xs text-[#ef4444] gap-3 select-none">
+        <PixelSpinnerIcon className="w-6 h-6 text-[#ef4444]" />
+        <span>LOADING WEEKLY CHALLENGE...</span>
       </div>
     );
   }
 
   if (!boss) {
     return (
-      <div className="flex h-[70vh] items-center justify-center p-6 font-sans">
-        <div className="max-w-md w-full p-8 rounded-[26px] bg-gradient-to-br from-[#120a16] to-[#08050e] border border-red-500/20 text-center space-y-4 shadow-2xl relative overflow-hidden backdrop-blur-xl">
-          <FloatingRuneField density="low" className="opacity-30" />
-          <Crown className="w-16 h-16 mx-auto text-red-500/40 animate-pulse" />
-          <h3 className="text-xl font-black text-white font-heading">No Active Weekly Boss</h3>
-          <p className="text-xs text-slate-400 font-mono">
-            The Weekly Boss PR system is currently calibrating the next titan. Check back shortly.
+      <div className="flex h-[70vh] items-center justify-center p-6 select-none">
+        <div className="max-w-md w-full p-8 pixel-stone-slab text-center space-y-4 relative border-2 border-[#5a3e30]">
+          <div className="w-16 h-16 mx-auto bg-[#1f1714] border-2 border-[#8c786a]/40 flex items-center justify-center shadow-[inset_0_0_12px_rgba(0,0,0,0.8)]">
+            <PixelCrownIcon className="w-10 h-10 text-[#8c786a]" />
+          </div>
+          <h3 className="font-pixel text-sm sm:text-base font-bold text-white uppercase">
+            No Active Weekly Boss
+          </h3>
+          <p className="font-pixel text-[10px] text-[#8c786a]">
+            The next weekly boss challenge is being prepared. Check back shortly.
           </p>
           <Link href="/workouts">
-            <button className="px-5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs font-mono font-bold hover:bg-slate-800 transition-all cursor-pointer mt-2">
-              ← Return to Workout Command
-            </button>
+            <PixelButton variant="gold" size="sm" className="mt-2 inline-flex items-center gap-2">
+              <PixelArrowLeftIcon className="w-3.5 h-3.5" />
+              BACK TO WORKOUTS
+            </PixelButton>
           </Link>
         </div>
       </div>
@@ -112,70 +123,54 @@ export default function BossPRPage() {
 
   return (
     <div className="max-w-6xl mx-auto w-full space-y-6 font-sans relative text-slate-100 pb-16 animate-in fade-in duration-300">
-      {/* Background Floating Runes & Moving Particles */}
-      <FloatingRuneField density="low" className="opacity-60" />
 
       {/* ========================================================= */}
       {/* TOP ARENA HEADER */}
       {/* ========================================================= */}
-      <div className="relative rounded-[28px] bg-gradient-to-br from-[#1c0b1a]/95 via-[#120716]/95 to-[#08030d]/98 border border-red-500/30 p-6 md:p-8 shadow-[0_0_50px_rgba(239,68,68,0.25)] overflow-hidden backdrop-blur-2xl shrink-0">
-        {/* Floating Runes */}
-        <FloatingRuneField density="high" />
-
-        {/* Ambient Glow Orbs */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-red-600/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
-        <div
-          className="absolute -bottom-24 -left-24 w-96 h-96 bg-purple-700/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow"
-          style={{ animationDelay: "2s" }}
-        />
-
-        {/* Cyber Accent Lines */}
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-500/80 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-amber-500/40 to-transparent pointer-events-none" />
-
+      <div className="relative pixel-stone-slab p-5 sm:p-7 select-none border-2 border-[#5a3e30]">
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <Link href="/workouts">
-              <button
+              <PixelButton
+                variant="iron"
+                size="sm"
                 onClick={() => playUIMenuSFX()}
-                className="w-12 h-12 rounded-2xl bg-red-950/60 border border-red-500/40 flex items-center justify-center text-red-300 hover:text-white hover:bg-red-900/60 transition-all cursor-pointer shrink-0 shadow-lg group"
+                className="w-10 h-10 p-0 flex items-center justify-center text-stone-300"
                 title="Back to Workouts"
               >
-                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-              </button>
+                <PixelArrowLeftIcon className="w-4 h-4" />
+              </PixelButton>
             </Link>
 
-            <div className="space-y-1">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <span className="text-[11px] font-mono font-bold text-red-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <Swords className="w-3.5 h-3.5" />
-                  WEEKLY RAID TRIAL
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-red-950/80 text-red-300 border border-red-500/50 text-[10px] font-mono font-bold shadow-[0_0_10px_rgba(239,68,68,0.3)] flex items-center gap-1">
-                  <Flame className="w-3 h-3 fill-red-400 animate-pulse" />
-                  TITAN ENCOUNTER
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="pixel-imperial-ribbon px-3 py-1 text-[11px] sm:text-xs flex items-center gap-2 font-bold tracking-wider">
+                  <PixelSwordIcon className="w-3.5 h-3.5 text-white" />
+                  ARENA TRIBUNAL • WEEKLY BOSS CHALLENGE
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black font-heading text-white tracking-tight drop-shadow-[0_0_20px_rgba(239,68,68,0.3)]">
-                Weekly Boss PR Arena
+              <h1 className="font-pixel text-base sm:text-xl font-bold text-white uppercase tracking-wider">
+                Weekly Boss PR Challenge
               </h1>
-              <p className="text-xs text-slate-300 max-w-xl font-sans leading-relaxed">
-                Break personal record thresholds to deal proportional kinetic strikes against {boss.name}.
+              <p className="font-sans text-xs sm:text-sm text-stone-200 font-medium max-w-xl leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                Hit new personal records (PRs) to deal damage against {boss.name}.
               </p>
             </div>
           </div>
 
-          {boss.isDefeated ? (
-            <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/60 text-xs px-4 py-2 uppercase font-black font-mono tracking-widest shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center gap-1.5">
-              <Trophy className="w-4 h-4 text-amber-400" />
-              TITAN DEFEATED
-            </Badge>
-          ) : (
-            <Badge className="bg-red-500/20 text-red-300 border border-red-500/60 text-xs px-4 py-2 uppercase font-black font-mono tracking-widest shadow-[0_0_20px_rgba(239,68,68,0.4)] flex items-center gap-1.5 animate-pulse">
-              <Crosshair className="w-4 h-4 text-red-400" />
-              ACTIVE TARGET
-            </Badge>
-          )}
+          <div>
+            {boss.isDefeated ? (
+              <PixelBadge variant="success" size="md" className="flex items-center gap-1.5 border border-[#065f46]">
+                <PixelTrophyIcon className="w-3.5 h-3.5 text-[#10b981]" />
+                <span className="text-[#10b981] font-bold">BOSS DEFEATED</span>
+              </PixelBadge>
+            ) : (
+              <PixelBadge variant="danger" size="md" className="flex items-center gap-1.5 border border-[#7f1d1d]">
+                <PixelCrosshairIcon className="w-3.5 h-3.5 text-[#ef4444]" />
+                <span className="text-[#ef4444] font-bold">ACTIVE TARGET</span>
+              </PixelBadge>
+            )}
+          </div>
         </div>
       </div>
 
@@ -183,96 +178,84 @@ export default function BossPRPage() {
       {/* BOSS DISPLAY & ACTION GRID */}
       {/* ========================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Boss Stage Podium Card */}
-        <div
-          className={`relative rounded-[28px] overflow-hidden border-2 p-6 md:p-8 backdrop-blur-2xl flex flex-col justify-between shadow-2xl transition-all ${
-            boss.isDefeated
-              ? "border-amber-500/40 bg-gradient-to-br from-[#120e06]/95 via-[#0c0903]/95 to-[#050401]/98 shadow-[0_0_40px_rgba(245,158,11,0.2)]"
-              : "border-red-600/40 bg-gradient-to-br from-[#1c0814]/95 via-[#11050e]/95 to-[#080206]/98 shadow-[0_0_40px_rgba(239,68,68,0.2)]"
-          }`}
-        >
-          {/* Floating Runes */}
-          <FloatingRuneField density="low" className="opacity-30" />
+        {/* Boss Stage Dais Card */}
+        <div className="pixel-stone-slab p-5 sm:p-6 select-none flex flex-col justify-between relative border-2 border-[#5a3e30]">
+          {/* Boss Header */}
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center justify-center">
+              <span className="pixel-imperial-ribbon px-3 py-1 text-xs font-bold shadow-[0_2px_8px_rgba(185,28,28,0.5)] flex items-center gap-1.5">
+                <PixelSwordIcon className="w-3.5 h-3.5 text-[#fca5a5]" />
+                {boss.name}
+              </span>
+            </div>
 
-          {/* Boss Stage Header */}
-          <div className="relative z-10 text-center space-y-2">
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-mono font-black uppercase tracking-widest inline-block border ${
-                boss.isDefeated
-                  ? "bg-amber-950/80 text-amber-300 border-amber-500/50"
-                  : "bg-red-950/80 text-red-300 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)]"
-              }`}
-            >
-              {boss.name}
-            </span>
+            {/* Boss Sprite in Roman Arena Sand Pit with Portcullis Gates */}
+            <div className="pixel-arena-dirt border-2 border-[#6b4d32] h-60 flex items-center justify-center my-3 relative overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.8)]">
+              {/* Roman Portcullis Iron Bars Backdrop */}
+              <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent_0px,transparent_18px,rgba(20,14,12,0.65)_18px,rgba(20,14,12,0.65)_21px)] pointer-events-none" />
+              {/* Arena Sand Pit Warm Sunlight Focus */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.15)_0%,transparent_70%)] pointer-events-none" />
 
-            {/* Boss Sprite Avatar */}
-            <div className="h-56 flex items-center justify-center my-4 relative">
-              <div
-                className={`absolute w-48 h-48 rounded-full blur-3xl pointer-events-none ${
-                  boss.isDefeated ? "bg-amber-500/10" : "bg-red-600/20 animate-pulse"
-                }`}
-              />
               {boss.name || boss.bossSprite ? (
                 <img
                   src={getEnemySpriteUrl(boss.name || boss.bossSprite || "Gym Behemoth", {
                     isBoss: true,
                     preferAnimated: true,
                   })}
-                  alt={boss.name || "Weekly Boss"}
+                  alt={boss.name || "Colosseum Titan"}
                   onError={(e) => {
                     e.currentTarget.src = "/bosses/gollux.gif";
                   }}
-                  className={`h-full object-contain relative z-10 ${
+                  className={`h-48 object-contain relative z-10 [image-rendering:pixelated] ${
                     boss.isDefeated
                       ? "grayscale opacity-40"
-                      : "drop-shadow-[0_0_35px_rgba(239,68,68,0.6)] hover:scale-110 transition-transform duration-300"
+                      : "drop-shadow-[0_0_20px_rgba(239,68,68,0.7)] hover:scale-105 transition-transform duration-200"
                   }`}
                 />
               ) : (
-                <Crown className="w-36 h-36 text-red-950 relative z-10" />
+                <PixelCrownIcon className="w-24 h-24 text-[#f59e0b] relative z-10" />
               )}
             </div>
           </div>
 
           {/* HP Bar & Win Condition Directive */}
-          <div className="relative z-10 space-y-5">
+          <div className="space-y-4 pt-2">
             {/* HP Bar */}
-            <div className="space-y-1.5 font-mono">
-              <div className="flex justify-between text-xs font-black">
-                <span className="text-red-400 flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 fill-red-400 animate-pulse" />
-                  TITAN INTEGRITY
+            <div className="space-y-1.5 font-pixel text-[10px]">
+              <div className="flex justify-between font-bold">
+                <span className={`flex items-center gap-1.5 ${hpPercent < 25 ? "text-[#ef4444]" : hpPercent < 60 ? "text-[#f59e0b]" : "text-[#ef4444]"}`}>
+                  <PixelFlameIcon className="w-3.5 h-3.5" />
+                  BOSS HEALTH (HP)
                 </span>
-                <span className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">
+                <span className="text-white font-pixel-chunky text-sm tabular-nums">
                   {hpPercent.toFixed(1)}% HP
                 </span>
               </div>
-              <div className="h-4 w-full bg-[#050208] rounded-full overflow-hidden border border-red-950 p-[1.5px] shadow-inner">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    boss.isDefeated
-                      ? "bg-slate-800"
-                      : "bg-gradient-to-r from-red-700 via-red-500 to-amber-400 shadow-[0_0_15px_#ef4444]"
-                  }`}
-                  style={{ width: `${hpPercent}%` }}
-                />
-              </div>
+              <PixelProgress
+                value={hpPercent}
+                max={100}
+                variant={hpPercent < 25 ? "danger" : hpPercent < 60 ? "warning" : "danger"}
+                height="lg"
+              />
             </div>
 
             {/* Win Condition Directive Card */}
-            <div className="p-4 rounded-2xl bg-[#08030d]/90 border border-red-500/30 text-center shadow-lg relative overflow-hidden">
-              <div className="flex items-center justify-center gap-1.5 text-[10.5px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1">
-                <Crosshair className="w-3.5 h-3.5 text-red-400" />
-                <span>OVERLOAD WIN CONDITION</span>
+            <div className="p-4 bg-[#140e0c] border-2 border-[#4a3830] text-center space-y-2">
+              <div className="flex items-center justify-center gap-1.5 font-pixel text-[10px] text-[#f59e0b] uppercase tracking-wider">
+                <PixelTargetIcon className="w-3.5 h-3.5 text-[#f59e0b]" />
+                <span>TARGET CHALLENGE GOAL</span>
               </div>
-              <div className="text-lg font-black text-white font-heading">{boss.targetExercise}</div>
-              <div className="text-red-400 font-mono font-black text-xl tracking-tight mt-0.5 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]">
-                {boss.targetWeight} KG × {boss.targetReps} Reps
+              <div className="font-pixel text-xs font-bold text-white uppercase">{boss.targetExercise}</div>
+              <div className="flex items-center justify-center gap-2">
+                <PixelDumbbellIcon className="w-5 h-5 text-[#f59e0b]" />
+                <span className="font-pixel-chunky text-2xl text-[#f59e0b] tracking-wider font-bold">
+                  {boss.targetWeight} KG × {boss.targetReps} REPS
+                </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-2 font-mono">
-                *Proportional kinetic damage is dealt based on proximity to target overload parameters.
-              </p>
+              <div className="flex items-center justify-center gap-1.5 font-pixel text-[9px] text-[#8c786a] pt-1">
+                <PixelInfoIcon className="w-3 h-3 text-[#8c786a] shrink-0" />
+                <span>Damage dealt scales with weight and reps logged on the target exercise.</span>
+              </div>
             </div>
           </div>
         </div>
@@ -280,165 +263,192 @@ export default function BossPRPage() {
         {/* Action & Info Deck */}
         <div className="space-y-6 flex flex-col justify-between">
           {/* Bounty Loot Rewards Deck */}
-          <div className="p-6 rounded-[28px] bg-gradient-to-br from-[#0C1226]/95 via-[#080E20]/95 to-[#050914]/98 border border-amber-500/30 shadow-2xl relative overflow-hidden backdrop-blur-2xl">
-            <FloatingRuneField density="low" className="opacity-20" />
-
-            <div className="flex items-center gap-2.5 pb-3 border-b border-amber-500/20 relative z-10">
-              <div className="w-8 h-8 rounded-xl bg-amber-950/80 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.3)]">
-                <Trophy className="w-4 h-4" />
+          <div className="pixel-stone-slab p-5 border-2 border-[#4a3830] select-none">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-[#4a3830]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 bg-[#140e0c] border border-[#b45309] flex items-center justify-center text-[#f59e0b] shadow-[0_0_8px_rgba(245,158,11,0.2)]">
+                  <PixelTrophyIcon className="w-4 h-4 text-[#f59e0b]" />
+                </div>
+                <div>
+                  <h3 className="font-pixel text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
+                    Challenge Completion Rewards
+                  </h3>
+                  <p className="font-pixel text-[9px] text-stone-400">
+                    Claimed when the weekly boss is defeated
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-base font-extrabold text-white font-heading tracking-tight">
-                  Bounty Loot Rewards
-                </h3>
-                <p className="text-[10.5px] font-mono text-slate-400">
-                  Earned immediately upon full boss HP annihilation
-                </p>
-              </div>
+              {boss.isDefeated && (
+                <span className="flex items-center gap-1 text-[9px] font-pixel font-bold text-[#10b981] bg-[#062c20] px-2 py-0.5 border border-[#065f46]">
+                  <PixelCheckIcon className="w-3 h-3 text-[#10b981]" />
+                  CLAIMED
+                </span>
+              )}
             </div>
 
-            <div className="flex flex-wrap gap-2.5 pt-4 relative z-10">
-              <Badge className="bg-blue-950/80 text-blue-300 border border-blue-500/40 px-3.5 py-1.5 text-xs font-mono font-bold shadow-[0_0_10px_rgba(59,130,246,0.25)] flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+            <div className="flex flex-wrap gap-2 pt-4">
+              <PixelBadge variant="iron" size="sm" className="flex items-center gap-1">
+                <PixelSparklesIcon className="w-3 h-3 text-stone-300" />
                 <span>+{rewards.exp || 2500} EXP</span>
-              </Badge>
+              </PixelBadge>
 
-              <Badge className="bg-amber-950/80 text-amber-300 border border-amber-500/40 px-3.5 py-1.5 text-xs font-mono font-bold shadow-[0_0_10px_rgba(245,158,11,0.25)] flex items-center gap-1.5">
+              <PixelBadge variant="gold" size="sm" className="flex items-center gap-1">
                 <CurrencyIcon type="GOLD" size="xs" />
-                <span>+{rewards.gold || 1000} Gold</span>
-              </Badge>
+                <span>+{rewards.gold || 1000} GOLD</span>
+              </PixelBadge>
 
-              <Badge className="bg-purple-950/80 text-purple-300 border border-purple-500/40 px-3.5 py-1.5 text-xs font-mono font-bold shadow-[0_0_10px_rgba(168,85,247,0.25)] flex items-center gap-1.5">
+              <PixelBadge variant="danger" size="sm" className="flex items-center gap-1">
                 <CurrencyIcon type="GEMS" size="xs" />
-                <span>+{rewards.gems || 50} Gems</span>
-              </Badge>
+                <span>+{rewards.gems || 50} GEMS</span>
+              </PixelBadge>
 
-              <Badge className="bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 px-3.5 py-1.5 text-xs font-mono font-bold shadow-[0_0_10px_rgba(6,182,212,0.25)] flex items-center gap-1.5">
+              <PixelBadge variant="warning" size="sm" className="flex items-center gap-1">
                 <CurrencyIcon type="TOWER_TOKENS" size="xs" />
-                <span>+{rewards.towerTokens || 100} Tokens</span>
-              </Badge>
+                <span>+{rewards.towerTokens || 100} TOKENS</span>
+              </PixelBadge>
 
-              <Badge className="bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 px-3.5 py-1.5 text-xs font-mono font-bold shadow-[0_0_10px_rgba(16,185,129,0.25)] uppercase flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-emerald-400" />
-                <span>
-                  +{rewards.statAmount || 2} {rewards.stat || "Strength"}
-                </span>
-              </Badge>
+              <PixelBadge variant="success" size="sm" className="flex items-center gap-1 text-emerald-400">
+                <PixelLightningIcon className="w-3 h-3 text-emerald-400" />
+                <span>+{rewards.statAmount || 2} {rewards.stat || "STRENGTH"}</span>
+              </PixelBadge>
             </div>
           </div>
 
           {/* Tactical Directive Instructions */}
-          <div className="p-6 rounded-[28px] bg-gradient-to-br from-[#0C1226]/95 via-[#080E20]/95 to-[#050914]/98 border border-slate-800 shadow-xl relative overflow-hidden backdrop-blur-2xl space-y-3 font-mono text-xs text-slate-300">
-            <div className="text-xs font-bold text-slate-200 uppercase tracking-widest flex items-center gap-1.5 pb-2 border-b border-slate-800">
-              <Target className="w-3.5 h-3.5 text-red-400" />
-              Combat Protocol Briefing
+          <div className="pixel-stone-slab p-5 bg-[#140e0c] border-2 border-[#4a3830] space-y-3 font-pixel text-[10px] text-stone-300 select-none">
+            <div className="text-white uppercase tracking-wider flex items-center gap-2 pb-2.5 border-b border-[#4a3830] font-bold">
+              <PixelScrollIcon className="w-3.5 h-3.5 text-[#f59e0b]" />
+              <span>Tactical Directives & Rules</span>
             </div>
-            <p className="flex items-start gap-2">
-              <span className="text-red-400 font-bold">1.</span>
-              <span>
-                Start a workout session and log sets for <strong className="text-white">{boss.targetExercise}</strong>.
-              </span>
-            </p>
-            <p className="flex items-start gap-2">
-              <span className="text-red-400 font-bold">2.</span>
-              <span>
-                Damage is automatically calculated and dealt based on your heaviest completed sets and reps.
-              </span>
-            </p>
-            <p className="flex items-start gap-2">
-              <span className="text-red-400 font-bold">3.</span>
-              <span>
-                Damage accumulates throughout the week until expiration on{" "}
-                <strong suppressHydrationWarning className="text-amber-400">{new Date(boss.expiresAt).toLocaleDateString()}</strong>.
-              </span>
-            </p>
+
+            <div className="space-y-2.5">
+              <div className="flex items-start gap-2.5 p-2 bg-[#1b1310] border border-[#4a3830]/70">
+                <div className="w-6 h-6 shrink-0 bg-[#2b1806] border border-[#b45309] flex items-center justify-center text-[#f59e0b]">
+                  <PixelDumbbellIcon className="w-3.5 h-3.5 text-[#f59e0b]" />
+                </div>
+                <div className="pt-0.5">
+                  <span className="text-[#f59e0b] font-bold block mb-0.5">PHASE 1: LOG BENCHMARK SETS</span>
+                  <span className="text-stone-300">
+                    Start a workout and log your sets for <strong className="text-white">{boss.targetExercise}</strong>.
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-2 bg-[#1b1310] border border-[#4a3830]/70">
+                <div className="w-6 h-6 shrink-0 bg-[#2d0e0e] border border-[#7f1d1d] flex items-center justify-center text-[#ef4444]">
+                  <PixelSwordIcon className="w-3.5 h-3.5 text-[#ef4444]" />
+                </div>
+                <div className="pt-0.5">
+                  <span className="text-[#ef4444] font-bold block mb-0.5">PHASE 2: CALCULATE OVERLOAD</span>
+                  <span className="text-stone-300">
+                    Damage is automatically calculated from the weight and reps you lift against the target benchmark.
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-2 bg-[#1b1310] border border-[#4a3830]/70">
+                <div className="w-6 h-6 shrink-0 bg-[#1f1714] border border-[#8c786a] flex items-center justify-center text-[#8c786a]">
+                  <PixelClockIcon className="w-3.5 h-3.5 text-[#8c786a]" />
+                </div>
+                <div className="pt-0.5">
+                  <span className="text-[#8c786a] font-bold block mb-0.5">PHASE 3: WEEKLY RESET CYCLE</span>
+                  <span className="text-stone-300">
+                    Damage accumulates throughout the week until reset on{" "}
+                    <strong suppressHydrationWarning className="text-[#f59e0b]">{new Date(boss.expiresAt).toLocaleDateString()}</strong>.
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Epic Challenge Boss Launch Button */}
-          <button
+          {/* Arena Challenge Launch Button */}
+          <PixelButton
+            variant={boss.isDefeated ? "dark" : isWorkoutActive ? "gold" : "danger"}
+            size="lg"
             disabled={boss.isDefeated || isWorkoutActive}
             onClick={handleStartChallenge}
-            className={`w-full py-4 rounded-[22px] font-black text-sm uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2.5 shadow-2xl active:scale-95 ${
-              boss.isDefeated
-                ? "bg-slate-900 text-slate-500 border border-slate-800 cursor-not-allowed"
-                : isWorkoutActive
-                ? "bg-indigo-950 text-indigo-300 border border-indigo-500/50 cursor-not-allowed"
-                : "bg-gradient-to-r from-red-600 via-orange-600 to-red-700 hover:from-red-500 hover:to-orange-500 text-white shadow-[0_0_35px_rgba(239,68,68,0.5)] border border-red-500/60"
-            }`}
+            className="w-full py-4 text-xs font-pixel uppercase tracking-wider flex items-center justify-center gap-2"
           >
             {boss.isDefeated ? (
               <>
-                <Trophy className="w-5 h-5 text-amber-400" />
-                <span>Titan Defeated This Week</span>
+                <PixelTrophyIcon className="w-4 h-4 text-[#10b981]" />
+                <span className="text-[#10b981]">BOSS DEFEATED THIS WEEK</span>
               </>
             ) : isWorkoutActive ? (
               <>
-                <Shield className="w-5 h-5 text-indigo-400" />
-                <span>Session Currently Active (Check HUD)</span>
+                <PixelShieldIcon className="w-4 h-4 text-[#f59e0b]" />
+                <span>SESSION ACTIVE (CHECK HUD)</span>
               </>
             ) : (
               <>
-                <Swords className="w-5 h-5 fill-white animate-bounce" />
-                <span>Initiate Boss Raid Challenge</span>
+                <PixelSwordIcon className="w-4 h-4 text-white" />
+                <span>START BOSS WORKOUT</span>
               </>
             )}
-          </button>
+          </PixelButton>
         </div>
       </div>
 
       {/* ========================================================= */}
       {/* COMBAT DAMAGE LOG FEED TERMINAL */}
       {/* ========================================================= */}
-      <div className="p-6 rounded-[28px] bg-gradient-to-br from-[#0C1226]/95 via-[#080E20]/95 to-[#050914]/98 border border-red-950/60 shadow-2xl relative overflow-hidden backdrop-blur-2xl">
-        <FloatingRuneField density="low" className="opacity-20" />
-
-        <div className="flex items-center justify-between pb-4 border-b border-red-500/20 relative z-10">
+      <div className="pixel-stone-slab p-5 border-2 border-[#4a3830] select-none">
+        <div className="flex items-center justify-between pb-3 border-b-2 border-[#4a3830]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-red-950/80 border border-red-500/40 flex items-center justify-center text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.3)]">
-              <Swords className="w-4 h-4" />
+            <div className="w-8 h-8 bg-[#140e0c] border border-[#7f1d1d] flex items-center justify-center text-[#ef4444]">
+              <PixelSwordIcon className="w-4 h-4 text-[#ef4444]" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-white font-heading tracking-tight">
-                Combat Strike Feed
+              <h3 className="font-pixel text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
+                Workout Damage History
               </h3>
-              <p className="text-[10.5px] font-mono text-slate-400">
-                Real-time telemetry of kinetic strikes dealt to {boss.name}
+              <p className="font-pixel text-[9px] text-stone-400">
+                Recent sets and damage dealt to {boss.name}
               </p>
             </div>
           </div>
-          <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">
-            {damageLogs.length} Strikes Recorded
+          <span className="font-pixel text-[9px] text-stone-400 uppercase font-bold flex items-center gap-1 bg-[#140e0c] px-2 py-1 border border-[#4a3830]">
+            <PixelScrollIcon className="w-3 h-3 text-[#8c786a]" />
+            {damageLogs.length} LOGS
           </span>
         </div>
 
-        <div className="pt-4 relative z-10">
+        <div className="pt-4">
           {damageLogs.length === 0 ? (
-            <div className="p-8 text-center text-slate-500 font-mono text-xs border border-dashed border-slate-800 rounded-2xl bg-[#050914]/60">
-              No strike telemetry recorded yet this cycle. Log sets of {boss.targetExercise} to unleash direct damage.
+            <div className="p-8 text-center text-[#8c786a] font-pixel text-[10px] border-2 border-dashed border-[#4a3830] bg-[#140e0c] flex flex-col items-center justify-center gap-2">
+              <PixelOpenGrimoireIcon className="w-8 h-8 text-[#8c786a]/60" />
+              <span>No sets logged yet this week. Log sets of {boss.targetExercise} to deal damage.</span>
             </div>
           ) : (
-            <div className="space-y-3 font-mono text-xs max-h-72 overflow-y-auto custom-scrollbar pr-1">
+            <div className="space-y-2.5 max-h-72 overflow-y-auto custom-scrollbar pr-1 font-pixel text-[10px]">
               {damageLogs.map((log: any, idx: number) => (
                 <div
                   key={log.id || idx}
-                  className="p-3.5 bg-[#07030d]/80 border border-red-900/40 rounded-xl flex items-center justify-between shadow-sm hover:border-red-500/40 transition-colors"
+                  className="p-3 bg-[#140e0c] border border-[#4a3830] flex items-center justify-between hover:border-[#7f1d1d]/60 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="px-2.5 py-1 bg-red-950/90 border border-red-500/40 text-red-300 font-black rounded-lg text-[10px] uppercase flex items-center gap-1 shadow-[0_0_8px_rgba(239,68,68,0.3)]">
-                      <Swords className="w-3 h-3 text-red-400" />
-                      <span>STRIKE</span>
-                    </span>
+                    <PixelBadge variant="danger" size="sm" className="text-[9px] px-1.5 py-0.5 flex items-center gap-1 border border-[#7f1d1d]">
+                      <PixelFlameIcon className="w-2.5 h-2.5 text-[#ef4444]" />
+                      DMG
+                    </PixelBadge>
                     <div>
-                      <p className="font-bold text-slate-100">
-                        Dealt <span className="text-red-400 font-black">{(log.damageDealt || 2000).toLocaleString()} DMG</span>{" "}
-                        with {log.exerciseName} ({log.weight} KG × {log.reps} Reps)
+                      <p className="text-stone-200 flex items-center gap-1.5 flex-wrap">
+                        <span>Dealt</span>
+                        <span className="text-[#ef4444] font-bold font-pixel-chunky text-sm">
+                          {(log.damageDealt || 2000).toLocaleString()} DMG
+                        </span>
+                        <span className="text-stone-400 flex items-center gap-1">
+                          with <PixelDumbbellIcon className="w-3 h-3 text-[#f59e0b] inline" /> {log.exerciseName} ({log.weight} KG × {log.reps} Reps)
+                        </span>
                       </p>
-                      <p className="text-[10.5px] text-slate-400 mt-0.5">
-                        Remaining Boss HP: <span className="text-amber-400 font-bold">{log.hpPercentAfter}%</span>
+                      <p className="text-[9px] text-stone-400 mt-0.5 flex items-center gap-1">
+                        <span>Remaining Boss HP:</span>
+                        <span className="text-[#f59e0b] font-bold">{log.hpPercentAfter}%</span>
                       </p>
                     </div>
                   </div>
-                  <span className="text-[10.5px] text-slate-500 font-mono">
+                  <span className="text-[9px] text-[#8c786a] flex items-center gap-1 shrink-0">
+                    <PixelClockIcon className="w-3 h-3 text-[#8c786a]" />
                     {new Date(log.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </span>
                 </div>

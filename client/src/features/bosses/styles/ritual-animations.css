@@ -1,0 +1,201 @@
+/* ========================================================================= */
+/* Occult Ritual Chamber Ambient Animations & Keyframes                      */
+/* ========================================================================= */
+
+/**
+ * 1. Pulsing Magic Circles (Teal & Astral Blue Rune Seals)
+ * 4-second organic breathing luminescence cycle
+ */
+@keyframes rune-pulse {
+  0%, 100% {
+    opacity: 0.72;
+    filter: drop-shadow(0 0 10px rgba(45, 212, 191, 0.45)) drop-shadow(0 0 20px rgba(6, 182, 212, 0.25));
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 22px rgba(45, 212, 191, 0.85)) drop-shadow(0 0 40px rgba(56, 189, 248, 0.55));
+    transform: translate(-50%, -50%) scale(1.025);
+  }
+}
+
+@keyframes portal-pulse {
+  0%, 100% {
+    opacity: 0.65;
+    filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.5)) drop-shadow(0 0 30px rgba(168, 85, 247, 0.3));
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    filter: drop-shadow(0 0 28px rgba(99, 102, 241, 0.85)) drop-shadow(0 0 50px rgba(168, 85, 247, 0.6));
+    transform: translate(-50%, -50%) scale(1.04);
+  }
+}
+
+/**
+ * 2. Ritual Summoning Button Aura Pulse
+ */
+@keyframes ritual-button-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    border-color: rgba(245, 158, 11, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(245, 158, 11, 0.75), 0 0 50px rgba(217, 119, 6, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+    border-color: rgba(251, 191, 36, 0.95);
+  }
+}
+
+@keyframes astral-button-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+    border-color: rgba(6, 182, 212, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(6, 182, 212, 0.75), 0 0 45px rgba(56, 189, 248, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.45);
+    border-color: rgba(103, 232, 249, 0.95);
+  }
+}
+
+/**
+ * 3. Flickering Torchlight / Subterranean Vignette Breathing
+ */
+@keyframes torchlight-flicker {
+  0%, 100% {
+    opacity: 0.88;
+  }
+  25% {
+    opacity: 0.94;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  75% {
+    opacity: 0.92;
+  }
+}
+
+/**
+ * 4. Drifting Mana Spores & Ember Particles
+ */
+@keyframes mana-spore-float {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.6);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.85;
+  }
+  80% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-160px) translateX(var(--drift-x, 15px)) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/**
+ * 5. Astral Seal Slow Rotation
+ */
+@keyframes rune-spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rune-spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+/* ========================================================================= */
+/* Utility Classes for Occult Ritual Components                              */
+/* ========================================================================= */
+
+.rune-pulse {
+  animation: rune-pulse 4s ease-in-out infinite;
+}
+
+.portal-pulse {
+  animation: portal-pulse 4.5s ease-in-out infinite;
+}
+
+.ritual-button-glow {
+  animation: ritual-button-glow 2.8s ease-in-out infinite;
+}
+
+.astral-button-glow {
+  animation: astral-button-glow 3s ease-in-out infinite;
+}
+
+.torchlight-flicker {
+  animation: torchlight-flicker 5s ease-in-out infinite;
+}
+
+.rune-spin-slow {
+  animation: rune-spin-slow 90s linear infinite;
+}
+
+.rune-spin-reverse {
+  animation: rune-spin-reverse 75s linear infinite;
+}
+
+/* Glassmorphic Occult Slate */
+.occult-slate {
+  background: rgba(8, 12, 22, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(6, 182, 212, 0.28);
+  box-shadow: 
+    0 20px 45px rgba(0, 0, 0, 0.65),
+    0 0 25px rgba(6, 182, 212, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+.occult-slate-amber {
+  background: rgba(14, 10, 8, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(245, 158, 11, 0.32);
+  box-shadow: 
+    0 20px 45px rgba(0, 0, 0, 0.7),
+    0 0 25px rgba(245, 158, 11, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Stone Plinth Stat Block */
+.plinth-stat {
+  background: linear-gradient(135deg, rgba(13, 19, 33, 0.85), rgba(7, 10, 19, 0.92));
+  border: 1px solid rgba(14, 116, 144, 0.35);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.8),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.plinth-stat:hover {
+  border-color: rgba(34, 211, 238, 0.55);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 15px rgba(6, 182, 212, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rune-pulse,
+  .portal-pulse,
+  .ritual-button-glow,
+  .astral-button-glow,
+  .torchlight-flicker,
+  .rune-spin-slow,
+  .rune-spin-reverse {
+    animation: none !important;
+  }
+}

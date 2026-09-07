@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
+import { cn } from "@/lib/utils";
 import {
   PixelInfoIcon,
   PixelBookIcon,
@@ -286,7 +287,7 @@ export function SystemTooltip({
   return (
     <div
       ref={triggerRef}
-      className={`relative inline-flex items-center focus-within:outline-none ${className}`}
+      className={cn("relative inline-flex items-center focus-within:outline-none", className)}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onFocus={handleMouseEnter}

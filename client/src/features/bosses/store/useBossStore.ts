@@ -27,8 +27,13 @@ export interface Boss {
   description: string | null;
   category: string;
   difficulty: string;
+  archetype: string | null;
   maxHp: number;
   currentHp: number;
+  rewardGold: number | null;
+  rewardExp: number | null;
+  rewardTitle: string | null;
+  realWorldReward: string | null;
   deadline: string | null;
   status: "ACTIVE" | "DEFEATED" | "FAILED" | "ARCHIVED";
   createdAt: string;
@@ -42,6 +47,12 @@ export interface CreateBossPayload {
   description?: string;
   category: string;
   difficulty: string;
+  archetype?: string;
+  maxHp?: number;
+  rewardGold?: number;
+  rewardExp?: number;
+  rewardTitle?: string;
+  realWorldReward?: string;
   deadline?: string;
   activities: { activityType: string; referenceId?: string; damageValue: number }[];
 }
@@ -51,7 +62,7 @@ interface BossState {
   isLoading: boolean;
   error: string | null;
   fetchBosses: (characterId: string) => Promise<void>;
-  createBoss: (characterId: string, payload: CreateBossPayload) => Promise<void>;
+  createBoss: (characterId: string, payload: CreateBossPayload) => Promise<Boss>;
   fetchBossTrajectory: (characterId: string, bossId: string) => Promise<string | null>;
 }
 
@@ -69,8 +80,11 @@ export const useBossStore = create<BossState>((set) => ({
       if (!response.ok) throw new Error("Failed to fetch bosses");
       const data = await response.json();
       set({ bosses: data, isLoading: false });
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+    } catch (error: unknown) {
+      set({
+        error: error instanceof Error ? error.message : "Failed to fetch bosses",
+        isLoading: false,
+      });
     }
   },
 
@@ -82,15 +96,22 @@ export const useBossStore = create<BossState>((set) => ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!response.ok) throw new Error("Failed to create boss");
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.detail || "The summoning contract was rejected.");
+      }
       const newBoss = await response.json();
       
       set((state) => ({
         bosses: [newBoss, ...state.bosses],
         isLoading: false,
       }));
-    } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+      return newBoss;
+    } catch (error: unknown) {
+      set({
+        error: error instanceof Error ? error.message : "The summoning contract failed.",
+        isLoading: false,
+      });
       throw error;
     }
   },

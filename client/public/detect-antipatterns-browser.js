@@ -8312,7 +8312,7 @@ if (IS_BROWSER) {
       return { groupMap: new Map(), allFindings: [], pageLevelFindings: [] };
     }
     const groupMap = new Map();
-    const _disabled = EXTENSION_MODE ? (window.__IMPECCABLE_CONFIG__?.disabledRules || []) : [];
+    const _disabled = window.__IMPECCABLE_CONFIG__?.disabledRules || window.__IMPECCABLE_CONFIG__?.ignoreRules || window.__IMPECCABLE_CONFIG__?.ignoredRules || [];
     const _ruleOk = (id) => !_disabled.length || !_disabled.includes(id);
     const designSystem = browserDesignSystemConfig();
     const designSeen = { fonts: new Set(), colors: new Set(), radii: new Set() };
@@ -8520,11 +8520,9 @@ if (IS_BROWSER) {
     // overused-font = "geist mono" reaches the overlay and extension too.
     const _normValue = (v) => String(v || '').trim().replace(/^["']|["']$/g, '')
       .replace(/\+/g, ' ').replace(/\s+/g, ' ').toLowerCase();
-    const _disabledValues = EXTENSION_MODE
-      ? (Array.isArray(window.__IMPECCABLE_CONFIG__?.disabledValues) ? window.__IMPECCABLE_CONFIG__.disabledValues : [])
+    const _disabledValues = (Array.isArray(window.__IMPECCABLE_CONFIG__?.disabledValues) ? window.__IMPECCABLE_CONFIG__.disabledValues : [])
         .filter(e => e && typeof e === 'object' && e.rule && e.value)
-        .map(e => ({ rule: String(e.rule).trim().toLowerCase(), value: _normValue(e.value) }))
-      : [];
+        .map(e => ({ rule: String(e.rule).trim().toLowerCase(), value: _normValue(e.value) }));
     if (_disabledValues.length > 0) {
       // The six rules whose findings carry a matchable value; keep in step
       // with extractFindingIgnoreValue in cli/lib/impeccable-config.mjs.

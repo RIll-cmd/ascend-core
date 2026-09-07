@@ -1,149 +1,137 @@
-import { ShopItem } from "../types/shop";
-import { useShopStore } from "../store/useShopStore";
-import { useCharacterStore } from "@/store/useCharacterStore";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Lock } from "lucide-react";
+"use client";
+
+import { useState, type CSSProperties } from "react";
+import Image from "next/image";
+import { LockKeyhole } from "lucide-react";
 import { CurrencyIcon } from "@/components/CurrencyDisplay";
-import { useState } from "react";
-import { rarityColors } from "@/features/inventory/utils/rarityColors";
-import { PurchaseModal } from "./PurchaseModal";
-import { playUISound } from "@/utils/audio";
+import { rarityColors } from "../utils/shopPresentation";
 import { getItemIconPath } from "@/utils/itemIcons";
+import { useCharacterStore } from "@/store/useCharacterStore";
+import { useShopStore } from "../store/useShopStore";
+import type { ShopItem } from "../types/shop";
 import { ItemTooltip } from "./ItemTooltip";
+import { PurchaseModal } from "./PurchaseModal";
+import styles from "../shop.module.css";
 
 interface ShopItemCardProps {
   item: ShopItem;
 }
 
 export function ShopItemCard({ item }: ShopItemCardProps) {
-  const { buyItem } = useShopStore();
-  const { character } = useCharacterStore();
+  const buyItem = useShopStore((state) => state.buyItem);
+  const character = useCharacterStore((state) => state.character);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleBuy = async () => {
+  const rarityColor =
+    rarityColors[item.rarity as keyof typeof rarityColors] ?? rarityColors.COMMON;
+  const itemIcon =
+    item.icon && item.icon.includes("/icons/Icon")
+      ? item.icon
+      : getItemIconPath(item.name, item.type);
+  const requirementCopy =
+    item.requiredLevel && character && character.level < item.requiredLevel
+      ? `Level ${item.requiredLevel} required`
+      : item.requiredPower && character && character.power < item.requiredPower
+        ? `${item.requiredPower.toLocaleString()} power required`
+        : "Requirements not met";
+  const actionCopy = !item.meetsRequirements
+    ? "Sealed"
+    : !item.inStock
+      ? "Sold out"
+      : !item.canAfford
+        ? "Funds lacking"
+        : "Inspect ware";
+  const isAvailable = Boolean(item.meetsRequirements && item.inStock && item.canAfford);
+  const rarityStyle = { "--rarity": rarityColor } as CSSProperties;
+
+  const handleBuy = async (quantity: number) => {
     if (!character) return;
     setIsPurchasing(true);
-    const success = await buyItem(character.id, item.id);
+    const success = await buyItem(character.id, item.id, quantity);
     setIsPurchasing(false);
-    if (success) {
-      playUISound("/sounds/General/10_UI_Menu_SFX/079_Buy_sell_01.wav");
-      setIsModalOpen(false);
-    }
+    if (success) setIsModalOpen(false);
   };
-
-  const CurrencyIconBadge = () => (
-    <CurrencyIcon type={item.currencyType} size="sm" />
-  );
-
-  const rarityColor = rarityColors[item.rarity as keyof typeof rarityColors] || rarityColors.COMMON;
 
   return (
     <ItemTooltip item={item}>
-      <Card suppressHydrationWarning className={`relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-cyan-500/30 ${
-        !item.meetsRequirements ? "grayscale" : ""
-      }`}>
-        {/* Rarity Gradient Background */}
-        <div 
-          suppressHydrationWarning
-          className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity"
-          style={{ background: `linear-gradient(to bottom right, ${rarityColor}40, transparent)` }}
-        />
-        
-        <div suppressHydrationWarning className="p-4 relative z-10 flex flex-col h-full">
-          {/* Header with Title Truncation Fix */}
-          <div suppressHydrationWarning className="flex items-start justify-between mb-3">
-            <div suppressHydrationWarning className="flex items-center gap-3 min-w-0 w-full">
-              <div suppressHydrationWarning className="relative w-12 h-12 rounded-lg bg-muted/50 border flex-shrink-0 p-1 flex items-center justify-center" style={{ borderColor: `${rarityColor}40` }}>
-                <img 
-                  src={(item.icon && item.icon.includes('/icons/Icon')) ? item.icon : getItemIconPath(item.name, item.type)} 
-                  onError={(e) => { e.currentTarget.src = getItemIconPath(item.name, item.type); }}
-                  className="w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" 
-                  style={{ imageRendering: "pixelated" }}
-                  alt={item.name} 
-                />
-              </div>
-              {/* Title Container: min-w-0 & flex-1 ensures truncate works cleanly without border overflow */}
-              <div suppressHydrationWarning className="flex-1 min-w-0">
-                <h3 className="font-bold text-base leading-tight truncate text-white group-hover:text-cyan-200 transition-colors" title={item.name}>
-                  {item.name}
-                </h3>
-                <p className="text-xs font-mono font-bold uppercase tracking-wider mt-0.5" style={{ color: rarityColor }}>
-                  {item.rarity} {item.type}
-                </p>
-              </div>
-            </div>
+      <article
+        className={`${styles.shelfSlot} ${
+          !item.meetsRequirements ? styles.shelfSlotLocked : ""
+        }`}
+        style={rarityStyle}
+      >
+        {!item.inStock ? (
+          <div className={styles.waxStamp} aria-label="Out of stock">
+            Out of stock
           </div>
-          
-          {/* Description / World Lore Preview (Click to toggle expansion or hover for tooltip) */}
-          <p 
-            suppressHydrationWarning 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className={`text-xs text-slate-400 leading-relaxed italic mb-3 flex-grow cursor-pointer hover:text-slate-200 transition-colors ${
-              isExpanded ? "" : "line-clamp-2"
-            }`}
-            title="Click to toggle full text preview"
-          >
-            &quot;{item.description || "A mysterious item of unknown origin."}&quot;
+        ) : null}
+
+        {!item.meetsRequirements ? (
+          <div className={styles.lockSeal} title={requirementCopy}>
+            <LockKeyhole size={18} aria-hidden="true" />
+            <span className="sr-only">{requirementCopy}</span>
+          </div>
+        ) : null}
+
+        <div className={styles.slotInterior}>
+          <div className={styles.rarityRail}>
+            <span>{item.rarity}</span>
+            <span>{item.stock === null ? "Open crate" : `Lot ${item.stock}`}</span>
+          </div>
+
+          <div className={styles.itemDisplay}>
+            <Image
+              src={itemIcon}
+              alt={item.name}
+              width={76}
+              height={76}
+              unoptimized
+              onError={(event) => {
+                event.currentTarget.src = getItemIconPath(item.name, item.type);
+              }}
+            />
+          </div>
+
+          <h3 className={styles.itemName}>{item.name}</h3>
+          <p className={styles.itemType}>{item.type.replaceAll("_", " ")}</p>
+          <p className={styles.itemLore}>
+            &ldquo;{item.description || "A road-worn ware with a history yet untold."}&rdquo;
           </p>
 
-          {/* Stock Display */}
-          {item.stock !== null && (
-            <div suppressHydrationWarning className="text-xs font-mono font-semibold mb-2 text-slate-400 flex items-center justify-between">
-              <span>Stock Remaining:</span>
-              <span className={`font-bold ${item.inStock ? "text-cyan-400" : "text-red-400"}`}>
-                {item.stock}
-              </span>
-            </div>
-          )}
-
-          {/* Action Area */}
-          <div suppressHydrationWarning className="mt-auto pt-3 border-t border-border/50">
-            <Button 
-              className="w-full flex justify-between items-center font-bold"
-              variant={item.canAfford && item.inStock && item.meetsRequirements ? "default" : "secondary"}
-              disabled={!item.canAfford || !item.inStock || !item.meetsRequirements}
-              onClick={() => setIsModalOpen(true)}
-              style={
-                  item.canAfford && item.inStock && item.meetsRequirements ? { backgroundColor: rarityColor, color: '#fff' } : {}
-              }
-            >
-              <span>Purchase</span>
-              <div suppressHydrationWarning className="flex items-center gap-1.5">
-                <span className={item.canAfford ? "" : "text-destructive"}>{item.price.toLocaleString()}</span>
-                <CurrencyIconBadge />
-              </div>
-            </Button>
+          <div className={styles.stockRow}>
+            <span>{!item.meetsRequirements ? requirementCopy : "Stock on shelf"}</span>
+            <span className={styles.stockValue}>
+              {item.stock === null ? "Plenty" : item.stock}
+            </span>
           </div>
+
+          <div className={styles.priceTag}>
+            <CurrencyIcon type={item.currencyType} size="sm" />
+            <span>{item.price.toLocaleString()}</span>
+          </div>
+
+          <button
+            type="button"
+            className={`${styles.purchaseButton} ${
+              !isAvailable ? styles.purchaseButtonUnavailable : ""
+            }`}
+            disabled={isPurchasing}
+            onClick={() => setIsModalOpen(true)}
+            aria-label={`${actionCopy}: ${item.name} for ${item.price.toLocaleString()} ${item.currencyType.toLowerCase().replaceAll("_", " ")}`}
+          >
+            {actionCopy}
+          </button>
         </div>
 
-        {/* Locked Overlay */}
-        {!item.meetsRequirements && (
-          <div suppressHydrationWarning className="absolute inset-0 bg-background/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-4 text-center">
-            <div suppressHydrationWarning className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
-              <Lock className="w-6 h-6 text-muted-foreground" />
-            </div>
-            <h4 className="font-bold text-lg mb-1">Locked</h4>
-            <p className="text-xs text-muted-foreground">
-              {item.requiredLevel && character && character.level < item.requiredLevel 
-                ? `Requires Level ${item.requiredLevel}` 
-                : item.requiredPower && character && character.power < item.requiredPower 
-                  ? `Requires Power ${item.requiredPower}` 
-                  : "Requirements not met"}
-            </p>
-          </div>
-        )}
-        
-        <PurchaseModal 
+        <PurchaseModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onConfirm={handleBuy}
           item={item}
           isPurchasing={isPurchasing}
         />
-      </Card>
+      </article>
     </ItemTooltip>
   );
 }

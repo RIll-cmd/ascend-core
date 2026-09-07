@@ -2,21 +2,19 @@
 
 import React, { useState } from "react";
 import {
-  Flame,
-  Award,
-  BookOpen,
-  Sparkles,
-  Shield,
-  Clock,
-  CheckCircle,
-  X,
-  Feather,
-  Plus,
-  Pencil,
-  Trash2,
-  Play,
-  RotateCcw,
-} from "lucide-react";
+  PixelFlameIcon,
+  PixelAwardIcon,
+  PixelBookIcon,
+  PixelSparklesIcon,
+  PixelShieldIcon,
+  PixelPlusIcon,
+  PixelPencilIcon,
+  PixelTrashIcon,
+  PixelPlayIcon,
+  PixelRefreshIcon,
+  PixelScrollIcon,
+  PixelCloseIcon,
+} from "@/components/ui/pixel/PixelIcons";
 import {
   useLearningStore,
   CustomStudyTome,
@@ -532,7 +530,7 @@ function TomeModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#542d17] pb-3">
           <div className="flex items-center gap-2">
-            <span className="text-xl">📜</span>
+            <PixelScrollIcon className="w-5 h-5 text-amber-400" />
             <h3 className="font-pixel text-base sm:text-lg font-bold text-[#fef08a] uppercase tracking-wider">
               {initialTome ? "Modify Inscribed Tome" : "Inscribe New Study Tome"}
             </h3>
@@ -542,7 +540,7 @@ function TomeModal({
             onClick={onClose}
             className="p-1 hover:bg-[#3d1d0c] text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <PixelCloseIcon className="w-5 h-5" />
           </button>
         </div>
 
@@ -795,7 +793,7 @@ export const FocusStatistics: React.FC<{ className?: string }> = ({ className = 
             }}
             className="h-8 sm:h-9 px-3.5 bg-[#f59e0b] hover:bg-[#fbbf24] text-[#1a0c05] border-2 border-[#fde047] font-pixel text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-[0_2px_0_0_#000] active:translate-y-0.5 whitespace-nowrap shrink-0"
           >
-            <Plus className="w-4 h-4 text-black shrink-0" />
+            <PixelPlusIcon className="w-4 h-4 text-black shrink-0" />
             <span className="whitespace-nowrap">Inscribe Tome</span>
           </button>
 
@@ -808,7 +806,7 @@ export const FocusStatistics: React.FC<{ className?: string }> = ({ className = 
               rankData.current.color
             )}
           >
-            <Award className="w-4 h-4 text-[#f59e0b] shrink-0" />
+            <PixelAwardIcon className="w-4 h-4 text-[#f59e0b] shrink-0" />
             <span className="whitespace-nowrap">{rankData.current.title}</span>
           </div>
         </div>
@@ -818,7 +816,7 @@ export const FocusStatistics: React.FC<{ className?: string }> = ({ className = 
       <div className="p-3.5 bg-[#110703] border-2 border-[#42200f] space-y-2">
         <div className="flex items-center justify-between text-xs sm:text-sm font-pixel">
           <span className="text-slate-200 font-bold flex items-center gap-2">
-            <Shield className="w-4 h-4 text-[#f59e0b]" />
+            <PixelShieldIcon className="w-4 h-4 text-[#f59e0b]" />
             Tier {rankData.current.tier} Progression
           </span>
           <span className="text-[#fef08a] font-mono font-bold tabular-nums">
@@ -844,7 +842,7 @@ export const FocusStatistics: React.FC<{ className?: string }> = ({ className = 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs sm:text-sm font-pixel font-bold text-[#fbbf24] uppercase tracking-wider flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-[#f59e0b]" />
+            <PixelBookIcon className="w-4 h-4 text-[#f59e0b]" />
             Inscribed Study Tomes on Shelf ({customTomes.length})
           </span>
           <span className="text-xs font-sans font-semibold text-slate-300">
@@ -857,7 +855,7 @@ export const FocusStatistics: React.FC<{ className?: string }> = ({ className = 
           {customTomes.length === 0 ? (
             /* Empty Bookshelf State */
             <div className="py-10 flex flex-col items-center justify-center text-center space-y-3">
-              <span className="text-3xl">🕯️</span>
+              <PixelFlameIcon className="w-8 h-8 text-amber-400/80" />
               <p className="font-pixel text-sm text-[#fef08a] font-bold">
                 The Scriptorium Shelves are Empty
               </p>
@@ -904,7 +902,7 @@ export const FocusStatistics: React.FC<{ className?: string }> = ({ className = 
                     className="h-24 w-10 border-2 border-dashed border-[#542d17] hover:border-[#f59e0b] bg-[#120703]/60 flex flex-col items-center justify-center text-[#92400e] hover:text-[#f59e0b] transition-all cursor-pointer shrink-0 group"
                     title="Inscribe New Tome onto Shelf"
                   >
-                    <Plus className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <PixelPlusIcon className="w-5 h-5 group-hover:scale-110 transition-transform text-[#92400e] group-hover:text-[#f59e0b]" />
                     <span className="text-[9px] font-pixel mt-1">ADD</span>
                   </button>
                 </div>
@@ -1030,7 +1028,7 @@ export const FocusStatistics: React.FC<{ className?: string }> = ({ className = 
               }}
               className="flex-1 min-w-[190px] font-pixel font-bold flex items-center justify-center gap-2 cursor-pointer shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
             >
-              <Play className="w-4 h-4 fill-current" />
+              <PixelPlayIcon className="w-4 h-4 fill-current" />
               Begin Focus Rite on this Tome
             </PixelButton>
 
@@ -1045,7 +1043,7 @@ export const FocusStatistics: React.FC<{ className?: string }> = ({ className = 
               className="h-10 px-3.5 bg-[#dfca9f] hover:bg-[#cca876] text-[#2c1407] border-2 border-[#6d3714] font-pixel text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
               title="Edit Tome Details"
             >
-              <Pencil className="w-3.5 h-3.5" />
+              <PixelPencilIcon className="w-3.5 h-3.5 text-[#5c2b10]" />
               <span>Edit</span>
             </button>
 
@@ -1074,10 +1072,10 @@ export const FocusStatistics: React.FC<{ className?: string }> = ({ className = 
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(selectedTome.id)}
-                className="h-10 px-3 bg-[#dfca9f] hover:bg-[#fca5a5] text-[#991b1b] border-2 border-[#6d3714] font-pixel text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
+                className="h-10 px-3 bg-[#dfca9f] hover:bg-[#fca5a5] text-[#991b1b] border-2 border-[#6d3714] font-pixel text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.3)] group"
                 title="Remove Tome from Shelf"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <PixelTrashIcon className="w-3.5 h-3.5 text-[#991b1b] group-hover:text-[#ef4444]" />
                 <span>Delete</span>
               </button>
             )}

@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "@/constants";
-import { Habit, Mission, HabitDifficulty, ScheduleType, CompletionType, HabitStatus } from "../types";
+import { Habit, Mission, HabitDifficulty, ScheduleType, CompletionType, HabitStatus, HabitType, PenaltyTarget } from "../types";
 
 export interface HabitScheduleCreatePayload {
   daysOfWeek?: string | null;
@@ -33,6 +33,9 @@ export interface HabitCreatePayload {
   preferredTime?: string | null;
   schedule?: HabitScheduleCreatePayload | null;
   tiers: HabitTierCreatePayload[];
+  type?: HabitType;
+  affectedStat?: PenaltyTarget;
+  statModifier?: number;
 }
 
 export interface MissionCompletePayload {
@@ -53,6 +56,19 @@ export interface HabitLogResponse {
     gems: number;
     streak: number;
     habitStrength: number;
+  };
+}
+
+export interface HabitTriggerResponse {
+  success: boolean;
+  habit: Habit;
+  character: import("@/features/character/types/character").Character;
+  stats?: import("@/features/character/types/character").CharacterStats | null;
+  penalty: {
+    target: string;
+    amount: number;
+    previousValue: number;
+    newValue: number;
   };
 }
 
@@ -155,6 +171,21 @@ export async function logHabit(
     return data as HabitLogResponse;
   } catch (error) {
     console.error("[habit.service] Error logging habit:", error);
+    return null;
+  }
+}
+
+export async function triggerHabit(habitId: string): Promise<HabitTriggerResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/habits/${habitId}/trigger`, {
+      method: "POST",
+      credentials: "include",
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as HabitTriggerResponse;
+  } catch (error) {
+    console.error("[habit.service] Error triggering habit:", error);
     return null;
   }
 }
@@ -297,5 +328,4 @@ export async function updateHabitDetails(
     return null;
   }
 }
-
 

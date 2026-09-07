@@ -150,15 +150,16 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
     <div suppressHydrationWarning className="space-y-6 pb-12 font-sans select-none relative">
       {/* Tavern Pixel Animated Background (Profile and its subroutes only) */}
       <div
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage: "url('/tavern_background.gif')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          imageRendering: "pixelated",
-        }}
+        className="fixed inset-0 w-full h-full min-h-screen h-[100dvh] bg-[#0f0814] pointer-events-none z-0 select-none overflow-hidden"
+        aria-hidden="true"
       >
+        <div
+          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat pointer-events-none"
+          style={{
+            backgroundImage: "url('/tavern_background.gif')",
+            imageRendering: "pixelated",
+          }}
+        />
         {/* Subtle Ambient Vignette Overlay */}
         <div className="absolute inset-0 bg-[#0d0517]/35 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_rgba(13,5,23,0.65)_100%)]" />
       </div>

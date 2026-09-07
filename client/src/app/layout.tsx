@@ -59,14 +59,6 @@ export default function RootLayout({
             <Toaster />
           </UserProvider>
         </div>
-      {/* impeccable-live-start */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.__IMPECCABLE_CONFIG__ = { ignoreRules: ["ai-color-palette", "overused-font", "layout-property-animation"], ignoredRules: ["ai-color-palette", "overused-font", "layout-property-animation"], ignoreCategories: [] };`,
-        }}
-      />
-      <script src="/detect-antipatterns-browser.js" async></script>
-      {/* impeccable-live-end */}
       </body>
     </html>
   );

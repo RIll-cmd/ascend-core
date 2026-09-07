@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  Waves,
-  Flame,
-} from "lucide-react";
+  PixelWaterfallIcon,
+  PixelFlameIcon,
+} from "@/components/ui/pixel/PixelIcons";
+import { cn } from "@/lib/utils";
 import { SleepLoggerCard } from "@/features/sleep/components/SleepLoggerCard";
 import { SleepHistoryChart } from "@/features/sleep/components/SleepHistoryChart";
 import { WaterfallAmbientPlayer } from "@/features/sleep/components/WaterfallAmbientPlayer";
@@ -29,7 +30,7 @@ export default function SleepPage() {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="flex items-start sm:items-center gap-4">
             <div className="w-14 h-14 bg-[#251040] border-2 border-[#f59e0b] flex items-center justify-center flex-shrink-0">
-              <Waves className="w-7 h-7 text-[#fbbf24] animate-pulse" />
+              <PixelWaterfallIcon className="w-8 h-8 text-[#38bdf8] drop-shadow-[0_0_8px_rgba(56,189,248,0.5)]" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-pixel font-bold text-white tracking-wide">
@@ -48,8 +49,8 @@ export default function SleepPage() {
               <span className="text-xs text-[#fbbf24] block font-bold">
                 Rest Streak
               </span>
-              <span className="text-base sm:text-lg font-bold text-[#34d399] flex items-center gap-1 justify-start sm:justify-end tabular-nums" suppressHydrationWarning>
-                <Flame className="w-4 h-4 text-[#f59e0b]" />{" "}
+              <span className="text-base sm:text-lg font-bold text-[#34d399] flex items-center gap-1.5 justify-start sm:justify-end tabular-nums" suppressHydrationWarning>
+                <PixelFlameIcon className={cn("w-4 h-4", streak > 0 ? "text-[#f59e0b] animate-pulse" : "text-[#78695d]")} />{" "}
                 {mounted ? <NumberTicker value={streak} /> : streak} Days
               </span>
             </div>

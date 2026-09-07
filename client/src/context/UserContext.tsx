@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { API_BASE_URL } from "@/constants";
+import { AuthRouteGuard } from "@/components/AuthRouteGuard";
 
 export interface StatData {
   id?: string;
@@ -142,7 +143,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     <UserContext.Provider
       value={{ user, loading, error, refetch: fetchUser, toggleMission }}
     >
-      {children}
+      <AuthRouteGuard>{children}</AuthRouteGuard>
     </UserContext.Provider>
   );
 }
@@ -150,4 +151,3 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 export function useUser() {
   return useContext(UserContext);
 }
-

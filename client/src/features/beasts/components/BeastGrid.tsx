@@ -15,7 +15,7 @@ import {
   Flame,
   Info,
   Layers,
-  Crown,
+  Feather,
   Search,
   Filter,
   X,
@@ -27,9 +27,16 @@ import {
   ArrowUpCircle,
 } from "lucide-react";
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
-import { FloatingRuneField } from "@/components/shared/FloatingRuneField";
+import meadow from "../styles/MeadowAviary.module.css";
 import { SystemTooltip, SystemTooltipStat } from "@/components/ui/SystemTooltip";
 import { DRAGON_LORE } from "@/features/lore/loreData";
+import {
+  DragonCodexCard,
+  getRarityBadgeStyle,
+  getElementBadgeStyle,
+  getFormattedStatLabel,
+} from "./DragonCodexCard";
+import { CodexSprite } from "./CodexSprite";
 
 interface BeastGridProps {
   bestiary: BestiarySpeciesSummary[];
@@ -46,8 +53,8 @@ export const BeastGrid: React.FC<BeastGridProps> = ({
 }) => {
   const { equipBeast, upgradeBeast, isEquipping, isUpgrading } = useBeastStore();
   const { character } = useCharacterStore();
-  // Default filter is strictly "OWNED" per user directive
-  const [ownershipFilter, setOwnershipFilter] = useState<"OWNED" | "ALL">("OWNED");
+  // Open on the complete field journal; owners can still narrow to bonded discoveries.
+  const [ownershipFilter, setOwnershipFilter] = useState<"OWNED" | "ALL">("ALL");
   const [selectedRarity, setSelectedRarity] = useState<string>("ALL");
   const [selectedElement, setSelectedElement] = useState<string>("ALL");
   const [activeLoreModal, setActiveLoreModal] = useState<BestiarySpeciesSummary | null>(null);
@@ -74,62 +81,17 @@ export const BeastGrid: React.FC<BeastGridProps> = ({
     }
   };
 
-  const getRarityBadgeStyle = (rarity: string) => {
-    switch (rarity) {
-      case "HOLOGRAPHIC":
-        return "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/60 shadow-[0_0_12px_rgba(217,70,239,0.4)]";
-      case "LEGENDARY":
-        return "bg-amber-500/20 text-amber-300 border-amber-500/60 shadow-[0_0_12px_rgba(245,158,11,0.4)]";
-      case "EPIC":
-        return "bg-purple-500/20 text-purple-300 border-purple-500/60 shadow-[0_0_10px_rgba(168,85,247,0.3)]";
-      case "RARE":
-        return "bg-cyan-500/20 text-cyan-300 border-cyan-500/60 shadow-[0_0_10px_rgba(6,182,212,0.3)]";
-      default:
-        return "bg-emerald-500/20 text-emerald-300 border-emerald-500/60";
-    }
-  };
-
-  const getElementBadgeStyle = (element: string) => {
-    switch (element) {
-      case "FIRE":
-        return "text-red-400 bg-red-950/60 border-red-500/40";
-      case "FROST":
-        return "text-cyan-300 bg-cyan-950/60 border-cyan-500/40";
-      case "VOID":
-        return "text-purple-400 bg-purple-950/60 border-purple-500/40";
-      case "CYBER":
-        return "text-teal-300 bg-teal-950/60 border-teal-500/40";
-      case "NATURE":
-        return "text-emerald-400 bg-emerald-950/60 border-emerald-500/40";
-      case "HOLY":
-        return "text-amber-300 bg-amber-950/60 border-amber-500/40";
-      case "STORM":
-        return "text-yellow-400 bg-yellow-950/60 border-yellow-500/40";
-      default:
-        return "text-slate-400 bg-slate-900 border-slate-700";
-    }
-  };
-
-  const getFormattedStatLabel = (beast: BestiarySpeciesSummary) => {
-    const loreEntry = DRAGON_LORE[beast.speciesId];
-    if (loreEntry) {
-      return `+${loreEntry.statBonusPercent.toFixed(1)}% ${beast.statBonusType.replace("_PERCENT", "").replace("_BOOST", "").replace("_", " ")}`;
-    }
-    return `+${beast.statBonusValue.toFixed(1)}% ${beast.statBonusType.replace("_", " ")}`;
-  };
-
   return (
     <div className="space-y-6">
       {/* Top Header Controls & Discovery Meter */}
       <div className="rounded-3xl bg-gradient-to-br from-[#0C1226]/95 via-[#080E20]/95 to-[#050914]/98 border border-cyan-500/30 p-6 shadow-xl relative overflow-hidden backdrop-blur-2xl">
-        <FloatingRuneField density="low" className="opacity-40" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-mono font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-1.5">
-                <Crown className="w-3.5 h-3.5" />
-                ASCENDANT DRAGON CODEX
+                <Feather className="w-3.5 h-3.5" />
+                NATURALIST&apos;S FIELD JOURNAL
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black font-heading text-white tracking-wide">
@@ -222,8 +184,8 @@ export const BeastGrid: React.FC<BeastGridProps> = ({
                 }}
                 className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer ${
                   selectedRarity === r
-                    ? "bg-cyan-500 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.4)]"
-                    : "bg-slate-900/60 text-slate-400 hover:text-white border border-slate-800"
+                    ? "bg-[#22543d] text-[#fef3c7]"
+                    : "bg-[#e0c68c] text-[#493519] hover:bg-[#f0d99e] border border-[#94773e]"
                 }`}
               >
                 {r}
@@ -270,149 +232,16 @@ export const BeastGrid: React.FC<BeastGridProps> = ({
 
       {/* 20-Beast Grid Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {filteredBeasts.map((beast) => {
-          const isUnlocked = beast.isUnlocked;
-          const loreEntry = DRAGON_LORE[beast.speciesId];
-          const formattedStat = getFormattedStatLabel(beast);
-
-          return (
-            <SystemTooltip
-              key={beast.speciesId}
-              title={isUnlocked ? beast.name : `??? (Undiscovered ${beast.element} Dragon)`}
-              subtitle={`${isUnlocked ? beast.species : "Uncharted Species"} • ${beast.element} Affinity`}
-              category="Dragon Companion"
-              rarity={beast.rarity as any}
-              description={isUnlocked ? (loreEntry?.storyLore || beast.description) : "This mythical companion has not yet been awakened in your bestiary."}
-              lore={isUnlocked ? (loreEntry?.biologicalResonance || beast.lore) : `Incubate and hatch ${beast.element.toLowerCase()} eggs by accumulating daily walking steps to discover this dragon.`}
-              mechanics={`Equipping grants a passive ${formattedStat} percentage multiplier to your actual character progression.`}
-              howToImprove="Accumulate daily walking steps and workout sessions in the Incubator Chamber to hatch Mystery Eggs."
-              stats={isUnlocked ? [{ label: "Passive Multiplier", value: formattedStat, color: "text-amber-300" }] : []}
-              tags={[beast.element, beast.rarity, "Dragon Companion"]}
-              delayMs={1000}
-              className="w-full h-full"
-            >
-              <div
-                className={`w-full h-full relative rounded-2xl p-4 border transition-all duration-300 flex flex-col justify-between overflow-hidden group ${
-                  isUnlocked
-                    ? beast.isEquipped
-                      ? "bg-gradient-to-br from-[#0e2133] via-[#091524] to-[#040a12] border-emerald-500/60 shadow-[0_0_25px_rgba(16,185,129,0.3)] scale-[1.02]"
-                      : "bg-gradient-to-br from-[#0B1020]/95 via-[#070C18]/95 to-[#040710]/98 border-cyan-500/25 hover:border-cyan-500/50 shadow-xl hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]"
-                    : "bg-[#050812]/90 border-slate-800/80 opacity-65"
-                }`}
-              >
-                {/* Top Card Bar: Badges */}
-                <div className="flex items-center justify-between gap-1.5 mb-2 relative z-10">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-mono text-slate-500 font-bold">
-                      #{String(beast.speciesId).padStart(3, "0")}
-                    </span>
-                    {isUnlocked && (
-                      <span className="px-1.5 py-0.2 rounded bg-cyan-950/90 border border-cyan-500/40 text-[9px] font-mono font-bold text-cyan-300">
-                        LV.{beast.level || 1}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Badge className={`${getRarityBadgeStyle(beast.rarity)} text-[9px] font-mono font-black uppercase px-2 py-0.5`}>
-                      {beast.rarity}
-                    </Badge>
-                    <span className={`px-2 py-0.5 rounded-md border text-[9px] font-mono font-bold ${getElementBadgeStyle(beast.element)}`}>
-                      {beast.element}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Animated Sprite Center Stage */}
-                <div className="h-32 flex items-center justify-center relative my-2 z-10 select-none">
-                  {isUnlocked ? (
-                    <img
-                      src={beast.spritePath}
-                      alt={beast.name}
-                      className="w-24 h-24 object-contain drop-shadow-[0_0_15px_rgba(6,182,212,0.6)] group-hover:scale-110 transition-transform duration-300"
-                      style={{ imageRendering: "pixelated" }}
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center text-slate-600 space-y-1">
-                      <Lock className="w-8 h-8 opacity-60 animate-pulse" />
-                      <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider">
-                        LOCKED
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Equipped Ribbon Badge */}
-                  {isUnlocked && beast.isEquipped && (
-                    <div className="absolute top-0 right-0 bg-emerald-500/20 border border-emerald-400/60 px-2 py-0.5 rounded-md text-[9px] font-mono font-black text-emerald-300 flex items-center gap-1 shadow-[0_0_10px_rgba(16,185,129,0.4)] animate-pulse">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                      ACTIVE
-                    </div>
-                  )}
-                </div>
-
-                {/* Name & Species */}
-                <div className="space-y-1 my-1 relative z-10">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-heading font-black text-sm text-white tracking-wide truncate">
-                      {isUnlocked ? beast.name : "???"}
-                    </h4>
-                    {isUnlocked && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          playUIMenuSFX("confirm");
-                          setActiveLoreModal(beast);
-                        }}
-                        className="text-slate-400 hover:text-cyan-300 p-1 rounded-md hover:bg-cyan-500/10 cursor-pointer transition-colors"
-                        title="View Story Lore Chronicle"
-                      >
-                        <BookOpen className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-                  <span className="text-[10.5px] font-mono text-slate-400 block truncate">
-                    {isUnlocked ? beast.species : `Undiscovered ${beast.element} Dragon`}
-                  </span>
-                </div>
-
-                {/* Passive Percentage Bonus Box */}
-                <div className="mt-2 p-2 rounded-xl bg-black/40 border border-white/5 space-y-1 relative z-10">
-                  <div className="flex items-center justify-between text-[10px] font-mono">
-                    <span className="text-slate-400 flex items-center gap-1">
-                      <Zap className="w-3 h-3 text-cyan-400" />
-                      Passive Bonus
-                    </span>
-                    <span className="font-black text-emerald-400">
-                      {isUnlocked ? formattedStat : "???"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Action Button: Equip / Unequip */}
-                <div className="mt-3 relative z-10">
-                  {isUnlocked ? (
-                    <Button
-                      type="button"
-                      disabled={isEquipping}
-                      onClick={() => handleEquipClick(beast)}
-                      className={`w-full h-8 font-mono text-[10px] font-black uppercase tracking-wider rounded-xl cursor-pointer transition-all ${
-                        beast.isEquipped
-                          ? "bg-red-950/60 border border-red-500/40 text-red-300 hover:bg-red-900/80 shadow-[0_0_10px_rgba(239,68,68,0.2)]"
-                          : "bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500 hover:text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.2)]"
-                      }`}
-                    >
-                      {beast.isEquipped ? "UNEQUIP" : "EQUIP COMPANION"}
-                    </Button>
-                  ) : (
-                    <div className="w-full h-8 bg-slate-950/40 border border-slate-800/80 rounded-xl flex items-center justify-center text-[10px] font-mono text-slate-600 font-bold">
-                      INCUBATE TO UNLOCK
-                    </div>
-                  )}
-                </div>
-              </div>
-            </SystemTooltip>
-          );
-        })}
+        {filteredBeasts.map((beast) => (
+          <DragonCodexCard
+            key={beast.speciesId}
+            beast={beast}
+            isUnlocked={beast.isUnlocked}
+            isEquipping={isEquipping}
+            onEquipClick={handleEquipClick}
+            onOpenLoreModal={setActiveLoreModal}
+          />
+        ))}
       </div>
 
       {/* Story Lore & Detail Modal */}
@@ -428,6 +257,7 @@ export const BeastGrid: React.FC<BeastGridProps> = ({
               </span>
               <button
                 onClick={() => setActiveLoreModal(null)}
+                aria-label="Close familiar lore"
                 className="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -436,11 +266,14 @@ export const BeastGrid: React.FC<BeastGridProps> = ({
 
             <div className="flex items-center gap-4">
               <div className="w-20 h-20 rounded-2xl bg-black/50 border border-cyan-500/30 p-2 flex items-center justify-center shrink-0">
-                <img
-                  src={activeLoreModal.spritePath}
-                  alt={activeLoreModal.name}
-                  className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]"
-                  style={{ imageRendering: "pixelated" }}
+                <CodexSprite
+                  speciesId={activeLoreModal.speciesId}
+                  name={activeLoreModal.name}
+                  element={activeLoreModal.element}
+                  spritePath={activeLoreModal.spritePath}
+                  isUnlocked={true}
+                  className="w-16 h-16"
+                  showDropShadow={false}
                 />
               </div>
               <div>
@@ -476,7 +309,7 @@ export const BeastGrid: React.FC<BeastGridProps> = ({
                   Biological & Kinetic Resonance
                 </span>
                 <p className="text-xs text-slate-300 font-sans italic bg-black/40 p-3 rounded-xl border border-white/5 leading-relaxed">
-                  "{DRAGON_LORE[activeLoreModal.speciesId]?.biologicalResonance || activeLoreModal.lore}"
+                  &ldquo;{DRAGON_LORE[activeLoreModal.speciesId]?.biologicalResonance || activeLoreModal.lore}&rdquo;
                 </p>
               </div>
 

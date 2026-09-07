@@ -249,7 +249,10 @@ export function PixelAncientLibraryBackground() {
   }, [status]);
 
   return (
-    <div className="fixed inset-0 pointer-events-none select-none z-0 overflow-hidden">
+    <div
+      className="fixed inset-0 w-full h-full min-h-screen h-[100dvh] bg-[#0a0503] pointer-events-none select-none z-0 overflow-hidden"
+      aria-hidden="true"
+    >
       {/* 1. Base Pixel Art Image */}
       <img
         src="/ancient_library_pixel.png"

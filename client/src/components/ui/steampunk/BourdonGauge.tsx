@@ -26,6 +26,9 @@ const GAUGE_THEMES = {
     textValue: "text-[#fbbf24]",
     textAccent: "text-[#fde047]",
     tickColor: "#d97706",
+    barGlow: "shadow-[0_0_8px_rgba(245,158,11,0.5)]",
+    badgeBorder: "border-[#78350f]",
+    badgeBg: "bg-[#200c05]",
   },
   copper: {
     bezelOuter: "#92400e",
@@ -37,6 +40,9 @@ const GAUGE_THEMES = {
     textValue: "text-[#fdba74]",
     textAccent: "text-[#fed7aa]",
     tickColor: "#b45309",
+    barGlow: "shadow-[0_0_8px_rgba(234,88,12,0.5)]",
+    badgeBorder: "border-[#92400e]",
+    badgeBg: "bg-[#220d04]",
   },
   gold: {
     bezelOuter: "#b45309",
@@ -48,6 +54,9 @@ const GAUGE_THEMES = {
     textValue: "text-[#fef08a]",
     textAccent: "text-[#ffffff]",
     tickColor: "#f59e0b",
+    barGlow: "shadow-[0_0_8px_rgba(251,191,36,0.5)]",
+    badgeBorder: "border-[#b45309]",
+    badgeBg: "bg-[#251204]",
   },
   crimson: {
     bezelOuter: "#7f1d1d",
@@ -59,6 +68,9 @@ const GAUGE_THEMES = {
     textValue: "text-[#fca5a5]",
     textAccent: "text-[#fee2e2]",
     tickColor: "#dc2626",
+    barGlow: "shadow-[0_0_8px_rgba(239,68,68,0.5)]",
+    badgeBorder: "border-[#7f1d1d]",
+    badgeBg: "bg-[#240606]",
   },
   verdigris: {
     bezelOuter: "#115e59",
@@ -70,6 +82,9 @@ const GAUGE_THEMES = {
     textValue: "text-[#99f6e4]",
     textAccent: "text-[#ccfbf1]",
     tickColor: "#0f766e",
+    barGlow: "shadow-[0_0_8px_rgba(45,212,191,0.5)]",
+    badgeBorder: "border-[#115e59]",
+    badgeBg: "bg-[#041a18]",
   },
 };
 
@@ -96,28 +111,34 @@ export function BourdonGauge({
   return (
     <div
       className={cn(
-        "relative bg-[#160a05]/95 backdrop-blur-md border-4 border-[#3d1908] p-4 sm:p-5 shadow-[0_12px_28px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(255,255,255,0.08)] flex flex-col justify-between overflow-hidden group select-none min-h-[156px]",
+        "relative w-full bg-[#160a05]/95 backdrop-blur-md border-4 border-[#3d1908] p-4 sm:p-5 lg:p-5.5 shadow-[0_12px_28px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(255,255,255,0.08)] flex flex-col justify-between overflow-hidden group select-none min-h-[164px] transition-all hover:border-[#6b2e0f] hover:shadow-[0_16px_36px_rgba(0,0,0,0.95)]",
         className
       )}
     >
       {/* 4 Corner Brass Rivets */}
-      <div className="absolute top-1.5 left-1.5 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)]" />
-      <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)]" />
-      <div className="absolute bottom-1.5 left-1.5 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)]" />
-      <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)]" />
+      <div className="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none" />
+      <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none" />
+      <div className="absolute bottom-2 left-2 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none" />
+      <div className="absolute bottom-2 right-2 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none" />
 
       {/* Top Header Row with Icon and Circular Bourdon Dial */}
-      <div className="flex items-start justify-between border-b border-[#4d220a] pb-2.5 gap-2">
-        <span className="text-sm sm:text-base font-pixel font-bold text-[#fef08a] uppercase tracking-wider flex items-center gap-1.5 leading-tight">
-          {Icon && <Icon className="w-4.5 h-4.5 text-[#fbbf24] shrink-0" />}
-          <span>{label}</span>
-        </span>
+      <div className="flex items-center justify-between border-b border-[#4d220a]/80 pb-3 gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          {Icon && (
+            <div className="w-6 h-6 rounded-xs bg-[#241005] border border-[#5d2b10] flex items-center justify-center shrink-0 shadow-[inset_0_1px_2px_#000]">
+              <Icon className="w-3.5 h-3.5 text-[#fbbf24]" />
+            </div>
+          )}
+          <span className="text-xs sm:text-sm font-pixel font-bold text-[#fef08a] uppercase tracking-wider truncate leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+            {label}
+          </span>
+        </div>
 
         {/* Circular Steampunk Dial */}
         <div
           className={cn(
-            "relative shrink-0 flex items-center justify-center",
-            size === "sm" ? "w-10 h-10" : size === "lg" ? "w-14 h-14" : "w-12 h-12"
+            "relative shrink-0 flex items-center justify-center transition-transform group-hover:scale-105",
+            size === "sm" ? "w-10 h-10" : size === "lg" ? "w-14 h-14" : "w-12 h-12 sm:w-13 sm:h-13"
           )}
         >
           <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_2px_4px_#000]">
@@ -229,19 +250,39 @@ export function BourdonGauge({
         </div>
       </div>
 
-      {/* Main Metric Value and Telemetry Subtext */}
-      <div className="mt-3">
-        <div className="flex items-baseline justify-between gap-2">
-          <div className={cn("text-2xl sm:text-3xl lg:text-4xl font-pixel font-bold tracking-wider leading-none", theme.textValue)}>
+      {/* Main Metric Value, Telemetry Badge, Conduit Bar & Subtext */}
+      <div className="mt-3.5 space-y-2.5">
+        <div className="flex items-baseline justify-between gap-3">
+          <div className={cn("text-2xl sm:text-3xl lg:text-[30px] font-pixel font-bold tracking-wider leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]", theme.textValue)}>
             {value}
           </div>
-          <span className="font-mono text-sm font-bold text-[#fde047]">
-            {Math.round(clampedPct)}%
-          </span>
+
+          {/* Steampunk Pressure Telemetry Badge */}
+          <div className={cn("flex items-center gap-1.5 px-2.5 py-1 border rounded-xs shadow-[inset_0_1px_2px_#000] shrink-0", theme.badgeBg, theme.badgeBorder)}>
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: theme.needle }} />
+            <span className="font-mono text-xs sm:text-sm font-bold text-[#fde047] tabular-nums leading-none">
+              {Math.round(clampedPct)}%
+            </span>
+          </div>
         </div>
-        <span className="text-xs sm:text-sm font-sans text-amber-100 block font-medium mt-1 leading-snug">
+
+        {/* Steampunk Brass Manometer Pressure Tube Conduit */}
+        <div className="w-full h-1.5 bg-[#120602] border border-[#54250e] rounded-none overflow-hidden relative">
+          <div
+            className={cn("h-full transition-all duration-700 ease-out relative", theme.barGlow)}
+            style={{
+              width: `${clampedPct}%`,
+              backgroundColor: theme.needle,
+            }}
+          >
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.35)_50%,transparent_100%)] opacity-60" />
+          </div>
+        </div>
+
+        {/* Informational Subtext */}
+        <div className="text-xs sm:text-[13px] font-sans text-amber-200/80 font-medium leading-snug tracking-normal">
           {subtext}
-        </span>
+        </div>
       </div>
     </div>
   );
