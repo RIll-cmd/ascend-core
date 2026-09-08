@@ -1,9 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildAutomationPayload,
   cooldownToSeconds,
+  getVisionStatus,
 } from "./automation.service";
+
+afterEach(() => vi.unstubAllGlobals());
 
 describe("automation payload mapping", () => {
   it("converts a 30-minute bad-habit rule into the Phase 4A schema", () => {
@@ -55,5 +58,32 @@ describe("automation payload mapping", () => {
         cooldownUnit: "minutes",
       }).matchMode
     ).toBe("all");
+  });
+});
+
+describe("Vision connection status", () => {
+  it("reads the owned character's safe status without sending a token in the URL", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        status: "CONNECTED",
+        characterId: "character-1",
+        deviceId: "ascend-vision",
+        source: "ascend_vision",
+        version: "1.0.0",
+        lastSeenAt: "2026-09-08T09:00:00+00:00",
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(getVisionStatus("character-1")).resolves.toMatchObject({
+      status: "CONNECTED",
+      deviceId: "ascend-vision",
+    });
+    expect(fetchMock.mock.calls[0][0]).toContain(
+      "/api/integration/vision/status?characterId=character-1"
+    );
+    expect(fetchMock.mock.calls[0][0]).not.toContain("Bearer");
   });
 });

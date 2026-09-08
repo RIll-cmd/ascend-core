@@ -82,6 +82,18 @@ def test_advanced_conditions_explain_time_and_count_results():
     assert below_threshold == {"matched": False, "reason": "occurrence_threshold_not_met", "conditions": [{"matched": False, "reason": "occurrence_threshold_not_met"}]}
 
 
+def test_overnight_time_window_uses_the_character_iana_timezone():
+    from services.automation_engine import evaluate_conditions
+
+    result = evaluate_conditions(
+        [{"type": "time_window", "start": "23:00", "end": "06:00"}],
+        {"event": {"timestamp": "2026-09-07T15:30:00+00:00"}, "payload": {}},
+        character_timezone="Asia/Shanghai",
+    )
+
+    assert result["matched"] is True
+
+
 @pytest.mark.anyio
 async def test_negative_habit_service_refuses_a_habit_owned_by_another_character(monkeypatch):
     from services import habit_trigger_service
@@ -161,5 +173,42 @@ async def test_cooldown_skip_is_persisted_with_a_machine_readable_reason(monkeyp
         (
             {"id": "execution-1"},
             {"status": "SKIPPED_COOLDOWN", "resultJson": '{"reason":"cooldown_active"}'},
+        )
+    ]
+
+
+@pytest.mark.anyio
+async def test_failed_action_is_persisted_with_a_machine_readable_reason(monkeypatch):
+    """An action failure must be explainable without storing an observation payload."""
+    from services import automation_engine, habit_trigger_service
+
+    class Executions:
+        async def create(self, *, data):
+            return SimpleNamespace(id="execution-1")
+
+        def __init__(self):
+            self.updated = []
+
+        async def update(self, *, where, data):
+            self.updated.append((where, data))
+
+    async def fail_action(*_args):
+        raise RuntimeError("habit service unavailable")
+
+    executions = Executions()
+    database = SimpleNamespace(automationexecution=executions, automationrule=SimpleNamespace())
+    rule = SimpleNamespace(
+        id="rule-1", characterId="character-1", cooldownSeconds=0,
+        actionsJson='[{"type":"log_bad_habit","habitId":"habit-1"}]',
+    )
+    monkeypatch.setattr(habit_trigger_service, "trigger_negative_habit", fail_action)
+
+    outcome = await automation_engine._execute_rule(database, rule, SimpleNamespace(id="observation-3"))
+
+    assert outcome == {"ruleId": "rule-1", "status": "FAILED", "reason": "action_failed"}
+    assert executions.updated == [
+        (
+            {"id": "execution-1"},
+            {"status": "FAILED", "resultJson": '{"reason":"action_failed"}'},
         )
     ]

@@ -64,6 +64,15 @@ export interface AutomationRule {
   lastTriggeredAt?: string | null;
 }
 
+export interface VisionConnectionStatus {
+  status: "CONNECTED" | "OFFLINE";
+  characterId: string;
+  deviceId: string | null;
+  source: "ascend_vision" | null;
+  version: string | null;
+  lastSeenAt: string | null;
+}
+
 export const cooldownToSeconds = (amount: number, unit: CooldownUnit) =>
   Math.max(
     0,
@@ -110,6 +119,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 export const listAutomations = (characterId: string) =>
   request<AutomationRule[]>(
     `/api/automations?characterId=${encodeURIComponent(characterId)}`
+  );
+export const getVisionStatus = (characterId: string) =>
+  request<VisionConnectionStatus>(
+    `/api/integration/vision/status?characterId=${encodeURIComponent(characterId)}`
   );
 export const createAutomation = (draft: AutomationDraft) =>
   request<AutomationRule>("/api/automations", {

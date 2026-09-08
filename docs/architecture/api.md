@@ -487,3 +487,57 @@ Places an owned egg into the active incubation pedestal.
 ### `GET /api/beasts/catalog`
 Returns master Bestiary catalog and Egg Shop pricing tables.
 
+---
+
+## Ascend Vision Automation Proposal Routes (`/api/automations`)
+
+These authenticated routes let `D:\ascend-vision` discover Core-owned automation capabilities and validate a transient rule proposal. They require the normal session or Bearer-token user context; `X-Integration-Key` is not user authentication. The existing `POST /api/automations` remains the only route that persists a rule.
+
+### `GET /api/automations/capabilities`
+Returns a versioned allowlist of supported triggers, match modes, condition fields and operators, condition types, actions, and validation limits. Vision must not invent values outside this contract.
+
+### `GET /api/automations/eligible-habits?characterId={characterId}`
+Requires ownership of `characterId` and returns only owned negative habits:
+
+```json
+{
+  "characterId": "char-123",
+  "habits": [{ "id": "habit-456", "name": "Avoid doomscrolling" }]
+}
+```
+
+### `POST /api/automations/proposals/validate`
+Accepts the same structured body as a prospective `POST /api/automations` request. It validates the allowlists and ownership, returns a normalized proposal and deterministic preview, and creates no rule, execution, habit log, mission, reward, or cooldown mutation.
+
+```json
+{
+  "valid": true,
+  "requiresConfirmation": true,
+  "normalizedProposal": { "characterId": "char-123", "triggerType": "phone_usage_observed" },
+  "preview": { "sideEffectsDuringValidation": false },
+  "warnings": []
+}
+```
+
+Vision must obtain explicit user confirmation before sending the normalized payload to `POST /api/automations`.
+
+---
+
+## Ascend Vision User-Auth Handoff (`/api/auth`)
+
+### `POST /api/auth/vision-token`
+
+An already authenticated Core user may mint a short-lived token for `D:\ascend-vision` automation calls. It accepts the normal authenticated Core session cookie or general Bearer token; it does not accept `X-Integration-Key`, a character ID, or a user identity supplied by Vision.
+
+```json
+{
+  "accessToken": "<JWT>",
+  "tokenType": "Bearer",
+  "expiresIn": 900,
+  "expiresAt": "2026-09-08T12:00:00+00:00"
+}
+```
+
+The token contains Core user identity, a 15-minute expiry, and `purpose: "ascend_vision"`. It is accepted only by `/api/automations` routes, which still enforce character ownership. On expiry Core returns normal authentication failure; Vision must obtain a fresh authenticated handoff. There is no refresh token or silent renewal.
+
+Vision must store the token only in OS-native secure credential storage. It must never be included in LLM prompts, voice text, logs, telemetry, observations, CV payloads, crash reports, source code, or browser-style `localStorage`.

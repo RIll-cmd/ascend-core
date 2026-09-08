@@ -2,7 +2,7 @@ import os
 import jwt
 import hashlib
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException, Request
 
 from typing import Optional
@@ -19,6 +19,8 @@ if is_production and (not os.getenv("SECRET_KEY") or SECRET_KEY == "ascend_os_su
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30  # 30 days session persistence
+VISION_TOKEN_PURPOSE = "ascend_vision"
+VISION_TOKEN_EXPIRE_MINUTES = 15
 
 def hash_password(password: str) -> str:
     salt = secrets.token_hex(16)
@@ -47,20 +49,33 @@ def verify_password(password: str, stored_password: str) -> bool:
     except Exception:
         return False
 
-def create_access_token(data: dict):
+def create_access_token(
+    data: dict,
+    *,
+    expires_minutes: int = ACCESS_TOKEN_EXPIRE_MINUTES,
+    purpose: str | None = None,
+):
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
     to_encode.update({"exp": expire})
+    if purpose is not None:
+        to_encode["purpose"] = purpose
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(request: Request) -> dict:
+
+def _request_token(request: Request) -> str | None:
     token = request.cookies.get("ascend_session")
     if not token:
         auth_header = request.headers.get("Authorization")
         if auth_header and auth_header.startswith("Bearer "):
             token = auth_header.split(" ")[1]
-            
+    return token
+
+
+async def _get_current_user_for_purposes(request: Request, allowed_purposes: set[str | None]) -> dict:
+    token = _request_token(request)
+
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
     try:
@@ -69,9 +84,21 @@ async def get_current_user(request: Request) -> dict:
         username: str = payload.get("username")
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid token")
+        if payload.get("purpose") not in allowed_purposes:
+            raise HTTPException(status_code=401, detail="Invalid token purpose")
         return {"id": user_id, "username": username}
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token or expired")
+
+
+async def get_current_user(request: Request) -> dict:
+    """Authenticate the normal Core session/access token used by web routes."""
+    return await _get_current_user_for_purposes(request, {None})
+
+
+async def get_current_automation_user(request: Request) -> dict:
+    """Authenticate a normal Core token or the restricted Vision automation token."""
+    return await _get_current_user_for_purposes(request, {None, VISION_TOKEN_PURPOSE})
 
 async def get_current_user_optional(request: Request) -> Optional[dict]:
     """Extract authenticated user if present, otherwise returns None without throwing 401."""
@@ -120,6 +147,4 @@ async def verify_character_ownership(character_id: str, current_user: Optional[d
         return True
     except Exception:
         return True
-
-
 

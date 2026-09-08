@@ -8,9 +8,17 @@ import uuid
 import secrets
 import sqlite3
 import os
+from datetime import datetime, timedelta, timezone
 from db import db
 from db_utils import ensure_character_exists
-from auth_utils import create_access_token, get_current_user, hash_password, verify_password
+from auth_utils import (
+    VISION_TOKEN_EXPIRE_MINUTES,
+    VISION_TOKEN_PURPOSE,
+    create_access_token,
+    get_current_user,
+    hash_password,
+    verify_password,
+)
 from services.decay_service import process_midnight_decay
 from services.email_service import (
     can_request_otp,
@@ -552,6 +560,23 @@ async def login(request: Request, data: LoginInput, response: Response):
     }
 
 
+@router.post("/api/auth/vision-token", status_code=201)
+async def issue_vision_token(current_user: dict = Depends(get_current_user)):
+    """Mint a short-lived Bearer token for Vision's user-scoped automation calls."""
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=VISION_TOKEN_EXPIRE_MINUTES)
+    token = create_access_token(
+        data={"sub": current_user["id"], "username": current_user["username"]},
+        expires_minutes=VISION_TOKEN_EXPIRE_MINUTES,
+        purpose=VISION_TOKEN_PURPOSE,
+    )
+    return {
+        "accessToken": token,
+        "tokenType": "Bearer",
+        "expiresIn": VISION_TOKEN_EXPIRE_MINUTES * 60,
+        "expiresAt": expires_at.isoformat(),
+    }
+
+
 # =========================================================================
 # 5. GUEST LOGIN & ACCOUNT MANAGEMENT
 # =========================================================================
@@ -723,4 +748,3 @@ async def update_username(data: UpdateUsernameInput, current_user: dict = Depend
         "message": "Hunter handle successfully updated.",
         "username": new_username
     }
-

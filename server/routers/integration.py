@@ -2,16 +2,21 @@ import os
 import secrets
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 from services.automation_engine import evaluate_observation
+from auth_utils import get_current_automation_user
+from db import db
 
 
 router = APIRouter(prefix="/api/integration", tags=["integration"])
+
+VISION_CONNECTED_TIMEOUT_SECONDS = 30
+_vision_presence: dict[str, dict[str, Any]] = {}
 
 
 class IntegrationEvent(BaseModel):
@@ -21,6 +26,23 @@ class IntegrationEvent(BaseModel):
     confidence: float | None = Field(default=None, ge=0, le=1)
     text: str | None = Field(default=None, max_length=1000)
     payload: dict[str, Any]
+
+
+class VisionHeartbeat(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    source: Literal["ascend_vision"]
+    characterId: str = Field(min_length=1, max_length=128)
+    deviceId: str = Field(min_length=1, max_length=128)
+    timestamp: datetime
+    version: str | None = Field(default=None, min_length=1, max_length=64)
+
+    @field_validator("timestamp")
+    @classmethod
+    def require_heartbeat_timestamp_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("timestamp must include a timezone offset")
+        return value
 
 
 class ObservationPayload(BaseModel):
@@ -53,7 +75,7 @@ CommandName = Literal["complete_mission", "complete_habit", "get_missions", "get
 
 
 class IntegrationCommand(BaseModel):
-    source: Literal["phone", "watch", "phone_watch_phase5"]
+    source: Literal["phone", "watch", "ascend_vision", "phone_watch_phase5"]
     characterId: str = Field(min_length=1, max_length=128)
     text: str = Field(min_length=1, max_length=1000)
     timestamp: datetime
@@ -65,6 +87,12 @@ class IntegrationCommand(BaseModel):
         if value.tzinfo is None or value.utcoffset() is None:
             raise ValueError("timestamp must include a timezone offset")
         return value
+
+    @field_validator("source")
+    @classmethod
+    def normalize_legacy_vision_source(cls, value: str) -> str:
+        return "ascend_vision" if value == "phone_watch_phase5" else value
+
 
 
 class CommandIntent(BaseModel):
@@ -92,6 +120,66 @@ def require_integration_api_key(x_integration_key: str | None = Header(default=N
         )
     if not x_integration_key or not secrets.compare_digest(x_integration_key, expected_key):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid integration credentials.")
+
+
+async def get_owned_vision_character(character_id: str, current_user: dict) -> Any:
+    character = await db.character.find_first(
+        where={"id": character_id, "userId": current_user["id"]}
+    )
+    if not character:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: You do not own this character.",
+        )
+    return character
+
+
+def serialize_vision_presence(character_id: str) -> dict[str, Any]:
+    presence = _vision_presence.get(character_id)
+    if not presence:
+        return {
+            "status": "OFFLINE",
+            "characterId": character_id,
+            "deviceId": None,
+            "source": None,
+            "version": None,
+            "lastSeenAt": None,
+        }
+
+    age_seconds = (datetime.now(timezone.utc) - presence["lastSeenAt"]).total_seconds()
+    return {
+        "status": "CONNECTED" if age_seconds < VISION_CONNECTED_TIMEOUT_SECONDS else "OFFLINE",
+        "characterId": character_id,
+        "deviceId": presence["deviceId"],
+        "source": presence["source"],
+        "version": presence["version"],
+        "lastSeenAt": presence["lastSeenAt"].isoformat(),
+    }
+
+
+@router.post("/vision/heartbeat")
+async def receive_vision_heartbeat(
+    heartbeat: VisionHeartbeat,
+    current_user: dict = Depends(get_current_automation_user),
+):
+    await get_owned_vision_character(heartbeat.characterId, current_user)
+    _vision_presence[heartbeat.characterId] = {
+        "source": heartbeat.source,
+        "deviceId": heartbeat.deviceId,
+        "version": heartbeat.version,
+        # Presence is recorded by Core, not the client-supplied clock.
+        "lastSeenAt": datetime.now(timezone.utc),
+    }
+    return serialize_vision_presence(heartbeat.characterId)
+
+
+@router.get("/vision/status")
+async def vision_status(
+    characterId: str,
+    current_user: dict = Depends(get_current_automation_user),
+):
+    await get_owned_vision_character(characterId, current_user)
+    return serialize_vision_presence(characterId)
 
 
 async def dispatch_workout_completed(payload: dict[str, Any]) -> dict[str, Any]:

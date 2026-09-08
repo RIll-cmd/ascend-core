@@ -95,6 +95,18 @@ def command_payload(**overrides):
     return payload
 
 
+def test_command_accepts_canonical_ascend_vision_source():
+    command = integration.IntegrationCommand(**command_payload(source="ascend_vision"))
+
+    assert command.source == "ascend_vision"
+
+
+def test_command_normalizes_legacy_phone_watch_phase5_source():
+    command = integration.IntegrationCommand(**command_payload(source="phone_watch_phase5"))
+
+    assert command.source == "ascend_vision"
+
+
 def test_command_requires_a_trusted_client(client):
     response = client.post("/api/integration/command", json=command_payload())
 

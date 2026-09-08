@@ -22,6 +22,7 @@ import {
 import { AutomationCard } from "@/features/automations/components/AutomationCard";
 import { AutomationEditorDialog } from "@/features/automations/components/AutomationEditorDialog";
 import { AutomationTestDialog } from "@/features/automations/components/AutomationTestDialog";
+import { VisionConnectionPanel } from "@/features/automations/components/VisionConnectionPanel";
 
 export default function AutomationsPage() {
   const character = useCharacterStore((state) => state.character);
@@ -136,6 +137,7 @@ export default function AutomationsPage() {
           </button>
         </div>
       </section>
+      <VisionConnectionPanel characterId={characterId} />
       {loading ? (
         <section className="automation-panel p-8 text-center font-mono text-sm text-slate-100">
           Loading automation rules…

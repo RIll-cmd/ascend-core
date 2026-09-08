@@ -132,9 +132,10 @@ async def _execute_rule(database: Any, rule: Any, observation: Any) -> dict[str,
         return {"ruleId": rule.id, "status": "SUCCEEDED", "result": result}
     except Exception as error:
         await database.automationexecution.update(
-            where={"id": execution.id}, data={"status": "FAILED", "resultJson": json.dumps({"error": str(error)[:500]})}
+            where={"id": execution.id},
+            data={"status": "FAILED", "resultJson": json.dumps({"reason": "action_failed"}, separators=(",", ":"))},
         )
-        return {"ruleId": rule.id, "status": "FAILED"}
+        return {"ruleId": rule.id, "status": "FAILED", "reason": "action_failed"}
 
 
 async def evaluate_observation(observation: Any) -> list[dict[str, Any]]:
