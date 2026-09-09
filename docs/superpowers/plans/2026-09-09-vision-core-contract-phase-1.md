@@ -318,7 +318,7 @@ git commit -m "feat: define vision core contract models"
 
 **Interfaces:**
 - Consumes: the checked Phase 1 documentation and contract schema from Tasks 1–2.
-- Produces: an explicit Phase 2 entry condition: a capability endpoint can serialize `vision_capabilities()` and a query route can accept `VisionQueryRequest`.
+- Produces: the explicit Phase 2 entry condition for adding a capability endpoint and a query route.
 
 - [ ] **Step 1: Add the Phase 2 handoff note**
 
@@ -327,8 +327,9 @@ Add this statement to the architecture document:
 ```markdown
 Phase 2 may add the capability and query HTTP routes only by importing
 `vision_capabilities()` and `VisionQueryRequest` from
-`server/schemas/vision_contract.py`. It must use the existing Vision Bearer
-token dependency and character-ownership check before dispatching any read.
+`server/schemas/vision_contract.py`. It must use the existing purpose-bound
+Vision Bearer token dependency and perform an explicit character-ownership
+check before dispatching any read.
 ```
 
 - [ ] **Step 2: Confirm Phase 1 did not add a live query or action route**
