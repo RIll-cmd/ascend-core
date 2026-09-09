@@ -211,6 +211,27 @@ Completion criterion: every supported read returns deterministic typed data and 
 
 Owner: `aira-tools-agent`
 
+AIRA communicates with Vision through typed Core operations, never free-form
+AI-to-AI commands. Vision owns dialogue. AIRA may select only registered
+operations; Core validates the operation, actor, character ownership, and
+arguments before delegating to a domain service.
+
+Phase A replaces legacy AIRA direct reads with registry operations for
+missions, today's schedule, habits, automations, steps, recovery, sleep,
+health, and deterministic workout recommendations. It is read-only. Sleep and
+health remain `unavailable_data`; workout recommendations combine persisted
+recovery and the current schedule but never mutate a plan.
+
+Later phases add preview then execute operations for habits, missions,
+workouts, automations, shops, and supported calendar data. Every mutation
+requires ownership, domain validation, a short-lived confirmation token,
+request idempotency, and an audit record. Purchases, deletion/archive actions,
+and logged-history changes always need confirmation. The three Vision
+observation automations remain the narrow no-confirmation exception.
+
+Calendar currently means mission dates, heatmap data, and habit calendar
+snapshots. Arbitrary calendar events require a separate Core domain model.
+
 - [ ] Give AIRA a constrained tool registry matching the Core capability manifest.
 - [ ] Make AIRA call Core domain services/tools, not Prisma directly.
 - [ ] Validate tool name, character scope, parameters, and response schema.
