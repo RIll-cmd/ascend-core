@@ -109,27 +109,28 @@ check before dispatching any read.
 GET /api/integration/vision/capabilities
 ```
 
-The response must include a version and explicit read/write tool names, for example:
+The Phase 1 response must include a version, an availability map for every read
+intent, and no write capabilities:
 
 ```json
 {
   "version": "2026-09-09",
-  "reads": [
-    "missions_summary",
-    "habits_summary",
-    "sleep_summary",
-    "steps_summary",
-    "health_summary",
-    "automations_summary"
-  ],
-  "writes": [
-    "create_habit",
-    "complete_habit",
-    "create_automation",
-    "update_automation"
-  ]
+  "reads": {
+    "missions_summary": { "availability": "available" },
+    "habits_summary": { "availability": "available" },
+    "automations_summary": { "availability": "available" },
+    "steps_summary": { "availability": "available" },
+    "recovery_summary": { "availability": "available" },
+    "sleep_summary": { "availability": "unavailable" },
+    "health_summary": { "availability": "unavailable" }
+  },
+  "writes": []
 }
 ```
+
+Future write capabilities (`create_habit`, `complete_habit`,
+`create_automation`, and `update_automation`) are Phase 5 work and are not
+advertised by the Phase 1 manifest.
 
 ### Typed reads
 
@@ -141,6 +142,7 @@ POST /api/integration/vision/query
 {
   "characterId": "...",
   "requestId": "...",
+  "capabilityVersion": "2026-09-09",
   "intent": "steps_summary",
   "parameters": {}
 }
@@ -148,7 +150,7 @@ POST /api/integration/vision/query
 
 Responses must be structured JSON with stable keys. Core must return explicit errors for unsupported intents, unavailable data, invalid characters, expired authentication, and unsupported contract versions.
 
-### Typed writes
+### Future typed writes (Phase 5)
 
 Use a preview/execute pair for user-impacting changes:
 

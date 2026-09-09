@@ -14,6 +14,7 @@ def test_capabilities_distinguish_available_and_unavailable_reads():
     assert capabilities["version"] == VISION_CONTRACT_VERSION
     assert capabilities["reads"]["missions_summary"]["availability"] == "available"
     assert capabilities["reads"]["sleep_summary"]["availability"] == "unavailable"
+    assert capabilities["reads"]["health_summary"]["availability"] == "unavailable"
 
 
 def test_query_request_accepts_a_versioned_missions_query():
