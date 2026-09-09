@@ -1,5 +1,6 @@
 from pydantic import ValidationError
 import pytest
+from types import SimpleNamespace
 
 from schemas.vision_contract import (
     VISION_CONTRACT_VERSION,
@@ -94,6 +95,84 @@ async def test_service_returns_unavailable_data_without_calling_a_reader():
             "retryable": False,
         },
     }
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("intent", "expected_key"),
+    [
+        ("sleep_summary", "Sleep"),
+        ("health_summary", "Health"),
+    ],
+)
+async def test_service_returns_unavailable_data_for_non_core_health_intents(intent, expected_key):
+    result = await vision_query_service.execute_vision_query(query(intent))
+
+    assert result["success"] is False
+    assert result["error"] == {
+        "code": "unavailable_data",
+        "message": f"{expected_key} data is not available from Ascend Core.",
+        "retryable": False,
+    }
+
+
+@pytest.mark.asyncio
+async def test_service_wraps_existing_habits_in_a_stable_summary(monkeypatch):
+    async def habits(_character_id):
+        return [{"id": "habit-1", "name": "Hydration", "status": "ACTIVE"}]
+
+    monkeypatch.setattr(vision_query_service, "get_existing_habits", habits)
+
+    result = await vision_query_service.execute_vision_query(query("habits_summary"))
+
+    assert result["data"] == {"habits": [{"id": "habit-1", "name": "Hydration", "status": "ACTIVE"}]}
+
+
+@pytest.mark.asyncio
+async def test_service_wraps_automations_in_a_stable_summary(monkeypatch):
+    rule = SimpleNamespace(id="rule-1")
+
+    async def find_many(**_kwargs):
+        return [rule]
+
+    monkeypatch.setattr(
+        vision_query_service,
+        "db",
+        SimpleNamespace(automationrule=SimpleNamespace(find_many=find_many)),
+    )
+    monkeypatch.setattr(vision_query_service, "serialize_rule", lambda item: {"id": item.id, "name": "Phone automation"})
+
+    result = await vision_query_service.execute_vision_query(query("automations_summary"))
+
+    assert result["data"] == {"automations": [{"id": "rule-1", "name": "Phone automation"}]}
+
+
+@pytest.mark.asyncio
+async def test_service_returns_persisted_daily_steps_and_goal(monkeypatch):
+    async def find_unique(**_kwargs):
+        return SimpleNamespace(dailySteps=4200, dailyStepGoal=8000)
+
+    monkeypatch.setattr(
+        vision_query_service,
+        "db",
+        SimpleNamespace(character=SimpleNamespace(find_unique=find_unique)),
+    )
+
+    result = await vision_query_service.execute_vision_query(query("steps_summary"))
+
+    assert result["data"] == {"steps": 4200, "goal": 8000}
+
+
+@pytest.mark.asyncio
+async def test_service_wraps_workout_recovery_without_health_synthesis(monkeypatch):
+    async def recovery(_character_id):
+        return {"summary": {"overallFreshness": 82.5}}
+
+    monkeypatch.setattr(vision_query_service, "compute_muscle_status_dict", recovery)
+
+    result = await vision_query_service.execute_vision_query(query("recovery_summary"))
+
+    assert result["data"] == {"recovery": {"summary": {"overallFreshness": 82.5}}}
 
 
 @pytest.mark.asyncio

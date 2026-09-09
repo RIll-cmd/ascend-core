@@ -118,3 +118,30 @@ def test_query_returns_a_structured_unsupported_version_error(client, monkeypatc
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "unsupported_capability_version"
     assert response.json()["requestId"] == "vision-query-001"
+
+
+def test_query_returns_the_dispatcher_envelope_without_aira(client, monkeypatch):
+    async def dispatch(_request):
+        return {
+            "success": True,
+            "requestId": "vision-query-001",
+            "intent": "missions_summary",
+            "data": {"missions": []},
+        }
+
+    monkeypatch.setattr(integration, "db", OwnershipDatabase(owner_id="user-1"))
+    monkeypatch.setattr(integration, "execute_vision_query", dispatch)
+
+    response = client.post(
+        "/api/integration/vision/query",
+        headers=vision_headers("user-1"),
+        json=query_payload(),
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "success": True,
+        "requestId": "vision-query-001",
+        "intent": "missions_summary",
+        "data": {"missions": []},
+    }
