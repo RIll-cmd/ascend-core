@@ -19,6 +19,83 @@ User → Ascend Vision
 
 ## Shared contract
 
+## Phase 1 Contract Inventory
+
+The Phase 1 capability inventory records the existing Core owner for each initial
+read. Future Vision contract routes must adapt these readers rather than duplicate
+their domain logic.
+
+| Intent | Phase 1 availability | Future Core owner | Reason |
+| --- | --- | --- | --- |
+| `missions_summary` | `available` | `routers.missions.get_today_missions` | Core owns mission state. |
+| `habits_summary` | `available` | `routers.integration.get_existing_habits` / `routers.habits.get_habits` | Core owns habit state. |
+| `automations_summary` | `available` | `routers.automations.list_automations` | Core owns automation rules. |
+| `steps_summary` | `available` | `routers.beasts.sync_steps` persistence plus Character/DailyStepLog reads | Core persists daily steps. |
+| `recovery_summary` | `available` | `routers.workouts.compute_muscle_status_dict` | Core computes workout-derived muscle recovery. |
+| `sleep_summary` | `unavailable` | none | Vision currently owns local sleep observations; Core has no sleep model. |
+| `health_summary` | `unavailable` | none | Core has no authoritative heart-rate or broad health metric model. |
+
+`CharacterStats.recovery` is an RPG stat, not physiological health data.
+`MuscleRecoveryState` is workout-derived muscle fatigue/freshness and is exposed
+only as `recovery_summary`. Core does not own sleep, heart-rate, video, image,
+frame, screenshot, or camera data. `sleep_summary` and `health_summary` return
+`unavailable_data` until Core gains an authoritative persistence model.
+
+The typed read request is:
+
+```json
+{
+  "characterId": "character-1",
+  "requestId": "vision-query-001",
+  "capabilityVersion": "2026-09-09",
+  "intent": "missions_summary",
+  "parameters": {}
+}
+```
+
+The success envelope is:
+
+```json
+{
+  "success": true,
+  "requestId": "vision-query-001",
+  "intent": "missions_summary",
+  "data": {}
+}
+```
+
+The error envelope is:
+
+```json
+{
+  "success": false,
+  "requestId": "vision-query-001",
+  "error": {
+    "code": "unavailable_data",
+    "message": "Sleep data is not available from Ascend Core.",
+    "retryable": false
+  }
+}
+```
+
+Allowed error codes are `unsupported_capability_version`,
+`unsupported_intent`, `unavailable_data`, `invalid_request`,
+`authentication_required`, `authentication_expired`, and
+`forbidden_character`.
+
+- `capabilityVersion` is required and must equal `2026-09-09`.
+- `requestId` is an opaque client-generated idempotency key, 1–128 characters, matching `^[A-Za-z0-9._:-]+$`.
+- `characterId` is required and is authorized by the existing Vision Bearer token.
+- Every response echoes `requestId`.
+- `unavailable_data` is a valid business response, not an empty successful result.
+
+The existing Vision Bearer token uses the JWT purpose `ascend_vision`; Core
+continues to enforce character ownership for the authenticated user.
+
+- Existing AIRA tools are a Gemini-specific allowlist and are not the Vision contract.
+- Existing AIRA chat and execute routes do not currently enforce the Vision ownership boundary; Phase 2 must not proxy Vision requests through them.
+- Existing integration command replay protection is process-local; Phase 2 query responses may echo request IDs, but durable multi-instance idempotency is deferred to the write-action phase.
+
 ### Capability discovery
 
 ```http
