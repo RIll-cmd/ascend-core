@@ -14,6 +14,8 @@ _FIELD_VALUES = {
     "payload.posture": ("payload", "posture"),
     "payload.state": ("payload", "state"),
     "payload.detector": ("payload", "detector"),
+    "payload.ear": ("payload", "ear"),
+    "payload.slouch_score": ("payload", "slouch_score"),
 }
 
 
@@ -86,7 +88,7 @@ def observation_view(observation: Any) -> dict[str, dict[str, Any]]:
     payload = json.loads(observation.payloadJson)
     return {
         "event": {"type": observation.eventType, "source": observation.source, "timestamp": observation.observedAt.isoformat() if hasattr(observation.observedAt, "isoformat") else str(observation.observedAt)},
-        "payload": {key: payload.get(key) for key in ("confidence", "posture", "state", "detector")},
+        "payload": payload,
     }
 
 

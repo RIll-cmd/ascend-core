@@ -4,7 +4,7 @@ from typing import Literal, get_args
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
-TriggerType = Literal["phone_usage_observed", "posture_observed", "sleep_state_observed"]
+TriggerType = Literal["phone_usage_observed", "drowsiness_observed", "posture_observed"]
 ConditionField = Literal[
     "event.type",
     "event.source",
@@ -13,6 +13,8 @@ ConditionField = Literal[
     "payload.posture",
     "payload.state",
     "payload.detector",
+    "payload.ear",
+    "payload.slouch_score",
 ]
 ConditionOperator = Literal[
     "equals",
@@ -24,7 +26,7 @@ ConditionOperator = Literal[
     "contains",
 ]
 
-AUTOMATION_CAPABILITY_VERSION = "2026-09-07"
+AUTOMATION_CAPABILITY_VERSION = "2026-09-09"
 MAX_AUTOMATION_CONDITIONS = 20
 MAX_AUTOMATION_ACTIONS = 1
 MAX_OCCURRENCE_COUNT = 100
@@ -39,6 +41,8 @@ _FIELD_OPERATOR_CONSTRAINTS = {
     "payload.posture": ("equals", "not_equals", "contains"),
     "payload.state": ("equals", "not_equals", "contains"),
     "payload.detector": ("equals", "not_equals", "contains"),
+    "payload.ear": ("equals", "not_equals", "greater_than", "greater_than_or_equal", "less_than", "less_than_or_equal"),
+    "payload.slouch_score": ("equals", "not_equals", "greater_than", "greater_than_or_equal", "less_than", "less_than_or_equal"),
 }
 
 
@@ -112,9 +116,9 @@ def validate_automation_rule_semantics(rule: AutomationRuleCreate) -> None:
         value = data["value"]
         if operator not in _FIELD_OPERATOR_CONSTRAINTS[field]:
             raise ValueError(f"operator '{operator}' is not supported for field '{field}'")
-        if field == "payload.confidence" and (isinstance(value, bool) or not isinstance(value, (int, float))):
-            raise ValueError("payload.confidence requires a numeric value")
-        if field != "payload.confidence" and not isinstance(value, str):
+        if field in {"payload.confidence", "payload.ear", "payload.slouch_score"} and (isinstance(value, bool) or not isinstance(value, (int, float))):
+            raise ValueError(f"{field} requires a numeric value")
+        if field not in {"payload.confidence", "payload.ear", "payload.slouch_score"} and not isinstance(value, str):
             raise ValueError(f"field '{field}' requires a string value")
         if field == "event.type" and operator == "equals" and value != rule.triggerType:
             raise ValueError("event.type must equal triggerType when compared with equals")
@@ -164,7 +168,7 @@ class AutomationRuleUpdate(BaseModel):
 class AutomationTestObservation(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    source: Literal["phone_cv"]
+    source: Literal["phone_cv", "vision_cv"]
     type: TriggerType
     timestamp: str
     payload: dict[str, str | int | float | bool | None]

@@ -28,7 +28,7 @@ def test_status_requires_a_trusted_client(client):
         headers={"X-Integration-Key": "test-integration-key"},
     )
     assert response.status_code == 200
-    assert response.json()["supportedEvents"] == ["workout_completed"]
+    assert response.json()["supportedEvents"] == ["workout_completed", "phone_usage_observed", "drowsiness_observed", "posture_observed"]
 
 
 def test_workout_event_delegates_to_existing_workout_flow(client, monkeypatch):
@@ -277,6 +277,42 @@ def test_missions_query_returns_existing_mission_data(client, monkeypatch):
     assert response.json()["data"] == [{"id": "mission-1", "name": "Morning Workout", "status": "PENDING"}]
 
 
+def test_explicit_automation_voice_request_creates_without_confirmation(client, monkeypatch):
+    class Habits:
+        async def find_many(self, **_kwargs):
+            return [type("Habit", (), {"id": "phone-habit", "name": "Phone Distraction"})()]
+
+    class Rules:
+        def __init__(self):
+            self.created = []
+
+        async def find_many(self, **_kwargs):
+            return []
+
+        async def create(self, *, data):
+            self.created.append(data)
+            return type("Rule", (), {"id": "rule-phone"})()
+
+    rules = Rules()
+    monkeypatch.setattr(integration, "db", type("Database", (), {"habit": Habits(), "automationrule": rules})())
+    async def fake_interpret(_text):
+        return integration.CommandIntent(intent="unknown", confidence=0)
+
+    monkeypatch.setattr(integration, "interpret_command", fake_interpret)
+
+    response = client.post(
+        "/api/integration/command",
+        headers={"X-Integration-Key": "test-integration-key"},
+        json=command_payload(text="Create a phone habit automation", requestId="request-phone-automation"),
+    )
+
+    assert response.status_code == 200
+    assert response.json()["action"] == "automation_created"
+    assert response.json()["needsConfirmation"] is False
+    assert rules.created[0]["triggerType"] == "phone_usage_observed"
+    assert rules.created[0]["cooldownSeconds"] == 1800
+
+
 def observation_payload(**overrides):
     payload = {
         "source": "phone_cv",
@@ -294,7 +330,7 @@ def observation_payload(**overrides):
     return payload
 
 
-@pytest.mark.parametrize("event_type", ["phone_usage_observed", "posture_observed", "sleep_state_observed"])
+@pytest.mark.parametrize("event_type", ["phone_usage_observed", "drowsiness_observed", "posture_observed"])
 def test_observation_types_are_persisted_without_domain_side_effects(client, monkeypatch, event_type):
     async def fake_character_exists(character_id):
         assert character_id == "char-id-123"
@@ -366,6 +402,28 @@ def test_observation_requires_integration_key(client):
     response = client.post("/api/integration/event", json=observation_payload())
 
     assert response.status_code == 401
+
+
+def test_vision_observation_examples_accept_metadata_only_payloads(client, monkeypatch):
+    async def fake_character_exists(_character_id):
+        return True
+
+    async def fake_persist(event):
+        return {"id": "observation-1", "eventId": str(event.eventId)}, False
+
+    monkeypatch.setattr(integration, "integration_character_exists", fake_character_exists)
+    monkeypatch.setattr(integration, "persist_observation", fake_persist)
+
+    for event_type, source, payload in [
+        ("drowsiness_observed", "vision_cv", {"state": "started", "ear": 0.18}),
+        ("posture_observed", "vision_cv", {"state": "started", "slouch_score": 0.42}),
+    ]:
+        response = client.post(
+            "/api/integration/event",
+            headers={"X-Integration-Key": "test-integration-key"},
+            json=observation_payload(type=event_type, source=source, payload=payload),
+        )
+        assert response.status_code == 200
 
 
 def test_duplicate_observation_event_id_is_reported_without_a_second_insert(client, monkeypatch):

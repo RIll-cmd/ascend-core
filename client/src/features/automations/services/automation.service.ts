@@ -1,5 +1,5 @@
 export type TriggerType =
-  "phone_usage_observed" | "posture_observed" | "sleep_state_observed";
+  "phone_usage_observed" | "drowsiness_observed" | "posture_observed";
 export type ConditionField =
   | "event.type"
   | "event.source"
@@ -7,7 +7,9 @@ export type ConditionField =
   | "payload.confidence"
   | "payload.posture"
   | "payload.state"
-  | "payload.detector";
+  | "payload.detector"
+  | "payload.ear"
+  | "payload.slouch_score";
 export type ConditionOperator =
   | "equals"
   | "not_equals"
@@ -117,9 +119,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return response.status === 204 ? (undefined as T) : response.json();
 }
 export const listAutomations = (characterId: string) =>
-  request<AutomationRule[]>(
+  request<{ automations: AutomationRule[] }>(
     `/api/automations?characterId=${encodeURIComponent(characterId)}`
-  );
+  ).then((response) => response.automations);
 export const getVisionStatus = (characterId: string) =>
   request<VisionConnectionStatus>(
     `/api/integration/vision/status?characterId=${encodeURIComponent(characterId)}`

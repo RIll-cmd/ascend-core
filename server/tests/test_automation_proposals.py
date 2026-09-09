@@ -28,6 +28,9 @@ class FakeAutomationRuleStore:
             updatedAt=None,
         )
 
+    async def find_many(self, **_kwargs):
+        return []
+
 
 class FakeProposalDatabase:
     def __init__(self, *, owned=True, habit=None, habits=None):
@@ -96,7 +99,7 @@ def test_capabilities_expose_versioned_core_allowlists(authenticated_client):
     assert response.status_code == 200
     body = response.json()
     assert body["version"]
-    assert body["triggers"] == ["phone_usage_observed", "posture_observed", "sleep_state_observed"]
+    assert body["triggers"] == ["phone_usage_observed", "drowsiness_observed", "posture_observed"]
     assert body["matchModes"] == ["all", "any"]
     assert body["actions"] == [{"type": "log_bad_habit", "target": "owned_negative_habit"}]
     assert body["limits"]["maxConditions"] == 20
@@ -130,11 +133,37 @@ def test_valid_proposal_is_normalized_without_persistence_or_side_effects(authen
     assert response.status_code == 200
     body = response.json()
     assert body["valid"] is True
-    assert body["requiresConfirmation"] is True
+    assert body["requiresConfirmation"] is False
     assert body["normalizedProposal"] == valid_proposal(enabled=True)
     assert body["preview"]["targetHabit"] == {"id": "habit-negative", "name": "Avoid scrolling"}
     assert body["preview"]["sideEffectsDuringValidation"] is False
     assert database.automationrule.create_calls == []
+
+
+def test_supported_trigger_with_empty_conditions_is_automatically_confirmable(authenticated_client, monkeypatch):
+    database = FakeProposalDatabase()
+    monkeypatch.setattr(automations, "db", database)
+
+    response = authenticated_client.post(
+        "/api/automations/proposals/validate",
+        json=valid_proposal(triggerType="drowsiness_observed", conditions=[]),
+    )
+
+    assert response.status_code == 200
+    assert response.json()["requiresConfirmation"] is False
+    assert response.json()["normalizedProposal"]["conditions"] == []
+
+
+def test_unsupported_capability_version_is_rejected(authenticated_client, monkeypatch):
+    monkeypatch.setattr(automations, "db", FakeProposalDatabase())
+
+    response = authenticated_client.post(
+        "/api/automations/proposals/validate",
+        json=valid_proposal(capabilityVersion="old-version"),
+    )
+
+    assert response.status_code == 422
+    assert response.json()["errors"][0]["code"] == "unsupported_capability_version"
 
 
 @pytest.mark.parametrize(

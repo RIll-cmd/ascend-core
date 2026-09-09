@@ -7,7 +7,7 @@ from typing import Any, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 from services.automation_engine import evaluate_observation
 from auth_utils import get_current_automation_user
 from db import db
@@ -49,15 +49,23 @@ class ObservationPayload(BaseModel):
     """Semantic detector metadata only; raw camera material is rejected by `extra=forbid`."""
     model_config = ConfigDict(extra="forbid")
 
-    confidence: float = Field(ge=0, le=1)
+    confidence: float | None = Field(default=None, ge=0, le=1)
     posture: str | None = Field(default=None, max_length=100)
     state: str | None = Field(default=None, max_length=100)
-    detector: str = Field(min_length=1, max_length=200)
+    detector: str | None = Field(default=None, min_length=1, max_length=200)
+    ear: float | None = Field(default=None, ge=0, le=1)
+    slouch_score: float | None = Field(default=None, ge=0, le=1)
+
+    @model_validator(mode="after")
+    def require_observation_signal(self):
+        if all(value is None for value in (self.confidence, self.posture, self.state, self.ear, self.slouch_score)):
+            raise ValueError("observation payload must include detector metadata")
+        return self
 
 
 class ObservationEvent(BaseModel):
-    source: Literal["phone_cv"]
-    type: Literal["phone_usage_observed", "posture_observed", "sleep_state_observed"]
+    source: Literal["phone_cv", "vision_cv"]
+    type: Literal["phone_usage_observed", "drowsiness_observed", "posture_observed"]
     characterId: str = Field(min_length=1, max_length=128)
     timestamp: datetime
     eventId: UUID
@@ -71,7 +79,7 @@ class ObservationEvent(BaseModel):
         return value
 
 
-CommandName = Literal["complete_mission", "complete_habit", "get_missions", "get_habits", "unknown"]
+CommandName = Literal["complete_mission", "complete_habit", "create_automation", "get_missions", "get_habits", "unknown"]
 
 
 class IntegrationCommand(BaseModel):
@@ -243,6 +251,9 @@ def _target_from_text(text: str) -> str | None:
 
 def _fallback_intent(text: str) -> CommandIntent:
     normalized = text.casefold()
+    automatic_trigger = _automatic_trigger_from_text(normalized)
+    if automatic_trigger:
+        return CommandIntent(intent="create_automation", target=automatic_trigger, confidence=1.0)
     if "habit" in normalized and any(word in normalized for word in ("what", "show", "list", "have")):
         return CommandIntent(intent="get_habits", confidence=0.75)
     if "mission" in normalized and any(word in normalized for word in ("what", "show", "list", "have")):
@@ -256,6 +267,18 @@ def _fallback_intent(text: str) -> CommandIntent:
     return CommandIntent(intent="unknown", confidence=0.0)
 
 
+def _automatic_trigger_from_text(text: str) -> str | None:
+    if "automation" not in text and "automate" not in text:
+        return None
+    if "phone" in text:
+        return "phone_usage_observed"
+    if "drowsiness" in text or "drowsy" in text or "sleepiness" in text:
+        return "drowsiness_observed"
+    if "posture" in text or "slouch" in text:
+        return "posture_observed"
+    return None
+
+
 async def interpret_command(text: str) -> CommandIntent:
     """Use AIRA only as a constrained parser; invalid model output is never executable."""
     try:
@@ -263,7 +286,7 @@ async def interpret_command(text: str) -> CommandIntent:
 
         prompt = (
             "Return JSON only, without markdown. Interpret this command using exactly one intent: "
-            "complete_mission, complete_habit, get_missions, get_habits, unknown. "
+            "complete_mission, complete_habit, create_automation, get_missions, get_habits, unknown. "
             "Schema: {\"intent\": string, \"target\": string|null, \"confidence\": number}. "
             "Do not propose actions outside that list. Command: " + text
         )
@@ -277,6 +300,51 @@ async def interpret_command(text: str) -> CommandIntent:
         # Model availability must not make a trusted local command endpoint fail.
         pass
     return _fallback_intent(text)
+
+
+AUTOMATION_HABIT_NAMES = {
+    "phone_usage_observed": ("Phone Distraction", ("phone", "scroll", "distraction")),
+    "drowsiness_observed": ("Drowsiness", ("drows", "sleep")),
+    "posture_observed": ("Bad Posture", ("posture", "slouch")),
+}
+
+
+async def create_automatic_automation(character_id: str, trigger_type: str) -> dict[str, Any]:
+    from schemas.automation import AutomationRuleCreate
+
+    if trigger_type not in AUTOMATION_HABIT_NAMES:
+        return {"error": "unsupported_trigger"}
+    habits = await db.habit.find_many(where={"characterId": character_id, "type": "NEGATIVE"})
+    preferred_name, keywords = AUTOMATION_HABIT_NAMES[trigger_type]
+    habit = next((item for item in habits if item.name.casefold() == preferred_name.casefold()), None)
+    habit = habit or next((item for item in habits if any(keyword in item.name.casefold() for keyword in keywords)), None)
+    if not habit:
+        return {"error": "eligible_habit_unavailable"}
+    rules = await db.automationrule.find_many(where={"characterId": character_id, "triggerType": trigger_type})
+    for rule in rules:
+        if any(action.get("habitId") == habit.id for action in json.loads(rule.actionsJson)):
+            return {"error": "duplicate_automation", "ruleId": rule.id}
+    proposal = AutomationRuleCreate.model_validate({
+        "characterId": character_id,
+        "name": f"{preferred_name} automation",
+        "enabled": True,
+        "triggerType": trigger_type,
+        "matchMode": "all",
+        "conditions": [],
+        "actions": [{"type": "log_bad_habit", "habitId": habit.id}],
+        "cooldownSeconds": 1800,
+    })
+    rule = await db.automationrule.create(data={
+        "characterId": proposal.characterId,
+        "name": proposal.name,
+        "enabled": proposal.enabled,
+        "triggerType": proposal.triggerType,
+        "matchMode": proposal.matchMode,
+        "conditionsJson": json.dumps([item.model_dump() for item in proposal.conditions]),
+        "actionsJson": json.dumps([item.model_dump() for item in proposal.actions]),
+        "cooldownSeconds": proposal.cooldownSeconds,
+    })
+    return {"id": rule.id, "triggerType": trigger_type, "habit": {"id": habit.id, "name": habit.name}}
 
 
 def _summary(record: Any, fallback_name: str) -> dict[str, Any]:
@@ -344,7 +412,7 @@ def _response(request: IntegrationCommand, intent: CommandName, action: str, mes
 @router.get("/status")
 async def integration_status(x_integration_key: str | None = Header(default=None)):
     require_integration_api_key(x_integration_key)
-    return {"status": "ready", "supportedEvents": ["workout_completed"]}
+    return {"status": "ready", "supportedEvents": ["workout_completed", "phone_usage_observed", "drowsiness_observed", "posture_observed"]}
 
 
 @router.post("/event")
@@ -401,7 +469,21 @@ async def receive_command(command: IntegrationCommand, x_integration_key: str | 
     except ValidationError:
         intent = CommandIntent(intent="unknown", confidence=0.0)
 
-    if intent.intent == "get_missions":
+    automatic_trigger = _automatic_trigger_from_text(command.text.casefold())
+    if automatic_trigger:
+        intent = CommandIntent(intent="create_automation", target=automatic_trigger, confidence=1.0)
+
+    if intent.intent == "create_automation":
+        data = await create_automatic_automation(command.characterId, intent.target or "")
+        if data.get("error") == "duplicate_automation":
+            result = _response(command, intent.intent, "duplicate_automation", "That automation already exists.", data, needsConfirmation=False)
+            result["success"] = False
+        elif data.get("error") == "eligible_habit_unavailable":
+            result = _response(command, intent.intent, "eligible_habit_unavailable", "I could not find the matching negative habit.", data)
+            result["success"] = False
+        else:
+            result = _response(command, intent.intent, "automation_created", "Automation created.", data, needsConfirmation=False)
+    elif intent.intent == "get_missions":
         missions = await get_existing_today_missions(command.characterId)
         result = _response(command, intent.intent, "missions_query", f"You have {len(missions)} missions today.", missions)
     elif intent.intent == "get_habits":

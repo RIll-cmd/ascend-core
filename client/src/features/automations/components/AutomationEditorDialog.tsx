@@ -32,6 +32,8 @@ const fields: ConditionField[] = [
   "payload.posture",
   "payload.state",
   "payload.detector",
+  "payload.ear",
+  "payload.slouch_score",
 ];
 const operators: ConditionOperator[] = [
   "equals",
@@ -44,8 +46,8 @@ const operators: ConditionOperator[] = [
 ];
 const triggers: TriggerType[] = [
   "phone_usage_observed",
+  "drowsiness_observed",
   "posture_observed",
-  "sleep_state_observed",
 ];
 const initialDraft = (
   characterId: string,
@@ -250,7 +252,11 @@ export function AutomationEditorDialog({
                     condition: {
                       ...draft.condition,
                       value:
-                        draft.condition.field === "payload.confidence"
+                        [
+                          "payload.confidence",
+                          "payload.ear",
+                          "payload.slouch_score",
+                        ].includes(draft.condition.field)
                           ? Number(e.target.value)
                           : e.target.value,
                     },

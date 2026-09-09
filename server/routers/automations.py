@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from auth_utils import get_current_automation_user
 from db import db
-from schemas.automation import AutomationRuleCreate, AutomationRuleUpdate, AutomationTestObservation, automation_capabilities
+from schemas.automation import AUTOMATION_CAPABILITY_VERSION, AutomationRuleCreate, AutomationRuleUpdate, AutomationTestObservation, automation_capabilities
 from services.automation_engine import evaluate_conditions
 
 
@@ -32,6 +32,17 @@ async def get_eligible_negative_habit(character_id: str, habit_id: str) -> Any |
     habit = await db.habit.find_unique(where={"id": habit_id})
     habit_type = getattr(getattr(habit, "type", None), "value", getattr(habit, "type", None)) if habit else None
     return habit if habit and habit.characterId == character_id and habit_type == "NEGATIVE" else None
+
+
+async def find_duplicate_automation(character_id: str, trigger_type: str, habit_id: str) -> Any | None:
+    find_many = getattr(db.automationrule, "find_many", None)
+    if not find_many:
+        return None
+    rules = await find_many(where={"characterId": character_id, "triggerType": trigger_type})
+    for rule in rules:
+        if any(action.get("habitId") == habit_id for action in json.loads(rule.actionsJson)):
+            return rule
+    return None
 
 
 def proposal_validation_error(error: ValidationError) -> JSONResponse:
@@ -61,13 +72,16 @@ def serialize_rule(rule: Any) -> dict[str, Any]:
 async def list_automations(characterId: str, current_user: dict = Depends(get_current_automation_user)):
     await get_owned_character(characterId, current_user)
     rules = await db.automationrule.find_many(where={"characterId": characterId}, order={"createdAt": "desc"})
-    return [serialize_rule(rule) for rule in rules]
+    return {"automations": [serialize_rule(rule) for rule in rules]}
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_automation(payload: AutomationRuleCreate, current_user: dict = Depends(get_current_automation_user)):
     await get_owned_character(payload.characterId, current_user)
     await validate_actions(payload.characterId, payload.actions)
+    duplicate = await find_duplicate_automation(payload.characterId, payload.triggerType, payload.actions[0].habitId)
+    if duplicate:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail={"code": "duplicate_automation", "message": "An automation for this trigger and habit already exists."})
     rule = await db.automationrule.create(data={
         "characterId": payload.characterId, "name": payload.name, "enabled": payload.enabled, "triggerType": payload.triggerType,
         "matchMode": payload.matchMode, "conditionsJson": json.dumps([item.model_dump() for item in payload.conditions]),
@@ -94,6 +108,13 @@ async def get_eligible_habits(characterId: str, current_user: dict = Depends(get
 
 @router.post("/proposals/validate")
 async def validate_automation_proposal(payload: dict[str, Any], current_user: dict = Depends(get_current_automation_user)):
+    requested_version = payload.get("capabilityVersion")
+    if requested_version and requested_version != AUTOMATION_CAPABILITY_VERSION:
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            content={"valid": False, "requiresConfirmation": False, "errors": [{"code": "unsupported_capability_version", "expected": AUTOMATION_CAPABILITY_VERSION}]},
+        )
+    payload = {key: value for key, value in payload.items() if key != "capabilityVersion"}
     try:
         proposal = AutomationRuleCreate.model_validate(payload)
     except ValidationError as error:
@@ -107,10 +128,17 @@ async def validate_automation_proposal(payload: dict[str, Any], current_user: di
             content={"valid": False, "requiresConfirmation": False, "errors": [{"code": "target_not_eligible"}]},
         )
 
+    duplicate = await find_duplicate_automation(proposal.characterId, proposal.triggerType, proposal.actions[0].habitId)
+    if duplicate:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content={"valid": False, "requiresConfirmation": False, "errors": [{"code": "duplicate_automation"}]},
+        )
+
     normalized = proposal.model_dump(mode="json")
     return {
         "valid": True,
-        "requiresConfirmation": True,
+        "requiresConfirmation": proposal.triggerType not in {"phone_usage_observed", "drowsiness_observed", "posture_observed"},
         "normalizedProposal": normalized,
         "preview": {
             "targetHabit": {"id": target_habit.id, "name": target_habit.name},

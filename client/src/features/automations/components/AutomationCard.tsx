@@ -7,8 +7,8 @@ import type {
 
 const triggerLabels: Record<TriggerType, string> = {
   phone_usage_observed: "Phone usage observed",
+  drowsiness_observed: "Drowsiness observed",
   posture_observed: "Posture observed",
-  sleep_state_observed: "Sleep state observed",
 };
 
 const operatorLabels: Record<
