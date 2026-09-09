@@ -29,11 +29,23 @@ def test_query_request_accepts_a_versioned_missions_query():
     assert request.intent == "missions_summary"
 
 
+def test_query_request_keeps_unknown_version_and_intent_for_dispatch():
+    request = VisionQueryRequest.model_validate({
+        "characterId": "character-1",
+        "requestId": "vision-query-001",
+        "capabilityVersion": "unsupported-version",
+        "intent": "future_summary",
+        "parameters": {},
+    })
+
+    assert request.capabilityVersion == "unsupported-version"
+    assert request.intent == "future_summary"
+
+
 @pytest.mark.parametrize("payload", [
     {"characterId": "character-1", "requestId": "bad id", "capabilityVersion": VISION_CONTRACT_VERSION, "intent": "missions_summary", "parameters": {}},
-    {"characterId": "character-1", "requestId": "vision-query-001", "capabilityVersion": "2020-01-01", "intent": "missions_summary", "parameters": {}},
-    {"characterId": "character-1", "requestId": "vision-query-001", "capabilityVersion": VISION_CONTRACT_VERSION, "intent": "unknown_summary", "parameters": {}},
+    {"characterId": "character-1", "requestId": "vision-query-001", "capabilityVersion": VISION_CONTRACT_VERSION, "intent": "missions_summary", "parameters": [],},
 ])
-def test_query_request_rejects_invalid_contract_input(payload):
+def test_query_request_rejects_malformed_contract_input(payload):
     with pytest.raises(ValidationError):
         VisionQueryRequest.model_validate(payload)

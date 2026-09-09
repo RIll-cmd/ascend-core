@@ -100,6 +100,11 @@ async def get_current_automation_user(request: Request) -> dict:
     """Authenticate a normal Core token or the restricted Vision automation token."""
     return await _get_current_user_for_purposes(request, {None, VISION_TOKEN_PURPOSE})
 
+
+async def get_current_vision_user(request: Request) -> dict:
+    """Authenticate only the restricted Ascend Vision handoff token."""
+    return await _get_current_user_for_purposes(request, {VISION_TOKEN_PURPOSE})
+
 async def get_current_user_optional(request: Request) -> Optional[dict]:
     """Extract authenticated user if present, otherwise returns None without throwing 401."""
     try:

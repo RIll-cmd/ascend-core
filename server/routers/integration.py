@@ -9,8 +9,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 from services.automation_engine import evaluate_observation
-from auth_utils import get_current_automation_user
+from auth_utils import get_current_automation_user, get_current_vision_user
 from db import db
+from schemas.vision_contract import vision_capabilities
 
 
 router = APIRouter(prefix="/api/integration", tags=["integration"])
@@ -188,6 +189,11 @@ async def vision_status(
 ):
     await get_owned_vision_character(characterId, current_user)
     return serialize_vision_presence(characterId)
+
+
+@router.get("/vision/capabilities")
+async def get_vision_capabilities(current_user: dict = Depends(get_current_vision_user)):
+    return vision_capabilities()
 
 
 async def dispatch_workout_completed(payload: dict[str, Any]) -> dict[str, Any]:

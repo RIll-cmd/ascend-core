@@ -29,8 +29,8 @@ class VisionQueryRequest(BaseModel):
 
     characterId: str = Field(min_length=1, max_length=128)
     requestId: str = Field(min_length=1, max_length=128, pattern=r"^[A-Za-z0-9._:-]+$")
-    capabilityVersion: Literal[VISION_CONTRACT_VERSION]
-    intent: VisionReadIntent
+    capabilityVersion: str = Field(min_length=1, max_length=64)
+    intent: str = Field(min_length=1, max_length=128)
     parameters: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -51,6 +51,13 @@ class VisionQueryError(BaseModel):
     success: Literal[False] = False
     requestId: str
     error: VisionQueryErrorBody
+
+
+def vision_error(request_id: str, code: VisionErrorCode, message: str, *, retryable: bool = False) -> dict[str, Any]:
+    return VisionQueryError(
+        requestId=request_id,
+        error=VisionQueryErrorBody(code=code, message=message, retryable=retryable),
+    ).model_dump(mode="json")
 
 
 def vision_capabilities() -> dict[str, Any]:
