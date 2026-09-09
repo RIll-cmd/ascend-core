@@ -89,8 +89,9 @@ Allowed error codes are `unsupported_capability_version`,
 - Every response echoes `requestId`.
 - `unavailable_data` is a valid business response, not an empty successful result.
 
-The existing Vision Bearer token uses the JWT purpose `ascend_vision`; Core
-continues to enforce character ownership for the authenticated user.
+The existing Vision Bearer token uses the JWT purpose `ascend_vision` and
+identifies the authenticated user. The future Phase 2 Vision contract handler
+must enforce character ownership before dispatching a read.
 
 - Existing AIRA tools are a Gemini-specific allowlist and are not the Vision contract.
 - Existing AIRA chat and execute routes do not currently enforce the Vision ownership boundary; Phase 2 must not proxy Vision requests through them.
