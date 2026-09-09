@@ -93,6 +93,12 @@ The existing Vision Bearer token uses the JWT purpose `ascend_vision` and
 identifies the authenticated user. The future Phase 2 Vision contract handler
 must enforce character ownership before dispatching a read.
 
+Phase 2 may add the capability and query HTTP routes only by importing
+`vision_capabilities()` and `VisionQueryRequest` from
+`server/schemas/vision_contract.py`. It must use the existing purpose-bound
+Vision Bearer token dependency and perform an explicit character-ownership
+check before dispatching any read.
+
 - Existing AIRA tools are a Gemini-specific allowlist and are not the Vision contract.
 - Existing AIRA chat and execute routes do not currently enforce the Vision ownership boundary; Phase 2 must not proxy Vision requests through them.
 - Existing integration command replay protection is process-local; Phase 2 query responses may echo request IDs, but durable multi-instance idempotency is deferred to the write-action phase.
