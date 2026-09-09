@@ -95,6 +95,7 @@ scratch/
 server/debug_imports.py
 
 # Agent, Tooling & IDE Caches
+.worktrees/
 .playwright-mcp/
 .impeccable/
 client/.impeccable/
