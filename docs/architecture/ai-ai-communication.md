@@ -93,10 +93,11 @@ The existing Vision Bearer token uses the JWT purpose `ascend_vision` and
 identifies the authenticated user. The future Phase 2 Vision contract handler
 must enforce character ownership before dispatching a read.
 
-Phase 2 may add the capability and query HTTP routes only by importing
+Phase 2 implements the capability and query routes by importing
 `vision_capabilities()` and `VisionQueryRequest` from
-`server/schemas/vision_contract.py`. It must use the existing purpose-bound
-Vision Bearer token dependency and perform an explicit character-ownership
+`server/schemas/vision_contract.py`. Both routes accept only the existing
+purpose-bound Vision Bearer token (`ascend_vision`); normal Core web tokens
+cannot call them. The query route performs an explicit character-ownership
 check before dispatching any read.
 
 - Existing AIRA tools are a Gemini-specific allowlist and are not the Vision contract.
@@ -109,8 +110,8 @@ check before dispatching any read.
 GET /api/integration/vision/capabilities
 ```
 
-The Phase 1 response must include a version, an availability map for every read
-intent, and no write capabilities:
+The live Phase 2 response includes a version, an availability map for every
+read intent, and no write capabilities:
 
 ```json
 {
@@ -148,7 +149,14 @@ POST /api/integration/vision/query
 }
 ```
 
-Responses must be structured JSON with stable keys. Core must return explicit errors for unsupported intents, unavailable data, invalid characters, expired authentication, and unsupported contract versions.
+Responses use structured JSON with stable keys. The available response data
+keys are `missions`, `habits`, `automations`, `steps` plus `goal`, and
+`recovery` (workout-derived muscle recovery, not health telemetry). Core
+returns `401` for missing, expired, invalid, or wrong-purpose credentials and
+`403` for an unowned character. A structurally valid request with an
+unsupported version or intent, or unavailable Core data, returns HTTP `422`
+with the documented error envelope and echoed `requestId`. Malformed request
+shapes use FastAPI's normal HTTP `422` validation response.
 
 ### Future typed writes (Phase 5)
 

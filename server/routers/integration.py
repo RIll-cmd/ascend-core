@@ -7,10 +7,13 @@ from typing import Any, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 from services.automation_engine import evaluate_observation
-from auth_utils import get_current_automation_user
+from auth_utils import get_current_automation_user, get_current_vision_user
 from db import db
+from schemas.vision_contract import VisionQueryRequest, vision_capabilities
+from services.vision_query_service import execute_vision_query
 
 
 router = APIRouter(prefix="/api/integration", tags=["integration"])
@@ -188,6 +191,24 @@ async def vision_status(
 ):
     await get_owned_vision_character(characterId, current_user)
     return serialize_vision_presence(characterId)
+
+
+@router.get("/vision/capabilities")
+async def get_vision_capabilities(current_user: dict = Depends(get_current_vision_user)):
+    return vision_capabilities()
+
+
+@router.post("/vision/query")
+async def query_vision_core(
+    request: VisionQueryRequest,
+    current_user: dict = Depends(get_current_vision_user),
+):
+    await get_owned_vision_character(request.characterId, current_user)
+    result = await execute_vision_query(request)
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT if not result["success"] else status.HTTP_200_OK,
+        content=result,
+    )
 
 
 async def dispatch_workout_completed(payload: dict[str, Any]) -> dict[str, Any]:
