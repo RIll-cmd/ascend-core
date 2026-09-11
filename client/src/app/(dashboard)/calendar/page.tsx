@@ -26,7 +26,10 @@ import { SystemTooltip } from "@/components/ui/SystemTooltip";
 import { CURRENCY_LORE } from "@/features/lore/loreData";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { cn } from "@/lib/utils";
+import { NumberTicker } from "@/components/ui/number-ticker";
 import { CalendarSchedulePanel } from "@/features/calendar/components/CalendarSchedulePanel";
+import { useCalendarScheduleStore, StoredCalendarSchedule } from "@/features/calendar/store/useCalendarScheduleStore";
+import { isScheduleOnDate, formatLocalDate } from "@/features/calendar/scheduleUtils";
 import {
   SteampunkCog,
   SteampunkGearTrain,
@@ -61,6 +64,7 @@ interface HoveredTooltipData {
   dateObj: Date;
   snapshot?: Snapshot;
   missions: KanbanQuest[];
+  schedules?: StoredCalendarSchedule[];
   x: number;
   y: number;
 }
@@ -78,6 +82,7 @@ const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 export default function CalendarPage() {
   const { character, refetch } = useCharacterStore();
   const { quests, updateQuestStatus } = useKanbanMissionStore();
+  const { schedules, fetchSchedules } = useCalendarScheduleStore();
 
   const [snapshots, setSnapshots] = useState<Record<string, Snapshot>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -94,7 +99,7 @@ export default function CalendarPage() {
 
   // Selected date for Chrono Intel & deadline creation
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    formatLocalDate(new Date())
   );
   const [isCreateDeadlineOpen, setIsCreateDeadlineOpen] = useState(false);
   const [deadlineFilter, setDeadlineFilter] = useState<"ALL" | "UPCOMING" | "TODAY" | "COMPLETED">("ALL");
@@ -111,7 +116,7 @@ export default function CalendarPage() {
         const data = await res.json();
         const map: Record<string, Snapshot> = {};
         (data.snapshots || []).forEach((sn: Snapshot) => {
-          const dateKey = new Date(sn.date).toISOString().split("T")[0];
+          const dateKey = formatLocalDate(new Date(sn.date));
           map[dateKey] = sn;
         });
         setSnapshots(map);
@@ -125,13 +130,15 @@ export default function CalendarPage() {
     let ignore = false;
     if (!characterId) return;
 
+    fetchSchedules(characterId);
+
     fetch(`${API_BASE_URL}/api/habits/${characterId}/calendar-snapshots`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (ignore || !data) return;
         const map: Record<string, Snapshot> = {};
         (data.snapshots || []).forEach((sn: Snapshot) => {
-          const dateKey = new Date(sn.date).toISOString().split("T")[0];
+          const dateKey = formatLocalDate(new Date(sn.date));
           map[dateKey] = sn;
         });
         setSnapshots(map);
@@ -145,7 +152,7 @@ export default function CalendarPage() {
     return () => {
       ignore = true;
     };
-  }, [characterId]);
+  }, [characterId, fetchSchedules]);
 
   const handleSimulateDecay = async () => {
     if (!character?.id) return;
@@ -237,7 +244,7 @@ export default function CalendarPage() {
     setGearRotation((prev) => prev + 90);
     const now = new Date();
     setActiveDate(now);
-    setSelectedDate(now.toISOString().split("T")[0]);
+    setSelectedDate(formatLocalDate(now));
   };
 
 
@@ -254,7 +261,7 @@ export default function CalendarPage() {
   }, [quests]);
 
   const today = useMemo(() => new Date(), []);
-  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+  const todayStr = useMemo(() => formatLocalDate(new Date()), []);
 
   const monthGrid = useMemo(() => {
     const year = activeDate.getFullYear();
@@ -273,6 +280,7 @@ export default function CalendarPage() {
       isCurrentMonth: boolean;
       snapshot?: Snapshot;
       missions: KanbanQuest[];
+      schedules: StoredCalendarSchedule[];
       isToday: boolean;
       isFuture: boolean;
     }[] = [];
@@ -281,7 +289,8 @@ export default function CalendarPage() {
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
       const dayNum = prevMonthLastDay - i;
       const d = new Date(year, month - 1, dayNum);
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = formatLocalDate(d);
+      const daySchedules = schedules.filter((s) => isScheduleOnDate(s, d));
       cells.push({
         dateStr,
         dateObj: d,
@@ -289,6 +298,7 @@ export default function CalendarPage() {
         isCurrentMonth: false,
         snapshot: snapshots[dateStr],
         missions: questsByDueDate[dateStr] || [],
+        schedules: daySchedules,
         isToday: dateStr === todayStr,
         isFuture: dateStr > todayStr,
       });
@@ -296,7 +306,8 @@ export default function CalendarPage() {
 
     for (let i = 1; i <= daysInMonth; i++) {
       const d = new Date(year, month, i);
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = formatLocalDate(d);
+      const daySchedules = schedules.filter((s) => isScheduleOnDate(s, d));
       cells.push({
         dateStr,
         dateObj: d,
@@ -304,6 +315,7 @@ export default function CalendarPage() {
         isCurrentMonth: true,
         snapshot: snapshots[dateStr],
         missions: questsByDueDate[dateStr] || [],
+        schedules: daySchedules,
         isToday: dateStr === todayStr,
         isFuture: dateStr > todayStr,
       });
@@ -312,7 +324,8 @@ export default function CalendarPage() {
     const remaining = (7 - (cells.length % 7)) % 7;
     for (let i = 1; i <= remaining; i++) {
       const d = new Date(year, month + 1, i);
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = formatLocalDate(d);
+      const daySchedules = schedules.filter((s) => isScheduleOnDate(s, d));
       cells.push({
         dateStr,
         dateObj: d,
@@ -320,13 +333,14 @@ export default function CalendarPage() {
         isCurrentMonth: false,
         snapshot: snapshots[dateStr],
         missions: questsByDueDate[dateStr] || [],
+        schedules: daySchedules,
         isToday: dateStr === todayStr,
         isFuture: dateStr > todayStr,
       });
     }
 
     return cells;
-  }, [activeDate, snapshots, questsByDueDate, todayStr]);
+  }, [activeDate, snapshots, questsByDueDate, schedules, todayStr]);
 
   const { daysGrid52, monthHeaders52 } = useMemo(() => {
     const grid: {
@@ -334,6 +348,7 @@ export default function CalendarPage() {
       dateObj: Date;
       snapshot?: Snapshot;
       missions: KanbanQuest[];
+      schedules: StoredCalendarSchedule[];
       weekIndex: number;
       dayOfWeek: number;
       isToday: boolean;
@@ -345,11 +360,12 @@ export default function CalendarPage() {
     for (let i = -182; i <= 181; i++) {
       const d = new Date(today);
       d.setDate(d.getDate() + i);
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = formatLocalDate(d);
       const weekIndex = Math.floor((i + 182) / 7);
       const dayOfWeek = d.getDay();
       const isToday = dateStr === todayStr;
       const isFuture = dateStr > todayStr;
+      const daySchedules = schedules.filter((s) => isScheduleOnDate(s, d));
 
       const m = d.getMonth();
       if (m !== lastMonth && (dayOfWeek === 0 || i === -182)) {
@@ -366,6 +382,7 @@ export default function CalendarPage() {
         dateObj: d,
         snapshot: snapshots[dateStr],
         missions: questsByDueDate[dateStr] || [],
+        schedules: daySchedules,
         weekIndex,
         dayOfWeek,
         isToday,
@@ -374,7 +391,7 @@ export default function CalendarPage() {
     }
 
     return { daysGrid52: grid, monthHeaders52: months };
-  }, [today, todayStr, snapshots, questsByDueDate]);
+  }, [today, todayStr, snapshots, questsByDueDate, schedules]);
 
   const activeDaysCount = useMemo(
     () => Object.values(snapshots).filter((s) => (s.completedCount || 0) > 0).length,
@@ -432,6 +449,10 @@ export default function CalendarPage() {
 
   const selectedSnapshot = snapshots[selectedDate];
   const selectedMissions = questsByDueDate[selectedDate] || [];
+  const selectedSchedules = useMemo(() => {
+    const d = new Date(`${selectedDate}T12:00:00`);
+    return schedules.filter((s) => isScheduleOnDate(s, d));
+  }, [schedules, selectedDate]);
 
   const allDeadlinesWithQuests = useMemo(() => {
     return quests.filter((q) => !!q.dueDate).sort((a, b) => {
@@ -522,41 +543,41 @@ export default function CalendarPage() {
                 <SteampunkGearTrain rotation={gearRotation} />
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  playUIMenuSFX("confirm");
-                  handleBuyShield();
-                }}
-                disabled={isBuyingShield || streakFreezes >= 3}
-                className="h-11 px-4 bg-[#241006] hover:bg-[#381809] border-2 border-[#78350f] hover:border-[#f59e0b] text-[#fef08a] font-pixel text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-[0_3px_0_0_#000] active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Forge Aegis Shield with 300 Gold"
-              >
-                {isBuyingShield ? (
-                  <PixelRefreshIcon className="w-4 h-4 animate-spin text-[#f59e0b]" />
-                ) : (
-                  <PixelShieldIcon className={cn("w-4 h-4", streakFreezes >= 3 ? "text-[#10b981]" : "text-[#f59e0b]")} />
-                )}
-                <span>{streakFreezes >= 3 ? "Aegis Full (3/3)" : "Buy Shield (300g)"}</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playUIMenuSFX("confirm");
+                    handleBuyShield();
+                  }}
+                  disabled={isBuyingShield || streakFreezes >= 3}
+                  className="h-11 px-4 bg-[#241006] hover:bg-[#381809] border-2 border-[#78350f] hover:border-[#f59e0b] text-[#fef08a] font-pixel text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-[0_3px_0_0_#000] active:translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Forge Aegis Shield with 300 Gold"
+                >
+                  {isBuyingShield ? (
+                    <PixelRefreshIcon className="w-4 h-4 animate-spin text-[#f59e0b]" />
+                  ) : (
+                    <PixelShieldIcon className={cn("w-4 h-4", streakFreezes >= 3 ? "text-[#10b981]" : "text-[#f59e0b]")} />
+                  )}
+                  <span>{streakFreezes >= 3 ? "Aegis Full (3/3)" : "Buy Shield (300g)"}</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  playUIMenuSFX("confirm");
-                  handleSimulateDecay();
-                }}
-                disabled={isSimulating}
-                className="h-11 px-4 bg-[#381a0c] hover:bg-[#4d2410] border-2 border-[#b45309] hover:border-[#f59e0b] text-[#fef08a] font-pixel text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-[0_3px_0_0_#000] active:translate-y-0.5 disabled:opacity-50"
-                title="Advance Chronometer to test day rollover"
-              >
-                {isSimulating ? (
-                  <PixelRefreshIcon className="w-4 h-4 animate-spin text-[#fbbf24]" />
-                ) : (
-                  <PixelMoonSleepIcon className="w-4 h-4 text-[#fbbf24]" />
-                )}
-                <span>Simulate Midnight</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playUIMenuSFX("confirm");
+                    handleSimulateDecay();
+                  }}
+                  disabled={isSimulating}
+                  className="h-11 px-4 bg-[#381a0c] hover:bg-[#4d2410] border-2 border-[#b45309] hover:border-[#f59e0b] text-[#fef08a] font-pixel text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-[0_3px_0_0_#000] active:translate-y-0.5 disabled:opacity-50"
+                  title="Advance Chronometer to test day rollover"
+                >
+                  {isSimulating ? (
+                    <PixelRefreshIcon className="w-4 h-4 animate-spin text-[#fbbf24]" />
+                  ) : (
+                    <PixelMoonSleepIcon className="w-4 h-4 text-[#fbbf24]" />
+                  )}
+                  <span>Simulate Midnight</span>
+                </button>
             </div>
 
             {/* Bottom Primary Actions Dock */}
@@ -720,35 +741,42 @@ export default function CalendarPage() {
                   key={idx}
                   type="button"
                   onClick={() => {
-                    playClockworkTick(0.35);
-                    setSelectedDate(day.dateStr);
-                  }}
-                  onMouseEnter={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    setHoveredData({
-                      dateStr: day.dateStr,
-                      dateObj: day.dateObj,
-                      snapshot: day.snapshot,
-                      missions: day.missions,
-                      x: rect.left + rect.width / 2,
-                      y: rect.top,
-                    });
-                  }}
-                  onMouseLeave={() => setHoveredData(null)}
-                  className={cn(
-                    "min-h-[92px] sm:min-h-[104px] p-2.5 border-2 text-left flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden shadow-[0_2px_0_0_#000] group",
-                    !day.isCurrentMonth && "opacity-35 grayscale-[50%]",
-                    getCellStyling(rate, hasDeadlines, isSelected, day.isToday, day.isFuture)
-                  )}
-                >
+                      playClockworkTick(0.35);
+                      setSelectedDate(day.dateStr);
+                    }}
+                    onMouseEnter={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setHoveredData({
+                        dateStr: day.dateStr,
+                        dateObj: day.dateObj,
+                        snapshot: day.snapshot,
+                        missions: day.missions,
+                        schedules: day.schedules,
+                        x: rect.left + rect.width / 2,
+                        y: rect.top,
+                      });
+                    }}
+                    onMouseLeave={() => setHoveredData(null)}
+                    className={cn(
+                      "w-full min-h-[92px] sm:min-h-[104px] p-2.5 border-2 text-left flex flex-col justify-between transition-all cursor-pointer relative overflow-hidden shadow-[0_2px_0_0_#000] group",
+                      !day.isCurrentMonth && "opacity-35 grayscale-[50%]",
+                      getCellStyling(rate, hasDeadlines, isSelected, day.isToday, day.isFuture)
+                    )}
+                  >
                   {/* Top Bar: Date Number & Indicators */}
                   <div className="flex items-center justify-between w-full">
                     <span className={cn("font-pixel text-base sm:text-lg font-bold", isSelected ? "text-[#fef08a]" : day.isToday ? "text-[#fde047]" : "text-slate-100")}>
                       {day.dayNum}
                     </span>
 
-                    {/* Deadline or Completion Icon */}
+                    {/* Deadline, Schedule, or Completion Icon */}
                     <div className="flex items-center gap-1">
+                      {day.schedules && day.schedules.length > 0 && (
+                        <span
+                          className="w-2.5 h-2.5 rounded-full bg-teal-400 border border-black shadow-[0_0_6px_#2dd4bf] animate-pulse"
+                          title={`${day.schedules.length} Personal Schedules (${day.schedules.map((s) => s.title).join(", ")})`}
+                        />
+                      )}
                       {hasDeadlines && (
                         <span className="w-2.5 h-2.5 bg-[#f59e0b] border border-black shadow-[0_0_6px_#f59e0b] animate-pulse" title={`${day.missions.length} Deadlines`} />
                       )}
@@ -758,8 +786,21 @@ export default function CalendarPage() {
                     </div>
                   </div>
 
-                  {/* Middle / Bottom: Segmented Vacuum Filament Tube */}
+                  {/* Middle / Bottom: Segmented Vacuum Filament Tube & Personal Schedules */}
                   <div className="mt-1 space-y-1">
+                    {/* Compact Personal Schedule Pill */}
+                    {day.schedules && day.schedules.length > 0 && (
+                      <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-teal-950/80 border border-teal-500/40 text-[10px] font-mono text-teal-300 font-bold truncate shadow-xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-400 shrink-0" />
+                        <span className="truncate">
+                          {day.schedules[0].time}{day.schedules[0].endTime ? `-${day.schedules[0].endTime}` : ''} {day.schedules[0].title}
+                        </span>
+                        {day.schedules.length > 1 && (
+                          <span className="text-teal-400/80 text-[9px] shrink-0">+{day.schedules.length - 1}</span>
+                        )}
+                      </div>
+                    )}
+
                     {day.snapshot ? (
                       <div>
                         <div className="flex justify-between items-center text-[#fef08a] font-mono text-xs sm:text-sm mb-1 font-bold">
@@ -777,11 +818,11 @@ export default function CalendarPage() {
                       <div className="text-xs sm:text-sm font-pixel text-[#fbbf24] font-bold truncate">
                         {day.missions.length} Due
                       </div>
-                    ) : (
+                    ) : !day.schedules || day.schedules.length === 0 ? (
                       <div className="text-xs font-mono text-slate-500 italic">
                         —
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 </button>
               );
@@ -811,7 +852,11 @@ export default function CalendarPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-xs sm:text-sm">
+          <div className="flex items-center gap-4 text-xs sm:text-sm flex-wrap">
+            <div className="flex items-center gap-1.5 text-teal-400 font-pixel font-bold">
+              <span className="w-2.5 h-2.5 rounded-full bg-teal-400 shadow-[0_0_6px_#2dd4bf]" />
+              <span>SCHEDULED ROUTINE</span>
+            </div>
             <div className="flex items-center gap-1.5 text-[#fde047] font-pixel font-bold">
               <span className="w-3 h-3 bg-[#f59e0b] border border-[#78350f]" />
               <span>TODAY</span>
@@ -875,6 +920,7 @@ export default function CalendarPage() {
           isToday={selectedDate === todayStr}
           selectedSnapshot={selectedSnapshot}
           selectedMissions={selectedMissions}
+          selectedSchedules={selectedSchedules}
           onOpenCreateDeadline={() => setIsCreateDeadlineOpen(true)}
         />
 

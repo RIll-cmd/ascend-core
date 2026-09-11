@@ -15,6 +15,8 @@ import {
   SovereignCrownConstellation,
   AllConstellationsCluster,
 } from '@/components/ui/pixel';
+import { FloatingRunes } from '@/features/skills/components/FloatingRunes';
+import { NumberTicker } from '@/components/ui/number-ticker';
 import {
   Sparkles,
   Sword,
@@ -233,7 +235,12 @@ export default function SkillsPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6 pb-16 font-sans select-none">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6 pb-16 font-sans select-none relative">
+      {/* ========================================================= */}
+      {/* 0. CELESTIAL FLOATING RUNES (MYTHIC ELEMENTAL AURA)       */}
+      {/* ========================================================= */}
+      <FloatingRunes />
+
       {/* ========================================================= */}
       {/* 1. CELESTIAL OBSERVATORY & ASTROLABE HERO HEADER         */}
       {/* ========================================================= */}
@@ -251,13 +258,17 @@ export default function SkillsPage() {
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-amber-400" />
                 <span>Stars Awakened:</span>
-                <strong className="text-[#fef08a] font-bold text-sm">{totalMastered}</strong>
+                <strong className="text-[#fef08a] font-bold text-sm">
+                  <NumberTicker value={totalMastered} />
+                </strong>
                 <span className="text-slate-400">/ {totalDefinitions}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Sword className="w-4 h-4 text-amber-400" />
                 <span>Combat Power:</span>
-                <strong className="text-[#fef08a] font-bold text-sm">{character?.power || 50} CP</strong>
+                <strong className="text-[#fef08a] font-bold text-sm">
+                  <NumberTicker value={character?.power || 50} /> CP
+                </strong>
               </div>
             </div>
           </div>
@@ -295,7 +306,7 @@ export default function SkillsPage() {
               </div>
               <div className="flex items-baseline gap-2 mt-0.5">
                 <span className="text-3xl sm:text-4xl font-black text-[#fef08a] font-pixel tracking-tight">
-                  {character?.availableSP || 0}
+                  <NumberTicker value={character?.availableSP || 0} />
                 </span>
                 <span className="text-xs font-mono font-bold text-amber-300">SP</span>
               </div>
@@ -491,7 +502,9 @@ export default function SkillsPage() {
                 <div className="bg-[#080d1a] p-4 border border-[#785a28]/40 rounded-none shadow-[2px_2px_0_0_#000] space-y-2">
                   <div className="flex items-center justify-between text-xs font-mono">
                     <span className="text-slate-300">Constellation Awakening:</span>
-                    <span className="text-[#fef08a] font-bold">{elemMastered} / {allElemSkills.length} Stars ({progressPercent}%)</span>
+                    <span className="text-[#fef08a] font-bold">
+                      <NumberTicker value={elemMastered} /> / {allElemSkills.length} Stars ({progressPercent}%)
+                    </span>
                   </div>
                   <div className="w-full h-2 bg-[#020409] border border-[#785a28]/60 overflow-hidden rounded-none">
                     <div
@@ -663,7 +676,9 @@ export default function SkillsPage() {
 
                       <div className="flex items-center justify-between text-[11px] text-[#ca9e54] px-1 font-mono">
                         <span className="bg-[#0a0f1d] px-1.5 py-0.5 rounded-none border border-[#785a28]/40 text-amber-300 font-semibold">{meta.scalingStats}</span>
-                        <span className="text-[#fef08a] font-bold">{elemMastered}/{allPathSkills.length} Awakened</span>
+                        <span className="text-[#fef08a] font-bold">
+                          <NumberTicker value={elemMastered} />/{allPathSkills.length} Awakened
+                        </span>
                       </div>
 
                       {/* Starlight Progress Bar */}
@@ -805,7 +820,9 @@ export default function SkillsPage() {
 
               <div className="flex items-center justify-between bg-[#0c1424] border border-[#785a28]/40 p-3 rounded-none">
                 <span className="text-xs font-mono text-slate-300">Your Current Astral Essence:</span>
-                <span className="text-sm font-bold font-mono text-[#fef08a]">{character?.availableSP || 0} SP Available</span>
+                <span className="text-sm font-bold font-mono text-[#fef08a]">
+                  <NumberTicker value={character?.availableSP || 0} /> SP Available
+                </span>
               </div>
 
               <div className="pt-2 flex justify-end">

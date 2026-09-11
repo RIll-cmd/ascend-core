@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { playUISound, playUIMenuSFX } from "@/utils/audio";
 import { PixelBadge } from "./PixelBadge";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
 import { Sparkles, Shield, Flame, Zap, Waves, Crown, Eye, ArrowUpRight } from "lucide-react";
 
 export interface StatNodeData {
@@ -576,14 +578,14 @@ export const KonosubaElementalMatrix: React.FC<KonosubaElementalMatrixProps> = (
                     </div>
 
                     <div className="flex items-center gap-2 text-xs">
-                      <span className="text-[#6d4c3d]">Base: <strong className="text-[#221208]">{activeNode.baseVal}</strong></span>
+                      <span className="text-[#6d4c3d]">Base: <strong className="text-[#221208]"><NumberTicker value={activeNode.baseVal} /></strong></span>
                       {activeNode.multPct > 0 && (
                         <span className="text-emerald-900 font-bold">
                           (+{activeNode.multPct}% Gear)
                         </span>
                       )}
                       <span className="text-[#361c0c] font-black">
-                        = Total: <strong className="text-amber-950 text-sm">{activeNode.effectiveVal}</strong>
+                        = Total: <strong className="text-amber-950 text-sm"><NumberTicker value={activeNode.effectiveVal} /></strong>
                       </span>
                     </div>
                   </div>
@@ -598,17 +600,19 @@ export const KonosubaElementalMatrix: React.FC<KonosubaElementalMatrixProps> = (
                       <span>{activeNode.irlSource}</span>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (onSelectStat) onSelectStat(activeNode.key);
-                        playUIMenuSFX("confirm");
-                      }}
-                      className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-950 hover:text-black underline cursor-pointer"
-                    >
-                      <span>{selectedStat === activeNode.key ? "Selected" : "Focus Attribute"}</span>
-                      <ArrowUpRight className="w-3 h-3" />
-                    </button>
+                    <CoolMode options={{ particle: "✨", size: 16, speedHorz: 3, speedUp: 6 }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (onSelectStat) onSelectStat(activeNode.key);
+                          playUIMenuSFX("confirm");
+                        }}
+                        className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-950 hover:text-black underline cursor-pointer"
+                      >
+                        <span>{selectedStat === activeNode.key ? "Selected" : "Focus Attribute"}</span>
+                        <ArrowUpRight className="w-3 h-3" />
+                      </button>
+                    </CoolMode>
                   </div>
                 </>
               ) : (
@@ -623,7 +627,7 @@ export const KonosubaElementalMatrix: React.FC<KonosubaElementalMatrixProps> = (
             <div className="mt-3 flex items-center justify-between text-xs pt-1 z-10 relative">
               <div className="flex items-center gap-1.5">
                 <span className="text-[#6d4c3d] font-bold">AVAILABLE SP:</span>
-                <strong className="text-amber-950 font-pixel">{availableSP} SP</strong>
+                <strong className="text-amber-950 font-pixel"><NumberTicker value={availableSP} /> SP</strong>
               </div>
               
               {/* Authentic Grimoire Page Folio */}
@@ -633,7 +637,7 @@ export const KonosubaElementalMatrix: React.FC<KonosubaElementalMatrixProps> = (
 
               <div className="flex items-center gap-1.5">
                 <span className="text-[#6d4c3d] font-bold">POWER:</span>
-                <strong className="text-[#221208] font-pixel">{combatPower.toLocaleString()}</strong>
+                <strong className="text-[#221208] font-pixel"><NumberTicker value={combatPower} /></strong>
               </div>
             </div>
 

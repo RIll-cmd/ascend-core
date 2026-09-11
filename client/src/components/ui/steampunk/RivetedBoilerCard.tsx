@@ -75,12 +75,32 @@ export function RivetedBoilerCard({
   rivetDensity = "low",
   className,
   children,
+  onMouseMove,
+  onMouseEnter,
+  onMouseLeave,
   ...props
 }: RivetedBoilerCardProps) {
   const theme = BOILER_THEMES[variant] || BOILER_THEMES.default;
+  const [mousePos, setMousePos] = React.useState({ x: -200, y: -200 });
+  const [isHovered, setIsHovered] = React.useState(false);
+
+  const handlePointerMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    if (onMouseMove) onMouseMove(e);
+  };
 
   return (
     <div
+      onMouseMove={handlePointerMove}
+      onMouseEnter={(e) => {
+        setIsHovered(true);
+        if (onMouseEnter) onMouseEnter(e);
+      }}
+      onMouseLeave={(e) => {
+        setIsHovered(false);
+        if (onMouseLeave) onMouseLeave(e);
+      }}
       className={cn(
         "relative backdrop-blur-md border-4 p-5 sm:p-7 select-none overflow-hidden group",
         theme.borderOuter,
@@ -90,6 +110,15 @@ export function RivetedBoilerCard({
       )}
       {...props}
     >
+      {/* Subtle Steampunk Amber Spotlight Glow */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-500 z-0"
+        style={{
+          opacity: isHovered ? 0.22 : 0,
+          background: `radial-gradient(320px circle at ${mousePos.x}px ${mousePos.y}px, rgba(245, 158, 11, 0.4), transparent 80%)`,
+        }}
+      />
+
       {/* 4 Precision Beveled Brass Corner Brackets */}
       <div className={cn("absolute top-1 left-1 w-5 h-5 border-t-2 border-l-2 pointer-events-none z-10", theme.bracket)} />
       <div className={cn("absolute top-1 right-1 w-5 h-5 border-t-2 border-r-2 pointer-events-none z-10", theme.bracket)} />

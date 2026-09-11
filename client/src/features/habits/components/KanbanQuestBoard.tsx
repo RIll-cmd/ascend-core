@@ -8,6 +8,7 @@ import { playUIMenuSFX } from "@/utils/audio";
 import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
 import {
   PixelLayersIcon,
   PixelCheckIcon,
@@ -235,18 +236,20 @@ export const KanbanQuestBoard: React.FC = () => {
           </select>
 
           {/* Construct Quest Button */}
-          <PixelButton
-            variant="gold"
-            size="md"
-            onClick={() => {
-              playUIMenuSFX();
-              setIsModalOpen(true);
-            }}
-            className="text-xs"
-          >
-            <PixelPlusIcon className="w-3.5 h-3.5 mr-1" />
-            <span>Create Mission</span>
-          </PixelButton>
+          <CoolMode options={{ particle: "📜", size: 22, speedHorz: 4, speedUp: 8 }}>
+            <PixelButton
+              variant="gold"
+              size="md"
+              onClick={() => {
+                playUIMenuSFX();
+                setIsModalOpen(true);
+              }}
+              className="text-xs"
+            >
+              <PixelPlusIcon className="w-3.5 h-3.5 mr-1" />
+              <span>Create Mission</span>
+            </PixelButton>
+          </CoolMode>
         </div>
       </div>
 
@@ -271,7 +274,7 @@ export const KanbanQuestBoard: React.FC = () => {
                 : "bg-[#2b1810] text-[#d4a373] border-[#542d17] hover:border-[#8c5225]"
             }`}
           >
-            ALL TAGS ({quests.length})
+            ALL TAGS (<NumberTicker value={quests.length} />)
           </button>
 
           {allTags.map((tag) => (
@@ -298,30 +301,36 @@ export const KanbanQuestBoard: React.FC = () => {
       {/* EMPTY STATE BANNER (Grand Pinned Parchment Decree) */}
       {/* ========================================================= */}
       {totalQuests === 0 && (
-        <div className="p-8 pixel-parchment border-4 border-[#381e0f] text-center flex flex-col items-center justify-center space-y-3 font-pixel max-w-xl mx-auto my-6 shadow-[0_8px_16px_rgba(0,0,0,0.6)]">
-          <div className="flex items-center gap-3 flex-wrap justify-center">
-            <div className="w-10 h-10 bg-[#ebd099] border-2 border-[#381e0f] flex items-center justify-center text-[#2b170c] shrink-0">
-              <PixelCrosshairIcon className="w-6 h-6 text-[#2b170c]" />
+        <div className="w-full py-3.5 px-4 sm:px-6 pixel-parchment border-4 border-[#381e0f] text-center flex flex-col sm:flex-row items-center justify-between gap-3 font-pixel my-3 shadow-[0_8px_16px_rgba(0,0,0,0.6)]">
+          <div className="flex items-center gap-3 text-left">
+            <div className="w-8 h-8 bg-[#ebd099] border-2 border-[#381e0f] flex items-center justify-center text-[#2b170c] shrink-0">
+              <PixelCrosshairIcon className="w-4 h-4 text-[#2b170c]" />
             </div>
-            <h2 className="text-sm sm:text-base font-bold text-[#2b170c] uppercase tracking-wider">
-              NO ACTIVE MISSIONS ON BOARD
-            </h2>
+            <div>
+              <h2 className="text-xs sm:text-sm font-bold text-[#2b170c] uppercase tracking-wider">
+                NO ACTIVE MISSIONS ON BOARD
+              </h2>
+              <p className="text-[11px] text-[#4a2e1b] mt-0.5 leading-snug">
+                The mission board is currently empty. Create your first mission directive to begin earning EXP, Gold rewards, and stat progression.
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-[#4a2e1b] max-w-md">
-            The mission board is currently empty. Create your first mission directive to begin earning EXP, Gold rewards, and stat progression.
-          </p>
-          <PixelButton
-            variant="gold"
-            size="md"
-            onClick={() => {
-              playUIMenuSFX();
-              setIsModalOpen(true);
-            }}
-            className="text-xs mt-2"
-          >
-            <PixelPlusIcon className="w-3.5 h-3.5 mr-1" />
-            <span>CREATE FIRST MISSION</span>
-          </PixelButton>
+          <div className="shrink-0">
+            <CoolMode options={{ particle: "📜", size: 20, speedHorz: 4, speedUp: 8 }}>
+              <PixelButton
+                variant="gold"
+                size="sm"
+                onClick={() => {
+                  playUIMenuSFX();
+                  setIsModalOpen(true);
+                }}
+                className="text-xs whitespace-nowrap"
+              >
+                <PixelPlusIcon className="w-3.5 h-3.5 mr-1" />
+                <span>CREATE FIRST MISSION</span>
+              </PixelButton>
+            </CoolMode>
+          </div>
         </div>
       )}
 
@@ -335,7 +344,7 @@ export const KanbanQuestBoard: React.FC = () => {
           return (
             <div
               key={col.id}
-              className="pixel-cork-board border-4 border-[#3a1d0d] p-3 flex flex-col min-h-[580px] relative shadow-[inset_0_0_30px_rgba(30,15,5,0.85),0_8px_16px_rgba(0,0,0,0.7)]"
+              className="pixel-cork-board border-4 border-[#3a1d0d] p-3 flex flex-col min-h-0 h-auto relative shadow-[inset_0_0_30px_rgba(30,15,5,0.85),0_8px_16px_rgba(0,0,0,0.7)] transition-all duration-200"
             >
               {/* Column Header Plaque (Carved Timber Beam) */}
               <div className="bg-[#381c0d] border-2 border-[#1c0c04] px-3 py-2 mb-3 shadow-[inset_1px_1px_0_0_#693518,inset_-1px_-1px_0_0_#140702,0_3px_6px_rgba(0,0,0,0.6)] flex items-center justify-between">
@@ -352,7 +361,7 @@ export const KanbanQuestBoard: React.FC = () => {
                 </div>
 
                 <span className="font-pixel text-xs font-bold px-2 py-0.5 bg-[#1f0e06] border border-[#522912] text-[#fef08a] shadow-[inset_1px_1px_0_0_#000]">
-                  {colQuests.length}
+                  <NumberTicker value={colQuests.length} />
                 </span>
               </div>
 

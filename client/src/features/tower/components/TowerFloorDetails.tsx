@@ -256,13 +256,17 @@ function Loot({
       mechanics={lore.mechanics}
       tags={lore.tags}
     >
-      <div className="flex min-h-14 cursor-help items-center gap-2 rounded-md border border-[#816b46] bg-[#4b3b2a] px-2.5 py-1.5 shadow-[0_4px_8px_rgba(20,18,12,0.22)]">
-        <CurrencyIcon type={type} size="sm" />
-        <div>
-          <p className="font-mono text-xs sm:text-sm font-bold text-[#fff0b6]">
+      <div className="flex min-h-[58px] cursor-help items-center justify-center gap-2.5 sm:gap-3 rounded-lg border border-[#816b46] bg-[#362b1e]/95 hover:bg-[#433525] px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_4px_8px_rgba(0,0,0,0.3)] transition-all">
+        <div className="w-8 h-8 rounded-full bg-[#1e1710] border border-[#816b46]/70 flex items-center justify-center shrink-0 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]">
+          <CurrencyIcon type={type} size="md" className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" />
+        </div>
+        <div className="flex flex-col justify-center min-w-0">
+          <p className="font-mono text-xs sm:text-sm font-bold text-[#fff0b6] leading-tight tabular-nums">
             +{value.toLocaleString()}
           </p>
-          <p className="text-[9px] uppercase tracking-wider text-[#cdbf98]">{label}</p>
+          <p className="text-[9px] uppercase tracking-wider text-[#cdbf98] font-pixel font-bold leading-tight mt-0.5">
+            {label}
+          </p>
         </div>
       </div>
     </SystemTooltip>

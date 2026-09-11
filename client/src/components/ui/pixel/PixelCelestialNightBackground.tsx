@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 /* =========================================================================
    16-BIT CELESTIAL AURORA NIGHT BACKGROUND COMPONENT
@@ -64,6 +65,8 @@ function CrossSparkle({
 }
 
 export function PixelCelestialNightBackground() {
+  const pathname = usePathname();
+  const isSkillsPage = pathname === "/skills";
   const [mounted, setMounted] = useState(false);
   const [shootingStarKey, setShootingStarKey] = useState(0);
 
@@ -205,8 +208,9 @@ export function PixelCelestialNightBackground() {
           4. DYNAMIC SHOOTING STAR (METEOR SHOWER ENGINE)
           Streaks diagonally down-left from the cosmic zenith
           with a 4-point cross star head & a fiery magenta-white tail.
+          Disabled on /skills to maintain serene floating runes atmosphere.
           ========================================================= */}
-      {mounted && (
+      {mounted && !isSkillsPage && (
         <div
           key={`meteor-${shootingStarKey}`}
           className="absolute pointer-events-none z-20 animate-shooting-meteor"
@@ -250,7 +254,7 @@ export function PixelCelestialNightBackground() {
       )}
 
       {/* Occasional Faint Secondary Cyan Micro-Meteor (Right Sky) */}
-      {mounted && (
+      {mounted && !isSkillsPage && (
         <div
           className="absolute pointer-events-none z-20 animate-micro-meteor"
           style={{

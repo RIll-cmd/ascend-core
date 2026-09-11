@@ -7,6 +7,7 @@ import {
   PixelWaterfallIcon,
   PixelMoonSleepIcon,
 } from "@/components/ui/pixel/PixelIcons";
+import { NumberTicker } from "@/components/ui/number-ticker";
 import { useSleepStore } from "../store/useSleepStore";
 import { cn } from "@/lib/utils";
 
@@ -71,7 +72,7 @@ export const SleepHistoryChart: React.FC<{ className?: string }> = ({ className 
           </span>
           <div className="flex items-baseline gap-1 font-pixel">
             <span className="text-2xl sm:text-3xl font-bold text-[#fef08a] tabular-nums">
-              {avgEfficiency}%
+              <NumberTicker value={avgEfficiency} />%
             </span>
           </div>
           <span className="text-xs sm:text-sm font-pixel font-bold text-[#fbbf24] block truncate">
@@ -111,7 +112,7 @@ export const SleepHistoryChart: React.FC<{ className?: string }> = ({ className 
           </span>
           <div className="flex items-baseline gap-1 font-pixel">
             <span className="text-2xl sm:text-3xl font-bold text-[#facc15] tabular-nums">
-              {streak}
+              <NumberTicker value={streak} />
             </span>
             <span className="text-xs sm:text-sm text-slate-300 font-bold">days</span>
           </div>

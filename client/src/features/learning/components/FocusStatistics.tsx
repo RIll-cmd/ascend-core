@@ -27,6 +27,7 @@ import {
 import { PixelProgress } from "@/components/ui/pixel/PixelProgress";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { PixelAgedParchment } from "@/components/ui/pixel/PixelAgedParchment";
+import { NumberTicker } from "@/components/ui/number-ticker";
 import { playUIMenuSFX, playBuffSFX } from "@/utils/audio";
 import { cn } from "@/lib/utils";
 
@@ -784,6 +785,7 @@ export const FocusStatistics: React.FC<{ className?: string }> = ({ className = 
 
         {/* Dedicated Action & Rank Crest Row */}
         <div className="flex items-center justify-center gap-3 flex-wrap w-full">
+          {/* Inscribe New Tome Button */}
           <button
             type="button"
             onClick={() => {
@@ -820,7 +822,7 @@ export const FocusStatistics: React.FC<{ className?: string }> = ({ className = 
             Tier {rankData.current.tier} Progression
           </span>
           <span className="text-[#fef08a] font-mono font-bold tabular-nums">
-            {totalHoursNum} hrs inscribed
+            <NumberTicker value={totalHoursNum} /> hrs inscribed
           </span>
         </div>
 

@@ -243,6 +243,19 @@ Completion criterion: AIRA can answer missions, habits, sleep, steps, and health
 
 Owner: `core-actions-agent`
 
+Phase B foundation provides `POST /api/aira/operations/preview`, strict
+preview/execute request envelopes, and opaque HMAC-signed confirmation tokens
+that expire after five minutes. Tokens bind the actor, character, operation,
+request ID, and normalized metadata arguments. The `AIRAOperationAudit` model
+reserves a durable audit/idempotency record keyed by `(actorId, requestId)`.
+
+No domain mutation is enabled by this foundation alone. Habits, missions,
+workouts, automations, and shop purchases must first register validated domain
+adapters; each adapter will execute through the idempotent coordinator and
+write only safe metadata/results to the audit record. Tokens, prompts, and
+Vision media are never recorded. The existing three Vision observation
+automations remain on their separate no-confirmation contract.
+
 - [ ] Add typed action preview and execution endpoints.
 - [ ] Implement `create_habit`, `complete_habit`, `create_automation`, and `update_automation` through existing domain services.
 - [ ] Normalize inputs before execution.

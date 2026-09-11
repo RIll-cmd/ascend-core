@@ -98,6 +98,8 @@ model Character {
   integrationObservations IntegrationObservation[]
   automationRules     AutomationRule[]
   automationExecutions AutomationExecution[]
+  airaOperationAudits AIRAOperationAudit[]
+  calendarSchedules   CalendarSchedule[]
 }
 
 model CharacterStats {
@@ -176,6 +178,23 @@ model AutomationExecution {
   @@index([characterId, executedAt])
 }
 
+model AIRAOperationAudit {
+  id           String    @id @default(uuid())
+  actorId      String
+  characterId  String
+  character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  operation    String
+  requestId    String
+  status       String
+  metadataJson String    @default("{}")
+  resultJson   String    @default("{}")
+  createdAt    DateTime  @default(now())
+  executedAt   DateTime?
+
+  @@unique([actorId, requestId])
+  @@index([characterId, createdAt])
+}
+
 model Habit {
   id            String    @id @default(uuid())
   characterId   String
@@ -240,6 +259,22 @@ model DailyCompletionSnapshot {
   createdAt      DateTime  @default(now())
 
   @@unique([characterId, date])
+}
+
+model CalendarSchedule {
+  id           String    @id @default(uuid())
+  characterId  String
+  character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  title        String
+  time         String
+  scheduleType String
+  dayOfWeek    Int?
+  scheduledAt  DateTime?
+  completed    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([characterId])
 }
 
 model HabitSchedule {

@@ -10,6 +10,7 @@ import {
   ScrollText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CoolMode } from "@/components/ui/cool-mode";
 import { useCharacterStore } from "@/store/useCharacterStore";
 import { useBossStore } from "@/features/bosses/store/useBossStore";
 import { getBossSummary } from "@/features/bosses/utils/bossPresentation";
@@ -214,17 +215,19 @@ export function ForbiddenContractHall() {
                       </p>
                     </div>
 
-                    {/* Central Summon Trigger Button with Fiery Amber / Astral Cyan Aura */}
+                    {/* Central Summon Trigger Button with Fiery Amber / Astral Cyan Aura & CoolMode */}
                     <div className="pt-3">
-                      <Button
-                        type="button"
-                        onClick={() => setIsModalOpen(true)}
-                        onMouseEnter={() => setIsHoveringSummon(true)}
-                        onMouseLeave={() => setIsHoveringSummon(false)}
-                        className="h-12 sm:h-13 rounded-xl border-2 border-amber-400 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 px-7 sm:px-9 font-pixel text-xs sm:text-sm text-amber-950 font-black tracking-wider ritual-button-glow hover:from-amber-400 hover:to-amber-500 hover:scale-105 active:scale-95 transition-all duration-200 shadow-[0_0_30px_rgba(245,158,11,0.5)] cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-300"
-                      >
-                        Initiate First Binding
-                      </Button>
+                      <CoolMode options={{ particle: "🔥", size: 24, speedHorz: 4.5, speedUp: 8.5 }}>
+                        <Button
+                          type="button"
+                          onClick={() => setIsModalOpen(true)}
+                          onMouseEnter={() => setIsHoveringSummon(true)}
+                          onMouseLeave={() => setIsHoveringSummon(false)}
+                          className="h-12 sm:h-13 rounded-xl border-2 border-amber-400 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 px-7 sm:px-9 font-pixel text-xs sm:text-sm text-amber-950 font-black tracking-wider ritual-button-glow hover:from-amber-400 hover:to-amber-500 hover:scale-105 active:scale-95 transition-all duration-200 shadow-[0_0_30px_rgba(245,158,11,0.5)] cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-300"
+                        >
+                          Initiate First Binding
+                        </Button>
+                      </CoolMode>
                     </div>
                   </div>
                 </div>

@@ -9,6 +9,10 @@ import {
   Target,
   Lock,
   Check,
+  Flame,
+  Zap,
+  TrendingUp,
+  Award,
 } from "lucide-react";
 import {
   playUIMenuSFX,
@@ -27,6 +31,10 @@ import {
   FireDrakeConstellation,
   SovereignCrownConstellation,
 } from "@/components/ui/pixel";
+import { MagicCard } from "@/components/ui/magic-card";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
+import { Particles } from "@/components/ui/particles";
 
 interface Achievement {
   id: string;
@@ -184,8 +192,8 @@ const FALLBACK_ACHIEVEMENTS: Achievement[] = [
     currentProgress: 2,
     isCompleted: false,
     isClaimed: false,
-    rewardGold: 500,
-    rewardGems: 50,
+    rewardGold: 600,
+    rewardGems: 60,
     unlockRequirement: "Clear Floor 15 in Tower of Ascension",
   },
   {
@@ -214,39 +222,39 @@ const FALLBACK_ACHIEVEMENTS: Achievement[] = [
     isClaimed: false,
     rewardGold: 2500,
     rewardGems: 250,
-    unlockRequirement: "Reach Floor 50 in Tower of Ascension",
+    unlockRequirement: "Clear Floor 50 in Tower of Ascension",
   },
   {
     id: "ach-13",
-    title: "AI Assistant Partner",
-    description: "Send 10 prompts to AIRA.",
+    title: "Shadow Initiate",
+    description: "Reach Character Level 5.",
     category: "SOCIAL",
     icon: "/achievements_icons/sliced/ach_icon_13.png",
+    targetValue: 5,
+    currentProgress: 5,
+    isCompleted: true,
+    isClaimed: false,
+    rewardGold: 150,
+    rewardGems: 15,
+    unlockRequirement: "Reach Level 5",
+  },
+  {
+    id: "ach-14",
+    title: "Sanctuary Sovereign",
+    description: "Reach Character Level 10.",
+    category: "SOCIAL",
+    icon: "/achievements_icons/sliced/ach_icon_14.png",
     targetValue: 10,
     currentProgress: 5,
     isCompleted: false,
     isClaimed: false,
-    rewardGold: 150,
-    rewardGems: 15,
-    unlockRequirement: "Send 10 messages/prompts to AIRA",
-  },
-  {
-    id: "ach-14",
-    title: "Guild Contributor",
-    description: "Earn 1,000 Total Power Score.",
-    category: "SOCIAL",
-    icon: "/achievements_icons/sliced/ach_icon_14.png",
-    targetValue: 1000,
-    currentProgress: 350,
-    isCompleted: false,
-    isClaimed: false,
     rewardGold: 400,
     rewardGems: 40,
-    unlockRequirement: "Reach 1,000 Total Character Power",
+    unlockRequirement: "Reach Level 10",
   },
   {
     id: "ach-15",
-    title: "Ascended Being",
+    title: "Monarch of Will",
     description: "Reach Character Level 25.",
     category: "SOCIAL",
     icon: "/achievements_icons/sliced/ach_icon_15.png",
@@ -280,6 +288,35 @@ function getRarity(ach: Achievement): "COMMON" | "RARE" | "EPIC" | "LEGENDARY" {
   if (ach.targetValue >= 7 || ach.rewardGold >= 250) return "RARE";
   return "COMMON";
 }
+
+const getRarityGlow = (rarity: string) => {
+  switch (rarity) {
+    case "LEGENDARY":
+      return {
+        from: "#d946ef",
+        to: "#a855f7",
+        color: "rgba(217, 70, 239, 0.18)",
+      };
+    case "EPIC":
+      return {
+        from: "#a855f7",
+        to: "#7c3aed",
+        color: "rgba(168, 85, 247, 0.16)",
+      };
+    case "RARE":
+      return {
+        from: "#06b6d4",
+        to: "#3b82f6",
+        color: "rgba(6, 182, 212, 0.16)",
+      };
+    default:
+      return {
+        from: "#64748b",
+        to: "#94a3b8",
+        color: "rgba(148, 163, 184, 0.12)",
+      };
+  }
+};
 
 export default function AchievementsPage() {
   const { character, loadCharacter } = useCharacterStore();
@@ -368,7 +405,25 @@ export default function AchievementsPage() {
         {/* =========================================================
             HEADER BANNER: CHRONICLES OF THE SHADOW MONARCH
             ========================================================= */}
-        <div className="relative rounded-3xl bg-gradient-to-r from-[#120722]/95 via-[#1a0c32]/90 to-[#0e051c]/95 border border-purple-500/40 p-6 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.6)] backdrop-blur-md overflow-hidden">
+        <MagicCard
+          className="relative rounded-3xl border border-purple-500/40 p-6 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.6)] backdrop-blur-md overflow-hidden"
+          innerClassName="bg-gradient-to-r from-[#120722]/95 via-[#1a0c32]/90 to-[#0e051c]/95"
+          backgroundColor="transparent"
+          gradientColor="rgba(192, 132, 252, 0.15)"
+          gradientFrom="#a855f7"
+          gradientTo="#c084fc"
+          gradientSize={380}
+        >
+          {/* Subtle Ambient Shadow Mana Particles */}
+          <Particles
+            className="absolute inset-0 pointer-events-none z-10"
+            quantity={28}
+            color="#c084fc"
+            size={0.6}
+            staticity={35}
+            ease={50}
+          />
+
           {/* Ambient Ethereal Glow Orbs */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-fuchsia-600/15 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
@@ -376,7 +431,7 @@ export default function AchievementsPage() {
           {/* Runic Trim Watermark */}
           <div className="absolute -top-10 -right-10 w-44 h-44 border border-purple-500/15 rounded-full pointer-events-none" />
 
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="relative z-20 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="relative p-2.5 rounded-2xl bg-gradient-to-b from-[#240c42]/90 via-[#15072b]/95 to-[#090214]/95 border-2 border-purple-400/60 shadow-[0_0_25px_rgba(192,132,252,0.4)] shrink-0 group">
                 <div className="absolute inset-0 rounded-2xl bg-fuchsia-500/10 blur-md pointer-events-none group-hover:bg-fuchsia-500/20 transition-all" />
@@ -397,14 +452,15 @@ export default function AchievementsPage() {
               </div>
             </div>
 
-            {/* High-Contrast Telemetry Stats Pill Box */}
-            <div className="flex items-center gap-4 bg-[#090314]/95 border border-purple-500/30 p-4 rounded-2xl shadow-2xl backdrop-blur-md shrink-0">
+            {/* High-Contrast Telemetry Stats Pill Box with NumberTicker */}
+            <div className="flex items-center gap-4 bg-[#090314]/95 border border-purple-500/30 p-4 rounded-2xl shadow-2xl backdrop-blur-md shrink-0 relative z-20">
               <div className="text-center px-3">
                 <span className="block text-xs font-bold font-pixel text-purple-300/80 uppercase tracking-widest">
                   UNLOCKED
                 </span>
-                <span className="text-2xl font-black font-pixel text-purple-300 drop-shadow-[0_0_10px_rgba(192,132,252,0.5)]">
-                  {obtainedCount} <span className="text-sm font-normal font-sans text-purple-400/60">/ {totalCount}</span>
+                <span className="text-2xl font-black font-pixel text-purple-300 drop-shadow-[0_0_10px_rgba(192,132,252,0.5)] flex items-center justify-center gap-1">
+                  <NumberTicker value={obtainedCount} className="text-purple-300 font-pixel" />
+                  <span className="text-sm font-normal font-sans text-purple-400/60">/ {totalCount}</span>
                 </span>
               </div>
 
@@ -414,8 +470,9 @@ export default function AchievementsPage() {
                 <span className="block text-xs font-bold font-pixel text-cyan-300/80 uppercase tracking-widest">
                   PROGRESS
                 </span>
-                <span className="text-2xl font-black font-pixel text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
-                  {completionPercent}%
+                <span className="text-2xl font-black font-pixel text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] flex items-center justify-center">
+                  <NumberTicker value={completionPercent} className="text-cyan-400 font-pixel" />
+                  <span>%</span>
                 </span>
               </div>
 
@@ -425,131 +482,213 @@ export default function AchievementsPage() {
                 <span className="block text-xs font-bold font-pixel text-amber-300/80 uppercase tracking-widest">
                   TRIBUTE
                 </span>
-                <span className="text-2xl font-black font-pixel text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]">
-                  +{totalGoldEarned}g
+                <span className="text-2xl font-black font-pixel text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)] flex items-center justify-center">
+                  <span>+</span>
+                  <NumberTicker value={totalGoldEarned} className="text-amber-400 font-pixel" />
+                  <span>g</span>
                 </span>
               </div>
             </div>
           </div>
-        </div>
+        </MagicCard>
+
+        {/* =========================================================
+            HABIT TRACKER ELEMENT: STORM ROC'S WILLPOWER RESONANCE
+            ========================================================= */}
+        <MagicCard
+          className="rounded-2xl border border-cyan-500/35 p-4 sm:p-5 shadow-[0_8px_25px_rgba(6,182,212,0.15)] relative overflow-hidden backdrop-blur-md"
+          innerClassName="bg-gradient-to-r from-[#0a1020]/95 via-[#0e1628]/95 to-[#070b16]/95"
+          backgroundColor="transparent"
+          gradientColor="rgba(6, 182, 212, 0.14)"
+          gradientFrom="#06b6d4"
+          gradientTo="#3b82f6"
+          gradientSize={300}
+        >
+          <div className="relative z-20 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-xl bg-cyan-950/80 border border-cyan-400/50 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                <StormRocConstellation size={28} className="text-cyan-300 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+              </div>
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-widest">
+                    STORM ROC HABIT RESONANCE
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-mono text-[9.5px] font-bold">
+                    <Zap className="w-2.5 h-2.5 text-cyan-400" />
+                    <span>Habit Engine Synced</span>
+                  </span>
+                </div>
+                <h2 className="text-base sm:text-lg font-bold font-pixel text-white tracking-wide">
+                  Habit Willpower & Streak Milestones
+                </h2>
+                <p className="text-xs text-cyan-200/70 font-sans max-w-xl leading-relaxed">
+                  Daily consistency charges the Monarch&apos;s habit monuments. Complete consecutive habit missions to unlock rare sovereign tribute.
+                </p>
+              </div>
+            </div>
+
+            {/* Habit Quick Metrics & Progress to Next Milestone */}
+            <div className="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+              <div className="px-3.5 py-2 rounded-xl bg-[#060c18] border border-cyan-500/30 text-center">
+                <span className="block text-[10px] font-mono uppercase text-cyan-400/80 font-bold">Active Streak</span>
+                <span className="font-pixel text-sm font-bold text-amber-300 flex items-center justify-center gap-1">
+                  <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
+                  <span>4-Day Streak</span>
+                </span>
+              </div>
+
+              <div className="px-3.5 py-2 rounded-xl bg-[#060c18] border border-cyan-500/30 text-center">
+                <span className="block text-[10px] font-mono uppercase text-cyan-400/80 font-bold">Willpower Yield</span>
+                <span className="font-pixel text-sm font-bold text-emerald-400">
+                  +10% Tribute
+                </span>
+              </div>
+
+              <CoolMode options={{ particle: "⚡" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playUIMenuSFX("confirm");
+                    setActiveCategory("HABITS");
+                  }}
+                  className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-slate-950 font-pixel text-xs font-black tracking-wider shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all cursor-pointer whitespace-nowrap"
+                >
+                  VIEW HABIT MONUMENTS
+                </button>
+              </CoolMode>
+            </div>
+          </div>
+        </MagicCard>
 
         {/* =========================================================
             FILTER TOOLBAR: STATUS TOGGLES & MYTHIC CONSTELLATIONS
             ========================================================= */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-[#0e061c]/90 border border-purple-500/30 rounded-2xl p-4 shadow-xl backdrop-blur-md">
-          {/* Status Filters */}
+          {/* Status Filters with CoolMode */}
           <div className="flex items-center gap-1.5 font-pixel text-xs bg-[#070210] p-1.5 rounded-xl border border-purple-900/40">
-            <button
-              onClick={() => {
-                playUIMenuSFX("confirm");
-                setStatusFilter("ALL");
-              }}
-              className={`px-3 py-1.5 rounded-lg font-bold tracking-wider transition-all flex items-center gap-1.5 ${
-                statusFilter === "ALL"
-                  ? "bg-purple-600 text-white shadow-[0_0_12px_rgba(147,51,234,0.5)]"
-                  : "text-purple-300/70 hover:text-white"
-              }`}
-            >
-              <AllConstellationsCluster size={15} className="text-purple-200" />
-              <span>ALL</span>
-              <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${statusFilter === "ALL" ? "bg-purple-800 text-purple-100" : "bg-purple-950/60 text-purple-300"}`}>
-                {achievements.length}
-              </span>
-            </button>
-
-            <button
-              onClick={() => {
-                playUIMenuSFX("confirm");
-                setStatusFilter("OBTAINED");
-              }}
-              className={`px-3 py-1.5 rounded-lg font-bold tracking-wider transition-all flex items-center gap-1.5 ${
-                statusFilter === "OBTAINED"
-                  ? "bg-emerald-600 text-white shadow-[0_0_12px_rgba(16,185,129,0.5)]"
-                  : "text-purple-300/70 hover:text-white"
-              }`}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-              <span>OBTAINED</span>
-              <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${statusFilter === "OBTAINED" ? "bg-emerald-800 text-emerald-100" : "bg-emerald-950/60 text-emerald-300"}`}>
-                {obtainedCount}
-              </span>
-            </button>
-
-            <button
-              onClick={() => {
-                playUIMenuSFX("confirm");
-                setStatusFilter("NOT_OBTAINED");
-              }}
-              className={`px-3 py-1.5 rounded-lg font-bold tracking-wider transition-all flex items-center gap-1.5 ${
-                statusFilter === "NOT_OBTAINED"
-                  ? "bg-amber-600 text-white shadow-[0_0_12px_rgba(217,119,6,0.5)]"
-                  : "text-purple-300/70 hover:text-white"
-              }`}
-            >
-              <Lock className="w-3.5 h-3.5 text-amber-300" />
-              <span>LOCKED</span>
-              <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${statusFilter === "NOT_OBTAINED" ? "bg-amber-800 text-amber-100" : "bg-amber-950/60 text-amber-300"}`}>
-                {totalCount - obtainedCount}
-              </span>
-            </button>
-          </div>
-
-          {/* Category Tabs with Mythic Constellation SVG Emblems */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 font-pixel text-xs">
-            {CATEGORIES.map((cat) => (
+            <CoolMode options={{ particle: "✨" }}>
               <button
-                key={cat}
+                type="button"
                 onClick={() => {
                   playUIMenuSFX("confirm");
-                  setActiveCategory(cat);
+                  setStatusFilter("ALL");
                 }}
-                className={`px-3 py-1.5 rounded-xl font-bold tracking-wider transition-all shrink-0 border flex items-center gap-1.5 ${
-                  activeCategory === cat
-                    ? "bg-purple-600/30 text-purple-200 border-purple-400 shadow-[0_0_14px_rgba(168,85,247,0.35)]"
-                    : "bg-[#0a0314]/80 text-purple-300/60 border-purple-900/30 hover:text-white hover:border-purple-600/40"
+                className={`px-3 py-1.5 rounded-lg font-bold tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                  statusFilter === "ALL"
+                    ? "bg-purple-600 text-white shadow-[0_0_12px_rgba(147,51,234,0.5)]"
+                    : "text-purple-300/70 hover:text-white"
                 }`}
               >
-                {cat === "ALL" && (
-                  <>
-                    <AllConstellationsCluster size={16} className="text-purple-300" />
-                    <span>ALL MONUMENTS</span>
-                  </>
-                )}
-                {cat === "HABITS" && (
-                  <>
-                    <StormRocConstellation size={16} className="text-cyan-300" />
-                    <span>HABITS</span>
-                    <span className="text-[11px] opacity-80 tracking-normal font-sans font-medium">STORM ROC</span>
-                  </>
-                )}
-                {cat === "WORKOUT" && (
-                  <>
-                    <StoneTitanConstellation size={16} className="text-amber-300" />
-                    <span>WORKOUT</span>
-                    <span className="text-[11px] opacity-80 tracking-normal font-sans font-medium">STONE TITAN</span>
-                  </>
-                )}
-                {cat === "TOWER" && (
-                  <>
-                    <FireDrakeConstellation size={16} className="text-red-400" />
-                    <span>TOWER</span>
-                    <span className="text-[11px] opacity-80 tracking-normal font-sans font-medium">FIRE DRAKE</span>
-                  </>
-                )}
-                {cat === "SOCIAL" && (
-                  <>
-                    <SovereignCrownConstellation size={16} className="text-fuchsia-300" />
-                    <span>SOCIAL</span>
-                    <span className="text-[11px] opacity-80 tracking-normal font-sans font-medium">MONARCH CROWN</span>
-                  </>
-                )}
+                <AllConstellationsCluster size={15} className="text-purple-200" />
+                <span>ALL</span>
+                <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${statusFilter === "ALL" ? "bg-purple-800 text-purple-100" : "bg-purple-950/60 text-purple-300"}`}>
+                  <NumberTicker value={achievements.length} className="font-mono text-xs font-bold" />
+                </span>
               </button>
+            </CoolMode>
+
+            <CoolMode options={{ particle: "✨" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  playUIMenuSFX("confirm");
+                  setStatusFilter("OBTAINED");
+                }}
+                className={`px-3 py-1.5 rounded-lg font-bold tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                  statusFilter === "OBTAINED"
+                    ? "bg-emerald-600 text-white shadow-[0_0_12px_rgba(16,185,129,0.5)]"
+                    : "text-purple-300/70 hover:text-white"
+                }`}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+                <span>OBTAINED</span>
+                <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${statusFilter === "OBTAINED" ? "bg-emerald-800 text-emerald-100" : "bg-emerald-950/60 text-emerald-300"}`}>
+                  <NumberTicker value={obtainedCount} className="font-mono text-xs font-bold" />
+                </span>
+              </button>
+            </CoolMode>
+
+            <CoolMode options={{ particle: "✨" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  playUIMenuSFX("confirm");
+                  setStatusFilter("NOT_OBTAINED");
+                }}
+                className={`px-3 py-1.5 rounded-lg font-bold tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                  statusFilter === "NOT_OBTAINED"
+                    ? "bg-amber-600 text-white shadow-[0_0_12px_rgba(217,119,6,0.5)]"
+                    : "text-purple-300/70 hover:text-white"
+                }`}
+              >
+                <Lock className="w-3.5 h-3.5 text-amber-300" />
+                <span>LOCKED</span>
+                <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${statusFilter === "NOT_OBTAINED" ? "bg-amber-800 text-amber-100" : "bg-amber-950/60 text-amber-300"}`}>
+                  <NumberTicker value={totalCount - obtainedCount} className="font-mono text-xs font-bold" />
+                </span>
+              </button>
+            </CoolMode>
+          </div>
+
+          {/* Category Tabs with Mythic Constellation SVG Emblems and CoolMode */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 font-pixel text-xs">
+            {CATEGORIES.map((cat) => (
+              <CoolMode key={cat} options={{ particle: "✨" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playUIMenuSFX("confirm");
+                    setActiveCategory(cat);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl font-bold tracking-wider transition-all shrink-0 border flex items-center gap-1.5 cursor-pointer ${
+                    activeCategory === cat
+                      ? "bg-purple-600/30 text-purple-200 border-purple-400 shadow-[0_0_14px_rgba(168,85,247,0.35)]"
+                      : "bg-[#0a0314]/80 text-purple-300/60 border-purple-900/30 hover:text-white hover:border-purple-600/40"
+                  }`}
+                >
+                  {cat === "ALL" && (
+                    <>
+                      <AllConstellationsCluster size={16} className="text-purple-300" />
+                      <span>ALL MONUMENTS</span>
+                    </>
+                  )}
+                  {cat === "HABITS" && (
+                    <>
+                      <StormRocConstellation size={16} className="text-cyan-300" />
+                      <span>HABITS</span>
+                      <span className="text-[11px] opacity-80 tracking-normal font-sans font-medium">STORM ROC</span>
+                    </>
+                  )}
+                  {cat === "WORKOUT" && (
+                    <>
+                      <StoneTitanConstellation size={16} className="text-amber-300" />
+                      <span>WORKOUT</span>
+                      <span className="text-[11px] opacity-80 tracking-normal font-sans font-medium">STONE TITAN</span>
+                    </>
+                  )}
+                  {cat === "TOWER" && (
+                    <>
+                      <FireDrakeConstellation size={16} className="text-red-400" />
+                      <span>TOWER</span>
+                      <span className="text-[11px] opacity-80 tracking-normal font-sans font-medium">FIRE DRAKE</span>
+                    </>
+                  )}
+                  {cat === "SOCIAL" && (
+                    <>
+                      <SovereignCrownConstellation size={16} className="text-fuchsia-300" />
+                      <span>SOCIAL</span>
+                      <span className="text-[11px] opacity-80 tracking-normal font-sans font-medium">MONARCH CROWN</span>
+                    </>
+                  )}
+                </button>
+              </CoolMode>
             ))}
           </div>
         </div>
 
         {/* =========================================================
-            ACHIEVEMENT SOUL-MONOLITHS GRID
+            ACHIEVEMENT SOUL-MONOLITHS GRID WITH MAGICCARDS
             ========================================================= */}
         {loading ? (
           <div className="py-20 text-center text-purple-300/80 font-pixel tracking-wider text-base animate-pulse bg-[#0a0314]/80 rounded-2xl border border-purple-900/40">
@@ -563,24 +702,26 @@ export default function AchievementsPage() {
               const rarity = getRarity(ach);
               const isClaimingThis = claimingId === ach.id;
               const justClaimedThis = recentlyClaimedId === ach.id;
+              const rarityGlow = getRarityGlow(rarity);
 
-              // Rarity-based styling
-              let borderClass = "border-slate-800 bg-[#0d0718]/90";
-              let badgeColor = "text-slate-400 bg-slate-900 border-slate-700";
+              // Rarity-based background and border classes
+              let innerBg = "bg-gradient-to-b from-[#121420]/95 via-[#0c0d18]/95 to-[#070810]/95";
+              let borderClass = "border-slate-700/60 shadow-[0_0_10px_rgba(30,41,59,0.15)]";
+              let badgeColor = "text-slate-300 bg-slate-900/80 border-slate-700";
               let auraClass = "";
 
               if (rarity === "LEGENDARY") {
-                borderClass = "border-fuchsia-500/60 bg-gradient-to-b from-[#1c0b33]/95 via-[#110722]/95 to-[#090314]/95 shadow-[0_0_24px_rgba(217,70,239,0.22)]";
+                innerBg = "bg-gradient-to-b from-[#1c0b33]/95 via-[#110722]/95 to-[#090314]/95";
+                borderClass = "border-fuchsia-500/60 shadow-[0_0_24px_rgba(217,70,239,0.22)]";
                 badgeColor = "text-fuchsia-300 bg-fuchsia-950/80 border-fuchsia-500/50";
               } else if (rarity === "EPIC") {
-                borderClass = "border-purple-500/50 bg-gradient-to-b from-[#160a2c]/95 via-[#0e071e]/95 to-[#070312]/95 shadow-[0_0_18px_rgba(168,85,247,0.18)]";
+                innerBg = "bg-gradient-to-b from-[#160a2c]/95 via-[#0e071e]/95 to-[#070312]/95";
+                borderClass = "border-purple-500/50 shadow-[0_0_18px_rgba(168,85,247,0.18)]";
                 badgeColor = "text-purple-300 bg-purple-950/80 border-purple-500/50";
               } else if (rarity === "RARE") {
-                borderClass = "border-cyan-500/45 bg-gradient-to-b from-[#0c142c]/95 via-[#070e20]/95 to-[#040816]/95 shadow-[0_0_16px_rgba(6,182,212,0.15)]";
+                innerBg = "bg-gradient-to-b from-[#0c142c]/95 via-[#070e20]/95 to-[#040816]/95";
+                borderClass = "border-cyan-500/45 shadow-[0_0_16px_rgba(6,182,212,0.15)]";
                 badgeColor = "text-cyan-300 bg-cyan-950/80 border-cyan-500/50";
-              } else {
-                borderClass = "border-slate-700/60 bg-gradient-to-b from-[#121420]/95 via-[#0c0d18]/95 to-[#070810]/95 shadow-[0_0_10px_rgba(30,41,59,0.15)]";
-                badgeColor = "text-slate-300 bg-slate-900/80 border-slate-700";
               }
 
               if (ach.isCompleted && !ach.isClaimed) {
@@ -588,20 +729,26 @@ export default function AchievementsPage() {
               }
 
               return (
-                <div
+                <MagicCard
                   key={ach.id}
-                  className={`relative rounded-2xl border p-5 flex flex-col overflow-hidden transition-all duration-300 group ${borderClass} ${auraClass} ${
+                  className={`relative rounded-2xl border p-5 flex flex-col justify-between overflow-hidden transition-all duration-300 group ${borderClass} ${auraClass} ${
                     !isUnlocked ? "opacity-80 hover:opacity-100" : ""
                   }`}
+                  innerClassName={innerBg}
+                  backgroundColor="transparent"
+                  gradientColor={rarityGlow.color}
+                  gradientFrom={rarityGlow.from}
+                  gradientTo={rarityGlow.to}
+                  gradientSize={260}
                 >
                   {/* Ready to claim pulsing ambient overlay */}
                   {ach.isCompleted && !ach.isClaimed && (
-                    <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/15 via-purple-600/10 to-transparent pointer-events-none animate-pulse" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/15 via-purple-600/10 to-transparent pointer-events-none animate-pulse z-10" />
                   )}
 
                   {/* Just Claimed Shockwave Ripple */}
                   {justClaimedThis && (
-                    <div className="absolute inset-0 rounded-2xl bg-purple-500/25 border-2 border-fuchsia-400 animate-ping pointer-events-none" />
+                    <div className="absolute inset-0 rounded-2xl bg-purple-500/25 border-2 border-fuchsia-400 animate-ping pointer-events-none z-10" />
                   )}
 
                   {/* Header: Icon, Title & Status */}
@@ -613,7 +760,7 @@ export default function AchievementsPage() {
                     };
 
                     return (
-                      <div className="flex gap-4 items-start relative z-10 mb-3">
+                      <div className="flex gap-4 items-start relative z-20 mb-3">
                         <SystemTooltip
                           title={ach.title}
                           subtitle={`Monarch Soul Monolith • ${ach.category}`}
@@ -710,7 +857,7 @@ export default function AchievementsPage() {
                   })()}
 
                   {/* Clear Unlock Requirement Callout Box */}
-                  <div className="my-2 p-2.5 rounded-xl bg-[#080210]/90 border border-purple-900/40 text-[11px] flex items-start gap-2">
+                  <div className="my-2 p-2.5 rounded-xl bg-[#080210]/90 border border-purple-900/40 text-[11px] flex items-start gap-2 relative z-20">
                     <Target className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
                     <div>
                       <span className="block text-[11px] font-bold text-purple-300 uppercase font-pixel tracking-wider">TRIAL REQUIREMENT:</span>
@@ -718,12 +865,17 @@ export default function AchievementsPage() {
                     </div>
                   </div>
 
-                  {/* Progress Tracker with Liquid Mana Bar */}
-                  <div className="my-3 relative z-10">
+                  {/* Progress Tracker with Liquid Mana Bar & NumberTicker */}
+                  <div className="my-3 relative z-20">
                     <div className="flex justify-between text-[11px] text-purple-300/80 mb-1">
                       <span className="font-pixel text-xs tracking-wider">MONUMENT CHARGE</span>
-                      <span className="font-pixel text-xs font-bold text-slate-100 tracking-wide">
-                        {Math.min(ach.currentProgress, ach.targetValue)} / {ach.targetValue}
+                      <span className="font-pixel text-xs font-bold text-slate-100 tracking-wide flex items-center gap-1">
+                        <NumberTicker
+                          value={Math.min(ach.currentProgress, ach.targetValue)}
+                          className="font-pixel text-xs font-bold text-slate-100"
+                        />
+                        <span>/</span>
+                        <span>{ach.targetValue}</span>
                       </span>
                     </div>
                     <div className="h-2 w-full bg-slate-950 rounded-full overflow-hidden border border-purple-900/30">
@@ -741,16 +893,20 @@ export default function AchievementsPage() {
                   </div>
 
                   {/* Footer: Rewards & Extraction Action */}
-                  <div className="mt-auto pt-3 border-t border-purple-900/30 flex items-center justify-between relative z-10">
+                  <div className="mt-auto pt-3 border-t border-purple-900/30 flex items-center justify-between relative z-20">
                     <div className="flex gap-3">
                       {ach.rewardGold > 0 && (
                         <span className="text-xs font-bold font-pixel tracking-wide text-amber-400 flex items-center gap-1">
-                          +{ach.rewardGold}g Gold
+                          <span>+</span>
+                          <NumberTicker value={ach.rewardGold} className="font-pixel text-xs text-amber-400" />
+                          <span>g Gold</span>
                         </span>
                       )}
                       {ach.rewardGems > 0 && (
                         <span className="text-xs font-bold font-pixel tracking-wide text-cyan-400 flex items-center gap-1">
-                          +{ach.rewardGems} Gems
+                          <span>+</span>
+                          <NumberTicker value={ach.rewardGems} className="font-pixel text-xs text-cyan-400" />
+                          <span>Gems</span>
                         </span>
                       )}
                     </div>
@@ -760,20 +916,23 @@ export default function AchievementsPage() {
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> SOVEREIGN SEALED
                       </span>
                     ) : ach.isCompleted ? (
-                      <button
-                        onClick={() => claimReward(ach.id)}
-                        disabled={isClaimingThis}
-                        className="text-xs font-black font-pixel tracking-wider text-slate-950 bg-gradient-to-r from-fuchsia-400 via-purple-300 to-amber-300 hover:from-fuchsia-300 hover:to-amber-200 px-4 py-1.5 rounded-lg shadow-[0_0_20px_rgba(217,70,239,0.6)] transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
-                      >
-                        {isClaimingThis ? "EXTRACTING..." : "EXTRACT TRIBUTE"}
-                      </button>
+                      <CoolMode options={{ particle: "👑" }}>
+                        <button
+                          type="button"
+                          onClick={() => claimReward(ach.id)}
+                          disabled={isClaimingThis}
+                          className="text-xs font-black font-pixel tracking-wider text-slate-950 bg-gradient-to-r from-fuchsia-400 via-purple-300 to-amber-300 hover:from-fuchsia-300 hover:to-amber-200 px-4 py-1.5 rounded-lg shadow-[0_0_20px_rgba(217,70,239,0.6)] transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
+                        >
+                          {isClaimingThis ? "EXTRACTING..." : "EXTRACT TRIBUTE"}
+                        </button>
+                      </CoolMode>
                     ) : (
                       <span className="text-[11px] font-bold font-pixel tracking-wider text-purple-300/60 flex items-center gap-1 bg-slate-950/80 px-2.5 py-1 rounded-md border border-purple-900/40">
                         <Lock className="w-3 h-3" /> IN TRIAL
                       </span>
                     )}
                   </div>
-                </div>
+                </MagicCard>
               );
             })}
 

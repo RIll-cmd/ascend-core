@@ -3,6 +3,8 @@
 import React, { useId } from "react";
 import { cn } from "@/lib/utils";
 
+import { NumberTicker } from "@/components/ui/number-ticker";
+
 export interface BourdonGaugeProps {
   label: string;
   value: string | number;
@@ -108,21 +110,41 @@ export function BourdonGauge({
   const needleAngle = -125 + (clampedPct / 100) * 250;
   const theme = GAUGE_THEMES[variant] || GAUGE_THEMES.amber;
 
+  const [mousePos, setMousePos] = React.useState({ x: -100, y: -100 });
+  const [isHovered, setIsHovered] = React.useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
   return (
     <div
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className={cn(
         "relative w-full bg-[#160a05]/95 backdrop-blur-md border-4 border-[#3d1908] p-4 sm:p-5 lg:p-5.5 shadow-[0_12px_28px_rgba(0,0,0,0.85),inset_0_1px_2px_rgba(255,255,255,0.08)] flex flex-col justify-between overflow-hidden group select-none min-h-[164px] transition-all hover:border-[#6b2e0f] hover:shadow-[0_16px_36px_rgba(0,0,0,0.95)]",
         className
       )}
     >
+      {/* Magic Spotlight Radial Glow */}
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-300 z-0"
+        style={{
+          opacity: isHovered ? 0.35 : 0,
+          background: `radial-gradient(180px circle at ${mousePos.x}px ${mousePos.y}px, ${theme.glow}, transparent 80%)`,
+        }}
+      />
+
       {/* 4 Corner Brass Rivets */}
-      <div className="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none" />
-      <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none" />
-      <div className="absolute bottom-2 left-2 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none" />
-      <div className="absolute bottom-2 right-2 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none" />
+      <div className="absolute top-2 left-2 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none z-10" />
+      <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none z-10" />
+      <div className="absolute bottom-2 left-2 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none z-10" />
+      <div className="absolute bottom-2 right-2 w-1.5 h-1.5 rounded-full bg-[#d97706] border border-black shadow-[0_0.5px_0_rgba(255,255,255,0.4)] pointer-events-none z-10" />
 
       {/* Top Header Row with Icon and Circular Bourdon Dial */}
-      <div className="flex items-center justify-between border-b border-[#4d220a]/80 pb-3 gap-3">
+      <div className="flex items-center justify-between border-b border-[#4d220a]/80 pb-3 gap-3 relative z-10">
         <div className="flex items-center gap-2 min-w-0">
           {Icon && (
             <div className="w-6 h-6 rounded-xs bg-[#241005] border border-[#5d2b10] flex items-center justify-center shrink-0 shadow-[inset_0_1px_2px_#000]">
@@ -251,17 +273,46 @@ export function BourdonGauge({
       </div>
 
       {/* Main Metric Value, Telemetry Badge, Conduit Bar & Subtext */}
-      <div className="mt-3.5 space-y-2.5">
+      <div className="mt-3.5 space-y-2.5 relative z-10">
         <div className="flex items-baseline justify-between gap-3">
           <div className={cn("text-2xl sm:text-3xl lg:text-[30px] font-pixel font-bold tracking-wider leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]", theme.textValue)}>
-            {value}
+            {typeof value === "number" ? (
+              <NumberTicker value={value} className={cn("font-pixel", theme.textValue)} />
+            ) : typeof value === "string" && !isNaN(parseFloat(value)) && value.includes(" ") ? (
+              (() => {
+                const parts = value.split(" ");
+                const num = parseFloat(parts[0]);
+                if (!isNaN(num)) {
+                  return (
+                    <span>
+                      <NumberTicker value={num} className={cn("font-pixel", theme.textValue)} /> {parts.slice(1).join(" ")}
+                    </span>
+                  );
+                }
+                return value;
+              })()
+            ) : typeof value === "string" && !isNaN(parseFloat(value)) && value.endsWith("d") ? (
+              (() => {
+                const num = parseFloat(value.replace("d", ""));
+                if (!isNaN(num)) {
+                  return (
+                    <span>
+                      <NumberTicker value={num} className={cn("font-pixel", theme.textValue)} />d
+                    </span>
+                  );
+                }
+                return value;
+              })()
+            ) : (
+              value
+            )}
           </div>
 
           {/* Steampunk Pressure Telemetry Badge */}
           <div className={cn("flex items-center gap-1.5 px-2.5 py-1 border rounded-xs shadow-[inset_0_1px_2px_#000] shrink-0", theme.badgeBg, theme.badgeBorder)}>
             <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: theme.needle }} />
-            <span className="font-mono text-xs sm:text-sm font-bold text-[#fde047] tabular-nums leading-none">
-              {Math.round(clampedPct)}%
+            <span className="font-mono text-xs sm:text-sm font-bold text-[#fde047] tabular-nums leading-none flex items-center">
+              <NumberTicker value={Math.round(clampedPct)} className="text-[#fde047] font-mono text-xs sm:text-sm font-bold" />%
             </span>
           </div>
         </div>

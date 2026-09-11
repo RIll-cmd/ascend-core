@@ -4,6 +4,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { SystemTooltip } from "@/components/ui/SystemTooltip";
 import { PixelAdventurerPackIcon } from "@/components/ui/pixel/PixelIcons";
+import { CoolMode } from "@/components/ui/cool-mode";
 import { playUIMenuSFX } from "@/utils/audio";
 
 export interface InventoryBadgeButtonProps {
@@ -96,42 +97,44 @@ export function InventoryBadgeButton({
   };
 
   const badgeContent = (
-    <button
-      type="button"
-      onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      disabled={disabled}
-      aria-label={ariaLabel}
-      className={cn(
-        // Base Layout & Sizing
-        "relative inline-grid place-items-center shrink-0 select-none overflow-hidden",
-        sizeConfig.container,
-        // Thematic Bevel Framing (Dark Wood/Leather Outer Border)
-        "border-[#7c2d12] text-[#1a0d05]",
-        // Warm Amber / Bronze Gradient
-        "bg-gradient-to-br from-[#f59e0b] via-[#d97706] to-[#b45309]",
-        // Inset 1.5px Gold Highlight & Tactile Drop Shadow
-        "shadow-[0_5px_14px_rgba(0,0,0,0.5),inset_0_0_0_2px_#ffd58a,inset_0_1px_2px_rgba(255,255,255,0.4)]",
-        // Interactive States
-        isInteractive
-          ? "cursor-pointer transition-all duration-150 ease-out hover:brightness-110 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(245,158,11,0.45),inset_0_0_0_2px_#ffe29a] active:translate-y-0.5 active:brightness-95 active:shadow-[0_2px_6px_rgba(0,0,0,0.7),inset_0_2px_4px_rgba(0,0,0,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffd58a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1c1917]"
-          : "cursor-default",
-        disabled && "opacity-60 cursor-not-allowed filter grayscale-[0.4]",
-        className
-      )}
-    >
-      {/* Adventurer's Haversack Icon */}
-      <PixelAdventurerPackIcon
-        variant={iconVariant}
+    <CoolMode options={{ particle: "🎒" }}>
+      <button
+        type="button"
+        onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        disabled={disabled}
+        aria-label={ariaLabel}
         className={cn(
-          sizeConfig.icon,
-          "drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]",
-          iconClassName
+          // Base Layout & Sizing
+          "relative inline-grid place-items-center shrink-0 select-none overflow-hidden",
+          sizeConfig.container,
+          // Thematic Bevel Framing (Dark Wood/Leather Outer Border)
+          "border-[#7c2d12] text-[#1a0d05]",
+          // Warm Amber / Bronze Gradient
+          "bg-gradient-to-br from-[#f59e0b] via-[#d97706] to-[#b45309]",
+          // Inset 1.5px Gold Highlight & Tactile Drop Shadow
+          "shadow-[0_5px_14px_rgba(0,0,0,0.5),inset_0_0_0_2px_#ffd58a,inset_0_1px_2px_rgba(255,255,255,0.4)]",
+          // Interactive States
+          isInteractive
+            ? "cursor-pointer transition-all duration-150 ease-out hover:brightness-110 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(245,158,11,0.45),inset_0_0_0_2px_#ffe29a] active:translate-y-0.5 active:brightness-95 active:shadow-[0_2px_6px_rgba(0,0,0,0.7),inset_0_2px_4px_rgba(0,0,0,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffd58a] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1c1917]"
+            : "cursor-default",
+          disabled && "opacity-60 cursor-not-allowed filter grayscale-[0.4]",
+          className
         )}
-      />
+      >
+        {/* Adventurer's Haversack Icon */}
+        <PixelAdventurerPackIcon
+          variant={iconVariant}
+          className={cn(
+            sizeConfig.icon,
+            "drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]",
+            iconClassName
+          )}
+        />
 
-      {children}
-    </button>
+        {children}
+      </button>
+    </CoolMode>
   );
 
   if (!tooltip) {

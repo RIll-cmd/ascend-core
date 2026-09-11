@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
-import { PixelActivityIcon, PixelSwordIcon, PixelSkullIcon, PixelLaurelWreathIcon } from "@/components/ui/pixel/PixelIcons";
+import { PixelActivityIcon, PixelSwordIcon, PixelSkullIcon, PixelLaurelWreathIcon, PixelMuscleRecoveryIcon } from "@/components/ui/pixel/PixelIcons";
 
 interface MuscleRecoveryHUDProps {
   recoveryStatus?: MuscleRecoveryStatusResponse | null;
@@ -76,8 +76,8 @@ export const MuscleRecoveryHUD: React.FC<MuscleRecoveryHUDProps> = ({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Left Side: Header & Status */}
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-[#140e0c] border-2 border-[#4a3830] shadow-[inset_2px_2px_0_0_#2a1f1b] flex items-center justify-center text-[#f59e0b] shrink-0">
-            <PixelSwordIcon className="w-6 h-6 text-[#f59e0b]" />
+          <div className="w-12 h-12 bg-[#140e0c] border-2 border-[#4a3830] shadow-[inset_2px_2px_0_0_#2a1f1b] flex items-center justify-center shrink-0">
+            <PixelMuscleRecoveryIcon className="w-7 h-7" />
           </div>
 
           <div className="space-y-1">

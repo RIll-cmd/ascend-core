@@ -1994,3 +1994,117 @@ h6 {
   }
 }
 
+/* Magic UI & Shimmer Animations */
+@keyframes shine {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  to {
+    background-position: 0% 0%;
+  }
+}
+
+.animate-shine {
+  animation: shine var(--duration, 14s) infinite linear;
+}
+
+@keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+  }
+}
+
+@keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);
+  }
+  15%, 35% {
+    transform: translateZ(0) rotate(90deg);
+  }
+  65%, 85% {
+    transform: translateZ(0) rotate(270deg);
+  }
+  100% {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
+
+/* === ZZZ / CYBER-TACTILE TOAST BANNER (Matching AIRA Dialogue Aesthetic) === */
+[data-sonner-toast] {
+  border-width: 2px !important;
+  border-color: #ffffff !important;
+  background: #08090d !important;
+  color: #ffffff !important;
+  border-radius: 20px !important;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  font-family: var(--font-inter), system-ui, sans-serif !important;
+  position: relative;
+  overflow: visible !important;
+  padding: 14px 18px !important;
+  min-height: 64px !important;
+}
+
+/* Subtle anime prompt chevron » in lower-right corner */
+[data-sonner-toast]::after {
+  content: "»";
+  position: absolute;
+  bottom: 8px;
+  right: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+[data-sonner-toast]:hover::after {
+  color: rgba(255, 255, 255, 0.85);
+  transform: translateX(1.5px);
+}
+
+/* Ensure data-icon is centered and crisp */
+[data-sonner-toast] [data-icon] {
+  margin-right: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+/* Title & Description */
+[data-sonner-toast] [data-title] {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+  letter-spacing: -0.01em !important;
+}
+
+[data-sonner-toast] [data-description] {
+  color: #cbd5e1 !important;
+  font-weight: 500 !important;
+  font-size: 12.5px !important;
+  line-height: 1.45 !important;
+  margin-top: 2px !important;
+}
+
+/* Discreet Close Button */
+[data-sonner-toast] [data-close-button] {
+  background: #08090d !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  top: 8px !important;
+  right: 8px !important;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+[data-sonner-toast]:hover [data-close-button] {
+  opacity: 0.9;
+}
+

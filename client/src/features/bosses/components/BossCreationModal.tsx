@@ -31,6 +31,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CoolMode } from "@/components/ui/cool-mode";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
@@ -467,9 +468,11 @@ export function BossCreationModal({
 
           <DialogFooter className="sticky bottom-0 z-10 gap-3 border-t border-slate-800 bg-[#070b13]/95 px-5 py-4 backdrop-blur-sm sm:px-8">
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading} className="h-11 rounded-sm border-slate-700 bg-[#0d1420] px-5 text-slate-300 hover:border-slate-500 hover:bg-slate-800">Break Circle</Button>
-            <Button type="submit" disabled={!character || !ritual.name.trim() || isLoading} className="h-11 rounded-sm border border-amber-500 bg-amber-600 px-6 font-pixel text-xs text-amber-950 shadow-[0_8px_24px_rgba(217,119,6,0.22)] hover:bg-amber-500 focus-visible:ring-2 focus-visible:ring-cyan-300 disabled:border-cyan-950 disabled:bg-[#111827] disabled:text-cyan-100/55">
-              {isLoading ? <><Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" /> Binding Entity…</> : <><Volume2 className="mr-2 size-4" aria-hidden="true" /> Seal Contract</>}
-            </Button>
+            <CoolMode options={{ particle: "🔥", size: 22, speedHorz: 4, speedUp: 7 }}>
+              <Button type="submit" disabled={!character || !ritual.name.trim() || isLoading} className="h-11 rounded-sm border border-amber-500 bg-amber-600 px-6 font-pixel text-xs text-amber-950 shadow-[0_8px_24px_rgba(217,119,6,0.22)] hover:bg-amber-500 focus-visible:ring-2 focus-visible:ring-cyan-300 disabled:border-cyan-950 disabled:bg-[#111827] disabled:text-cyan-100/55 cursor-pointer">
+                {isLoading ? <><Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" /> Binding Entity…</> : <><Volume2 className="mr-2 size-4" aria-hidden="true" /> Seal Contract</>}
+              </Button>
+            </CoolMode>
           </DialogFooter>
         </form>
       </DialogContent>

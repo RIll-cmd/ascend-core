@@ -4,29 +4,27 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { Sparkles, MessageSquare, Crown, Radio } from "lucide-react";
 import {
-  LayoutDashboard,
-  Target,
-  CheckCircle2,
-  Dumbbell,
-  Flame,
-  Package,
-  Zap,
-  Skull,
-  ShoppingBag,
-  Bot,
-  Sparkles,
-  MessageSquare,
-  Trophy,
-  Crown,
-  Swords,
-  Calendar,
-  Radio,
-  Hammer,
-  User,
-  Moon,
-  Brain,
-} from "lucide-react";
+  GraphicDashboardIcon,
+  GraphicMissionsIcon,
+  GraphicHabitsIcon,
+  GraphicCalendarIcon,
+  GraphicProfileIcon,
+  GraphicWorkoutsIcon,
+  GraphicSleepIcon,
+  GraphicLearningIcon,
+  GraphicSkillsIcon,
+  GraphicTowerIcon,
+  GraphicBossesIcon,
+  GraphicBossPRIcon,
+  GraphicInventoryIcon,
+  GraphicCraftingIcon,
+  GraphicShopIcon,
+  GraphicBeastsIcon,
+  GraphicAiraIcon,
+  GraphicAchievementsIcon,
+} from "@/components/ui/icons/SidebarGraphicIcons";
 
 import { playSystemOpen } from "@/features/audio/useSystemAudio";
 import { AiraAvatar } from "@/components/ui/AiraAvatar";
@@ -65,24 +63,24 @@ export function Sidebar() {
   }, []);
 
   const sidebarNav = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Profile", href: "/profile", icon: User },
-    { name: "Missions", href: "/missions", icon: Target },
-    { name: "Habits", href: "/habits", icon: CheckCircle2 },
-    { name: "Sleep & Rest", href: "/sleep", icon: Moon },
-    { name: "Learning & Focus", href: "/learning", icon: Brain },
-    { name: "Calendar", href: "/calendar", icon: Calendar },
-    { name: "Workouts", href: "/workouts", icon: Dumbbell },
-    { name: "Boss PR", href: "/workouts/boss-pr", icon: Swords },
-    { name: "Tower", href: "/tower", icon: Flame },
-    { name: "Inventory", href: "/inventory", icon: Package },
-    { name: "Beasts & Pets", href: "/beasts", icon: Sparkles },
-    { name: "Forge & Craft", href: "/crafting", icon: Hammer },
-    { name: "Skills", href: "/skills", icon: Zap },
-    { name: "Bosses", href: "/bosses", icon: Skull },
-    { name: "Shop", href: "/shop", icon: ShoppingBag },
-    { name: "Achievements", href: "/achievements", icon: Trophy },
-    { name: "AI System", href: "/aira", icon: Bot },
+    { name: "Dashboard", href: "/dashboard", icon: GraphicDashboardIcon },
+    { name: "Profile", href: "/profile", icon: GraphicProfileIcon },
+    { name: "Missions", href: "/missions", icon: GraphicMissionsIcon },
+    { name: "Habits", href: "/habits", icon: GraphicHabitsIcon },
+    { name: "Sleep & Rest", href: "/sleep", icon: GraphicSleepIcon },
+    { name: "Learning & Focus", href: "/learning", icon: GraphicLearningIcon },
+    { name: "Calendar", href: "/calendar", icon: GraphicCalendarIcon },
+    { name: "Workouts", href: "/workouts", icon: GraphicWorkoutsIcon },
+    { name: "Boss PR", href: "/workouts/boss-pr", icon: GraphicBossPRIcon },
+    { name: "Tower", href: "/tower", icon: GraphicTowerIcon },
+    { name: "Inventory", href: "/inventory", icon: GraphicInventoryIcon },
+    { name: "Beasts & Pets", href: "/beasts", icon: GraphicBeastsIcon },
+    { name: "Forge & Craft", href: "/crafting", icon: GraphicCraftingIcon },
+    { name: "Skills", href: "/skills", icon: GraphicSkillsIcon },
+    { name: "Bosses", href: "/bosses", icon: GraphicBossesIcon },
+    { name: "Shop", href: "/shop", icon: GraphicShopIcon },
+    { name: "Achievements", href: "/achievements", icon: GraphicAchievementsIcon },
+    { name: "AI System", href: "/aira", icon: GraphicAiraIcon },
   ];
 
   return (

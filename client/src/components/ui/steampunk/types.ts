@@ -13,6 +13,7 @@ export interface HorizonDayData {
   dateObj: Date;
   snapshot?: ChronoSnapshot;
   missions: KanbanQuest[];
+  schedules?: any[];
   weekIndex: number;
   dayOfWeek: number;
   isToday: boolean;
@@ -24,6 +25,7 @@ export interface MonocleLoupeTooltipData {
   dateObj: Date;
   snapshot?: ChronoSnapshot;
   missions: KanbanQuest[];
+  schedules?: any[];
   x: number;
   y: number;
 }

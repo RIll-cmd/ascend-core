@@ -18,6 +18,7 @@ export interface PixelScrollCardProps extends React.HTMLAttributes<HTMLDivElemen
   missionType?: string;
   bountyType?: string;
   variant?: "default" | "completed" | "royal";
+  enableSpotlight?: boolean;
 }
 
 export const PixelScrollCard: React.FC<PixelScrollCardProps> = ({
@@ -28,10 +29,26 @@ export const PixelScrollCard: React.FC<PixelScrollCardProps> = ({
   missionType,
   bountyType,
   variant = "default",
+  enableSpotlight = true,
   className,
   children,
   ...props
 }) => {
+  const [mousePos, setMousePos] = React.useState<{ x: number; y: number } | null>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!enableSpotlight) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (!enableSpotlight) return;
+    setMousePos(null);
+  };
   const getCrest = () => {
     switch (rank) {
       case "S":
@@ -53,13 +70,25 @@ export const PixelScrollCard: React.FC<PixelScrollCardProps> = ({
 
   return (
     <div
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       className={cn(
-        "relative flex flex-col pt-3.5 pb-4 px-4 select-none transition-none group",
+        "relative flex flex-col pt-3.5 pb-4 px-4 select-none transition-none group overflow-hidden",
         isCompleteVariant ? "pixel-parchment-completed" : variant === "royal" ? "pixel-parchment-royal" : "pixel-parchment",
         className
       )}
       {...props}
     >
+      {/* MagicCard Subtle Amber/Leather Hover Spotlight Overlay */}
+      {enableSpotlight && mousePos && (
+        <div
+          className="pointer-events-none absolute inset-0 z-[1] transition-opacity duration-200"
+          style={{
+            background: `radial-gradient(160px circle at ${mousePos.x}px ${mousePos.y}px, rgba(254, 240, 138, 0.18), rgba(217, 119, 6, 0.08), transparent 75%)`,
+          }}
+        />
+      )}
+
       {/* Torn / Jagged Paper Side Cuts */}
       <div className="absolute left-[-3px] top-8 bottom-8 w-[3px] pointer-events-none flex flex-col justify-between overflow-hidden">
         <div className="w-[3px] h-2 bg-[#2b180f]" />

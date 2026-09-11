@@ -33,6 +33,9 @@ import { API_BASE_URL } from "@/constants";
 import { getEnemySpriteUrl } from "@/utils/spriteUtils";
 import { CurrencyIcon } from "@/components/CurrencyDisplay";
 import { playBattleSFX, playUIMenuSFX, playBuffSFX } from "@/utils/audio";
+import { MagicCard } from "@/components/ui/magic-card";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { Particles } from "@/components/ui/particles";
 import Link from "next/link";
 
 export default function BossPRPage() {
@@ -123,11 +126,27 @@ export default function BossPRPage() {
 
   return (
     <div className="max-w-6xl mx-auto w-full space-y-6 font-sans relative text-slate-100 pb-16 animate-in fade-in duration-300">
+      {/* Magic UI Arena Floating Embers & Dust Particles */}
+      <Particles
+        className="fixed inset-0 pointer-events-none z-0"
+        quantity={32}
+        color="#f59e0b"
+        size={1.3}
+        staticity={45}
+        ease={55}
+        vy={-0.22}
+      />
 
       {/* ========================================================= */}
-      {/* TOP ARENA HEADER */}
+      {/* TOP ARENA HEADER WITH MAGIC CARD SPOTLIGHT */}
       {/* ========================================================= */}
-      <div className="relative pixel-stone-slab p-5 sm:p-7 select-none border-2 border-[#5a3e30]">
+      <MagicCard
+        className="relative pixel-stone-slab p-5 sm:p-7 select-none border-2 border-[#5a3e30]"
+        gradientColor="rgba(245, 158, 11, 0.12)"
+        gradientFrom="#f59e0b"
+        gradientTo="#ef4444"
+        gradientSize={350}
+      >
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <Link href="/workouts">
@@ -135,7 +154,7 @@ export default function BossPRPage() {
                 variant="iron"
                 size="sm"
                 onClick={() => playUIMenuSFX()}
-                className="w-10 h-10 p-0 flex items-center justify-center text-stone-300"
+                className="w-10 h-10 p-0 flex items-center justify-center text-stone-300 cursor-pointer hover:border-[#f59e0b] transition-all"
                 title="Back to Workouts"
               >
                 <PixelArrowLeftIcon className="w-4 h-4" />
@@ -172,14 +191,20 @@ export default function BossPRPage() {
             )}
           </div>
         </div>
-      </div>
+      </MagicCard>
 
       {/* ========================================================= */}
       {/* BOSS DISPLAY & ACTION GRID */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Boss Stage Dais Card */}
-        <div className="pixel-stone-slab p-5 sm:p-6 select-none flex flex-col justify-between relative border-2 border-[#5a3e30]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
+        {/* Boss Stage Dais Card with MagicCard Spotlight */}
+        <MagicCard
+          className="pixel-stone-slab p-5 sm:p-6 select-none flex flex-col justify-between relative border-2 border-[#5a3e30] h-full"
+          gradientColor="rgba(239, 68, 68, 0.12)"
+          gradientFrom="#ef4444"
+          gradientTo="#f59e0b"
+          gradientSize={380}
+        >
           {/* Boss Header */}
           <div className="text-center space-y-2">
             <div className="inline-flex items-center justify-center">
@@ -189,12 +214,23 @@ export default function BossPRPage() {
               </span>
             </div>
 
-            {/* Boss Sprite in Roman Arena Sand Pit with Portcullis Gates */}
+            {/* Boss Sprite in Roman Arena Sand Pit with Rising Ember Particles */}
             <div className="pixel-arena-dirt border-2 border-[#6b4d32] h-60 flex items-center justify-center my-3 relative overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.8)]">
               {/* Roman Portcullis Iron Bars Backdrop */}
               <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent_0px,transparent_18px,rgba(20,14,12,0.65)_18px,rgba(20,14,12,0.65)_21px)] pointer-events-none" />
               {/* Arena Sand Pit Warm Sunlight Focus */}
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.15)_0%,transparent_70%)] pointer-events-none" />
+
+              {/* Magic UI Particles: Rising Arena Torch Embers */}
+              <Particles
+                className="absolute inset-0 z-0"
+                quantity={28}
+                color="#f59e0b"
+                size={1.6}
+                staticity={35}
+                ease={60}
+                vy={-0.35}
+              />
 
               {boss.name || boss.bossSprite ? (
                 <img
@@ -228,7 +264,7 @@ export default function BossPRPage() {
                   BOSS HEALTH (HP)
                 </span>
                 <span className="text-white font-pixel-chunky text-sm tabular-nums">
-                  {hpPercent.toFixed(1)}% HP
+                  <NumberTicker value={Number(hpPercent.toFixed(1))} decimalPlaces={1} />% HP
                 </span>
               </div>
               <PixelProgress
@@ -239,8 +275,14 @@ export default function BossPRPage() {
               />
             </div>
 
-            {/* Win Condition Directive Card */}
-            <div className="p-4 bg-[#140e0c] border-2 border-[#4a3830] text-center space-y-2">
+            {/* Win Condition Directive Card with MagicCard */}
+            <MagicCard
+              className="p-4 bg-[#140e0c] border-2 border-[#4a3830] text-center space-y-2"
+              gradientColor="rgba(245, 158, 11, 0.15)"
+              gradientFrom="#f59e0b"
+              gradientTo="#b45309"
+              gradientSize={240}
+            >
               <div className="flex items-center justify-center gap-1.5 font-pixel text-[10px] text-[#f59e0b] uppercase tracking-wider">
                 <PixelTargetIcon className="w-3.5 h-3.5 text-[#f59e0b]" />
                 <span>TARGET CHALLENGE GOAL</span>
@@ -249,21 +291,27 @@ export default function BossPRPage() {
               <div className="flex items-center justify-center gap-2">
                 <PixelDumbbellIcon className="w-5 h-5 text-[#f59e0b]" />
                 <span className="font-pixel-chunky text-2xl text-[#f59e0b] tracking-wider font-bold">
-                  {boss.targetWeight} KG × {boss.targetReps} REPS
+                  <NumberTicker value={boss.targetWeight} /> KG × <NumberTicker value={boss.targetReps} /> REPS
                 </span>
               </div>
               <div className="flex items-center justify-center gap-1.5 font-pixel text-[9px] text-[#8c786a] pt-1">
                 <PixelInfoIcon className="w-3 h-3 text-[#8c786a] shrink-0" />
                 <span>Damage dealt scales with weight and reps logged on the target exercise.</span>
               </div>
-            </div>
+            </MagicCard>
           </div>
-        </div>
+        </MagicCard>
 
         {/* Action & Info Deck */}
         <div className="space-y-6 flex flex-col justify-between">
-          {/* Bounty Loot Rewards Deck */}
-          <div className="pixel-stone-slab p-5 border-2 border-[#4a3830] select-none">
+          {/* Bounty Loot Rewards Deck with MagicCard Spotlight */}
+          <MagicCard
+            className="pixel-stone-slab p-5 border-2 border-[#4a3830] select-none"
+            gradientColor="rgba(245, 158, 11, 0.12)"
+            gradientFrom="#fbbf24"
+            gradientTo="#b45309"
+            gradientSize={300}
+          >
             <div className="flex items-center justify-between pb-3 border-b-2 border-[#4a3830]">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 bg-[#140e0c] border border-[#b45309] flex items-center justify-center text-[#f59e0b] shadow-[0_0_8px_rgba(245,158,11,0.2)]">
@@ -289,77 +337,89 @@ export default function BossPRPage() {
             <div className="flex flex-wrap gap-2 pt-4">
               <PixelBadge variant="iron" size="sm" className="flex items-center gap-1">
                 <PixelSparklesIcon className="w-3 h-3 text-stone-300" />
-                <span>+{rewards.exp || 2500} EXP</span>
+                <span>+<NumberTicker value={rewards.exp || 2500} /> EXP</span>
               </PixelBadge>
 
               <PixelBadge variant="gold" size="sm" className="flex items-center gap-1">
                 <CurrencyIcon type="GOLD" size="xs" />
-                <span>+{rewards.gold || 1000} GOLD</span>
+                <span>+<NumberTicker value={rewards.gold || 1000} /> GOLD</span>
               </PixelBadge>
 
               <PixelBadge variant="danger" size="sm" className="flex items-center gap-1">
                 <CurrencyIcon type="GEMS" size="xs" />
-                <span>+{rewards.gems || 50} GEMS</span>
+                <span>+<NumberTicker value={rewards.gems || 50} /> GEMS</span>
               </PixelBadge>
 
               <PixelBadge variant="warning" size="sm" className="flex items-center gap-1">
                 <CurrencyIcon type="TOWER_TOKENS" size="xs" />
-                <span>+{rewards.towerTokens || 100} TOKENS</span>
+                <span>+<NumberTicker value={rewards.towerTokens || 100} /> TOKENS</span>
               </PixelBadge>
 
               <PixelBadge variant="success" size="sm" className="flex items-center gap-1 text-emerald-400">
                 <PixelLightningIcon className="w-3 h-3 text-emerald-400" />
-                <span>+{rewards.statAmount || 2} {rewards.stat || "STRENGTH"}</span>
+                <span>+<NumberTicker value={rewards.statAmount || 2} /> {rewards.stat || "STRENGTH"}</span>
               </PixelBadge>
             </div>
-          </div>
+          </MagicCard>
 
-          {/* Tactical Directive Instructions */}
-          <div className="pixel-stone-slab p-5 bg-[#140e0c] border-2 border-[#4a3830] space-y-3 font-pixel text-[10px] text-stone-300 select-none">
-            <div className="text-white uppercase tracking-wider flex items-center gap-2 pb-2.5 border-b border-[#4a3830] font-bold">
-              <PixelScrollIcon className="w-3.5 h-3.5 text-[#f59e0b]" />
+          {/* Tactical Directive Instructions with MagicCard */}
+          <MagicCard
+            className="pixel-stone-slab p-6 bg-[#140e0c] border-2 border-[#4a3830] flex-1 flex flex-col justify-between select-none"
+            gradientColor="rgba(245, 158, 11, 0.08)"
+            gradientFrom="#d97706"
+            gradientTo="#78350f"
+            gradientSize={320}
+          >
+            <div className="text-white uppercase tracking-wider flex items-center gap-2.5 pb-3 border-b-2 border-[#4a3830] font-bold font-pixel text-xs sm:text-sm">
+              <PixelScrollIcon className="w-4 h-4 text-[#f59e0b]" />
               <span>Tactical Directives & Rules</span>
             </div>
 
-            <div className="space-y-2.5">
-              <div className="flex items-start gap-2.5 p-2 bg-[#1b1310] border border-[#4a3830]/70">
-                <div className="w-6 h-6 shrink-0 bg-[#2b1806] border border-[#b45309] flex items-center justify-center text-[#f59e0b]">
-                  <PixelDumbbellIcon className="w-3.5 h-3.5 text-[#f59e0b]" />
+            <div className="flex-1 flex flex-col justify-around py-2 sm:py-3 gap-3">
+              <div className="flex items-start gap-3.5 p-3.5 sm:p-4 bg-[#1b1310] border border-[#4a3830]/80 hover:border-[#b45309] transition-colors rounded-none shadow-[2px_2px_0_0_#000]">
+                <div className="w-10 h-10 shrink-0 bg-[#2b1806] border border-[#b45309] flex items-center justify-center text-[#f59e0b] shadow-[0_0_8px_rgba(245,158,11,0.2)]">
+                  <PixelDumbbellIcon className="w-5 h-5 text-[#f59e0b]" />
                 </div>
-                <div className="pt-0.5">
-                  <span className="text-[#f59e0b] font-bold block mb-0.5">PHASE 1: LOG BENCHMARK SETS</span>
-                  <span className="text-stone-300">
+                <div className="pt-0.5 space-y-1">
+                  <span className="text-[#f59e0b] font-pixel text-xs sm:text-[13px] font-bold block tracking-wide">
+                    PHASE 1: LOG BENCHMARK SETS
+                  </span>
+                  <p className="font-pixel text-[11px] sm:text-xs text-stone-300 leading-relaxed">
                     Start a workout and log your sets for <strong className="text-white">{boss.targetExercise}</strong>.
-                  </span>
+                  </p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2.5 p-2 bg-[#1b1310] border border-[#4a3830]/70">
-                <div className="w-6 h-6 shrink-0 bg-[#2d0e0e] border border-[#7f1d1d] flex items-center justify-center text-[#ef4444]">
-                  <PixelSwordIcon className="w-3.5 h-3.5 text-[#ef4444]" />
+              <div className="flex items-start gap-3.5 p-3.5 sm:p-4 bg-[#1b1310] border border-[#4a3830]/80 hover:border-[#ef4444] transition-colors rounded-none shadow-[2px_2px_0_0_#000]">
+                <div className="w-10 h-10 shrink-0 bg-[#2d0e0e] border border-[#7f1d1d] flex items-center justify-center text-[#ef4444] shadow-[0_0_8px_rgba(239,68,68,0.2)]">
+                  <PixelSwordIcon className="w-5 h-5 text-[#ef4444]" />
                 </div>
-                <div className="pt-0.5">
-                  <span className="text-[#ef4444] font-bold block mb-0.5">PHASE 2: CALCULATE OVERLOAD</span>
-                  <span className="text-stone-300">
+                <div className="pt-0.5 space-y-1">
+                  <span className="text-[#ef4444] font-pixel text-xs sm:text-[13px] font-bold block tracking-wide">
+                    PHASE 2: CALCULATE OVERLOAD
+                  </span>
+                  <p className="font-pixel text-[11px] sm:text-xs text-stone-300 leading-relaxed">
                     Damage is automatically calculated from the weight and reps you lift against the target benchmark.
-                  </span>
+                  </p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2.5 p-2 bg-[#1b1310] border border-[#4a3830]/70">
-                <div className="w-6 h-6 shrink-0 bg-[#1f1714] border border-[#8c786a] flex items-center justify-center text-[#8c786a]">
-                  <PixelClockIcon className="w-3.5 h-3.5 text-[#8c786a]" />
+              <div className="flex items-start gap-3.5 p-3.5 sm:p-4 bg-[#1b1310] border border-[#4a3830]/80 hover:border-[#8c786a] transition-colors rounded-none shadow-[2px_2px_0_0_#000]">
+                <div className="w-10 h-10 shrink-0 bg-[#1f1714] border border-[#8c786a] flex items-center justify-center text-[#8c786a]">
+                  <PixelClockIcon className="w-5 h-5 text-[#8c786a]" />
                 </div>
-                <div className="pt-0.5">
-                  <span className="text-[#8c786a] font-bold block mb-0.5">PHASE 3: WEEKLY RESET CYCLE</span>
-                  <span className="text-stone-300">
+                <div className="pt-0.5 space-y-1">
+                  <span className="text-[#8c786a] font-pixel text-xs sm:text-[13px] font-bold block tracking-wide">
+                    PHASE 3: WEEKLY RESET CYCLE
+                  </span>
+                  <p className="font-pixel text-[11px] sm:text-xs text-stone-300 leading-relaxed">
                     Damage accumulates throughout the week until reset on{" "}
                     <strong suppressHydrationWarning className="text-[#f59e0b]">{new Date(boss.expiresAt).toLocaleDateString()}</strong>.
-                  </span>
+                  </p>
                 </div>
               </div>
             </div>
-          </div>
+          </MagicCard>
 
           {/* Arena Challenge Launch Button */}
           <PixelButton
@@ -367,7 +427,7 @@ export default function BossPRPage() {
             size="lg"
             disabled={boss.isDefeated || isWorkoutActive}
             onClick={handleStartChallenge}
-            className="w-full py-4 text-xs font-pixel uppercase tracking-wider flex items-center justify-center gap-2"
+            className="w-full py-4 text-xs font-pixel uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_24px_rgba(239,68,68,0.35)] hover:scale-[1.01] active:scale-[0.99] transition-all"
           >
             {boss.isDefeated ? (
               <>
@@ -390,9 +450,15 @@ export default function BossPRPage() {
       </div>
 
       {/* ========================================================= */}
-      {/* COMBAT DAMAGE LOG FEED TERMINAL */}
+      {/* COMBAT DAMAGE LOG FEED TERMINAL WITH MAGIC CARD SPOTLIGHT */}
       {/* ========================================================= */}
-      <div className="pixel-stone-slab p-5 border-2 border-[#4a3830] select-none">
+      <MagicCard
+        className="pixel-stone-slab p-5 border-2 border-[#4a3830] select-none relative z-10"
+        gradientColor="rgba(239, 68, 68, 0.1)"
+        gradientFrom="#ef4444"
+        gradientTo="#92400e"
+        gradientSize={340}
+      >
         <div className="flex items-center justify-between pb-3 border-b-2 border-[#4a3830]">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-[#140e0c] border border-[#7f1d1d] flex items-center justify-center text-[#ef4444]">
@@ -409,7 +475,7 @@ export default function BossPRPage() {
           </div>
           <span className="font-pixel text-[9px] text-stone-400 uppercase font-bold flex items-center gap-1 bg-[#140e0c] px-2 py-1 border border-[#4a3830]">
             <PixelScrollIcon className="w-3 h-3 text-[#8c786a]" />
-            {damageLogs.length} LOGS
+            <NumberTicker value={damageLogs.length} /> LOGS
           </span>
         </div>
 
@@ -435,7 +501,7 @@ export default function BossPRPage() {
                       <p className="text-stone-200 flex items-center gap-1.5 flex-wrap">
                         <span>Dealt</span>
                         <span className="text-[#ef4444] font-bold font-pixel-chunky text-sm">
-                          {(log.damageDealt || 2000).toLocaleString()} DMG
+                          +<NumberTicker value={log.damageDealt || 2000} /> DMG
                         </span>
                         <span className="text-stone-400 flex items-center gap-1">
                           with <PixelDumbbellIcon className="w-3 h-3 text-[#f59e0b] inline" /> {log.exerciseName} ({log.weight} KG × {log.reps} Reps)
@@ -456,7 +522,7 @@ export default function BossPRPage() {
             </div>
           )}
         </div>
-      </div>
+      </MagicCard>
     </div>
   );
 }

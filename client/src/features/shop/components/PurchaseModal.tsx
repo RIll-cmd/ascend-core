@@ -17,6 +17,7 @@ import { useCharacterStore } from "@/store/useCharacterStore";
 import { useInventoryStore } from "@/features/inventory/store/useInventoryStore";
 import { getItemIconPath } from "@/utils/itemIcons";
 import { getItemUsageDetails } from "@/utils/itemUsageUtils";
+import { NumberTicker } from "@/components/ui/number-ticker";
 import { playUISound } from "@/utils/audio";
 import type { ShopItem } from "../types/shop";
 import { getMaxPurchasableQuantity } from "../utils/shopPresentation";
@@ -187,14 +188,14 @@ export function PurchaseModal({
           <div className={styles.balanceCell}>
             <span>Purse</span>
             <span className={styles.balanceValue}>
-              {currentBalance.toLocaleString()}
+              <NumberTicker value={currentBalance} />
               <CurrencyIcon type={item.currencyType} size="xs" />
             </span>
           </div>
           <div className={styles.balanceCell}>
             <span>Total cost</span>
             <span className={styles.balanceValue}>
-              −{totalCost.toLocaleString()}
+              −<NumberTicker value={totalCost} />
               <CurrencyIcon type={item.currencyType} size="xs" />
             </span>
           </div>
@@ -205,7 +206,7 @@ export function PurchaseModal({
                 canAfford ? "" : styles.balanceDanger
               }`}
             >
-              {remainingBalance.toLocaleString()}
+              <NumberTicker value={Math.max(0, remainingBalance)} />
               <CurrencyIcon type={item.currencyType} size="xs" />
             </span>
           </div>
@@ -227,7 +228,7 @@ export function PurchaseModal({
               −
             </button>
             <output className={styles.quantityValue} aria-live="polite">
-              {safeQuantity}
+              <NumberTicker value={safeQuantity} />
             </output>
             <button
               type="button"

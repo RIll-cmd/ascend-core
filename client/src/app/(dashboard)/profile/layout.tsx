@@ -13,6 +13,9 @@ import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { PixelProgress } from "@/components/ui/pixel/PixelProgress";
 import { GuildSealWatermark } from "@/components/ui/pixel/GuildSealWatermark";
+import { AdventurerStatusCardRibbon } from "@/components/ui/pixel/AdventurerStatusCardRibbon";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
 import {
   PixelAwardIcon,
   PixelLightningIcon,
@@ -183,19 +186,8 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
         {/* Background Authenticated Crimson Magic Circle & Giant Rank Watermark */}
         <GuildSealWatermark rank={rank} />
 
-        {/* Top Ornate Runic Engraved Border Pattern Ribbon (Centered Anime Reference) */}
-        <div className="relative z-10 w-full bg-[#381e10] text-[#eedcb8] border-2 border-[#1a0c05] py-1 px-4 mb-4 select-none shadow-[inset_0_0_8px_rgba(0,0,0,0.8)] overflow-hidden flex items-center justify-center">
-          <div className="w-full text-center flex flex-col items-center justify-center gap-0.5">
-            <div className="w-full text-center font-mono text-[9px] sm:text-[11px] tracking-[0.3em] text-[#d4af37] font-bold flex items-center justify-center gap-2">
-              <span className="hidden sm:inline opacity-70">ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉ</span>
-              <span>᛫ ᛭ ᛫ ADVENTURER STATUS CARD ᛫ ᛭ ᛫</span>
-              <span className="hidden sm:inline opacity-70">ᛋᛏᛒᛖᛗᛚᛜᛞᛟᚠᚢᚦᚨᚱ</span>
-            </div>
-            <div className="w-full text-center font-mono text-[8px] sm:text-[9px] tracking-[0.25em] text-[#eedcb8]/75 flex items-center justify-center gap-1 truncate">
-              <span>ᚲᚨᛉᚢᛗᚨ ᛋᚨᛏᛟᚢ ᛞᚨᛉᚢᛖᛟ ᚱᚨᚲᛖ ᛫ ᛖᚢᛋᛞ ᛉ ᛖ ᚨ ᚢ ᚾ ᚺ ᛞ ᛞ ᛉ ᛖ ᚱ ᚨ ᛖ ᛋ ᛟ ᚲ ᚲ ᛉ ᛞ</span>
-            </div>
-          </div>
-        </div>
+        {/* Top Ornate Runic Engraved Border Pattern Ribbon Graphic SVG (Bespoke Pixel Art) */}
+        <AdventurerStatusCardRibbon />
 
         {/* TOP SECTION: NAME, RUNIC GLYPHS, TITLE, DEMOGRAPHICS & PORTRAIT */}
         <div className="relative z-10 flex flex-row items-start justify-between gap-3 sm:gap-4 pb-3 border-b-2 border-[#522e18]">
@@ -265,7 +257,7 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
             <div className="text-right font-pixel">
               <div className="text-xl sm:text-2xl font-black text-[#221208] flex items-center justify-end gap-1">
                 <span className="text-xs sm:text-sm text-[#6d4c3d] font-bold">LV</span>
-                <span>{levelData.currentLevel}</span>
+                <span><NumberTicker value={levelData.currentLevel} /></span>
               </div>
               <div className="flex items-center justify-end gap-1 text-[8px] sm:text-[9px] text-[#9e704a] mt-0.5">
                 <span>◆</span>
@@ -321,32 +313,32 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
               <div className="grid grid-cols-12 items-center py-1 border-b border-[#4a2813]/20">
                 <div className="col-span-6 sm:col-span-6 text-[#221208] font-bold truncate">STRENGTH</div>
                 <div className="col-span-4 sm:col-span-4 text-center font-mono text-[10px] text-[#6d4c3d]">ᛋᛏᚱ ⬦</div>
-                <div className="col-span-2 sm:col-span-2 text-right font-bold text-[#221208] text-sm">{stats.strength}</div>
+                <div className="col-span-2 sm:col-span-2 text-right font-bold text-[#221208] text-sm"><NumberTicker value={stats.strength} /></div>
               </div>
               <div className="grid grid-cols-12 items-center py-1 border-b border-[#4a2813]/20">
                 <div className="col-span-6 sm:col-span-6 text-[#221208] font-bold truncate">HEALTH / ENDURANCE</div>
                 <div className="col-span-4 sm:col-span-4 text-center font-mono text-[10px] text-[#6d4c3d]">ᚺᛚᛏ ⬦</div>
-                <div className="col-span-2 sm:col-span-2 text-right font-bold text-[#221208] text-sm">{stats.endurance}</div>
+                <div className="col-span-2 sm:col-span-2 text-right font-bold text-[#221208] text-sm"><NumberTicker value={stats.endurance} /></div>
               </div>
               <div className="grid grid-cols-12 items-center py-1 border-b border-[#4a2813]/20">
                 <div className="col-span-6 sm:col-span-6 text-[#221208] font-bold truncate">MAGIC POW / KNOWLEDGE</div>
                 <div className="col-span-4 sm:col-span-4 text-center font-mono text-[10px] text-[#6d4c3d]">ᛗᚷᚲ ⬦</div>
-                <div className="col-span-2 sm:col-span-2 text-right font-bold text-[#221208] text-sm">{stats.knowledge}</div>
+                <div className="col-span-2 sm:col-span-2 text-right font-bold text-[#221208] text-sm"><NumberTicker value={stats.knowledge} /></div>
               </div>
               <div className="grid grid-cols-12 items-center py-1 border-b border-[#4a2813]/20">
                 <div className="col-span-6 sm:col-span-6 text-[#221208] font-bold truncate">DEXTERITY / FOCUS</div>
                 <div className="col-span-4 sm:col-span-4 text-center font-mono text-[10px] text-[#6d4c3d]">ᛞᛪᛏ ⬦</div>
-                <div className="col-span-2 sm:col-span-2 text-right font-bold text-[#221208] text-sm">{stats.focus}</div>
+                <div className="col-span-2 sm:col-span-2 text-right font-bold text-[#221208] text-sm"><NumberTicker value={stats.focus} /></div>
               </div>
               <div className="grid grid-cols-12 items-center py-1 border-b border-[#4a2813]/20">
                 <div className="col-span-6 sm:col-span-6 text-[#221208] font-bold truncate">AGILITY / CONSISTENCY</div>
                 <div className="col-span-4 sm:col-span-4 text-center font-mono text-[10px] text-[#6d4c3d]">ᛇᚷᛚ ⬦</div>
-                <div className="col-span-2 sm:col-span-2 text-right font-bold text-[#221208] text-sm">{stats.consistency || 99}</div>
+                <div className="col-span-2 sm:col-span-2 text-right font-bold text-[#221208] text-sm"><NumberTicker value={stats.consistency || 99} /></div>
               </div>
               <div className="grid grid-cols-12 items-center py-1">
                 <div className="col-span-6 sm:col-span-6 text-[#221208] font-bold truncate">LUCK / DISCIPLINE</div>
                 <div className="col-span-4 sm:col-span-4 text-center font-mono text-[10px] text-[#6d4c3d]">ᛚᚲᚲ ⬦</div>
-                <div className="col-span-2 sm:col-span-2 text-right font-bold text-[#8c2d0f] text-sm">{stats.discipline}</div>
+                <div className="col-span-2 sm:col-span-2 text-right font-bold text-[#8c2d0f] text-sm"><NumberTicker value={stats.discipline} /></div>
               </div>
             </div>
 
@@ -354,11 +346,11 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
             <div className="flex items-center justify-between text-xs pt-1">
               <div className="flex items-center gap-2">
                 <span className="text-[#6d4c3d] font-bold">GOLD:</span>
-                <strong className="text-amber-950 font-black">{gold.toLocaleString()}g</strong>
+                <strong className="text-amber-950 font-black"><NumberTicker value={gold} />g</strong>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[#6d4c3d] font-bold">POWER:</span>
-                <strong className="text-[#221208] font-black">{power.toLocaleString()}</strong>
+                <strong className="text-[#221208] font-black"><NumberTicker value={power} /></strong>
               </div>
             </div>
           </div>
@@ -422,7 +414,6 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
                         href="/skills"
                         className="inline-flex items-center gap-1 text-[10px] text-[#8c2d0f] font-bold underline hover:text-amber-950"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-amber-700" />
                         <span>Unlock in Elemental Skill Matrix →</span>
                       </Link>
                     </div>
@@ -433,18 +424,20 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
 
             {/* Quick Simulate Training Action */}
             <div className="pt-2">
-              <PixelButton
-                onClick={() => {
-                  gainExp(150, "Completed Training Simulation");
-                  playUIMenuSFX();
-                }}
-                variant="gold"
-                size="sm"
-                className="w-full flex items-center justify-center gap-2 text-xs font-bold h-10"
-              >
-                <PixelLightningIcon className="w-4 h-4 text-amber-900" />
-                <span>Simulate (+150 EXP)</span>
-              </PixelButton>
+              <CoolMode options={{ particle: "⚡", size: 20, speedHorz: 3, speedUp: 7 }}>
+                <PixelButton
+                  onClick={() => {
+                    gainExp(150, "Completed Training Simulation");
+                    playUIMenuSFX();
+                  }}
+                  variant="gold"
+                  size="sm"
+                  className="w-full flex items-center justify-center gap-2 text-xs font-bold h-10"
+                >
+                  <PixelLightningIcon className="w-4 h-4 text-amber-900" />
+                  <span>Simulate (+150 EXP)</span>
+                </PixelButton>
+              </CoolMode>
             </div>
           </div>
         </div>
@@ -457,9 +450,9 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
           <div className="flex items-center justify-between text-xs font-pixel text-[#361c0c]">
             <span className="font-bold uppercase tracking-wider flex items-center gap-2">
               <span>ᛖᛪᛈ CERTIFICATION EXP:</span>
-              <strong className="text-[#221208]">{levelData.currentExpInLevel} / {levelData.expToNextLevel}</strong>
+              <strong className="text-[#221208]"><NumberTicker value={levelData.currentExpInLevel} /> / <NumberTicker value={levelData.expToNextLevel} /></strong>
             </span>
-            <span className="text-[#6d4c3d] font-bold">({levelData.progressPercentage}%)</span>
+            <span className="text-[#6d4c3d] font-bold">(<NumberTicker value={levelData.progressPercentage} />%)</span>
           </div>
 
           <PixelProgress

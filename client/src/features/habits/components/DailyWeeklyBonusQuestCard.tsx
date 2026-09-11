@@ -10,6 +10,8 @@ import Link from "next/link";
 import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { PixelProgress } from "@/components/ui/pixel/PixelProgress";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
 import {
   PixelSparklesIcon,
   PixelLightningIcon,
@@ -154,7 +156,7 @@ export const DailyWeeklyBonusQuestCard: React.FC = () => {
                 <PixelCheckIcon className="w-4 h-4 text-cyan-400" />
               </div>
               <PixelBadge variant="cyan" size="sm">
-                {habitBoostCharges}/{maxHabitBoostCharges} CHARGES
+                <NumberTicker value={habitBoostCharges} />/{maxHabitBoostCharges} CHARGES
               </PixelBadge>
             </div>
             <div>
@@ -180,7 +182,7 @@ export const DailyWeeklyBonusQuestCard: React.FC = () => {
                 <PixelBookIcon className="w-4 h-4 text-purple-400" />
               </div>
               <PixelBadge variant="purple" size="sm">
-                {learningBoostCharges}/{maxLearningBoostCharges} CHARGE
+                <NumberTicker value={learningBoostCharges} />/{maxLearningBoostCharges} CHARGE
               </PixelBadge>
             </div>
             <div>
@@ -206,7 +208,7 @@ export const DailyWeeklyBonusQuestCard: React.FC = () => {
                 <PixelDumbbellIcon className="w-4 h-4 text-red-400" />
               </div>
               <PixelBadge variant="danger" size="sm">
-                {workoutBoostCharges}/{maxWorkoutBoostCharges} CHARGE
+                <NumberTicker value={workoutBoostCharges} />/{maxWorkoutBoostCharges} CHARGE
               </PixelBadge>
             </div>
             <div>
@@ -232,7 +234,7 @@ export const DailyWeeklyBonusQuestCard: React.FC = () => {
                 <PixelGiftIcon className="w-4 h-4 text-amber-400" />
               </div>
               <PixelBadge variant="gold" size="sm">
-                LV.{charLevel} SCALED
+                LV.<NumberTicker value={charLevel} /> SCALED
               </PixelBadge>
             </div>
             <div>
@@ -243,15 +245,17 @@ export const DailyWeeklyBonusQuestCard: React.FC = () => {
                 {scaledEgg.rarity} tier companion egg!
               </p>
             </div>
-            <PixelButton
-              disabled={dailyEggClaimed || isClaimingEgg}
-              onClick={handleClaimEgg}
-              variant={dailyEggClaimed ? "dark" : "gold"}
-              size="sm"
-              className="w-full text-xs"
-            >
-              {dailyEggClaimed ? "CLAIMED TODAY ✓" : isClaimingEgg ? "CLAIMING..." : "CLAIM FREE EGG"}
-            </PixelButton>
+            <CoolMode options={{ particle: "🥚", size: 24, speedHorz: 4, speedUp: 8 }}>
+              <PixelButton
+                disabled={dailyEggClaimed || isClaimingEgg}
+                onClick={handleClaimEgg}
+                variant={dailyEggClaimed ? "dark" : "gold"}
+                size="sm"
+                className="w-full text-xs"
+              >
+                {dailyEggClaimed ? "CLAIMED TODAY ✓" : isClaimingEgg ? "CLAIMING..." : "CLAIM FREE EGG"}
+              </PixelButton>
+            </CoolMode>
           </div>
 
           {/* 5. 5x Free Shop Refreshes (5 charges) */}
@@ -366,7 +370,7 @@ export const DailyWeeklyBonusQuestCard: React.FC = () => {
                 </div>
               </div>
               <PixelBadge variant="cyan" size="sm">
-                {weeklyBonusesClaimedCount} / 5 USAGES
+                <NumberTicker value={weeklyBonusesClaimedCount} /> / 5 USAGES
               </PixelBadge>
             </div>
 
@@ -393,15 +397,17 @@ export const DailyWeeklyBonusQuestCard: React.FC = () => {
                   CLEARED ✓
                 </PixelBadge>
               ) : (
-                <PixelButton
-                  size="sm"
-                  disabled={weeklyBonusesClaimedCount < 5}
-                  variant={weeklyBonusesClaimedCount >= 5 ? "gold" : "dark"}
-                  onClick={() => handleClaimWeeklyQuest("daily_bonuses", 400, 150, "FREEZE")}
-                  className="text-xs"
-                >
-                  {weeklyBonusesClaimedCount >= 5 ? "CLAIM REWARD" : "IN PROGRESS"}
-                </PixelButton>
+                <CoolMode options={{ particle: "👑", size: 22, speedHorz: 4, speedUp: 8 }}>
+                  <PixelButton
+                    size="sm"
+                    disabled={weeklyBonusesClaimedCount < 5}
+                    variant={weeklyBonusesClaimedCount >= 5 ? "gold" : "dark"}
+                    onClick={() => handleClaimWeeklyQuest("daily_bonuses", 400, 150, "FREEZE")}
+                    className="text-xs"
+                  >
+                    {weeklyBonusesClaimedCount >= 5 ? "CLAIM REWARD" : "IN PROGRESS"}
+                  </PixelButton>
+                </CoolMode>
               )}
             </div>
           </div>

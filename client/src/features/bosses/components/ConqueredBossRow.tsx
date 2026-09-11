@@ -13,6 +13,7 @@ import {
   ShieldX,
   Sparkles,
 } from "lucide-react";
+import { NumberTicker } from "@/components/ui/number-ticker";
 import { getEnemySpriteUrl } from "@/utils/spriteUtils";
 import type { Boss } from "../store/useBossStore";
 import { getBossArchetype, getBossRewards, getBossThreat } from "../utils/bossPresentation";
@@ -85,11 +86,11 @@ export function ConqueredBossRow({ boss }: ConqueredBossRowProps) {
 
         <div className="hidden shrink-0 items-center gap-5 md:flex">
           <div className="text-right">
-            <p className="font-mono text-xs tabular-nums text-red-200">{damageDealt.toLocaleString()} DMG</p>
+            <p className="font-mono text-xs tabular-nums text-red-200"><NumberTicker value={damageDealt} /> DMG</p>
             <p className="mt-1 text-[10px] uppercase tracking-[0.1em] text-slate-500">Inflicted</p>
           </div>
           <div className="text-right">
-            <p className="font-mono text-xs tabular-nums text-amber-200">{rewards.gold.toLocaleString()} G</p>
+            <p className="font-mono text-xs tabular-nums text-amber-200"><NumberTicker value={rewards.gold} /> G</p>
             <p className="mt-1 text-[10px] uppercase tracking-[0.1em] text-slate-500">Bounty</p>
           </div>
         </div>

@@ -8,6 +8,7 @@ import { AmbientSoundPlayer } from "@/features/learning/components/AmbientSoundP
 import { FocusStatistics } from "@/features/learning/components/FocusStatistics";
 import { ForbiddenGrimoireCard } from "@/features/learning/components/ForbiddenGrimoireCard";
 import { PixelAncientLibraryBackground } from "@/components/ui/pixel/PixelAncientLibraryBackground";
+import { LibraryParticles } from "@/components/ui/pixel/LibraryParticles";
 import { useLearningStore } from "@/features/learning/store/useLearningStore";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { cn } from "@/lib/utils";
@@ -21,7 +22,10 @@ export default function LearningPage() {
       {/* 1. Realtime Animated Ancient Library Canvas Background */}
       <PixelAncientLibraryBackground />
 
-      {/* 2. Scriptorium Master Archivist Desk Banner */}
+      {/* 2. Scriptorium Ambient Dust & Candelabra Ember Particles (In Front of Boxes) */}
+      <LibraryParticles count={60} />
+
+      {/* 3. Scriptorium Master Archivist Desk Banner */}
       <div className="relative bg-[#231109] border-4 border-[#140804] p-5 sm:p-7 shadow-[0_8px_16px_rgba(0,0,0,0.85)] overflow-hidden transition-all duration-300">
         {/* 4 Beveled Gold Corner Brackets */}
         <div className="absolute top-1 left-1 w-6 h-6 border-t-2 border-l-2 border-[#f59e0b] pointer-events-none" />

@@ -88,6 +88,29 @@ export function MonocleLoupeTooltip({
         )}
       </div>
 
+      {/* Personal Schedules List */}
+      {data.schedules && data.schedules.length > 0 && (
+        <div className="pt-3 border-t border-[#542d17] space-y-2">
+          <div className="text-sm font-pixel font-bold uppercase text-teal-400 flex items-center gap-1.5">
+            <PixelClockIcon className="w-4 h-4 text-teal-400" />
+            <span>Personal Schedules ({data.schedules.length})</span>
+          </div>
+          <div className="space-y-1.5 max-h-32 overflow-y-auto custom-scrollbar pr-0.5">
+            {data.schedules.map((s: any, idx: number) => (
+              <div
+                key={s.id || idx}
+                className="p-2 bg-[#0a1617] border border-teal-500/40 flex items-center justify-between text-sm gap-2"
+              >
+                <span className="truncate text-teal-200 font-sans font-medium">{s.title}</span>
+                <span className="text-xs font-mono font-bold px-2 py-0.5 shrink-0 bg-teal-950/80 text-teal-300 border border-teal-500/40">
+                  {s.time}{s.endTime ? ` - ${s.endTime}` : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Due Missions List */}
       {data.missions.length > 0 && (
         <div className="pt-3 border-t border-[#542d17] space-y-2">

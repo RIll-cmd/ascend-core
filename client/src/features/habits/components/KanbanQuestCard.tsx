@@ -8,6 +8,8 @@ import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { PixelProgress } from "@/components/ui/pixel/PixelProgress";
 import { PixelScrollCard } from "@/components/ui/pixel/PixelScrollCard";
+import { CoolMode } from "@/components/ui/cool-mode";
+import { NumberTicker } from "@/components/ui/number-ticker";
 import {
   PixelCheckIcon,
   PixelCheckSquareIcon,
@@ -176,7 +178,9 @@ export const KanbanQuestCard: React.FC<KanbanQuestCardProps> = ({ quest }) => {
               Checklist ({completedSubtasks}/{totalSubtasks})
             </span>
           </button>
-          <span className="text-[#2b170c] font-bold font-pixel text-[11px]">{progressPercent}%</span>
+          <span className="text-[#2b170c] font-bold font-pixel text-[11px]">
+            <NumberTicker value={progressPercent} />%
+          </span>
         </div>
 
         <PixelProgress
@@ -191,23 +195,24 @@ export const KanbanQuestCard: React.FC<KanbanQuestCardProps> = ({ quest }) => {
       {showSubtasks && totalSubtasks > 0 && (
         <div className="my-2 p-2 bg-[#f4e2b6] border border-[#a8743e] space-y-1.5 shadow-[inset_1px_1px_0_0_rgba(0,0,0,0.15)]">
           {quest.subtasks.map((st) => (
-            <div
-              key={st.id}
-              onClick={() => {
-                playUIMenuSFX();
-                toggleSubtask(quest.id, st.id);
-              }}
-              className="flex items-center gap-2 font-pixel text-xs text-[#2b170c] hover:text-black cursor-pointer select-none py-0.5 active:translate-y-0.5"
-            >
-              {st.isCompleted ? (
-                <PixelCheckSquareIcon className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-              ) : (
-                <PixelSquareIcon className="w-3.5 h-3.5 text-[#8c5225] hover:text-[#2b170c] shrink-0" />
-              )}
-              <span className={st.isCompleted ? "line-through text-[#6e7d62]" : "font-pixel text-[11px]"}>
-                {st.title}
-              </span>
-            </div>
+            <CoolMode key={st.id} options={{ particle: "⚔️", size: 18, speedHorz: 3, speedUp: 7 }}>
+              <div
+                onClick={() => {
+                  playUIMenuSFX();
+                  toggleSubtask(quest.id, st.id);
+                }}
+                className="flex items-center gap-2 font-pixel text-xs text-[#2b170c] hover:text-black cursor-pointer select-none py-0.5 active:translate-y-0.5"
+              >
+                {st.isCompleted ? (
+                  <PixelCheckSquareIcon className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                ) : (
+                  <PixelSquareIcon className="w-3.5 h-3.5 text-[#8c5225] hover:text-[#2b170c] shrink-0" />
+                )}
+                <span className={st.isCompleted ? "line-through text-[#6e7d62]" : "font-pixel text-[11px]"}>
+                  {st.title}
+                </span>
+              </div>
+            </CoolMode>
           ))}
         </div>
       )}
@@ -216,11 +221,11 @@ export const KanbanQuestCard: React.FC<KanbanQuestCardProps> = ({ quest }) => {
       <div className="pt-2 border-t border-[#a8743e]/50 flex items-center justify-between font-pixel text-xs">
         <div className="flex items-center gap-2 flex-wrap text-[#2b170c] font-bold">
           <span className="flex items-center gap-1 text-[11px]">
-            <CurrencyIcon type="EXP" size="xs" /> +{quest.expReward} EXP
+            <CurrencyIcon type="EXP" size="xs" /> +<NumberTicker value={quest.expReward} /> EXP
           </span>
           {quest.goldReward > 0 && (
             <span className="flex items-center gap-1 text-[#854d0e] text-[11px]">
-              <CurrencyIcon type="GOLD" size="xs" /> +{quest.goldReward}g
+              <CurrencyIcon type="GOLD" size="xs" /> +<NumberTicker value={quest.goldReward} />g
             </span>
           )}
         </div>
@@ -257,18 +262,20 @@ export const KanbanQuestCard: React.FC<KanbanQuestCardProps> = ({ quest }) => {
         )}
 
         {STATUS_NEXT[quest.status] ? (
-          <PixelButton
-            size="sm"
-            variant={STATUS_NEXT[quest.status] === "Completed" ? "success" : "primary"}
-            onClick={() => {
-              playUIMenuSFX();
-              updateQuestStatus(quest.id, STATUS_NEXT[quest.status]!);
-            }}
-            className="text-[10px] py-1 px-2.5 min-h-[26px]"
-          >
-            <span>{STATUS_NEXT[quest.status]}</span>
-            <PixelChevronRightIcon className="w-3 h-3 ml-1" />
-          </PixelButton>
+          <CoolMode options={{ particle: STATUS_NEXT[quest.status] === "Completed" ? "👑" : "✨", size: 20, speedHorz: 4, speedUp: 9 }}>
+            <PixelButton
+              size="sm"
+              variant={STATUS_NEXT[quest.status] === "Completed" ? "success" : "primary"}
+              onClick={() => {
+                playUIMenuSFX();
+                updateQuestStatus(quest.id, STATUS_NEXT[quest.status]!);
+              }}
+              className="text-[10px] py-1 px-2.5 min-h-[26px]"
+            >
+              <span>{STATUS_NEXT[quest.status]}</span>
+              <PixelChevronRightIcon className="w-3 h-3 ml-1" />
+            </PixelButton>
+          </CoolMode>
         ) : (
           <div className="flex items-center gap-1.5 font-pixel text-[11px] font-bold text-emerald-800 bg-[#d5e6c3] border border-emerald-700/60 px-2 py-0.5 shadow-[1px_1px_0_0_#000]">
             <PixelWaxSealIcon className="w-4 h-4 text-emerald-700" />

@@ -6,6 +6,8 @@ import { CodexSprite } from "./CodexSprite";
 import { SystemTooltip } from "@/components/ui/SystemTooltip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { MagicCard } from "@/components/ui/magic-card";
+import { CoolMode } from "@/components/ui/cool-mode";
 import { CheckCircle2, Zap, BookOpen } from "lucide-react";
 import { playUIMenuSFX } from "@/utils/audio";
 import { DRAGON_LORE } from "@/features/lore/loreData";
@@ -55,6 +57,25 @@ export const getElementBadgeStyle = (element: string) => {
   }
 };
 
+const getElementGlow = (element: string) => {
+  switch (element) {
+    case "FIRE":
+      return { from: "#f97316", to: "#ef4444", color: "rgba(249, 115, 22, 0.15)" };
+    case "FROST":
+      return { from: "#06b6d4", to: "#3b82f6", color: "rgba(6, 182, 212, 0.15)" };
+    case "VOID":
+      return { from: "#a855f7", to: "#ec4899", color: "rgba(168, 85, 247, 0.15)" };
+    case "CYBER":
+      return { from: "#14b8a6", to: "#06b6d4", color: "rgba(20, 184, 166, 0.15)" };
+    case "HOLY":
+    case "STORM":
+      return { from: "#f59e0b", to: "#eab308", color: "rgba(245, 158, 11, 0.15)" };
+    case "NATURE":
+    default:
+      return { from: "#10b981", to: "#84cc16", color: "rgba(16, 185, 129, 0.15)" };
+  }
+};
+
 export const getFormattedStatLabel = (beast: BestiarySpeciesSummary) => {
   const loreEntry = DRAGON_LORE[beast.speciesId];
   if (loreEntry) {
@@ -72,6 +93,7 @@ export const DragonCodexCard: React.FC<DragonCodexCardProps> = ({
 }) => {
   const loreEntry = DRAGON_LORE[beast.speciesId];
   const formattedStat = getFormattedStatLabel(beast);
+  const glow = getElementGlow(beast.element);
 
   return (
     <SystemTooltip
@@ -89,23 +111,35 @@ export const DragonCodexCard: React.FC<DragonCodexCardProps> = ({
       delayMs={1000}
       className="w-full h-full"
     >
-      <div
+      <MagicCard
         className={`w-full h-full relative rounded-2xl p-4 border transition-all duration-300 flex flex-col justify-between overflow-hidden group ${
           isUnlocked
             ? beast.isEquipped
-              ? "bg-gradient-to-br from-[#0e2133] via-[#091524] to-[#040a12] border-emerald-500/60 shadow-[0_0_25px_rgba(16,185,129,0.3)] scale-[1.02]"
-              : "bg-gradient-to-br from-[#0B1020]/95 via-[#070C18]/95 to-[#040710]/98 border-cyan-500/25 hover:border-cyan-500/50 shadow-xl hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]"
-            : "bg-[#050812]/90 border-slate-800/80 opacity-65"
+              ? "bg-gradient-to-br from-[#12281e] via-[#0d1d16] to-[#08120e] border-emerald-500/80 shadow-[0_0_25px_rgba(16,185,129,0.3)] scale-[1.02]"
+              : "bg-[#fef9eb] border-[#9e8250] shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:border-amber-600"
+            : "bg-[#eee4cb]/80 border-[#c4b38d] opacity-75"
         }`}
+        innerClassName={
+          isUnlocked
+            ? beast.isEquipped
+              ? "bg-gradient-to-br from-[#12281e] via-[#0d1d16] to-[#08120e]"
+              : "bg-[#fef9eb]"
+            : "bg-[#eee4cb]"
+        }
+        backgroundColor="transparent"
+        gradientColor={isUnlocked ? glow.color : "transparent"}
+        gradientFrom={isUnlocked ? glow.from : "transparent"}
+        gradientTo={isUnlocked ? glow.to : "transparent"}
+        gradientSize={220}
       >
         {/* Top Card Bar: Badges */}
         <div className="flex items-center justify-between gap-1.5 mb-2 relative z-10">
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-mono text-slate-500 font-bold">
+            <span className="text-[10px] font-mono text-[#695333] font-bold">
               #{String(beast.speciesId).padStart(3, "0")}
             </span>
             {isUnlocked && (
-              <span className="px-1.5 py-0.2 rounded bg-cyan-950/90 border border-cyan-500/40 text-[9px] font-mono font-bold text-cyan-300">
+              <span className="px-1.5 py-0.2 rounded bg-[#e8d5aa] border border-[#a88a4c] text-[9px] font-mono font-bold text-[#442c12]">
                 LV.{beast.level || 1}
               </span>
             )}
@@ -132,15 +166,15 @@ export const DragonCodexCard: React.FC<DragonCodexCardProps> = ({
           />
 
           {!isUnlocked && (
-            <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider mt-1">
+            <span className="text-[10px] font-mono font-bold text-[#756448] uppercase tracking-wider mt-1">
               LOCKED
             </span>
           )}
 
           {/* Equipped Ribbon Badge */}
           {isUnlocked && beast.isEquipped && (
-            <div className="absolute top-0 right-0 bg-emerald-500/20 border border-emerald-400/60 px-2 py-0.5 rounded-md text-[9px] font-mono font-black text-emerald-300 flex items-center gap-1 shadow-[0_0_10px_rgba(16,185,129,0.4)] animate-pulse">
-              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+            <div className="absolute top-0 right-0 bg-emerald-700/20 border border-emerald-600/60 px-2 py-0.5 rounded-md text-[9px] font-mono font-black text-emerald-800 flex items-center gap-1 shadow-[0_0_10px_rgba(16,185,129,0.3)] animate-pulse">
+              <CheckCircle2 className="w-3 h-3 text-emerald-700" />
               ACTIVE
             </div>
           )}
@@ -149,7 +183,7 @@ export const DragonCodexCard: React.FC<DragonCodexCardProps> = ({
         {/* Name & Species */}
         <div className="space-y-1 my-1 relative z-10">
           <div className="flex items-center justify-between">
-            <h4 className="font-heading font-black text-sm text-white tracking-wide truncate">
+            <h4 className={`font-pixel font-bold text-sm tracking-wide truncate ${isUnlocked ? "text-[#2e4732]" : "text-[#756448]"}`}>
               {isUnlocked ? beast.name : "???"}
             </h4>
             {isUnlocked && (
@@ -168,46 +202,50 @@ export const DragonCodexCard: React.FC<DragonCodexCardProps> = ({
               </button>
             )}
           </div>
-          <span className="text-[10.5px] font-mono text-slate-400 block truncate">
+          <span className="text-[10.5px] font-mono text-[#5c6e4e] block truncate">
             {isUnlocked ? beast.species : `Undiscovered ${beast.element} Dragon`}
           </span>
         </div>
 
         {/* Passive Percentage Bonus Box */}
-        <div className="mt-2 p-2 rounded-xl bg-black/40 border border-white/5 space-y-1 relative z-10">
+        <div className="mt-2 p-2 rounded-xl bg-[#ebdcb7]/70 border border-[#bfa979] space-y-1 relative z-10">
           <div className="flex items-center justify-between text-[10px] font-mono">
-            <span className="text-slate-400 flex items-center gap-1">
-              <Zap className="w-3 h-3 text-cyan-400" />
+            <span className="text-[#59694e] flex items-center gap-1">
+              <Zap className="w-3 h-3 text-amber-600" />
               Passive Bonus
             </span>
-            <span className="font-black text-emerald-400">
+            <span className="font-black text-emerald-800">
               {isUnlocked ? formattedStat : "???"}
             </span>
           </div>
         </div>
 
-        {/* Action Button: Equip / Unequip / Locked */}
+        {/* Action Button: Equip / Unequip / Locked with CoolMode */}
         <div className="mt-3 relative z-10">
           {isUnlocked ? (
-            <Button
-              type="button"
-              disabled={isEquipping}
-              onClick={() => onEquipClick(beast)}
-              className={`w-full h-8 font-mono text-[10px] font-black uppercase tracking-wider rounded-xl cursor-pointer transition-all ${
-                beast.isEquipped
-                  ? "bg-red-950/60 border border-red-500/40 text-red-300 hover:bg-red-900/80 shadow-[0_0_10px_rgba(239,68,68,0.2)]"
-                  : "bg-[#22543d] border border-[#78350f] text-[#fef3c7] hover:bg-[#173f2c]"
-              }`}
-            >
-              {beast.isEquipped ? "UNEQUIP" : "EQUIP COMPANION"}
-            </Button>
+            <CoolMode options={{ particle: "✨" }}>
+              <Button
+                type="button"
+                disabled={isEquipping}
+                onClick={() => onEquipClick(beast)}
+                className={`w-full h-8 font-mono text-[10px] font-black uppercase tracking-wider rounded-xl cursor-pointer transition-all ${
+                  beast.isEquipped
+                    ? "bg-red-800/80 border border-red-600/60 text-white hover:bg-red-700"
+                    : "bg-[#22543d] border border-[#1b3d2d] text-[#fef3c7] hover:bg-[#2c6b4e]"
+                }`}
+              >
+                {beast.isEquipped ? "UNEQUIP" : "EQUIP COMPANION"}
+              </Button>
+            </CoolMode>
           ) : (
-            <div className="w-full h-8 bg-slate-950/40 border border-slate-800/80 rounded-xl flex items-center justify-center text-[10px] font-mono text-slate-600 font-bold">
+            <div className="w-full h-8 bg-[#dfcfab]/60 border border-[#b6a378] rounded-xl flex items-center justify-center text-[10px] font-mono text-[#786646] font-bold">
               INCUBATE TO UNLOCK
             </div>
           )}
         </div>
-      </div>
+      </MagicCard>
     </SystemTooltip>
   );
 };
+
+export default DragonCodexCard;

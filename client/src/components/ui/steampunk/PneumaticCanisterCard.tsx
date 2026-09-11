@@ -6,6 +6,7 @@ import { PixelClockIcon, PixelGearIcon } from "@/components/ui/pixel/PixelIcons"
 import { CurrencyIcon } from "@/components/CurrencyDisplay";
 import { KnifeSwitchToggle } from "./KnifeSwitchToggle";
 import { SteamVent } from "./SteamVent";
+import { NumberTicker } from "@/components/ui/number-ticker";
 
 export interface PneumaticCanisterCardProps {
   id: string;
@@ -142,8 +143,8 @@ export function PneumaticCanisterCard({
         {/* EXP Reward Seal */}
         <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#100602] border border-[#542d17] shadow-[inset_0_1px_2px_#000]">
           <CurrencyIcon type="EXP" size="sm" />
-          <span className="text-sm sm:text-base text-[#fef08a] font-bold font-pixel">
-            +{expReward}
+          <span className="text-sm sm:text-base text-[#fef08a] font-bold font-pixel flex items-center">
+            +<NumberTicker value={expReward} className="font-pixel text-[#fef08a]" />
           </span>
         </div>
       </div>

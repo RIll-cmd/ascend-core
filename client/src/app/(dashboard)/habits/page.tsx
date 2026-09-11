@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useHabitStore } from "@/features/habits/store/useHabitStore";
 import { useCharacterStore } from "@/store/useCharacterStore";
 import { HabitCard } from "@/features/habits/components";
@@ -69,7 +70,16 @@ export default function HabitsDashboardPage() {
   }, [activeHabits]);
 
   const categories = useMemo(() => {
-    const defaultCats = ["ALL", "Health", "Fitness", "Productivity", "Learning", "Mindset", "Finance", "Daily Routine"];
+    const defaultCats = [
+      "ALL",
+      "Health",
+      "Fitness",
+      "Productivity",
+      "Learning",
+      "Mindset",
+      "Finance",
+      "Daily Routine",
+    ];
     const cats = new Set<string>(defaultCats);
     habits.forEach((h) => {
       if (h.category) cats.add(h.category);
@@ -96,7 +106,12 @@ export default function HabitsDashboardPage() {
     });
   }, [activeHabits, searchQuery, selectedCategory]);
 
-  const charId = character?.id || (typeof window !== "undefined" ? localStorage.getItem("ascend_character_id") : null) || "char-id-123";
+  const charId =
+    character?.id ||
+    (typeof window !== "undefined"
+      ? localStorage.getItem("ascend_character_id")
+      : null) ||
+    "char-id-123";
 
   const getCategoryIcon = (category: string) => {
     const lower = category.toLowerCase();
@@ -104,44 +119,46 @@ export default function HabitsDashboardPage() {
     if (lower.includes("health")) return <PixelPotionIcon className="w-3.5 h-3.5 shrink-0" />;
     if (lower.includes("fitness")) return <PixelCrossedSwordsIcon className="w-3.5 h-3.5 shrink-0" />;
     if (lower.includes("productivity")) return <PixelQuillIcon className="w-3.5 h-3.5 shrink-0" />;
-    if (lower.includes("learning") || lower.includes("education")) return <PixelBookIcon className="w-3.5 h-3.5 shrink-0" />;
-    if (lower.includes("mindset") || lower.includes("spirit")) return <PixelLotusIcon className="w-3.5 h-3.5 shrink-0" />;
-    if (lower.includes("finance") || lower.includes("wealth")) return <PixelCoinPouchIcon className="w-3.5 h-3.5 shrink-0" />;
-    if (lower.includes("daily") || lower.includes("routine")) return <PixelSunriseIcon className="w-3.5 h-3.5 shrink-0" />;
+    if (lower.includes("learning") || lower.includes("education"))
+      return <PixelBookIcon className="w-3.5 h-3.5 shrink-0" />;
+    if (lower.includes("mindset") || lower.includes("spirit"))
+      return <PixelLotusIcon className="w-3.5 h-3.5 shrink-0" />;
+    if (lower.includes("finance") || lower.includes("wealth"))
+      return <PixelCoinPouchIcon className="w-3.5 h-3.5 shrink-0" />;
+    if (lower.includes("daily") || lower.includes("routine"))
+      return <PixelSunriseIcon className="w-3.5 h-3.5 shrink-0" />;
     if (lower.includes("sleep")) return <PixelMoonSleepIcon className="w-3.5 h-3.5 shrink-0" />;
     return <PixelScrollIcon className="w-3.5 h-3.5 shrink-0" />;
   };
 
   return (
-    <div className="space-y-5 pb-12 font-pixel select-none animate-in fade-in duration-200">
-      
+    <div className="space-y-5 pb-14 font-pixel select-none animate-in fade-in duration-200">
       {/* ========================================================= */}
-      {/* 🏔️ 1. HERO: HABITS & DAILY ROUTINES                       */}
+      {/* ⛩️ 1. HERO: KYOTO DUSK SANCTUARY - DAILY RITUALS          */}
       {/* ========================================================= */}
-      <div className="bg-[#d1d6dc] bg-[linear-gradient(180deg,#e2e7ec_0%,#d1d6dc_50%,#b0b8c4_100%)] border-3 border-[#3b424c] shadow-[4px_4px_0_0_#1d2d2a] p-5 md:p-6 relative overflow-hidden text-[#1d2d2a]">
-        
-        {/* Stone Masonry Corner Brackets */}
-        <div className="absolute top-1 left-1 w-2 h-2 bg-[#3b424c] pointer-events-none" />
-        <div className="absolute top-1 right-1 w-2 h-2 bg-[#3b424c] pointer-events-none" />
-        <div className="absolute bottom-1 left-1 w-2 h-2 bg-[#3b424c] pointer-events-none" />
-        <div className="absolute bottom-1 right-1 w-2 h-2 bg-[#3b424c] pointer-events-none" />
+      <div className="relative overflow-hidden backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,18,22,0.92)_0%,rgba(20,11,14,0.96)_100%)] border-2 border-[#e05344]/40 shadow-[4px_4px_0_0_#140b0e] p-5 md:p-6 text-[#fdf2e9]">
+        {/* Shoji Lattice Corner Brackets */}
+        <div className="absolute top-1.5 left-1.5 w-2 h-2 border-t-2 border-l-2 border-[#fba170] pointer-events-none" />
+        <div className="absolute top-1.5 right-1.5 w-2 h-2 border-t-2 border-r-2 border-[#fba170] pointer-events-none" />
+        <div className="absolute bottom-1.5 left-1.5 w-2 h-2 border-b-2 border-l-2 border-[#fba170] pointer-events-none" />
+        <div className="absolute bottom-1.5 right-1.5 w-2 h-2 border-b-2 border-r-2 border-[#fba170] pointer-events-none" />
 
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-4">
-            {/* Habit Grimoire Tome Icon Slot */}
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#2f3640] border-2 border-[#1d2d2a] flex items-center justify-center text-[#ffb03a] shadow-[inset_0_0_8px_rgba(0,0,0,0.8),2px_2px_0_0_#1d2d2a] shrink-0">
-              <PixelGrimoireIcon className="w-7 h-7 text-[#ffb03a]" />
+            {/* Shrine Torii Sanctuary Icon Slot */}
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#1c1114] border-2 border-[#e05344]/50 flex items-center justify-center shadow-[inset_0_0_12px_rgba(0,0,0,0.8),2px_2px_0_0_#140b0e] shrink-0 p-2">
+              <PixelGrimoireIcon className="w-8 h-8 sm:w-9 sm:h-9" />
             </div>
 
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 bg-[#ffb03a] rotate-45 border border-[#1d2d2a]" />
-                <h1 className="text-sm sm:text-base md:text-lg font-bold uppercase tracking-wider text-[#1d2d2a]">
-                  Habits & Daily Routines
+                <span className="w-2.5 h-2.5 bg-[#e05344] rotate-45 border border-[#fba170]" />
+                <h1 className="text-sm sm:text-base md:text-lg font-bold uppercase tracking-wider text-[#fdf2e9]">
+                  Daily Rituals & Disciplines
                 </h1>
               </div>
-              <p className="text-[11px] text-[#2a2b2e] max-w-xl leading-relaxed font-mono font-medium">
-                Build daily consistency, conquer milestones, and earn character EXP, Gold, and Stat boosts with every completed routine.
+              <p className="text-[11px] text-[#c4b5a5] max-w-xl leading-relaxed font-mono font-medium">
+                Nurture unbroken daily consistency, fulfill sacred disciplines, and channel character EXP, Gold, and Stat blessings with every completed routine.
               </p>
             </div>
           </div>
@@ -149,103 +166,116 @@ export default function HabitsDashboardPage() {
           <Link href="/habits/create" onClick={() => playUIMenuSFX("confirm")}>
             <button
               type="button"
-              className="px-4 py-2.5 bg-[#ffb03a] hover:bg-[#ffd166] text-[#1d2d2a] font-pixel font-bold text-xs border-2 border-[#1d2d2a] shadow-[3px_3px_0_0_#1d2d2a] active:translate-y-0.5 cursor-pointer flex items-center gap-2 shrink-0 transition-all focus-visible:ring-2 focus-visible:ring-[#ffb03a]"
+              className="px-4 py-2.5 bg-[#e05344] hover:bg-[#ef4444] text-white font-pixel font-bold text-xs border border-[#821e14] shadow-[3px_3px_0_0_#47110c] active:translate-y-0.5 cursor-pointer flex items-center gap-2 shrink-0 transition-all focus-visible:ring-2 focus-visible:ring-[#fba170]"
             >
-              <PixelPlusIcon className="w-4 h-4 text-[#1d2d2a]" />
-              <span>Create New Habit</span>
+              <PixelPlusIcon className="w-4 h-4 text-white" />
+              <span>Forge New Ritual</span>
             </button>
           </Link>
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* 📜 2. TELEMETRY DECK: 4 PILLARS OF DISCIPLINE (SLATE)     */}
+      {/* 📜 2. TELEMETRY DECK: 4 PILLARS OF DISCIPLINE (SHOJI)     */}
       {/* ========================================================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        
-        {/* Active Habits Card */}
-        <div className="p-3.5 bg-[#d1d6dc] bg-[linear-gradient(180deg,#e2e7ec_0%,#d1d6dc_50%,#b0b8c4_100%)] border-3 border-[#3b424c] shadow-[4px_4px_0_0_#1d2d2a] flex flex-col justify-between space-y-2 text-[#1d2d2a]">
-          <div className="flex items-center justify-between border-b-2 border-[#3b424c]/20 pb-1.5">
-            <span className="text-[11px] uppercase font-bold text-[#3b424c] tracking-wider">
-              Active Habits
+        {/* Active Rituals Card */}
+        <div className="p-3.5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,20,23,0.88)_0%,rgba(20,13,16,0.95)_100%)] border border-[#e05344]/30 shadow-[3px_3px_0_0_#140b0e] flex flex-col justify-between space-y-2 text-[#fdf2e9] hover:border-[#fba170]/60 transition-colors">
+          <div className="flex items-center justify-between border-b border-[#e05344]/20 pb-1.5">
+            <span className="text-[11px] uppercase font-bold text-[#c4b5a5] tracking-wider">
+              Active Rituals
             </span>
-            <div className="w-7 h-7 bg-[#2f3640] text-[#ffd166] border border-[#1d2d2a] flex items-center justify-center shadow-inner">
+            <div className="w-7 h-7 bg-[#1c1114] text-[#ffd166] border border-[#e05344]/40 flex items-center justify-center shadow-inner">
               <PixelScrollIcon className="w-4 h-4 text-[#ffd166]" />
             </div>
           </div>
           <div>
-            <span className="text-2xl font-bold text-[#1d2d2a] tabular-nums font-mono"><NumberTicker value={activeHabits.length} /></span>
-            <span className="text-[10px] text-[#5a6472] font-bold block mt-0.5 uppercase font-mono">Active daily routines</span>
+            <span className="text-2xl font-bold text-[#fdf2e9] tabular-nums font-mono">
+              <NumberTicker value={activeHabits.length} />
+            </span>
+            <span className="text-[10px] text-[#8c7b7d] font-bold block mt-0.5 uppercase font-mono">
+              Active daily routines
+            </span>
           </div>
         </div>
 
-        {/* Habit Strength (Avg Strength) Card */}
-        <div className="p-3.5 bg-[#d1d6dc] bg-[linear-gradient(180deg,#e2e7ec_0%,#d1d6dc_50%,#b0b8c4_100%)] border-3 border-[#3b424c] shadow-[4px_4px_0_0_#1d2d2a] flex flex-col justify-between space-y-2 text-[#1d2d2a]">
-          <div className="flex items-center justify-between border-b-2 border-[#3b424c]/20 pb-1.5">
-            <span className="text-[11px] uppercase font-bold text-[#3b424c] tracking-wider">
-              Habit Strength
+        {/* Habit Strength (Mastery Depth) Card */}
+        <div className="p-3.5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,20,23,0.88)_0%,rgba(20,13,16,0.95)_100%)] border border-[#e05344]/30 shadow-[3px_3px_0_0_#140b0e] flex flex-col justify-between space-y-2 text-[#fdf2e9] hover:border-[#fba170]/60 transition-colors">
+          <div className="flex items-center justify-between border-b border-[#e05344]/20 pb-1.5">
+            <span className="text-[11px] uppercase font-bold text-[#c4b5a5] tracking-wider">
+              Mastery Depth
             </span>
-            <div className="w-7 h-7 bg-[#2f3640] text-[#ffd166] border border-[#1d2d2a] flex items-center justify-center shadow-inner">
-              <PixelAnvilIcon className="w-4 h-4 text-[#ffb03a]" />
+            <div className="w-7 h-7 bg-[#1c1114] text-[#fba170] border border-[#e05344]/40 flex items-center justify-center shadow-inner">
+              <PixelAnvilIcon className="w-4 h-4 text-[#fba170]" />
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-2xl font-bold text-[#ea580c] tabular-nums font-mono"><NumberTicker value={averageStrength} />%</span>
-            <div className="w-full h-2.5 bg-[#2f3640] border border-[#1d2d2a] p-0.5 overflow-hidden">
+            <span className="text-2xl font-bold text-[#fba170] tabular-nums font-mono">
+              <NumberTicker value={averageStrength} />%
+            </span>
+            <div className="w-full h-2 bg-[#120a0d] border border-[#2e181c] p-0.5 overflow-hidden">
               <div
-                className="h-full bg-[linear-gradient(90deg,#ea580c_0%,#ffb03a_60%,#ffd166_100%)] transition-all duration-200"
+                className="h-full bg-[linear-gradient(90deg,#e05344_0%,#fba170_60%,#f472b6_100%)] shadow-[0_0_6px_rgba(224,83,68,0.7)] transition-all duration-300"
                 style={{ width: `${averageStrength}%` }}
               />
             </div>
           </div>
         </div>
 
-        {/* Active Streaks Card */}
-        <div className="p-3.5 bg-[#d1d6dc] bg-[linear-gradient(180deg,#e2e7ec_0%,#d1d6dc_50%,#b0b8c4_100%)] border-3 border-[#3b424c] shadow-[4px_4px_0_0_#1d2d2a] flex flex-col justify-between space-y-2 text-[#1d2d2a]">
-          <div className="flex items-center justify-between border-b-2 border-[#3b424c]/20 pb-1.5">
-            <span className="text-[11px] uppercase font-bold text-[#3b424c] tracking-wider">
-              Combined Streaks
+        {/* Sacred Flame Streaks Card */}
+        <div className="p-3.5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,20,23,0.88)_0%,rgba(20,13,16,0.95)_100%)] border border-[#e05344]/30 shadow-[3px_3px_0_0_#140b0e] flex flex-col justify-between space-y-2 text-[#fdf2e9] hover:border-[#fba170]/60 transition-colors">
+          <div className="flex items-center justify-between border-b border-[#e05344]/20 pb-1.5">
+            <span className="text-[11px] uppercase font-bold text-[#c4b5a5] tracking-wider">
+              Sacred Flame
             </span>
-            <div className="w-7 h-7 bg-[#2f3640] text-[#ffd166] border border-[#1d2d2a] flex items-center justify-center shadow-inner">
-              <PixelCampfireIcon className="w-4 h-4 text-[#ffb03a]" />
+            <div className="w-7 h-7 bg-[#1c1114] text-[#fba170] border border-[#e05344]/40 flex items-center justify-center shadow-inner">
+              <PixelCampfireIcon className="w-4 h-4 text-[#fba170]" />
             </div>
           </div>
           <div>
-            <span className="text-2xl font-bold text-[#ea580c] tabular-nums font-mono"><NumberTicker value={totalStreaks} />d</span>
-            <span className="text-[10px] text-[#5a6472] font-bold block mt-0.5 uppercase font-mono">Total cumulative days</span>
+            <span className="text-2xl font-bold text-[#fba170] tabular-nums font-mono">
+              <NumberTicker value={totalStreaks} />d
+            </span>
+            <span className="text-[10px] text-[#8c7b7d] font-bold block mt-0.5 uppercase font-mono">
+              Total cumulative days
+            </span>
           </div>
         </div>
 
-        {/* Consistency Rating Card */}
-        <div className="p-3.5 bg-[#d1d6dc] bg-[linear-gradient(180deg,#e2e7ec_0%,#d1d6dc_50%,#b0b8c4_100%)] border-3 border-[#3b424c] shadow-[4px_4px_0_0_#1d2d2a] flex flex-col justify-between space-y-2 text-[#1d2d2a]">
-          <div className="flex items-center justify-between border-b-2 border-[#3b424c]/20 pb-1.5">
-            <span className="text-[11px] uppercase font-bold text-[#3b424c] tracking-wider">
-              Consistency Index
+        {/* Consistency Index Card */}
+        <div className="p-3.5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,20,23,0.88)_0%,rgba(20,13,16,0.95)_100%)] border border-[#e05344]/30 shadow-[3px_3px_0_0_#140b0e] flex flex-col justify-between space-y-2 text-[#fdf2e9] hover:border-[#fba170]/60 transition-colors">
+          <div className="flex items-center justify-between border-b border-[#e05344]/20 pb-1.5">
+            <span className="text-[11px] uppercase font-bold text-[#c4b5a5] tracking-wider">
+              Zen Adherence
             </span>
-            <div className="w-7 h-7 bg-[#2f3640] text-[#ffd166] border border-[#1d2d2a] flex items-center justify-center shadow-inner">
-              <PixelHourglassIcon className="w-4 h-4 text-[#ffd166]" />
+            <div className="w-7 h-7 bg-[#1c1114] text-[#34d399] border border-[#e05344]/40 flex items-center justify-center shadow-inner">
+              <PixelHourglassIcon className="w-4 h-4 text-[#34d399]" />
             </div>
           </div>
           <div>
-            <span className="text-2xl font-bold text-[#1d2d2a] tabular-nums font-mono"><NumberTicker value={averageConsistency} />%</span>
-            <span className="text-[10px] text-[#5a6472] font-bold block mt-0.5 uppercase font-mono">Routine adherence rating</span>
+            <span className="text-2xl font-bold text-[#34d399] tabular-nums font-mono">
+              <NumberTicker value={averageConsistency} />%
+            </span>
+            <span className="text-[10px] text-[#8c7b7d] font-bold block mt-0.5 uppercase font-mono">
+              Routine adherence rating
+            </span>
           </div>
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* 🔍 3. SEARCH & CATEGORY FILTER TOOLBAR                    */}
+      {/* 🔍 3. SEARCH & CATEGORY FILTER TOOLBAR (SHOJI LATTICE)    */}
       {/* ========================================================= */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-[#2f3640] border-3 border-[#3b424c] p-3 shadow-[4px_4px_0_0_#1d2d2a]">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 backdrop-blur-md bg-[linear-gradient(180deg,rgba(30,18,21,0.88)_0%,rgba(20,12,14,0.95)_100%)] border border-[#e05344]/30 p-3 shadow-[3px_3px_0_0_#140b0e]">
         {/* Search Input Inset */}
         <div className="relative flex-1">
-          <PixelSearchIcon className="w-4 h-4 text-[#5a6472] absolute left-3 top-1/2 -translate-y-1/2" />
+          <PixelSearchIcon className="w-4 h-4 text-[#8c7b7d] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search habits by name, stat, or category..."
+            placeholder="Search rituals by name, stat, or category..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#e2e7ec] border-2 border-[#1d2d2a] focus:border-[#ffb03a] pl-9 pr-3 py-2 text-xs text-[#1d2d2a] placeholder-[#5a6472] focus:outline-none font-mono font-bold shadow-[inset_0_0_6px_rgba(0,0,0,0.15)]"
+            className="w-full bg-[#170e10] border border-[#e05344]/30 focus:border-[#fba170] pl-9 pr-3 py-2 text-xs text-[#fdf2e9] placeholder-[#8c7b7d] focus:outline-none font-mono font-bold shadow-[inset_0_0_8px_rgba(0,0,0,0.5)] transition-colors"
           />
         </div>
 
@@ -261,10 +291,10 @@ export default function HabitsDashboardPage() {
                   playUIMenuSFX();
                   setSelectedCategory(cat);
                 }}
-                className={`px-2.5 py-1.5 font-pixel font-bold text-xs uppercase border-2 border-[#1d2d2a] transition-all active:translate-y-0.5 cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                className={`px-2.5 py-1.5 font-pixel font-bold text-xs uppercase border transition-all active:translate-y-0.5 cursor-pointer shrink-0 flex items-center gap-1.5 ${
                   isSelected
-                    ? "bg-[#ffb03a] text-[#1d2d2a] shadow-[2px_2px_0_0_#111a18]"
-                    : "bg-[#1f242b] text-[#b0b8c4] hover:border-[#ffb03a]/60 hover:text-white"
+                    ? "bg-[#e05344] text-white border-[#821e14] shadow-[2px_2px_0_0_#47110c]"
+                    : "bg-[#1c1114] text-[#c4b5a5] border-[#382025] hover:border-[#e05344]/60 hover:text-white"
                 }`}
               >
                 {getCategoryIcon(cat)}
@@ -279,41 +309,64 @@ export default function HabitsDashboardPage() {
       {/* ⚔️ 4. ACTIVE HABITS GRID / EMPTY STATE                    */}
       {/* ========================================================= */}
       {isLoading ? (
-        <div className="text-center py-16 bg-[#2f3640] border-3 border-[#3b424c] p-6 shadow-[4px_4px_0_0_#1d2d2a]">
-          <div className="inline-block animate-spin w-8 h-8 border-4 border-[#ffb03a] border-t-transparent mb-3" />
-          <p className="text-[#d1d6dc] text-xs uppercase font-bold font-mono">Loading Habits...</p>
+        <div className="text-center py-16 backdrop-blur-md bg-[#1f1416]/80 border border-[#e05344]/30 p-6 shadow-[3px_3px_0_0_#140b0e]">
+          <div className="inline-block animate-spin w-8 h-8 border-3 border-[#fba170] border-t-transparent mb-3" />
+          <p className="text-[#c4b5a5] text-xs uppercase font-bold font-mono">
+            Loading Sacred Disciplines...
+          </p>
         </div>
       ) : filteredHabits.length === 0 ? (
-        <div className="bg-[#d1d6dc] bg-[linear-gradient(180deg,#e2e7ec_0%,#d1d6dc_50%,#b0b8c4_100%)] border-4 border-dashed border-[#3b424c] p-8 text-center flex flex-col items-center justify-center space-y-3 text-[#1d2d2a] shadow-[4px_4px_0_0_#1d2d2a]">
+        <div className="backdrop-blur-md bg-[linear-gradient(180deg,rgba(30,18,21,0.88)_0%,rgba(20,12,14,0.95)_100%)] border-2 border-dashed border-[#e05344]/40 p-8 text-center flex flex-col items-center justify-center space-y-3 text-[#fdf2e9] shadow-[3px_3px_0_0_#140b0e]">
           <div className="flex items-center gap-3 flex-wrap justify-center">
-            <div className="w-12 h-12 bg-[#2f3640] text-[#ffd166] border-2 border-[#1d2d2a] flex items-center justify-center shadow-[2px_2px_0_0_#1d2d2a] shrink-0">
-              <PixelOpenGrimoireIcon className="w-7 h-7 text-[#ffb03a]" />
+            <div className="w-12 h-12 bg-[#1c1114] text-[#fba170] border border-[#e05344]/40 flex items-center justify-center shadow-[inset_0_0_8px_rgba(0,0,0,0.8)] shrink-0">
+              <PixelOpenGrimoireIcon className="w-7 h-7 text-[#fba170]" />
             </div>
-            <h2 className="text-sm sm:text-base font-bold uppercase text-[#1d2d2a]">
-              No Active Habits Found
+            <h2 className="text-sm sm:text-base font-bold uppercase text-[#fdf2e9]">
+              No Sacred Disciplines Found
             </h2>
           </div>
-          <p className="text-xs text-[#2a2b2e] max-w-md font-mono font-medium leading-relaxed">
+          <p className="text-xs text-[#c4b5a5] max-w-md font-mono font-medium leading-relaxed">
             {searchQuery
-              ? "No habits matched your search criteria. Try modifying your search query or selecting a different category."
-              : "You have no active habits yet. Create your first daily habit to start building momentum and earning character progression."}
+              ? "No rituals matched your search query. Try changing terms or choosing another category."
+              : "The sanctuary awaits your first commitment. Forge your first daily discipline to unlock character progression, stats, and sacred rewards."}
           </p>
           <Link href="/habits/create" onClick={() => playUIMenuSFX("confirm")}>
             <button
               type="button"
-              className="px-4 py-2 bg-[#ffb03a] hover:bg-[#ffd166] text-[#1d2d2a] font-pixel font-bold text-xs border-2 border-[#1d2d2a] shadow-[3px_3px_0_0_#1d2d2a] active:translate-y-0.5 cursor-pointer flex items-center gap-1.5 mt-2 transition-all focus-visible:ring-2 focus-visible:ring-[#ffb03a]"
+              className="px-4 py-2 bg-[#e05344] hover:bg-[#ef4444] text-white font-pixel font-bold text-xs border border-[#821e14] shadow-[2px_2px_0_0_#47110c] active:translate-y-0.5 cursor-pointer flex items-center gap-1.5 mt-2 transition-all focus-visible:ring-2 focus-visible:ring-[#fba170]"
             >
-              <PixelPlusIcon className="w-3.5 h-3.5 text-[#1d2d2a]" />
-              <span>Create Your First Habit</span>
+              <PixelPlusIcon className="w-3.5 h-3.5 text-white" />
+              <span>Forge Your First Ritual</span>
             </button>
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.05,
+              },
+            },
+          }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
           {filteredHabits.map((habit) => (
-            <HabitCard key={habit.id} habit={habit} />
+            <motion.div
+              key={habit.id}
+              variants={{
+                hidden: { opacity: 0, y: 12 },
+                visible: { opacity: 1, y: 0 },
+              }}
+            >
+              <HabitCard habit={habit} />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* ========================================================= */}
@@ -325,4 +378,3 @@ export default function HabitsDashboardPage() {
     </div>
   );
 }
-

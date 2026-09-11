@@ -1520,27 +1520,56 @@ export function PixelOpenGrimoireIcon({ className = "w-6 h-6" }: { className?: s
   );
 }
 
-/* 65. 8-Bit Pixel Quest Tome / Grimoire Icon (16x16) - Habits Hero */
-export function PixelGrimoireIcon({ className = "w-6 h-6" }: { className?: string }) {
+/* 65. 8-Bit Pixel Kyoto Torii Shrine & Pagoda Icon (16x16) - Habits Hero */
+export function PixelGrimoireIcon({ className = "w-7 h-7" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 16 16"
-      fill="currentColor"
       className={className}
       style={{ imageRendering: "pixelated" }}
+      xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Leather Book Cover */}
-      <rect x="3" y="2" width="11" height="12" />
-      {/* Spine Rim */}
-      <rect x="2" y="2" width="2" height="12" fill="#78350f" />
-      {/* Gold Corner Clasps */}
-      <rect x="12" y="2" width="2" height="2" fill="#ffd166" />
-      <rect x="12" y="12" width="2" height="2" fill="#ffd166" />
-      {/* Center Mystic Runic Seal */}
-      <rect x="7" y="6" width="4" height="4" fill="#ffd166" />
-      <rect x="8" y="7" width="2" height="2" fill="#ea580c" />
-      {/* Page Edges on Right */}
-      <rect x="13" y="4" width="1" height="8" fill="#f8fafc" />
+      {/* Torii Top Crossbeam (Kasagi / Shimaki) - Curved vermilion roof */}
+      <rect x="1" y="2" width="14" height="1" fill="#c83a2b" />
+      <rect x="0" y="3" width="16" height="1" fill="#e05344" />
+      {/* Roof caps on edges (Black/Charcoal accents) */}
+      <rect x="0" y="2" width="1" height="2" fill="#1f1416" />
+      <rect x="15" y="2" width="1" height="2" fill="#1f1416" />
+
+      {/* Second Horizontal Tie Beam (Nuki) */}
+      <rect x="2" y="5" width="12" height="1" fill="#e05344" />
+      <rect x="1" y="5" width="1" height="1" fill="#7a1c14" />
+      <rect x="14" y="5" width="1" height="1" fill="#7a1c14" />
+
+      {/* Center Sacred Tablet / Plaque (Gakuzuka) */}
+      <rect x="7" y="3" width="2" height="2" fill="#1f1416" />
+      <rect x="7" y="4" width="2" height="1" fill="#fba170" />
+
+      {/* Twin Supporting Pillars (Hashira) */}
+      <rect x="3" y="4" width="2" height="10" fill="#e05344" />
+      <rect x="4" y="4" width="1" height="10" fill="#fba170" opacity="0.6" />
+      <rect x="11" y="4" width="2" height="10" fill="#e05344" />
+      <rect x="11" y="4" width="1" height="10" fill="#fba170" opacity="0.6" />
+
+      {/* Stone Pedestal Bases (Daiishi) */}
+      <rect x="2" y="14" width="3" height="2" fill="#3a2528" />
+      <rect x="3" y="14" width="2" height="1" fill="#634549" />
+      <rect x="11" y="14" width="3" height="2" fill="#3a2528" />
+      <rect x="11" y="14" width="2" height="1" fill="#634549" />
+
+      {/* Central Sacred Flame / Golden Lantern Glow inside */}
+      <rect x="7" y="8" width="2" height="3" fill="#fba170" />
+      <rect x="7" y="9" width="2" height="1" fill="#ffd166" />
+      <rect x="8" y="8" width="1" height="1" fill="#ffffff" />
+      {/* Lantern Hanging Cord & Base */}
+      <rect x="7" y="6" width="2" height="2" fill="#7a1c14" />
+      <rect x="7" y="11" width="2" height="1" fill="#3a2528" />
+
+      {/* Floating Sakura Petal Sparks */}
+      <rect x="6" y="13" width="1" height="1" fill="#f472b6" />
+      <rect x="9" y="12" width="1" height="1" fill="#fce7f3" />
+      <rect x="1" y="8" width="1" height="1" fill="#f472b6" opacity="0.8" />
+      <rect x="14" y="9" width="1" height="1" fill="#f472b6" opacity="0.8" />
     </svg>
   );
 }
@@ -2623,6 +2652,141 @@ export function PixelAdventurerPackIcon({
       <rect x="5" y="20" width="14" height="1" fill="#381403" />
       <rect x="5" y="19" width="1" height="1" fill="#ffd166" />
       <rect x="18" y="19" width="1" height="1" fill="#ffd166" />
+    </svg>
+  );
+}
+
+/* 107. 8-Bit Pixel Gladiator Barbell & Olympic Weight Plates Icon (16x16) - Workout Dashboard */
+export function PixelBarbellPlateIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      style={{ imageRendering: "pixelated" }}
+    >
+      {/* Heavy Olympic Iron Bar (Steel) */}
+      <rect x="1" y="7" width="14" height="2" fill="#d4d4d8" />
+      <rect x="2" y="7" width="12" height="1" fill="#ffffff" />
+      <rect x="1" y="8" width="14" height="1" fill="#71717a" />
+      {/* Knurling center marks */}
+      <rect x="7" y="7" width="2" height="2" fill="#e4e4e7" />
+
+      {/* Left Plate Collar / Sleeve */}
+      <rect x="2" y="6" width="1" height="4" fill="#a1a1aa" />
+      {/* Left Big 20kg Gold/Amber Iron Plate */}
+      <rect x="3" y="2" width="2" height="12" fill="#b45309" />
+      <rect x="3" y="2" width="1" height="12" fill="#fde047" />
+      <rect x="4" y="3" width="1" height="10" fill="#f59e0b" />
+      {/* Left Outer Plate Ring Rim */}
+      <rect x="5" y="3" width="1" height="10" fill="#78350f" />
+      <rect x="5" y="4" width="1" height="8" fill="#d97706" />
+
+      {/* Right Big 20kg Gold/Amber Iron Plate */}
+      <rect x="10" y="3" width="1" height="10" fill="#78350f" />
+      <rect x="10" y="4" width="1" height="8" fill="#d97706" />
+      <rect x="11" y="2" width="2" height="12" fill="#b45309" />
+      <rect x="11" y="3" width="1" height="10" fill="#f59e0b" />
+      <rect x="12" y="2" width="1" height="12" fill="#fde047" />
+      {/* Right Plate Collar */}
+      <rect x="13" y="6" width="1" height="4" fill="#a1a1aa" />
+    </svg>
+  );
+}
+
+/* 108. 8-Bit Pixel Anatomical Bicep & Bio-Pulse Icon (16x16) - Muscle Recovery & Readiness */
+export function PixelMuscleRecoveryIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      style={{ imageRendering: "pixelated" }}
+    >
+      {/* Golden Muscle Flex Peak */}
+      <rect x="6" y="2" width="4" height="2" fill="#fde047" />
+      <rect x="5" y="3" width="6" height="3" fill="#f59e0b" />
+      <rect x="4" y="5" width="8" height="3" fill="#d97706" />
+      {/* Forearm & Fist Base */}
+      <rect x="3" y="8" width="5" height="4" fill="#b45309" />
+      <rect x="2" y="10" width="4" height="3" fill="#92400e" />
+      <rect x="2" y="12" width="3" height="2" fill="#78350f" />
+      {/* Inner Arm Joint */}
+      <rect x="8" y="8" width="5" height="4" fill="#b45309" />
+      <rect x="10" y="10" width="4" height="3" fill="#78350f" />
+      {/* Energetic Bio-Recovery Spark / Pulse Cross (Emerald Green & Gold) */}
+      <rect x="11" y="2" width="3" height="1" fill="#22c55e" />
+      <rect x="12" y="1" width="1" height="3" fill="#4ade80" />
+      <rect x="12" y="2" width="1" height="1" fill="#ffffff" />
+      {/* Lower Pulse Spark */}
+      <rect x="13" y="6" width="2" height="1" fill="#22c55e" />
+      <rect x="13" y="5" width="1" height="2" fill="#4ade80" />
+    </svg>
+  );
+}
+
+/* 109. 8-Bit Pixel Gladiator Training Scroll & Quill Icon (16x16) - Custom Routines */
+export function PixelTrainingRoutinesIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      style={{ imageRendering: "pixelated" }}
+    >
+      {/* Parchment Scroll Board */}
+      <rect x="2" y="2" width="10" height="12" fill="#ecd9b5" />
+      <rect x="2" y="1" width="10" height="2" fill="#c4976a" />
+      <rect x="2" y="13" width="10" height="2" fill="#c4976a" />
+      <rect x="1" y="2" width="1" height="12" fill="#8c582f" />
+      <rect x="12" y="2" width="1" height="12" fill="#8c582f" />
+      {/* Inscribed Routine Lines */}
+      <rect x="4" y="4" width="6" height="1" fill="#542d17" />
+      <rect x="4" y="6" width="6" height="1" fill="#542d17" />
+      <rect x="4" y="8" width="4" height="1" fill="#542d17" />
+      <rect x="4" y="10" width="5" height="1" fill="#542d17" />
+      {/* Golden Quill Pen across the board */}
+      <rect x="10" y="7" width="2" height="2" fill="#fde047" />
+      <rect x="11" y="6" width="2" height="2" fill="#f59e0b" />
+      <rect x="12" y="5" width="2" height="2" fill="#d97706" />
+      <rect x="13" y="4" width="2" height="2" fill="#b45309" />
+      <rect x="14" y="3" width="2" height="2" fill="#fde047" />
+      {/* Ink Tip */}
+      <rect x="9" y="9" width="1" height="1" fill="#180702" />
+    </svg>
+  );
+}
+
+/* 110. 8-Bit Pixel Gladius Split Matrix / Golden Roman Shield Icon (16x16) - Recommended Workout Splits */
+export function PixelGladiusShieldSplitIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      style={{ imageRendering: "pixelated" }}
+    >
+      {/* Roman Legion Scutum Curved Golden Top */}
+      <rect x="3" y="1" width="10" height="2" fill="#f59e0b" />
+      <rect x="4" y="1" width="8" height="1" fill="#fde047" />
+      {/* Shield Main Body (Deep Imperial Crimson & Gilded Amber) */}
+      <rect x="2" y="3" width="12" height="8" fill="#991b1b" />
+      <rect x="3" y="3" width="10" height="8" fill="#b91c1c" />
+      <rect x="3" y="11" width="10" height="2" fill="#991b1b" />
+      <rect x="4" y="13" width="8" height="1" fill="#7f1d1d" />
+      <rect x="5" y="14" width="6" height="1" fill="#f59e0b" />
+      {/* Gilded Border Rims */}
+      <rect x="2" y="3" width="1" height="8" fill="#f59e0b" />
+      <rect x="13" y="3" width="1" height="8" fill="#f59e0b" />
+      {/* Central Golden Boss (Umbo) */}
+      <rect x="7" y="6" width="2" height="3" fill="#fde047" />
+      <rect x="6" y="7" width="4" height="1" fill="#fde047" />
+      <rect x="7" y="7" width="2" height="1" fill="#ffffff" />
+      {/* Golden Thunderbolt Wing Lightning Emblems */}
+      <rect x="4" y="5" width="2" height="1" fill="#fde047" />
+      <rect x="10" y="5" width="2" height="1" fill="#fde047" />
+      <rect x="4" y="9" width="2" height="1" fill="#fde047" />
+      <rect x="10" y="9" width="2" height="1" fill="#fde047" />
     </svg>
   );
 }

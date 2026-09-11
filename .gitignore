@@ -111,6 +111,7 @@ skills-lock.json
 
 # Temporary Screenshots & Visual Dumps
 /*.png
+/*.gif
 **/.codex-*
 **/.tmp-*
 

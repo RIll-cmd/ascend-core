@@ -4,6 +4,9 @@ import React from "react";
 import { EggShopItem } from "../types/beast";
 import { SystemTooltip } from "@/components/ui/SystemTooltip";
 import { EGG_LORE } from "@/features/lore/loreData";
+import { MagicCard } from "@/components/ui/magic-card";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
 import {
   Footprints,
   Coins,
@@ -101,6 +104,18 @@ const ELEMENT_CONFIG: Record<
   },
 };
 
+const ELEMENT_GLOW: Record<string, { from: string; to: string; color: string }> = {
+  FIRE: { from: "#f97316", to: "#ef4444", color: "rgba(249, 115, 22, 0.16)" },
+  FROST: { from: "#06b6d4", to: "#3b82f6", color: "rgba(6, 182, 212, 0.16)" },
+  CRYO: { from: "#06b6d4", to: "#3b82f6", color: "rgba(6, 182, 212, 0.16)" },
+  NATURE: { from: "#10b981", to: "#84cc16", color: "rgba(16, 185, 129, 0.16)" },
+  SOLAR: { from: "#f59e0b", to: "#ea580c", color: "rgba(245, 158, 11, 0.16)" },
+  HOLY: { from: "#eab308", to: "#f59e0b", color: "rgba(234, 179, 8, 0.16)" },
+  VOID: { from: "#a855f7", to: "#ec4899", color: "rgba(168, 85, 247, 0.16)" },
+  CYBER: { from: "#14b8a6", to: "#06b6d4", color: "rgba(20, 184, 166, 0.16)" },
+  STORM: { from: "#eab308", to: "#3b82f6", color: "rgba(234, 179, 8, 0.16)" },
+};
+
 const RARITY_CONFIG: Record<
   string,
   {
@@ -155,6 +170,8 @@ export function SanctuaryEggCard({
   const element = ELEMENT_CONFIG[normElement] || ELEMENT_CONFIG.NATURE;
   const ElementIcon = element.icon;
 
+  const glow = ELEMENT_GLOW[normElement] || ELEMENT_GLOW.NATURE;
+
   const normRarity = item.rarity?.toUpperCase() || "COMMON";
   const rarity = RARITY_CONFIG[normRarity] || RARITY_CONFIG.COMMON;
 
@@ -186,7 +203,13 @@ export function SanctuaryEggCard({
       delayMs={600}
       className="w-full h-full"
     >
-      <div className="w-full h-full rounded-2xl bg-[#261f18]/95 border-2 border-[#4a3525] p-4 flex flex-col justify-between space-y-4 hover:border-amber-600/60 transition-all duration-150 shadow-[0_6px_16px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.06)] group">
+      <MagicCard
+        className="w-full h-full rounded-2xl bg-[#261f18]/95 border-2 border-[#4a3525] p-4 flex flex-col justify-between space-y-4 hover:border-amber-600/60 transition-all duration-150 shadow-[0_6px_16px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.06)] group"
+        gradientColor={glow.color}
+        gradientFrom={glow.from}
+        gradientTo={glow.to}
+        gradientSize={240}
+      >
         <div className="space-y-3">
           {/* Centered Rarity & Element Header */}
           <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#3d2b1d]">
@@ -224,60 +247,68 @@ export function SanctuaryEggCard({
             </p>
           </div>
 
-          {/* Step Requirement Badge with Lucide Footprints */}
+          {/* Step Requirement Badge with Lucide Footprints & NumberTicker */}
           <div className="flex items-center gap-2 text-[11px] font-mono text-emerald-300 bg-emerald-950/50 px-3 py-2 rounded-lg border border-emerald-800/40 shadow-inner">
             <Footprints className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span className="font-semibold">
-              Requires {targetSteps.toLocaleString()} Steps
+            <span className="font-semibold flex items-center gap-1">
+              <span>Requires</span>
+              <NumberTicker value={targetSteps} className="text-emerald-300 font-mono font-semibold" />
+              <span>Steps</span>
             </span>
           </div>
         </div>
 
-        {/* Currency Purchase Buttons */}
+        {/* Currency Purchase Buttons with CoolMode */}
         <div className="space-y-2 pt-3 border-t border-[#3d2b1d]">
           {/* Buy with Gold Button */}
-          <button
-            type="button"
-            onClick={() => onBuyGold(item)}
-            disabled={isBuying || !canAffordGold}
-            className={`w-full h-10 px-3 rounded-lg font-mono text-xs font-bold flex items-center justify-between transition-all border shadow-sm cursor-pointer ${
-              canAffordGold
-                ? "bg-[#382618] hover:bg-[#483220] active:translate-y-0.5 text-amber-200 border-[#6b4728] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-                : "bg-[#1f1710] text-[#786450] border-[#382b20] cursor-not-allowed opacity-60"
-            }`}
-          >
-            <span className="flex items-center gap-2">
-              <Coins className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>Buy with Gold</span>
-            </span>
-            <span className="font-black font-pixel text-xs text-amber-300">
-              {item.goldPrice.toLocaleString()} G
-            </span>
-          </button>
-
-          {/* Buy with Gems Button (if applicable) */}
-          {item.gemPrice > 0 && (
+          <CoolMode options={{ particle: "🪙" }}>
             <button
               type="button"
-              onClick={() => onBuyGems(item)}
-              disabled={isBuying || !canAffordGems}
+              onClick={() => onBuyGold(item)}
+              disabled={isBuying || !canAffordGold}
               className={`w-full h-10 px-3 rounded-lg font-mono text-xs font-bold flex items-center justify-between transition-all border shadow-sm cursor-pointer ${
-                canAffordGems
-                  ? "bg-[#2d1b33] hover:bg-[#3d2645] active:translate-y-0.5 text-purple-200 border-[#5e386e] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                canAffordGold
+                  ? "bg-[#382618] hover:bg-[#483220] active:translate-y-0.5 text-amber-200 border-[#6b4728] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
                   : "bg-[#1f1710] text-[#786450] border-[#382b20] cursor-not-allowed opacity-60"
               }`}
             >
               <span className="flex items-center gap-2">
-                <Gem className="w-4 h-4 text-purple-400 shrink-0" />
-                <span>Buy with Gems</span>
+                <Coins className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Buy with Gold</span>
               </span>
-              <span className="font-black font-pixel text-xs text-purple-300">
-                {item.gemPrice} Gems
+              <span className="font-black font-pixel text-xs text-amber-300 flex items-center gap-1">
+                <NumberTicker value={item.goldPrice} className="font-pixel text-amber-300" />
+                <span>G</span>
               </span>
             </button>
+          </CoolMode>
+
+          {/* Buy with Gems Button (if applicable) */}
+          {item.gemPrice > 0 && (
+            <CoolMode options={{ particle: "💎" }}>
+              <button
+                type="button"
+                onClick={() => onBuyGems(item)}
+                disabled={isBuying || !canAffordGems}
+                className={`w-full h-10 px-3 rounded-lg font-mono text-xs font-bold flex items-center justify-between transition-all border shadow-sm cursor-pointer ${
+                  canAffordGems
+                    ? "bg-[#2d1b33] hover:bg-[#3d2645] active:translate-y-0.5 text-purple-200 border-[#5e386e] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                    : "bg-[#1f1710] text-[#786450] border-[#382b20] cursor-not-allowed opacity-60"
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <Gem className="w-4 h-4 text-purple-400 shrink-0" />
+                  <span>Buy with Gems</span>
+                </span>
+                <span className="font-black font-pixel text-xs text-purple-300 flex items-center gap-1">
+                  <NumberTicker value={item.gemPrice} className="font-pixel text-purple-300" />
+                  <span>Gems</span>
+                </span>
+              </button>
+            </CoolMode>
           )}
         </div>
-      </div>
+      </MagicCard>
     </SystemTooltip>
   );
 }

@@ -951,7 +951,7 @@
 }
 
 .workbench {
-  min-height: 660px;
+  min-height: auto;
   padding: clamp(0.9rem, 2vw, 1.35rem);
   overflow: hidden;
 }

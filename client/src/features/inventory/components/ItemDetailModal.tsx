@@ -8,6 +8,8 @@ import { getItemIconPath } from '@/utils/itemIcons';
 import { getItemUsageDetails } from '@/utils/itemUsageUtils';
 import smithy from '@/features/armory/styles/RoyalSmithy.module.css';
 import { royalRarityColors } from '@/features/armory/styles/royalRarityColors';
+import { CoolMode } from '@/components/ui/cool-mode';
+import { NumberTicker } from '@/components/ui/number-ticker';
 
 interface ItemDetailModalProps {
   item: PlayerItem | null;
@@ -99,8 +101,8 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
               ) : null}
             </div>
             <div className={smithy.forgeFee}>
-              <span>Sell value: {itemDefinition.sellValue || 0}g</span>
-              <strong>Qty {item.quantity}</strong>
+              <span>Sell value: <NumberTicker value={itemDefinition.sellValue || 0} />g</span>
+              <strong>Qty <NumberTicker value={item.quantity} /></strong>
             </div>
           </div>
         </header>
@@ -132,7 +134,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
                         <Icon className="h-3.5 w-3.5 text-amber-500" />
                         {stat.label}
                       </span>
-                      <strong>+{stat.value}{stat.isPercentage ? '%' : ''}</strong>
+                      <strong>+<NumberTicker value={stat.value} />{stat.isPercentage ? '%' : ''}</strong>
                     </div>
                   );
                 })}
@@ -150,58 +152,66 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({
 
         <div className={smithy.modalActions}>
           {canEquip ? (
-            <button
-              type="button"
-              onClick={() => {
-                if (item.isEquipped) {
-                  playUIMenuSFX("confirm");
-                } else {
-                  playBuffSFX("buff");
-                  playUIMenuSFX("equip");
-                }
-                onEquip(item.id);
-              }}
-              className={item.isEquipped ? smithy.dangerButton : smithy.primaryButton}
-            >
-              <Sword className="h-4 w-4" />
-              {item.isEquipped ? "Unequip item" : "Equip item"}
-            </button>
+            <CoolMode options={{ particle: item.isEquipped ? "🛡️" : "⚔️" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  if (item.isEquipped) {
+                    playUIMenuSFX("confirm");
+                  } else {
+                    playBuffSFX("buff");
+                    playUIMenuSFX("equip");
+                  }
+                  onEquip(item.id);
+                }}
+                className={item.isEquipped ? smithy.dangerButton : smithy.primaryButton}
+              >
+                <Sword className="h-4 w-4" />
+                {item.isEquipped ? "Unequip item" : "Equip item"}
+              </button>
+            </CoolMode>
           ) : null}
 
           {isConsumable ? (
-            <button
-              type="button"
-              disabled={isConsuming}
-              onClick={async () => {
-                if (!onUse) return;
-                setIsConsuming(true);
-                playBuffSFX("buff");
-                playUISound("/sounds/Combat & Actions/SKILL--ACTIVATE.mp3");
-                try {
-                  await onUse(item.id);
-                  onClose();
-                } catch (err) {
-                  console.error(err);
-                } finally {
-                  setIsConsuming(false);
-                }
-              }}
-              className={smithy.primaryButton}
-            >
-              <Sparkles className="h-4 w-4" />
-              {isConsuming ? "Using item…" : "Use item now"}
-            </button>
+            <CoolMode options={{ particle: "✨" }}>
+              <button
+                type="button"
+                disabled={isConsuming}
+                onClick={async () => {
+                  if (!onUse) return;
+                  setIsConsuming(true);
+                  playBuffSFX("buff");
+                  playUISound("/sounds/Combat & Actions/SKILL--ACTIVATE.mp3");
+                  try {
+                    await onUse(item.id);
+                    onClose();
+                  } catch (err) {
+                    console.error(err);
+                  } finally {
+                    setIsConsuming(false);
+                  }
+                }}
+                className={smithy.primaryButton}
+              >
+                <Sparkles className="h-4 w-4" />
+                {isConsuming ? "Using item…" : "Use item now"}
+              </button>
+            </CoolMode>
           ) : null}
 
           <div className={smithy.splitActions}>
-            <button type="button" onClick={() => onToggleFavorite(item.id)} className={smithy.secondaryButton}>
-              <Star className={`h-3.5 w-3.5 ${item.isFavorite ? 'fill-current text-amber-300' : ''}`} />
-              {item.isFavorite ? 'Favorited' : 'Favorite'}
-            </button>
-            <button type="button" onClick={() => onToggleLock(item.id)} className={smithy.secondaryButton}>
-              <Lock className="h-3.5 w-3.5" />
-              {item.isLocked ? "Unlock" : "Lock"}
-            </button>
+            <CoolMode options={{ particle: "⭐" }}>
+              <button type="button" onClick={() => onToggleFavorite(item.id)} className={smithy.secondaryButton}>
+                <Star className={`h-3.5 w-3.5 ${item.isFavorite ? 'fill-current text-amber-300' : ''}`} />
+                {item.isFavorite ? 'Favorited' : 'Favorite'}
+              </button>
+            </CoolMode>
+            <CoolMode options={{ particle: "🔒" }}>
+              <button type="button" onClick={() => onToggleLock(item.id)} className={smithy.secondaryButton}>
+                <Lock className="h-3.5 w-3.5" />
+                {item.isLocked ? "Unlock" : "Lock"}
+              </button>
+            </CoolMode>
           </div>
         </div>
           </section>

@@ -146,12 +146,24 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           } catch {}
         }
       } else {
-        set({ user: null, token: null, isAuthenticated: false, isLoading: false, isHydrated: true });
-        clearCookie();
-        try {
-          localStorage.removeItem("ascend_session");
-          localStorage.removeItem("ascend_user");
-        } catch {}
+        const cachedUser = getStoredUser();
+        const cachedToken = getStoredToken();
+        if (cachedUser || cachedToken) {
+          set({
+            user: cachedUser,
+            token: cachedToken,
+            isAuthenticated: true,
+            isLoading: false,
+            isHydrated: true,
+          });
+        } else {
+          set({ user: null, token: null, isAuthenticated: false, isLoading: false, isHydrated: true });
+          clearCookie();
+          try {
+            localStorage.removeItem("ascend_session");
+            localStorage.removeItem("ascend_user");
+          } catch {}
+        }
       }
     } catch {
       const cachedUser = getStoredUser();

@@ -7,6 +7,9 @@ import { useCharacterStore } from "@/store/useCharacterStore";
 import { SanctuaryEggCard } from "./SanctuaryEggCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { MagicCard } from "@/components/ui/magic-card";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
 import {
   Sparkles,
   ShoppingBag,
@@ -21,7 +24,6 @@ import {
   Snowflake,
   Sun,
 } from "lucide-react";
-import { CurrencyIcon } from "@/components/CurrencyDisplay";
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
 import { SystemTooltip } from "@/components/ui/SystemTooltip";
 import { EGG_LORE } from "@/features/lore/loreData";
@@ -54,51 +56,57 @@ export const MysteryEggShop: React.FC<MysteryEggShopProps> = ({
   };
 
   return (
-    <div className="rounded-3xl bg-gradient-to-br from-[#0C1226]/95 via-[#080E20]/95 to-[#050914]/98 border border-cyan-500/30 p-6 shadow-xl relative overflow-hidden backdrop-blur-2xl space-y-6">
+    <div className="rounded-3xl bg-gradient-to-br from-[#1b2b20]/95 via-[#132219]/95 to-[#0b1610]/98 border-2 border-[#5c4a2c] p-6 sm:p-7 shadow-[0_12px_28px_rgba(0,0,0,0.5)] relative overflow-hidden backdrop-blur-2xl space-y-6 text-[#fef3c7]">
       {/* Top Header & Tab Toggle */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-cyan-500/10 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#4d3c22] pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-1.5">
-              <ShoppingBag className="w-3.5 h-3.5" />
+            <span className="text-[11px] font-mono font-bold text-emerald-300 uppercase tracking-widest flex items-center gap-1.5">
+              <ShoppingBag className="w-3.5 h-3.5 text-emerald-400" />
               NURSERY & SEED STALL
             </span>
           </div>
-          <h3 className="text-xl font-black font-heading text-white tracking-wide mt-0.5">
+          <h3 className="text-xl sm:text-2xl font-black font-pixel text-[#fce8bb] tracking-wide mt-1">
             Egg Market & Storage
           </h3>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-2 bg-slate-950/80 p-1 rounded-2xl border border-slate-800 self-start sm:self-auto">
-          <button
-            aria-pressed={activeTab === "SHOP"}
-            onClick={() => {
-              playUIMenuSFX("confirm");
-              setActiveTab("SHOP");
-            }}
-            className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
-              activeTab === "SHOP"
-                ? "bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            Sanctuary Shop
-          </button>
-          <button
-            aria-pressed={activeTab === "STORAGE"}
-            onClick={() => {
-              playUIMenuSFX("confirm");
-              setActiveTab("STORAGE");
-            }}
-            className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === "STORAGE"
-                ? "bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
-                : "text-slate-400 hover:text-white"
-            }`}
-          >
-            Egg Storage ({unhatchedEggs.length})
-          </button>
+        {/* Tab Switcher with CoolMode */}
+        <div className="flex items-center gap-2 bg-[#121c15] p-1.5 rounded-2xl border border-[#3d2e1b] self-start sm:self-auto shadow-inner">
+          <CoolMode options={{ particle: "🍃" }}>
+            <button
+              type="button"
+              aria-pressed={activeTab === "SHOP"}
+              onClick={() => {
+                playUIMenuSFX("confirm");
+                setActiveTab("SHOP");
+              }}
+              className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
+                activeTab === "SHOP"
+                  ? "bg-[#d8b36f] text-[#2c1d0b] shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+                  : "text-[#c2baa2] hover:text-white"
+              }`}
+            >
+              Sanctuary Shop
+            </button>
+          </CoolMode>
+          <CoolMode options={{ particle: "🪺" }}>
+            <button
+              type="button"
+              aria-pressed={activeTab === "STORAGE"}
+              onClick={() => {
+                playUIMenuSFX("confirm");
+                setActiveTab("STORAGE");
+              }}
+              className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === "STORAGE"
+                  ? "bg-[#d8b36f] text-[#2c1d0b] shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+                  : "text-[#c2baa2] hover:text-white"
+              }`}
+            >
+              Egg Storage ({unhatchedEggs.length})
+            </button>
+          </CoolMode>
         </div>
       </div>
 
@@ -106,7 +114,7 @@ export const MysteryEggShop: React.FC<MysteryEggShopProps> = ({
       {/* TAB 1: SANCTUARY SHOP SHELF */}
       {/* ========================================================= */}
       {activeTab === "SHOP" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {EGG_SHOP_ITEMS.map((item) => {
             const canAffordGold = (character?.gold || 0) >= item.goldPrice;
             const canAffordGems = item.gemPrice > 0 && (character?.gems || 0) >= item.gemPrice;
@@ -132,9 +140,9 @@ export const MysteryEggShop: React.FC<MysteryEggShopProps> = ({
       {activeTab === "STORAGE" && (
         <div className="space-y-4">
           {unhatchedEggs.length === 0 ? (
-            <div className="p-8 text-center bg-slate-950/60 rounded-2xl border border-slate-800 space-y-3">
-              <Package className="w-8 h-8 text-slate-600 mx-auto" />
-              <p className="text-xs text-slate-400 font-mono">
+            <div className="p-8 text-center bg-[#15231a] rounded-2xl border border-[#3e311d] space-y-3">
+              <Package className="w-8 h-8 text-[#786b52] mx-auto" />
+              <p className="text-xs text-[#b8a786] font-mono">
                 No eggs currently stored in your inventory vault. Purchase eggs in the Sanctuary Shop!
               </p>
             </div>
@@ -169,19 +177,23 @@ export const MysteryEggShop: React.FC<MysteryEggShopProps> = ({
                     delayMs={1000}
                     className="w-full h-full"
                   >
-                    <div
+                    <MagicCard
                       className={`w-full h-full rounded-2xl p-4 border flex flex-col justify-between space-y-3 ${
                         isActive
-                          ? "bg-gradient-to-br from-[#0c2236] to-[#06121f] border-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.3)]"
-                          : "bg-slate-900/80 border-slate-800"
+                          ? "bg-gradient-to-br from-[#193325] to-[#0f2117] border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                          : "bg-[#211b15] border-[#423223]"
                       }`}
+                      gradientColor={isActive ? "rgba(16, 185, 129, 0.2)" : "rgba(217, 179, 111, 0.15)"}
+                      gradientFrom={isActive ? "#10b981" : "#d8b36f"}
+                      gradientTo={isActive ? "#84cc16" : "#86612c"}
+                      gradientSize={220}
                     >
                       <div className="flex items-center justify-between">
-                        <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/40 text-[9px] font-mono">
+                        <Badge className="bg-[#d8b36f]/20 text-[#edd095] border-[#86612c]/60 text-[9px] font-mono">
                           {egg.rarity}
                         </Badge>
                         {isActive && (
-                          <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
+                          <span className="text-[9px] font-mono text-emerald-300 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/40">
                             INCUBATING
                           </span>
                         )}
@@ -195,23 +207,27 @@ export const MysteryEggShop: React.FC<MysteryEggShopProps> = ({
                           style={{ imageRendering: "pixelated" }}
                         />
                         <div className="min-w-0">
-                          <h5 className="font-bold text-sm text-white font-heading truncate">{egg.name}</h5>
-                          <span className="text-[10px] text-slate-400 font-mono block">
-                            {cSteps.toLocaleString()} / {tSteps.toLocaleString()} Steps
+                          <h5 className="font-bold text-sm text-[#fcf0d4] font-pixel truncate">{egg.name}</h5>
+                          <span className="text-[10px] text-[#b4a485] font-mono block flex items-center gap-1">
+                            <NumberTicker value={cSteps} className="text-[#b4a485] font-mono" />
+                            <span>/</span>
+                            <span>{tSteps.toLocaleString()} Steps</span>
                           </span>
                         </div>
                       </div>
 
                       {!isActive && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleIncubate(egg.id)}
-                          className="w-full h-8 font-mono text-xs font-bold bg-cyan-600 hover:bg-cyan-500 text-slate-950 rounded-xl"
-                        >
-                          Slot into Incubator
-                        </Button>
+                        <CoolMode options={{ particle: "🪺" }}>
+                          <Button
+                            size="sm"
+                            onClick={() => handleIncubate(egg.id)}
+                            className="w-full h-8 font-mono text-xs font-bold bg-[#d8b36f] hover:bg-[#edd093] text-[#332210] rounded-xl cursor-pointer"
+                          >
+                            Slot into Incubator
+                          </Button>
+                        </CoolMode>
                       )}
-                    </div>
+                    </MagicCard>
                   </SystemTooltip>
                 );
               })}
@@ -222,3 +238,5 @@ export const MysteryEggShop: React.FC<MysteryEggShopProps> = ({
     </div>
   );
 };
+
+export default MysteryEggShop;

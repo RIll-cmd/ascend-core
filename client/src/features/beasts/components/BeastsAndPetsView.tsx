@@ -19,6 +19,10 @@ import { BeastBestiary } from "@/components/beasts/BeastBestiary";
 import { MysteryEggShop } from "@/features/beasts/components/MysteryEggShop";
 import { HatchCelebrationModal } from "@/features/beasts/components/HatchCelebrationModal";
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
+import { PixelFallingLeaves } from "@/components/ui/pixel/PixelFallingLeaves";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
+import { MagicCard } from "@/components/ui/magic-card";
 import meadow from "../styles/MeadowAviary.module.css";
 
 export function BeastsAndPetsView() {
@@ -46,6 +50,9 @@ export function BeastsAndPetsView() {
 
   return (
     <div className="relative min-h-screen font-sans -m-3 sm:-m-5 md:-m-6 p-3 sm:p-5 md:p-6">
+      {/* Falling Pixel Leaves across the Aviary in front of cards */}
+      <PixelFallingLeaves count={42} className="z-[60]" />
+
       {/* ========================================================================= */}
       {/* 1. FULL-BLEED FIXED VIEWPORT SANCTUARY MEADOW BACKGROUND & GRADIENT OVERLAY */}
       {/* ========================================================================= */}
@@ -98,8 +105,10 @@ export function BeastsAndPetsView() {
                 <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-[#574325]">
                   Unlocked species
                 </span>
-                <strong className="font-pixel text-sm sm:text-base font-bold text-[#2a1d0c] mt-0.5">
-                  {collection?.totalDiscovered || 0} / {collection?.totalSpecies || 20}
+                <strong className="font-pixel text-sm sm:text-base font-bold text-[#2a1d0c] mt-0.5 flex items-center gap-1">
+                  <NumberTicker value={collection?.totalDiscovered || 0} className="font-pixel text-[#2a1d0c]" />
+                  <span>/</span>
+                  <span>{collection?.totalSpecies || 20}</span>
                 </strong>
               </div>
             </div>
@@ -113,13 +122,16 @@ export function BeastsAndPetsView() {
                 <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-[#574325]">
                   Sanctuary multiplier
                 </span>
-                <strong className="font-pixel text-sm sm:text-base font-bold text-[#2a1d0c] mt-0.5">
-                  +{Number(passive.EXP_BOOST || 0).toFixed(0)}%
+                <strong className="font-pixel text-sm sm:text-base font-bold text-[#2a1d0c] mt-0.5 flex items-center">
+                  <span>+</span>
+                  <NumberTicker value={Number(passive.EXP_BOOST || 0)} className="font-pixel text-[#2a1d0c]" />
+                  <span>%</span>
                 </strong>
               </div>
             </div>
           </div>
         </header>
+
 
         {/* === CHAMBER ROW: INCUBATOR NEST & FAMILIAR'S ROOST === */}
         <section
@@ -137,8 +149,16 @@ export function BeastsAndPetsView() {
             />
           </div>
 
-          {/* Right 5 Columns: Your Familiar's Roost */}
-          <article className="lg:col-span-5 flex flex-col justify-between p-6 sm:p-7 rounded-2xl border-[3px] border-[#8d784b] bg-gradient-to-b from-[#fef7e6] to-[#f4e9cd] shadow-[0_10px_24px_rgba(0,0,0,0.3)] text-[#273d2c]">
+          {/* Right 5 Columns: Your Familiar's Roost with MagicCard */}
+          <MagicCard
+            className="lg:col-span-5 flex flex-col justify-between p-6 sm:p-7 rounded-2xl border-[3px] border-[#8d784b] shadow-[0_10px_24px_rgba(0,0,0,0.3)] text-[#273d2c]"
+            innerClassName="bg-gradient-to-b from-[#fef7e6] to-[#f4e9cd]"
+            backgroundColor="transparent"
+            gradientColor="rgba(217, 179, 111, 0.18)"
+            gradientFrom="#d97706"
+            gradientTo="#f59e0b"
+            gradientSize={320}
+          >
             {/* Roost Header */}
             <div className="flex items-center justify-between gap-3 pb-3 border-b border-[#b6b389]">
               <h2 className="m-0 font-pixel text-base font-bold text-[#22543d]">
@@ -188,29 +208,33 @@ export function BeastsAndPetsView() {
                   {/* Brass Chain Link */}
                   <span className="w-0.5 h-2.5 bg-[#b38936] shadow-xs" />
                   {/* Brass Hanging Bell */}
-                  <button
-                    type="button"
-                    onClick={handleRingBell}
-                    className="p-1 rounded-full bg-[#d8b36f] hover:bg-[#edd093] active:scale-95 border border-[#7a5521] text-[#4d3416] shadow-sm transition-transform cursor-pointer"
-                    title="Ring the Sanctuary Bell to summon your familiar"
-                    aria-label="Ring the Sanctuary Bell to summon your familiar"
-                  >
-                    <Bell className={`w-3.5 h-3.5 ${bellRung ? "animate-bounce text-amber-700" : ""}`} />
-                  </button>
+                  <CoolMode options={{ particle: "🔔" }}>
+                    <button
+                      type="button"
+                      onClick={handleRingBell}
+                      className="p-1 rounded-full bg-[#d8b36f] hover:bg-[#edd093] active:scale-95 border border-[#7a5521] text-[#4d3416] shadow-sm transition-transform cursor-pointer"
+                      title="Ring the Sanctuary Bell to summon your familiar"
+                      aria-label="Ring the Sanctuary Bell to summon your familiar"
+                    >
+                      <Bell className={`w-3.5 h-3.5 ${bellRung ? "animate-bounce text-amber-700" : ""}`} />
+                    </button>
+                  </CoolMode>
                 </div>
               </div>
             </div>
 
             {/* Interactive Bell Summon Action Chip */}
             <div className="flex items-center justify-center pt-2 pb-1">
-              <button
-                type="button"
-                onClick={handleRingBell}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#ddc498] hover:bg-[#ecd4aa] active:translate-y-0.5 border-2 border-[#94773e] text-[#4a3318] font-pixel text-xs font-bold shadow-sm transition-all cursor-pointer"
-              >
-                <Bell className={`w-3.5 h-3.5 text-[#735324] ${bellRung ? "animate-spin" : ""}`} />
-                <span>{bellRung ? "Sanctuary Bell Chiming..." : "Ring Bell to Summon"}</span>
-              </button>
+              <CoolMode options={{ particle: "🔔" }}>
+                <button
+                  type="button"
+                  onClick={handleRingBell}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#ddc498] hover:bg-[#ecd4aa] active:translate-y-0.5 border-2 border-[#94773e] text-[#4a3318] font-pixel text-xs font-bold shadow-sm transition-all cursor-pointer"
+                >
+                  <Bell className={`w-3.5 h-3.5 text-[#735324] ${bellRung ? "animate-spin" : ""}`} />
+                  <span>{bellRung ? "Sanctuary Bell Chiming..." : "Ring Bell to Summon"}</span>
+                </button>
+              </CoolMode>
             </div>
 
             {/* Name Tag & Species Lore */}
@@ -254,7 +278,7 @@ export function BeastsAndPetsView() {
                 </div>
               </div>
             </div>
-          </article>
+          </MagicCard>
         </section>
 
         {/* === EGG MARKET & STORAGE (MYSTERY EGG SHOP) === */}

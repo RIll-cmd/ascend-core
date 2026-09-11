@@ -15,6 +15,7 @@ export interface PunchedTapeHorizonProps {
     dateObj: Date;
     snapshot?: ChronoSnapshot;
     missions: KanbanQuest[];
+    schedules?: any[];
     x: number;
     y: number;
   } | null) => void;
@@ -104,6 +105,7 @@ export function PunchedTapeHorizon({
                         dateObj: day.dateObj,
                         snapshot: day.snapshot,
                         missions: day.missions,
+                        schedules: day.schedules,
                         x: rect.left + rect.width / 2,
                         y: rect.top,
                       });

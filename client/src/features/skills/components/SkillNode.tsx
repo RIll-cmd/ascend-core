@@ -104,14 +104,7 @@ export const SkillNode: React.FC<SkillNodeProps> = ({ skill, playerSkill, status
       >
         {/* Tier Astrolabe Quadrant Pill (Top Left) */}
         <div className={`absolute -top-2 -left-2 text-[11px] font-mono font-black px-1.5 py-0.5 rounded-none border-2 shadow-[2px_2px_0_0_#000] z-20 ${tierBadgeColor}`}>
-          {tier === 5 ? (
-            <span className="flex items-center gap-0.5">
-              <Crown className="w-2.5 h-2.5 text-amber-300" />
-              <span>ULT</span>
-            </span>
-          ) : (
-            `T${tier}`
-          )}
+          {tier === 5 ? "ULT" : `T${tier}`}
         </div>
 
         {/* Status Lock / Element Star Indicator (Top Right) */}

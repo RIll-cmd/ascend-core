@@ -84,12 +84,20 @@ export async function fetchDailyReport(
 export async function executeAiraAction(
   pendingAction: AIRAPendingAction,
   characterId: string = "char-id-123"
-): Promise<{ success: boolean; message: string } | null> {
+): Promise<{ success: boolean; message?: string; result?: Record<string, unknown>; idempotentReplay?: boolean } | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/aira/execute`, {
+    const isSignedPreview = Boolean(
+      pendingAction.operation && pendingAction.requestId && pendingAction.confirmationToken
+    );
+    const res = await fetch(`${API_BASE_URL}${isSignedPreview ? "/api/aira/operations/execute" : "/api/aira/execute"}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      body: JSON.stringify(isSignedPreview ? {
+        characterId,
+        requestId: pendingAction.requestId,
+        operation: pendingAction.operation,
+        confirmationToken: pendingAction.confirmationToken,
+      } : {
         action_type: pendingAction.action_type,
         action_args: pendingAction.action_args,
         characterId,

@@ -3,6 +3,7 @@ import { SkillDefinition, PlayerSkill } from '../types';
 import { SkillIcon } from './SkillIcon';
 import { getSkillLore } from '../data/skillLore';
 import { playUISound, playBuffSFX } from '@/utils/audio';
+import { CoolMode } from '@/components/ui/cool-mode';
 import { BookOpen, Sparkles, Swords, X, Lock, CheckCircle2, Star, ExternalLink } from 'lucide-react';
 
 interface SkillDetailModalProps {
@@ -245,33 +246,35 @@ export const SkillDetailModal: React.FC<SkillDetailModalProps> = ({
             Close Starchart
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              playBuffSFX("levelup");
-              onUnlock();
-            }}
-            disabled={!available || loading || !!isMaxLevel}
-            className={`
-              px-5 py-2 text-xs font-mono font-black uppercase tracking-wider flex items-center gap-2 rounded-none transition-colors cursor-pointer shadow-[3px_3px_0_0_#000] focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none
-              ${
-                available && !isMaxLevel
-                  ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 hover:brightness-110 active:translate-y-[1px]'
-                  : 'bg-[#182030] text-slate-500 border border-slate-700/60 cursor-not-allowed opacity-60'
-              }
-            `}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>
-              {loading
-                ? 'Aligning Star...'
-                : isMaxLevel
-                ? 'Zenith Reached'
-                : isUnlocked
-                ? `Upgrade (${skill.baseCostSP} SP)`
-                : `Awaken Star (${skill.baseCostSP} SP)`}
-            </span>
-          </button>
+          <CoolMode options={{ particle: '✨' }}>
+            <button
+              type="button"
+              onClick={() => {
+                playBuffSFX("levelup");
+                onUnlock();
+              }}
+              disabled={!available || loading || !!isMaxLevel}
+              className={`
+                px-5 py-2 text-xs font-mono font-black uppercase tracking-wider flex items-center gap-2 rounded-none transition-colors cursor-pointer shadow-[3px_3px_0_0_#000] focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none
+                ${
+                  available && !isMaxLevel
+                    ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 hover:brightness-110 active:translate-y-[1px]'
+                    : 'bg-[#182030] text-slate-500 border border-slate-700/60 cursor-not-allowed opacity-60'
+                }
+              `}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>
+                {loading
+                  ? 'Aligning Star...'
+                  : isMaxLevel
+                  ? 'Zenith Reached'
+                  : isUnlocked
+                  ? `Upgrade (${skill.baseCostSP} SP)`
+                  : `Awaken Star (${skill.baseCostSP} SP)`}
+              </span>
+            </button>
+          </CoolMode>
         </div>
       </div>
     </div>

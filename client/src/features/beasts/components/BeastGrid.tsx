@@ -37,6 +37,8 @@ import {
   getFormattedStatLabel,
 } from "./DragonCodexCard";
 import { CodexSprite } from "./CodexSprite";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
 
 interface BeastGridProps {
   bestiary: BestiarySpeciesSummary[];
@@ -106,8 +108,10 @@ export const BeastGrid: React.FC<BeastGridProps> = ({
           <div className="w-full md:w-64 space-y-2 bg-slate-950/60 border border-slate-800 p-3.5 rounded-2xl">
             <div className="flex items-center justify-between text-xs font-mono">
               <span className="text-slate-400 font-bold">Bestiary Codex</span>
-              <span className="text-cyan-300 font-black">
-                {totalDiscovered} / {totalSpecies} Awakened
+              <span className="text-cyan-300 font-black flex items-center gap-1">
+                <NumberTicker value={totalDiscovered} className="text-cyan-300 font-mono font-black" />
+                <span>/</span>
+                <span>{totalSpecies} Awakened</span>
               </span>
             </div>
             <div className="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-cyan-500/20">
@@ -116,8 +120,9 @@ export const BeastGrid: React.FC<BeastGridProps> = ({
                 style={{ width: `${Math.min(100, Math.floor((totalDiscovered / totalSpecies) * 100))}%` }}
               />
             </div>
-            <div className="text-[9.5px] font-mono text-slate-500 text-right">
-              {Math.floor((totalDiscovered / totalSpecies) * 100)}% Codex Completion
+            <div className="text-[9.5px] font-mono text-slate-500 text-right flex items-center justify-end gap-1">
+              <NumberTicker value={Math.floor((totalDiscovered / totalSpecies) * 100)} className="text-slate-500 font-mono" />
+              <span>% Codex Completion</span>
             </div>
           </div>
         </div>
@@ -125,71 +130,78 @@ export const BeastGrid: React.FC<BeastGridProps> = ({
         {/* Primary Filter Row: Owned vs All Switcher */}
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-5 border-t border-cyan-500/10 mt-5">
           <div className="flex items-center gap-2 p-1 bg-black/60 border border-cyan-500/30 rounded-2xl max-w-full overflow-x-auto">
-            <button
-              type="button"
-              onClick={() => {
-                playUIMenuSFX("confirm");
-                setOwnershipFilter("OWNED");
-              }}
-              className={`px-4 py-2 rounded-xl font-mono text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
-                ownershipFilter === "OWNED"
-                  ? "bg-gradient-to-r from-cyan-500 to-indigo-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.5)] font-black"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              OWNED DRAGONS ({totalDiscovered})
-            </button>
+            <CoolMode options={{ particle: "✨" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  playUIMenuSFX("confirm");
+                  setOwnershipFilter("OWNED");
+                }}
+                className={`px-4 py-2 rounded-xl font-mono text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+                  ownershipFilter === "OWNED"
+                    ? "bg-gradient-to-r from-cyan-500 to-indigo-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.5)] font-black"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                OWNED DRAGONS ({totalDiscovered})
+              </button>
+            </CoolMode>
 
-            <button
-              type="button"
-              onClick={() => {
-                playUIMenuSFX("confirm");
-                setOwnershipFilter("ALL");
-              }}
-              className={`px-4 py-2 rounded-xl font-mono text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
-                ownershipFilter === "ALL"
-                  ? "bg-gradient-to-r from-cyan-500 to-indigo-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.5)] font-black"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              ALL CODEX ({totalSpecies})
-            </button>
+            <CoolMode options={{ particle: "📖" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  playUIMenuSFX("confirm");
+                  setOwnershipFilter("ALL");
+                }}
+                className={`px-4 py-2 rounded-xl font-mono text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+                  ownershipFilter === "ALL"
+                    ? "bg-gradient-to-r from-cyan-500 to-indigo-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.5)] font-black"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                ALL CODEX ({totalSpecies})
+              </button>
+            </CoolMode>
           </div>
 
           {/* Rarity & Element Pills */}
           <div className="flex flex-wrap items-center gap-1.5">
-            <button
-              onClick={() => {
-                playUIMenuSFX("confirm");
-                setSelectedRarity("ALL");
-                setSelectedElement("ALL");
-              }}
-              className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer ${
-                selectedRarity === "ALL" && selectedElement === "ALL"
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50"
-                  : "bg-slate-900/60 text-slate-400 hover:text-white border border-slate-800"
-              }`}
-            >
-              RESET FILTERS
-            </button>
-
-            {rarities.map((r) => (
+            <CoolMode options={{ particle: "🍃" }}>
               <button
-                key={r}
                 onClick={() => {
                   playUIMenuSFX("confirm");
-                  setSelectedRarity(selectedRarity === r ? "ALL" : r);
+                  setSelectedRarity("ALL");
+                  setSelectedElement("ALL");
                 }}
                 className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer ${
-                  selectedRarity === r
-                    ? "bg-[#22543d] text-[#fef3c7]"
-                    : "bg-[#e0c68c] text-[#493519] hover:bg-[#f0d99e] border border-[#94773e]"
+                  selectedRarity === "ALL" && selectedElement === "ALL"
+                    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50"
+                    : "bg-slate-900/60 text-slate-400 hover:text-white border border-slate-800"
                 }`}
               >
-                {r}
+                RESET FILTERS
               </button>
+            </CoolMode>
+
+            {rarities.map((r) => (
+              <CoolMode key={r} options={{ particle: "🍃" }}>
+                <button
+                  onClick={() => {
+                    playUIMenuSFX("confirm");
+                    setSelectedRarity(selectedRarity === r ? "ALL" : r);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold transition-all cursor-pointer ${
+                    selectedRarity === r
+                      ? "bg-[#22543d] text-[#fef3c7]"
+                      : "bg-[#e0c68c] text-[#493519] hover:bg-[#f0d99e] border border-[#94773e]"
+                  }`}
+                >
+                  {r}
+                </button>
+              </CoolMode>
             ))}
           </div>
         </div>

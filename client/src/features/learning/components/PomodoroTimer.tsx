@@ -1175,13 +1175,16 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
 
             {/* Center Stage: Retro Pixel Digital Timer */}
             <div className="flex flex-col items-center justify-center text-center py-2 space-y-2">
-              <div className="flex items-center justify-center font-pixel font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-wider text-[#221006] drop-shadow-[0_2px_0_rgba(255,255,255,0.7)] tabular-nums select-none">
-                <span className="tracking-widest">{formattedMinutes}</span>
+              <div 
+                className="flex items-center justify-center font-pixel-chunky font-bold text-6xl sm:text-7xl md:text-8xl tracking-wider text-[#1c0d05] drop-shadow-[0_2px_0_rgba(255,255,255,0.75)] tabular-nums select-none"
+                style={{ fontFamily: "'Jersey 10', monospace" }}
+              >
+                <span className="tracking-wider">{formattedMinutes}</span>
                 <div className="flex flex-col items-center justify-center gap-2 sm:gap-2.5 mx-3 sm:mx-4 shrink-0">
                   <span className={cn("w-2 sm:w-2.5 md:w-3 h-2 sm:h-2.5 md:h-3 bg-[#5c280b] shadow-[0_1px_0_rgba(255,255,255,0.4)] shrink-0", status === "RUNNING" && "animate-pulse")} />
                   <span className={cn("w-2 sm:w-2.5 md:w-3 h-2 sm:h-2.5 md:h-3 bg-[#5c280b] shadow-[0_1px_0_rgba(255,255,255,0.4)] shrink-0", status === "RUNNING" && "animate-pulse")} />
                 </div>
-                <span className="tracking-widest">{formattedSeconds}</span>
+                <span className="tracking-wider">{formattedSeconds}</span>
               </div>
 
               {/* Sub-Timer Intent Notice */}

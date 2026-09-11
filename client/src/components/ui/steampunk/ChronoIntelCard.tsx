@@ -16,6 +16,7 @@ export interface ChronoIntelCardProps {
   isToday: boolean;
   selectedSnapshot?: ChronoSnapshot;
   selectedMissions: KanbanQuest[];
+  selectedSchedules?: any[];
   onOpenCreateDeadline: () => void;
   className?: string;
 }
@@ -28,6 +29,7 @@ export function ChronoIntelCard({
   isToday,
   selectedSnapshot,
   selectedMissions,
+  selectedSchedules = [],
   onOpenCreateDeadline,
   className = "",
 }: ChronoIntelCardProps) {
@@ -125,6 +127,31 @@ export function ChronoIntelCard({
             {selectedMissions.length} Scheduled
           </span>
         </div>
+
+        {/* Personal Schedules for Selected Date */}
+        {selectedSchedules.length > 0 && (
+          <div className="p-3.5 bg-[#0a1617] border-2 border-teal-500/40 space-y-2 mb-4">
+            <div className="flex justify-between items-center text-sm font-mono">
+              <span className="text-teal-300 font-pixel text-xs sm:text-sm uppercase font-bold flex items-center gap-1.5">
+                <PixelClockIcon className="w-3.5 h-3.5 text-teal-400" />
+                Personal Schedules:
+              </span>
+              <span className="text-teal-400 font-pixel font-bold text-xs sm:text-sm">
+                {selectedSchedules.length} Active
+              </span>
+            </div>
+            <div className="space-y-1.5 max-h-32 overflow-y-auto custom-scrollbar pr-0.5">
+              {selectedSchedules.map((s: any, idx: number) => (
+                <div key={s.id || idx} className="flex items-center justify-between text-xs font-mono bg-teal-950/60 border border-teal-500/30 px-2 py-1.5 rounded">
+                  <span className="text-teal-200 font-bold truncate">{s.title}</span>
+                  <span className="text-teal-300 font-bold ml-2 shrink-0">
+                    {s.time}{s.endTime ? ` - ${s.endTime}` : ''}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Inscribe Deadline Button */}

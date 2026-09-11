@@ -20,6 +20,15 @@ import {
   BarChart3,
   Bot,
   Trash2,
+  Calendar,
+  Clock,
+  CheckSquare,
+  ListTodo,
+  Trophy,
+  ShoppingBag,
+  PawPrint,
+  HeartPulse,
+  Workflow,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -35,39 +44,81 @@ import { playVoiceLine, playBattleSFX, playUIMenuSFX } from "@/utils/audio";
 
 const QUICK_PROMPTS = [
   {
+    id: "missions",
+    title: "Missions & Habits",
+    icon: ListTodo,
+    color: "text-cyan-400",
+    promptText: "What are my pending missions and habits today?",
+  },
+  {
+    id: "recovery",
+    title: "Muscle Recovery",
+    icon: HeartPulse,
+    color: "text-emerald-400",
+    promptText: "Check my muscle recovery and fatigue status",
+  },
+  {
+    id: "workout-split",
+    title: "Workout Recommendation",
+    icon: Dumbbell,
+    color: "text-blue-400",
+    promptText: "Recommend an optimal workout routine based on my muscle recovery",
+  },
+  {
+    id: "skills",
+    title: "Skills & SP",
+    icon: Zap,
+    color: "text-amber-400",
+    promptText: "Show my class skills and available SP",
+  },
+  {
     id: "tower",
     title: "Tower Analysis",
     icon: Swords,
-    color: "text-amber-400",
-    promptText: "Can I beat Floor 1 of the Tower?",
+    color: "text-red-400",
+    promptText: "Can I beat the next floor of the Tower?",
+  },
+  {
+    id: "boss-pr",
+    title: "Weekly Boss PR",
+    icon: Target,
+    color: "text-rose-400",
+    promptText: "How is my weekly gym Boss PR trial progressing?",
   },
   {
     id: "equipment",
-    title: "Equipment Advice",
+    title: "Gear & Armory",
     icon: Package,
     color: "text-indigo-400",
-    promptText: "Analyze my gear and recommend upgrades",
+    promptText: "Analyze my inventory gear and recommend upgrades",
   },
   {
-    id: "goal",
-    title: "Goal Routine",
-    icon: Target,
-    color: "text-cyan-400",
-    promptText: "I want to get better at programming",
+    id: "beasts",
+    title: "Beasts & Pets",
+    icon: PawPrint,
+    color: "text-teal-400",
+    promptText: "Check my pet egg incubation and active companion buffs",
   },
   {
-    id: "workout",
-    title: "Workout Today",
-    icon: Dumbbell,
-    color: "text-emerald-400",
-    promptText: "What should I train today?",
+    id: "shop",
+    title: "Shop Deals",
+    icon: ShoppingBag,
+    color: "text-yellow-400",
+    promptText: "What items can I afford in the shop right now?",
   },
   {
-    id: "status",
-    title: "System Status",
-    icon: BarChart3,
+    id: "achievements",
+    title: "Achievements",
+    icon: Trophy,
+    color: "text-amber-300",
+    promptText: "What achievements can I claim right now?",
+  },
+  {
+    id: "automations",
+    title: "Automations",
+    icon: Workflow,
     color: "text-purple-400",
-    promptText: "Analyze my progress over the last week",
+    promptText: "List my active automation rules and trigger states",
   },
 ];
 
@@ -343,57 +394,208 @@ export default function AiraTerminalPage() {
                         </ReactMarkdown>
                       </div>
 
-                      {msg.pendingAction && (
-                        <div className={`mt-4 p-3.5 ${msg.pendingAction.action_type === 'generate_progression_plan' ? 'bg-cyan-950/40 border-cyan-500/40' : 'bg-amber-950/40 border-amber-500/40'} border rounded-xl space-y-3`}>
-                          <div className="flex items-center gap-2">
-                            <Shield className={`w-4 h-4 ${msg.pendingAction.action_type === 'generate_progression_plan' ? 'text-cyan-400' : 'text-amber-400'}`} />
-                            <span className={`text-xs font-bold ${msg.pendingAction.action_type === 'generate_progression_plan' ? 'text-cyan-400' : 'text-amber-400'} uppercase tracking-wider`}>
-                              {msg.pendingAction.action_type === 'generate_progression_plan' ? 'RECOMMENDED HABITS PROTOCOL' : 'SYSTEM ACTION PROPOSED'}
-                            </span>
-                          </div>
-                          <p className={`text-xs font-sans ${msg.pendingAction.action_type === 'generate_progression_plan' ? 'text-cyan-200/90 bg-cyan-900/30' : 'text-amber-200/90 bg-amber-900/30'} p-2.5 rounded-lg`}>
-                            {msg.pendingAction.summary}
-                          </p>
+                      {msg.pendingAction && (() => {
+                        const action = msg.pendingAction;
+                        const args = action.action_args || {};
+                        const isCalendarAction =
+                          action.action_type === "create_calendar_schedule" ||
+                          action.action_type === "create_calendar_schedule_multi";
 
-                          {/* Plan specifics if it's a plan */}
-                          {msg.pendingAction.action_type === 'generate_progression_plan' && (
-                            <div className="text-xs text-slate-300 bg-[#080D1D]/70 p-2.5 rounded-lg border border-slate-800 space-y-1 font-mono">
-                              <p>+ {msg.pendingAction.action_args.habit1_title || "Read for 30m"}</p>
-                              <p>+ {msg.pendingAction.action_args.habit2_title || "Code for 1h"}</p>
-                              <p>+ {msg.pendingAction.action_args.habit3_title || "Review notes"}</p>
+                        if (isCalendarAction) {
+                          const isMulti = action.action_type === "create_calendar_schedule_multi";
+                          const eventTitle = args.title || "Scheduled Session";
+                          const eventTime = args.time || "09:00";
+                          const slotsCount = isMulti
+                            ? (args.schedules?.length || args.days?.length || 2)
+                            : 1;
+
+                          const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+                          return (
+                            <div className="mt-4 p-4 bg-teal-950/40 border border-teal-500/40 rounded-xl space-y-3.5 backdrop-blur-md shadow-[0_4px_24px_rgba(13,148,136,0.15)] relative overflow-hidden">
+                              {/* Accent line glow */}
+                              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-teal-400/80 to-transparent" />
+
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <div className="p-1.5 rounded-lg bg-teal-500/10 border border-teal-500/30 text-teal-400">
+                                    <Calendar className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <span className="text-xs font-bold text-teal-400 uppercase tracking-wider block font-mono">
+                                      CALENDAR SCHEDULE PROTOCOL
+                                    </span>
+                                    <span className="text-[10px] text-teal-300/60 font-mono">
+                                      {isMulti
+                                        ? "MULTI-DAY RECURRING BUNDLE"
+                                        : `${args.scheduleType || args.schedule_type || "WEEKLY"} ENTRY`}
+                                    </span>
+                                  </div>
+                                </div>
+                                <Badge variant="outline" className="border-teal-500/40 text-teal-300 bg-teal-950/60 text-[10px] font-mono px-2 py-0.5">
+                                  {slotsCount} {slotsCount === 1 ? "SLOT" : "SLOTS"}
+                                </Badge>
+                              </div>
+
+                              {/* Event details container */}
+                              <div className="bg-[#080D1D]/80 p-3 rounded-lg border border-teal-500/20 space-y-2.5">
+                                <div className="flex items-baseline justify-between border-b border-teal-500/10 pb-2">
+                                  <span className="text-[11px] text-slate-400 font-mono uppercase tracking-wider">EVENT</span>
+                                  <span className="text-sm font-bold text-slate-100 font-sans tracking-wide">
+                                    {eventTitle}
+                                  </span>
+                                </div>
+
+                                {/* Multi-day schedule list */}
+                                {isMulti ? (
+                                  <div className="space-y-1.5 pt-0.5">
+                                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">RECURRENCE SLOTS:</span>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                      {(
+                                        args.schedules ||
+                                        (args.days || []).map((d: string) => ({
+                                          title: eventTitle,
+                                          time: eventTime,
+                                          day_of_week: d,
+                                          schedule_type: "WEEKLY"
+                                        }))
+                                      ).map((sched: any, idx: number) => {
+                                        const rawDow = sched.dayOfWeek ?? sched.day_of_week;
+                                        const dayLabel = typeof rawDow === "number"
+                                          ? (dayNames[rawDow] || `Day ${rawDow}`)
+                                          : (rawDow || args.days?.[idx] || "Weekly");
+                                        const schedTime = sched.time || eventTime;
+                                        const schedEndTime = sched.endTime || sched.end_time || args.endTime || args.end_time;
+                                        return (
+                                          <div
+                                            key={idx}
+                                            className="flex items-center justify-between p-2 rounded-md bg-teal-950/30 border border-teal-500/20 text-xs font-mono"
+                                          >
+                                            <div className="flex items-center gap-1.5">
+                                              <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
+                                              <span className="font-bold text-teal-300">{dayLabel}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1 text-slate-300">
+                                              <Clock className="w-3 h-3 text-teal-400/80" />
+                                              <span>{schedTime}{schedEndTime ? ` - ${schedEndTime}` : ""}</span>
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  /* Single schedule */
+                                  <div className="flex items-center justify-between pt-0.5 text-xs font-mono">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-slate-400">Day/Date:</span>
+                                      <span className="text-teal-300 font-bold px-2 py-0.5 rounded bg-teal-950/60 border border-teal-500/30">
+                                        {(() => {
+                                          const dow = args.dayOfWeek ?? args.day_of_week;
+                                          if (typeof dow === "number") return dayNames[dow] || `Day ${dow}`;
+                                          if (dow) return String(dow);
+                                          return args.scheduledAt || args.scheduled_at || "Every Week";
+                                        })()}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-slate-200">
+                                      <Clock className="w-3.5 h-3.5 text-teal-400" />
+                                      <span className="font-bold">
+                                        {eventTime}{args.endTime || args.end_time ? ` - ${args.endTime || args.end_time}` : ""}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* AIRA Notice Summary */}
+                              <p className="text-xs font-sans text-teal-200/90 bg-teal-900/30 border border-teal-500/20 p-2.5 rounded-lg leading-relaxed">
+                                {action.summary}
+                              </p>
+
+                              {/* Actions */}
+                              <div className="flex gap-2 pt-1">
+                                <Button
+                                  onClick={() => {
+                                    playBattleSFX("impact");
+                                    playVoiceLine("/sounds/AIRA Persona/AI-CONFRIMED.mp3");
+                                    confirmAction(msg.id, characterId);
+                                  }}
+                                  disabled={isLoading}
+                                  className="flex-1 bg-teal-600 hover:bg-teal-500 text-slate-950 font-black h-8 text-xs uppercase rounded-lg shadow-[0_0_15px_rgba(20,184,166,0.3)] transition-all cursor-pointer"
+                                >
+                                  [ SCHEDULE ]
+                                </Button>
+                                <Button
+                                  onClick={() => {
+                                    playUIMenuSFX("decline");
+                                    cancelAction(msg.id);
+                                  }}
+                                  disabled={isLoading}
+                                  variant="outline"
+                                  className="flex-1 border-teal-500/40 text-teal-400 hover:bg-teal-950/50 h-8 text-xs uppercase rounded-lg transition-all cursor-pointer"
+                                >
+                                  [ CANCEL ]
+                                </Button>
+                              </div>
                             </div>
-                          )}
+                          );
+                        }
 
-                          <div className="flex gap-2 pt-1">
-                            <Button
-                              onClick={() => {
-                                playBattleSFX("impact");
-                                if (msg.pendingAction?.action_type === 'generate_progression_plan') {
-                                  playVoiceLine("/sounds/AIRA Persona/AI-SUCCESSFUL.mp3");
-                                } else {
-                                  playVoiceLine("/sounds/AIRA Persona/AI-CONFRIMED.mp3");
-                                }
-                                confirmAction(msg.id, characterId);
-                              }}
-                              disabled={isLoading}
-                              className={`flex-1 ${msg.pendingAction.action_type === 'generate_progression_plan' ? 'bg-cyan-600 hover:bg-cyan-500' : 'bg-amber-600 hover:bg-amber-500'} text-slate-950 font-black h-8 text-xs uppercase rounded-lg shadow-md cursor-pointer`}
-                            >
-                              {msg.pendingAction.action_type === 'generate_progression_plan' ? '[ ACCEPT PLAN ]' : '[ CONFIRM ]'}
-                            </Button>
-                            <Button
-                              onClick={() => {
-                                playUIMenuSFX("decline");
-                                cancelAction(msg.id);
-                              }}
-                              disabled={isLoading}
-                              variant="outline"
-                              className={`flex-1 ${msg.pendingAction.action_type === 'generate_progression_plan' ? 'border-cyan-500/40 text-cyan-400 hover:bg-cyan-950/50' : 'border-amber-500/40 text-amber-400 hover:bg-amber-950/50'} h-8 text-xs uppercase rounded-lg cursor-pointer`}
-                            >
-                              [ CANCEL ]
-                            </Button>
+                        /* Existing Habit / Mission / Plan Action Card */
+                        const isPlan = action.action_type === "generate_progression_plan";
+                        return (
+                          <div className={`mt-4 p-3.5 ${isPlan ? "bg-cyan-950/40 border-cyan-500/40" : "bg-amber-950/40 border-amber-500/40"} border rounded-xl space-y-3`}>
+                            <div className="flex items-center gap-2">
+                              <Shield className={`w-4 h-4 ${isPlan ? "text-cyan-400" : "text-amber-400"}`} />
+                              <span className={`text-xs font-bold ${isPlan ? "text-cyan-400" : "text-amber-400"} uppercase tracking-wider`}>
+                                {isPlan ? "RECOMMENDED HABITS PROTOCOL" : "SYSTEM ACTION PROPOSED"}
+                              </span>
+                            </div>
+                            <p className={`text-xs font-sans ${isPlan ? "text-cyan-200/90 bg-cyan-900/30" : "text-amber-200/90 bg-amber-900/30"} p-2.5 rounded-lg`}>
+                              {action.summary}
+                            </p>
+
+                            {/* Plan specifics if it's a plan */}
+                            {isPlan && (
+                              <div className="text-xs text-slate-300 bg-[#080D1D]/70 p-2.5 rounded-lg border border-slate-800 space-y-1 font-mono">
+                                <p>+ {args.habit1_title || "Read for 30m"}</p>
+                                <p>+ {args.habit2_title || "Code for 1h"}</p>
+                                <p>+ {args.habit3_title || "Review notes"}</p>
+                              </div>
+                            )}
+
+                            <div className="flex gap-2 pt-1">
+                              <Button
+                                onClick={() => {
+                                  playBattleSFX("impact");
+                                  if (isPlan) {
+                                    playVoiceLine("/sounds/AIRA Persona/AI-SUCCESSFUL.mp3");
+                                  } else {
+                                    playVoiceLine("/sounds/AIRA Persona/AI-CONFRIMED.mp3");
+                                  }
+                                  confirmAction(msg.id, characterId);
+                                }}
+                                disabled={isLoading}
+                                className={`flex-1 ${isPlan ? "bg-cyan-600 hover:bg-cyan-500" : "bg-amber-600 hover:bg-amber-500"} text-slate-950 font-black h-8 text-xs uppercase rounded-lg shadow-md cursor-pointer`}
+                              >
+                                {isPlan ? "[ ACCEPT PLAN ]" : "[ CONFIRM ]"}
+                              </Button>
+                              <Button
+                                onClick={() => {
+                                  playUIMenuSFX("decline");
+                                  cancelAction(msg.id);
+                                }}
+                                disabled={isLoading}
+                                variant="outline"
+                                className={`flex-1 ${isPlan ? "border-cyan-500/40 text-cyan-400 hover:bg-cyan-950/50" : "border-amber-500/40 text-amber-400 hover:bg-amber-950/50"} h-8 text-xs uppercase rounded-lg cursor-pointer`}
+                              >
+                                [ CANCEL ]
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
                     </div>
                   </motion.div>
                 ))}

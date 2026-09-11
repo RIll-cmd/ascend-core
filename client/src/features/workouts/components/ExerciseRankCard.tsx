@@ -5,6 +5,7 @@ import {
   PixelLightningIcon,
   PixelAwardIcon,
 } from "@/components/ui/pixel/PixelIcons";
+import { NumberTicker } from "@/components/ui/number-ticker";
 
 interface ExerciseRankCardProps {
   exerciseName: string;
@@ -73,7 +74,7 @@ export function ExerciseRankCard({
               EST. 1-REP MAX (1RM)
             </span>
             <div className="text-base font-black text-white flex items-baseline gap-1 tabular-nums mt-0.5">
-              <span className="tracking-tight font-sans text-lg">{e1rm}</span>
+              <NumberTicker value={e1rm} className="tracking-tight font-sans text-lg font-black text-white" />
               <span className="font-sans font-bold text-xs text-stone-300">KG</span>
             </div>
           </div>
@@ -84,7 +85,7 @@ export function ExerciseRankCard({
                 NEXT RANK ({nextRank})
               </span>
               <div className="text-xs font-bold text-[#f59e0b] flex items-baseline justify-end gap-1 tabular-nums mt-0.5 font-sans">
-                <span>{nextThreshold}</span>
+                <NumberTicker value={nextThreshold} className="font-sans font-bold text-xs text-[#f59e0b]" />
                 <span className="font-sans font-semibold text-[11px] text-stone-400">KG</span>
               </div>
             </div>
@@ -113,7 +114,9 @@ export function ExerciseRankCard({
               <span className="flex items-center gap-1">
                 <PixelLightningIcon className="w-2.5 h-2.5 text-[#f59e0b]" /> PROGRESS
               </span>
-              <span className="text-[#f59e0b] font-bold tabular-nums">{progress}%</span>
+              <span className="text-[#f59e0b] font-bold tabular-nums flex items-center">
+                <NumberTicker value={progress} className="text-[#f59e0b] font-pixel text-[11px] font-bold" />%
+              </span>
             </div>
           </div>
         ) : (

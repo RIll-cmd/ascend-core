@@ -1,35 +1,33 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import type { LucideIcon } from "lucide-react";
-import {
-  Bot,
-  CircuitBoard,
-  Brain,
-  CalendarDays,
-  Castle,
-  ChevronRight,
-  Dumbbell,
-  Hammer,
-  LayoutDashboard,
-  ListChecks,
-  MoonStar,
-  PawPrint,
-  Skull,
-  Store,
-  Swords,
-  Target,
-  Trophy,
-  UserRound,
-  X,
-  Zap,
-} from "lucide-react";
+import { ChevronRight, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { playSystemOpen } from "@/features/audio/useSystemAudio";
 import { useNavigationStore } from "@/store/useNavigationStore";
 import { playMovementSFX } from "@/utils/audio";
-import { PixelAdventurerPackIcon } from "@/components/ui/pixel/PixelIcons";
+import {
+  GraphicDashboardIcon,
+  GraphicMissionsIcon,
+  GraphicHabitsIcon,
+  GraphicCalendarIcon,
+  GraphicProfileIcon,
+  GraphicWorkoutsIcon,
+  GraphicSleepIcon,
+  GraphicLearningIcon,
+  GraphicSkillsIcon,
+  GraphicTowerIcon,
+  GraphicBossesIcon,
+  GraphicBossPRIcon,
+  GraphicInventoryIcon,
+  GraphicCraftingIcon,
+  GraphicShopIcon,
+  GraphicBeastsIcon,
+  GraphicAiraIcon,
+  GraphicAchievementsIcon,
+  GraphicAutomationsIcon,
+} from "@/components/ui/icons/SidebarGraphicIcons";
 
 export type SidebarSectionId =
   | "operations"
@@ -44,7 +42,7 @@ export interface SidebarNavItem {
   label: string;
   href: string;
   ariaLabel: string;
-  icon: LucideIcon | React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; size?: number }>;
   category: SidebarSectionId;
   parentId?: string;
 }
@@ -62,10 +60,10 @@ export const SIDEBAR_NAV_SECTIONS: SidebarNavSection[] = [
     header: "// OPERATIONS",
     label: "Core & Daily Ops",
     items: [
-      { id: "dashboard", index: "01", label: "Dashboard", href: "/dashboard", ariaLabel: "Go to Dashboard", icon: LayoutDashboard, category: "operations" },
-      { id: "missions", index: "02", label: "Missions", href: "/missions", ariaLabel: "View Daily Missions", icon: Target, category: "operations" },
-      { id: "habits", index: "03", label: "Habits", href: "/habits", ariaLabel: "Track Habits", icon: ListChecks, category: "operations" },
-      { id: "calendar", index: "04", label: "Calendar", href: "/calendar", ariaLabel: "Open Calendar", icon: CalendarDays, category: "operations" },
+      { id: "dashboard", index: "01", label: "Dashboard", href: "/dashboard", ariaLabel: "Go to Dashboard", icon: GraphicDashboardIcon, category: "operations" },
+      { id: "missions", index: "02", label: "Missions", href: "/missions", ariaLabel: "View Daily Missions", icon: GraphicMissionsIcon, category: "operations" },
+      { id: "habits", index: "03", label: "Habits", href: "/habits", ariaLabel: "Track Habits", icon: GraphicHabitsIcon, category: "operations" },
+      { id: "calendar", index: "04", label: "Calendar", href: "/calendar", ariaLabel: "Open Calendar", icon: GraphicCalendarIcon, category: "operations" },
     ],
   },
   {
@@ -73,11 +71,11 @@ export const SIDEBAR_NAV_SECTIONS: SidebarNavSection[] = [
     header: "// DISCIPLINES",
     label: "Character & Disciplines",
     items: [
-      { id: "profile", index: "05", label: "Profile", href: "/profile", ariaLabel: "View Character Profile", icon: UserRound, category: "disciplines" },
-      { id: "workouts", index: "06", label: "Workouts", href: "/workouts", ariaLabel: "Open Workouts", icon: Dumbbell, category: "disciplines" },
-      { id: "sleep", index: "07", label: "Sleep & Rest", href: "/sleep", ariaLabel: "Open Sleep and Rest", icon: MoonStar, category: "disciplines" },
-      { id: "learning", index: "08", label: "Learning & Focus", href: "/learning", ariaLabel: "Open Learning and Focus", icon: Brain, category: "disciplines" },
-      { id: "skills", index: "09", label: "Skills", href: "/skills", ariaLabel: "Open Skill Tree", icon: Zap, category: "disciplines" },
+      { id: "profile", index: "05", label: "Profile", href: "/profile", ariaLabel: "View Character Profile", icon: GraphicProfileIcon, category: "disciplines" },
+      { id: "workouts", index: "06", label: "Workouts", href: "/workouts", ariaLabel: "Open Workouts", icon: GraphicWorkoutsIcon, category: "disciplines" },
+      { id: "sleep", index: "07", label: "Sleep & Rest", href: "/sleep", ariaLabel: "Open Sleep and Rest", icon: GraphicSleepIcon, category: "disciplines" },
+      { id: "learning", index: "08", label: "Learning & Focus", href: "/learning", ariaLabel: "Open Learning and Focus", icon: GraphicLearningIcon, category: "disciplines" },
+      { id: "skills", index: "09", label: "Skills", href: "/skills", ariaLabel: "Open Skill Tree", icon: GraphicSkillsIcon, category: "disciplines" },
     ],
   },
   {
@@ -85,9 +83,9 @@ export const SIDEBAR_NAV_SECTIONS: SidebarNavSection[] = [
     header: "// COMBAT",
     label: "Conquest & Trials",
     items: [
-      { id: "tower", index: "10", label: "Tower", href: "/tower", ariaLabel: "Enter the Tower of Ascension", icon: Castle, category: "conquest" },
-      { id: "bosses", index: "11", label: "Bosses", href: "/bosses", ariaLabel: "View World Bosses", icon: Skull, category: "conquest" },
-      { id: "boss-pr", index: "12", label: "Boss PR", href: "/workouts/boss-pr", ariaLabel: "Open Boss PR Benchmarks", icon: Swords, category: "conquest", parentId: "bosses" },
+      { id: "tower", index: "10", label: "Tower", href: "/tower", ariaLabel: "Enter the Tower of Ascension", icon: GraphicTowerIcon, category: "conquest" },
+      { id: "bosses", index: "11", label: "Bosses", href: "/bosses", ariaLabel: "View World Bosses", icon: GraphicBossesIcon, category: "conquest" },
+      { id: "boss-pr", index: "12", label: "Boss PR", href: "/workouts/boss-pr", ariaLabel: "Open Boss PR Benchmarks", icon: GraphicBossPRIcon, category: "conquest", parentId: "bosses" },
     ],
   },
   {
@@ -95,10 +93,10 @@ export const SIDEBAR_NAV_SECTIONS: SidebarNavSection[] = [
     header: "// ARMORY",
     label: "Armory & Economy",
     items: [
-      { id: "inventory", index: "13", label: "Inventory", href: "/inventory", ariaLabel: "Open Inventory and Equipment", icon: PixelAdventurerPackIcon, category: "armory" },
-      { id: "crafting", index: "14", label: "Forge & Craft", href: "/crafting", ariaLabel: "Open Forge and Crafting", icon: Hammer, category: "armory" },
-      { id: "shop", index: "15", label: "Shop", href: "/shop", ariaLabel: "Open Merchant Shop", icon: Store, category: "armory" },
-      { id: "beasts", index: "16", label: "Beasts & Pets", href: "/beasts", ariaLabel: "Open Beasts and Pets", icon: PawPrint, category: "armory" },
+      { id: "inventory", index: "13", label: "Inventory", href: "/inventory", ariaLabel: "Open Inventory and Equipment", icon: GraphicInventoryIcon, category: "armory" },
+      { id: "crafting", index: "14", label: "Forge & Craft", href: "/crafting", ariaLabel: "Open Forge and Crafting", icon: GraphicCraftingIcon, category: "armory" },
+      { id: "shop", index: "15", label: "Shop", href: "/shop", ariaLabel: "Open Merchant Shop", icon: GraphicShopIcon, category: "armory" },
+      { id: "beasts", index: "16", label: "Beasts & Pets", href: "/beasts", ariaLabel: "Open Beasts and Pets", icon: GraphicBeastsIcon, category: "armory" },
     ],
   },
   {
@@ -106,9 +104,9 @@ export const SIDEBAR_NAV_SECTIONS: SidebarNavSection[] = [
     header: "// SYSTEM CORE",
     label: "System Core",
     items: [
-      { id: "aira", index: "17", label: "AI System / AIRA", href: "/aira", ariaLabel: "Open AIRA AI System", icon: Bot, category: "system" },
-      { id: "achievements", index: "18", label: "Achievements", href: "/achievements", ariaLabel: "Open Achievements", icon: Trophy, category: "system" },
-      { id: "automations", index: "19", label: "Automations", href: "/automations", ariaLabel: "Manage automation rules", icon: CircuitBoard, category: "system" },
+      { id: "aira", index: "17", label: "AI System / AIRA", href: "/aira", ariaLabel: "Open AIRA AI System", icon: GraphicAiraIcon, category: "system" },
+      { id: "achievements", index: "18", label: "Achievements", href: "/achievements", ariaLabel: "Open Achievements", icon: GraphicAchievementsIcon, category: "system" },
+      { id: "automations", index: "19", label: "Automations", href: "/automations", ariaLabel: "Manage automation rules", icon: GraphicAutomationsIcon, category: "system" },
     ],
   },
 ];
@@ -132,14 +130,16 @@ function NavigationItem({ item, activeId, onNavigate }: { item: SidebarNavItem; 
         aria-label={item.ariaLabel}
         aria-current={isActive ? "page" : undefined}
         onClick={onNavigate}
-        className={`group relative grid min-h-11 grid-cols-[2.25rem_1rem_minmax(0,1fr)_1rem] items-center gap-2 border px-2 py-2 font-semibold transition-[background-color,border-color,color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080b14] ${
+        className={`group relative grid min-h-11 grid-cols-[2.25rem_1.35rem_minmax(0,1fr)_1rem] items-center gap-2.5 border px-2 py-2 font-semibold transition-[background-color,border-color,color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#080b14] ${
           isActive
             ? "border-slate-600 bg-[#172235] text-white"
             : "border-transparent text-slate-300 hover:border-slate-700 hover:bg-[#171c28] hover:text-amber-100"
         }`}
       >
         <span className={`flex h-6 w-8 items-center justify-center border font-mono text-[10px] tabular-nums ${isActive ? "border-emerald-500/60 bg-emerald-950 text-emerald-300" : "border-slate-700 bg-[#0c101b] text-[#a7b2c3] group-hover:text-amber-300"}`}>{item.index}</span>
-        <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-emerald-300" : "text-[#a7b2c3] group-hover:text-amber-300"}`} strokeWidth={1.8} aria-hidden="true" />
+        <div className="w-5 h-5 flex items-center justify-center shrink-0 group-hover:scale-115 transition-transform duration-200">
+          <Icon className="w-5 h-5 shrink-0 drop-shadow-sm" />
+        </div>
         <span className="truncate text-xs tracking-wide">{item.label}</span>
         {isActive && <ChevronRight className="h-4 w-4 fill-emerald-300 text-emerald-300" strokeWidth={2} aria-hidden="true" />}
         {isActive && <span className="absolute inset-y-1 left-0 w-px bg-emerald-300 shadow-[0_0_8px_rgba(110,231,183,.75)]" aria-hidden="true" />}
@@ -147,6 +147,7 @@ function NavigationItem({ item, activeId, onNavigate }: { item: SidebarNavItem; 
     </li>
   );
 }
+
 
 function NavigationSection({ section, activeId, onNavigate }: { section: SidebarNavSection; activeId?: string; onNavigate: () => void }) {
   return (

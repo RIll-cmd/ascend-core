@@ -17,6 +17,8 @@ import { AiraAvatar } from "@/components/ui/AiraAvatar";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
 import { PixelCard } from "@/components/ui/pixel/PixelCard";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
 import {
   PixelSwordIcon,
   PixelShieldIcon,
@@ -28,6 +30,9 @@ import {
   PixelDumbbellIcon,
   PixelPlusIcon,
   PixelTrashIcon,
+  PixelBarbellPlateIcon,
+  PixelTrainingRoutinesIcon,
+  PixelGladiusShieldSplitIcon,
 } from "@/components/ui/pixel/PixelIcons";
 import {
   Dumbbell,
@@ -302,8 +307,8 @@ export default function WorkoutsPage() {
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
             {/* Raw Iron Pedestal */}
-            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#140e0c] border-2 border-[#4a3830] shadow-[inset_2px_2px_0_0_#2a1f1b] flex items-center justify-center text-[#f59e0b] shrink-0">
-              <PixelSwordIcon className="w-8 h-8 text-[#f59e0b]" />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#140e0c] border-2 border-[#4a3830] shadow-[inset_2px_2px_0_0_#2a1f1b] flex items-center justify-center shrink-0">
+              <PixelBarbellPlateIcon className="w-9 h-9 sm:w-10 sm:h-10" />
             </div>
 
             <div className="space-y-2">
@@ -324,29 +329,33 @@ export default function WorkoutsPage() {
 
           {/* Action Controls */}
           <div className="flex flex-wrap items-center gap-2.5 z-10 w-full lg:w-auto justify-start lg:justify-end">
-            <PixelButton
-              variant="gold"
-              size="md"
-              onClick={() => {
-                playUIMenuSFX("click");
-                setIsLoggerModalOpen(true);
-              }}
-              className="flex items-center gap-2"
-            >
-              <PixelDumbbellIcon className="w-4 h-4" />
-              <span>LOG WORKOUT</span>
-            </PixelButton>
-
-            <Link href="/workouts/boss-pr">
+            <CoolMode options={{ particle: "🏋️", particleCount: 10, speedUp: 8 }}>
               <PixelButton
-                variant="danger"
+                variant="gold"
                 size="md"
-                onClick={() => playBattleSFX("encounter")}
+                onClick={() => {
+                  playUIMenuSFX("click");
+                  setIsLoggerModalOpen(true);
+                }}
                 className="flex items-center gap-2"
               >
-                <PixelSwordIcon className="w-4 h-4 text-white" />
-                <span>STRENGTH CHALLENGE (BOSS PR)</span>
+                <PixelDumbbellIcon className="w-4 h-4" />
+                <span>LOG WORKOUT</span>
               </PixelButton>
+            </CoolMode>
+
+            <Link href="/workouts/boss-pr">
+              <CoolMode options={{ particle: "⚔️", particleCount: 12, speedUp: 9 }}>
+                <PixelButton
+                  variant="danger"
+                  size="md"
+                  onClick={() => playBattleSFX("encounter")}
+                  className="flex items-center gap-2"
+                >
+                  <PixelSwordIcon className="w-4 h-4 text-white" />
+                  <span>STRENGTH CHALLENGE (BOSS PR)</span>
+                </PixelButton>
+              </CoolMode>
             </Link>
 
             <PixelButton
@@ -423,7 +432,7 @@ export default function WorkoutsPage() {
 
             <div className="mt-4">
               <div className="font-pixel-chunky text-5xl font-bold text-white tracking-wider">
-                {user?.power || 0}
+                <NumberTicker value={user?.power || 0} className="font-pixel-chunky text-5xl font-bold text-white" />
               </div>
               <div className="mt-2">
                 <PixelBadge variant="success" size="sm">
@@ -543,8 +552,8 @@ export default function WorkoutsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b-2 border-[#4a3830]">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-[#140e0c] border border-[#4a3830] flex items-center justify-center text-[#f59e0b] shrink-0">
-                <PixelSwordIcon className="w-4 h-4 text-[#f59e0b]" />
+              <div className="w-8 h-8 bg-[#140e0c] border border-[#4a3830] flex items-center justify-center shrink-0">
+                <PixelTrainingRoutinesIcon className="w-5 h-5" />
               </div>
               <h2 className="font-pixel text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
                 Custom Workout Routines ({customTemplates.length})
@@ -675,8 +684,8 @@ export default function WorkoutsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b-2 border-[#4a3830]">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-[#140e0c] border border-[#4a3830] flex items-center justify-center text-[#f59e0b] shrink-0">
-                <PixelShieldIcon className="w-4 h-4 text-[#f59e0b]" />
+              <div className="w-8 h-8 bg-[#140e0c] border border-[#4a3830] flex items-center justify-center shrink-0">
+                <PixelGladiusShieldSplitIcon className="w-5 h-5" />
               </div>
               <h2 className="font-pixel text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
                 Recommended Workout Splits

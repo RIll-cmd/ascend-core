@@ -13,6 +13,8 @@ import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { PixelProgress } from "@/components/ui/pixel/PixelProgress";
 import { KonosubaElementalMatrix } from "@/components/ui/pixel/KonosubaElementalMatrix";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
 import {
   PixelDumbbellIcon,
   PixelBookIcon,
@@ -241,10 +243,10 @@ export default function StatMatrixPage() {
               <span className="block text-[10px] text-[#e2b17a] uppercase font-bold">TOTAL COMBAT POWER</span>
               <div className="text-xl font-bold text-[#fef08a] flex items-center justify-end gap-1.5 mt-0.5">
                 <PixelSwordIcon className="w-4 h-4 text-[#fef08a]" />
-                <span>{effectivePower.toLocaleString()}</span>
+                <NumberTicker value={effectivePower} />
                 {effectivePower > basePower && (
                   <span className="text-xs text-emerald-400 font-bold ml-1">
-                    (+{effectivePower - basePower} Gear)
+                    (+<NumberTicker value={effectivePower - basePower} /> Gear)
                   </span>
                 )}
               </div>
@@ -252,10 +254,12 @@ export default function StatMatrixPage() {
 
             {availableSP > 0 && (
               <Link href="/profile/skills">
-                <PixelButton variant="gold" size="md" className="flex items-center gap-2 text-xs">
-                  <PixelLightningIcon className="w-3.5 h-3.5 text-amber-950" />
-                  <span>{availableSP} SP Ready</span>
-                </PixelButton>
+                <CoolMode options={{ particle: "⚡", size: 20, speedHorz: 3, speedUp: 7 }}>
+                  <PixelButton variant="gold" size="md" className="flex items-center gap-2 text-xs">
+                    <PixelLightningIcon className="w-3.5 h-3.5 text-amber-950" />
+                    <span><NumberTicker value={availableSP} /> SP Ready</span>
+                  </PixelButton>
+                </CoolMode>
               </Link>
             )}
           </div>
@@ -437,7 +441,7 @@ export default function StatMatrixPage() {
                   <div className="flex items-center gap-3 self-end sm:self-auto font-pixel text-xs">
                     <div className="text-right">
                       <span className="text-[10px] text-[#6d4c3d] uppercase block font-bold">Base</span>
-                      <span className="text-base font-bold text-[#221208]">{baseVal}</span>
+                      <span className="text-base font-bold text-[#221208]"><NumberTicker value={baseVal} /></span>
                     </div>
 
                     <div className="text-[#6d4c3d] font-bold">+</div>
@@ -453,7 +457,7 @@ export default function StatMatrixPage() {
 
                     <div className="text-right p-1.5 px-2.5 bg-[#331c0e] border border-[#180b04] shadow-xs">
                       <span className="text-[9px] text-[#fef08a] uppercase font-bold block">Total</span>
-                      <span className="text-base font-bold text-white">{effectiveVal}</span>
+                      <span className="text-base font-bold text-white"><NumberTicker value={effectiveVal} /></span>
                     </div>
                   </div>
                 </div>
@@ -471,15 +475,17 @@ export default function StatMatrixPage() {
                     </div>
 
                     <span className="text-[11px] text-[#6d4c3d] shrink-0 font-bold">
-                      {baseVal}/{titleTarget}
+                      <NumberTicker value={baseVal} />/{titleTarget}
                     </span>
                   </div>
 
                   <Link href={meta.irlActionHref} onClick={(e) => e.stopPropagation()}>
-                    <PixelButton size="sm" variant="dark" className="flex items-center gap-1 text-[11px]">
-                      <span>{meta.irlActionText}</span>
-                      <PixelChevronRightIcon className="w-3 h-3" />
-                    </PixelButton>
+                    <CoolMode options={{ particle: "⚡", size: 16, speedHorz: 3, speedUp: 6 }}>
+                      <PixelButton size="sm" variant="dark" className="flex items-center gap-1 text-[11px]">
+                        <span>{meta.irlActionText}</span>
+                        <PixelChevronRightIcon className="w-3 h-3" />
+                      </PixelButton>
+                    </CoolMode>
                   </Link>
                 </div>
               </div>

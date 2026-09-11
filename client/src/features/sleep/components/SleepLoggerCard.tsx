@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/pixel/PixelIcons";
 import { useSleepStore, SleepQuality, calculateSleepEfficiency } from "../store/useSleepStore";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
 import { playUIMenuSFX } from "@/utils/audio";
 import { cn } from "@/lib/utils";
 
@@ -358,7 +360,7 @@ export const SleepLoggerCard: React.FC<{ onLogSuccess?: () => void; className?: 
             </span>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-3xl font-pixel font-bold text-[#fef08a] tabular-nums">
-                {score}% Score
+                <NumberTicker value={score} />% Score
               </span>
             </div>
           </div>
@@ -370,28 +372,30 @@ export const SleepLoggerCard: React.FC<{ onLogSuccess?: () => void; className?: 
             </div>
             <div className="text-left md:text-right">
               <span className="text-xs sm:text-sm font-pixel text-slate-400 block font-bold">EXP Bounty</span>
-              <span className="text-[#fef08a] font-pixel font-bold text-base tabular-nums">+{exp} EXP</span>
+              <span className="text-[#fef08a] font-pixel font-bold text-base tabular-nums">+<NumberTicker value={exp} /> EXP</span>
             </div>
             <div className="text-left md:text-right">
               <span className="text-xs sm:text-sm font-pixel text-slate-400 block font-bold">Gold Reward</span>
-              <span className="text-[#facc15] font-pixel font-bold text-base tabular-nums">+{gold} G</span>
+              <span className="text-[#facc15] font-pixel font-bold text-base tabular-nums">+<NumberTicker value={gold} /> G</span>
             </div>
           </div>
         </div>
 
         {/* Action Button */}
-        <PixelButton
-          type="submit"
-          variant="gold"
-          size="lg"
-          disabled={isSubmitting}
-          className="w-full h-14 text-sm sm:text-base font-pixel font-bold tracking-wider shadow-[0_4px_0_0_#000] flex items-center justify-center gap-2.5 cursor-pointer"
-        >
-          <PixelMoonSleepIcon className="w-5 h-5 text-current" />
-          {todayLogged
-            ? "Update Sanctuary Chronicle & Sync REC"
-            : "Record Rest & Channel Somatic Recovery"}
-        </PixelButton>
+        <CoolMode options={{ particle: "🌙", size: 22, speedHorz: 3.5, speedUp: 7.5 }}>
+          <PixelButton
+            type="submit"
+            variant="gold"
+            size="lg"
+            disabled={isSubmitting}
+            className="w-full h-14 text-sm sm:text-base font-pixel font-bold tracking-wider shadow-[0_4px_0_0_#000] flex items-center justify-center gap-2.5 cursor-pointer"
+          >
+            <PixelMoonSleepIcon className="w-5 h-5 text-current" />
+            {todayLogged
+              ? "Update Sanctuary Chronicle & Sync REC"
+              : "Record Rest & Channel Somatic Recovery"}
+          </PixelButton>
+        </CoolMode>
       </form>
     </div>
   );

@@ -118,7 +118,11 @@ async def verify_character_ownership(character_id: str, current_user: Optional[d
     with safe fallback for guest / local development characters.
     """
     # Allow universal demo / guest character identifiers
-    if character_id in ["char-id-123", "default-user", "guest-user", "guest"]:
+    if (
+        character_id in ["char-id-123", "default-user", "guest-user", "guest"]
+        or "guest" in character_id.lower()
+        or character_id.startswith("char-user-Guest")
+    ):
         return True
 
     if not current_user:

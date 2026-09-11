@@ -20,6 +20,8 @@ import {
   Skull,
   Sparkles,
 } from "lucide-react";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
 import { useCharacterStore } from "@/store/useCharacterStore";
 import { getEnemySpriteUrl } from "@/utils/spriteUtils";
 import type { Boss } from "../store/useBossStore";
@@ -253,11 +255,11 @@ export function BossThreatContract({ boss, isNew = false }: BossThreatContractPr
           <dl className="mt-5 space-y-4">
             <div className="flex items-center justify-between gap-3 border-b border-amber-950/70 pb-3">
               <dt className="flex items-center gap-2 text-xs text-amber-100/65"><CircleDollarSign className="size-4 text-amber-400" aria-hidden="true" />Gold</dt>
-              <dd className="font-mono text-sm tabular-nums text-amber-200">{rewards.gold.toLocaleString()}</dd>
+              <dd className="font-mono text-sm tabular-nums text-amber-200"><NumberTicker value={rewards.gold} /></dd>
             </div>
             <div className="flex items-center justify-between gap-3 border-b border-cyan-950/70 pb-3">
               <dt className="flex items-center gap-2 text-xs text-cyan-100/65"><Sparkles className="size-4 text-cyan-400" aria-hidden="true" />EXP</dt>
-              <dd className="font-mono text-sm tabular-nums text-cyan-200">{rewards.exp.toLocaleString()}</dd>
+              <dd className="font-mono text-sm tabular-nums text-cyan-200"><NumberTicker value={rewards.exp} /></dd>
             </div>
             <div>
               <dt className="flex items-center gap-2 text-xs text-fuchsia-100/65"><Crown className="size-4 text-fuchsia-300" aria-hidden="true" />Title</dt>
@@ -269,18 +271,20 @@ export function BossThreatContract({ boss, isNew = false }: BossThreatContractPr
             </div>
           </dl>
 
-          <button
-            type="button"
-            onClick={handleAnalysis}
-            disabled={!character || isAnalyzing}
-            aria-expanded={isAnalysisOpen}
-            aria-controls={analysisId}
-            className="mt-6 flex min-h-11 w-full items-center gap-2 border border-cyan-800 bg-cyan-950/20 px-3 text-left text-xs font-semibold text-cyan-200 transition-colors hover:border-cyan-500 hover:bg-cyan-950/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isAnalyzing ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Sparkles className="size-4" aria-hidden="true" />}
-            <span>{analysisError ? "Retry AIRA Forecast" : isAnalysisOpen ? "Hide AIRA Forecast" : "Consult AIRA Forecast"}</span>
-            {isAnalysisOpen ? <ChevronUp className="ml-auto size-4" aria-hidden="true" /> : <ChevronDown className="ml-auto size-4" aria-hidden="true" />}
-          </button>
+          <CoolMode options={{ particle: "✨", size: 18, speedHorz: 3, speedUp: 6 }}>
+            <button
+              type="button"
+              onClick={handleAnalysis}
+              disabled={!character || isAnalyzing}
+              aria-expanded={isAnalysisOpen}
+              aria-controls={analysisId}
+              className="mt-6 flex min-h-11 w-full items-center gap-2 border border-cyan-800 bg-cyan-950/20 px-3 text-left text-xs font-semibold text-cyan-200 transition-colors hover:border-cyan-500 hover:bg-cyan-950/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+            >
+              {isAnalyzing ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Sparkles className="size-4" aria-hidden="true" />}
+              <span>{analysisError ? "Retry AIRA Forecast" : isAnalysisOpen ? "Hide AIRA Forecast" : "Consult AIRA Forecast"}</span>
+              {isAnalysisOpen ? <ChevronUp className="ml-auto size-4" aria-hidden="true" /> : <ChevronDown className="ml-auto size-4" aria-hidden="true" />}
+            </button>
+          </CoolMode>
 
           {isAnalysisOpen ? (
             <div id={analysisId} aria-live="polite" aria-busy={isAnalyzing} className="mt-3 border border-cyan-950 bg-[#050a10] p-3 text-xs leading-5 text-cyan-100/75">

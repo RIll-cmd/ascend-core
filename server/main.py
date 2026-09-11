@@ -25,19 +25,23 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from prisma.errors import RecordNotFoundError
 from db import db
-from routers import auth, character, habits, missions, progression, achievements, analytics, tower, inventory, aira, fitness, skills, bosses, workouts, shop, season_pass, crafting, beasts, integration, automations
+from routers import auth, character, habits, missions, progression, achievements, analytics, tower, inventory, aira, fitness, skills, bosses, workouts, shop, season_pass, crafting, beasts, integration, automations, calendar
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Connect to database via modern lifespan context manager
     if not db.is_connected():
-        await db.connect()
+        try:
+            await db.connect()
+        except Exception as e:
+            print(f"[Startup Warning] Prisma DB connection failed ({e}). Proceeding in fallback/local mode.")
     try:
         # Auto-seed baseline skills if table is empty
         try:
-            from scripts.seed_skills import seed_skills_if_empty
-            await seed_skills_if_empty(db)
+            if db.is_connected():
+                from scripts.seed_skills import seed_skills_if_empty
+                await seed_skills_if_empty(db)
         except Exception as e:
             print(f"[Startup Warning] Skill seeder error: {e}")
 
@@ -171,6 +175,7 @@ app.include_router(crafting.router)
 app.include_router(beasts.router)
 app.include_router(integration.router)
 app.include_router(automations.router)
+app.include_router(calendar.router)
 
 @app.get("/")
 def read_root():

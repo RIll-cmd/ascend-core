@@ -1,5 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { CoolMode } from "@/components/ui/cool-mode";
 import { ForbiddenContractIcon } from "./ForbiddenContractIcon";
 import type { getBossSummary } from "../utils/bossPresentation";
 import styles from "../styles/ForbiddenContractHall.module.css";
@@ -46,8 +48,8 @@ export function BossesHeader({ summary, onSummon, onHoverSummonChange }: BossesH
       {/* Main Header Row */}
       <div className="flex flex-col gap-6 px-5 py-6 sm:px-7 lg:flex-row lg:items-end lg:justify-between lg:px-9 lg:py-8 relative z-10">
         <div className="flex max-w-3xl items-start gap-4">
-          <div className="grid size-12 shrink-0 place-items-center rounded-lg border border-amber-500/60 bg-gradient-to-br from-amber-950/60 via-amber-900/40 to-black text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.25)] ring-1 ring-amber-400/20 sm:size-14">
-            <ForbiddenContractIcon className="size-7 sm:size-8 drop-shadow-[0_0_8px_rgba(251,191,36,0.7)] text-amber-300" aria-hidden="true" />
+          <div className="grid size-12 shrink-0 place-items-center rounded-xl border border-amber-500/70 bg-gradient-to-br from-amber-950/80 via-amber-900/50 to-black text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] ring-1 ring-amber-400/25 sm:size-14">
+            <ForbiddenContractIcon className="size-8 sm:size-9 text-amber-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]" aria-hidden="true" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -64,19 +66,21 @@ export function BossesHeader({ summary, onSummon, onHoverSummonChange }: BossesH
           </div>
         </div>
 
-        {/* Summoning Ritual Trigger Button with Fiery Amber Aura */}
-        <Button
-          type="button"
-          onClick={onSummon}
-          onMouseEnter={() => onHoverSummonChange?.(true)}
-          onMouseLeave={() => onHoverSummonChange?.(false)}
-          className="h-12 rounded-lg border-2 border-amber-400/90 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 px-6 font-pixel text-xs text-amber-950 font-bold tracking-wider ritual-button-glow hover:from-amber-400 hover:to-amber-500 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-300"
-        >
-          Initiate Summoning Ritual
-        </Button>
+        {/* Summoning Ritual Trigger Button with Fiery Amber Aura & CoolMode Spark Particles */}
+        <CoolMode options={{ particle: "🔥", size: 22, speedHorz: 4, speedUp: 8 }}>
+          <Button
+            type="button"
+            onClick={onSummon}
+            onMouseEnter={() => onHoverSummonChange?.(true)}
+            onMouseLeave={() => onHoverSummonChange?.(false)}
+            className="h-12 rounded-lg border-2 border-amber-400 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 px-6 font-pixel text-xs text-amber-950 font-bold tracking-wider ritual-button-glow hover:from-amber-400 hover:to-amber-500 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-300"
+          >
+            Initiate Summoning Ritual
+          </Button>
+        </CoolMode>
       </div>
 
-      {/* Engraved Stone Plinth Stat Ribbon */}
+      {/* Engraved Stone Plinth Stat Ribbon with NumberTicker */}
       <dl className="grid border-t border-cyan-500/20 bg-slate-950/60 sm:grid-cols-2 lg:grid-cols-4 relative z-10">
         {SUMMARY_ITEMS.map(({ key, label, tone }, index) => (
           <div
@@ -91,7 +95,7 @@ export function BossesHeader({ summary, onSummon, onHoverSummonChange }: BossesH
               {label}
             </dt>
             <dd className={`mt-0.5 font-mono text-xl sm:text-2xl font-bold tabular-nums ${tone} drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]`}>
-              {summary[key].toLocaleString()}
+              <NumberTicker value={summary[key]} />
             </dd>
           </div>
         ))}

@@ -209,7 +209,7 @@ export const useAiraStore = create<AiraStore>((set, get) => ({
         const successMsg: AIRAMessage = {
           id: `msg-success-${Date.now()}`,
           sender: "aira",
-          text: `<< Notice. >> Execution successful. ${result.message}`,
+          text: `<< Notice. >> ${result.idempotentReplay ? "Existing execution restored." : "Execution successful."} ${result.message || "Core operation completed."}`,
           timestamp: new Date(),
           type: "notice",
           mood: "SUCCESS"
