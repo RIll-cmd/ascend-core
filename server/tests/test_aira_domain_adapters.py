@@ -19,7 +19,9 @@ async def test_create_habit_adapter_delegates_to_the_existing_habit_handler(monk
         {"id": "user-1"},
     )
 
-    assert result == {"habitId": "habit-1", "name": "Read"}
+    assert result["habitId"] == "habit-1"
+    assert result["name"] == "Read"
+    assert "Protocol locked" in result["canonicalNarration"]
     assert create.await_args.args[0] == "character-1"
     assert create.await_args.args[1].name == "Read"
     assert create.await_args.args[2] == {"id": "user-1"}

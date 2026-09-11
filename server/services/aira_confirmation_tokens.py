@@ -42,7 +42,15 @@ def verify_confirmation_token(token: str, *, secret: str | None = None) -> dict[
         raise ConfirmationTokenError("invalid confirmation token") from error
 
     expected_signature = hmac.new(_signing_secret(secret), payload, hashlib.sha256).digest()
-    if not hmac.compare_digest(supplied_signature, expected_signature):
+    is_valid = hmac.compare_digest(supplied_signature, expected_signature)
+
+    if not is_valid and (secret is None or secret == os.getenv("SECRET_KEY")):
+        prev_key = os.getenv("SECRET_KEY_PREVIOUS")
+        if prev_key:
+            prev_signature = hmac.new(prev_key.encode("utf-8"), payload, hashlib.sha256).digest()
+            is_valid = hmac.compare_digest(supplied_signature, prev_signature)
+
+    if not is_valid:
         raise ConfirmationTokenError("invalid confirmation token")
 
     try:

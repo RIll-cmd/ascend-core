@@ -48,9 +48,17 @@ def normalize_aira_write_arguments(operation: str, arguments: dict[str, Any]) ->
     normalized = _normalized_arguments(arguments)
     try:
         if operation == "create_habit":
+            if "name" not in normalized and "title" in normalized:
+                normalized["name"] = normalized.pop("title")
+            if "primary_stat" in normalized:
+                normalized["primaryStat"] = normalized.pop("primary_stat")
             return HabitCreateSchema.model_validate(normalized).model_dump(mode="json")
         if operation == "update_habit":
-            habit_id = normalized.pop("habitId")
+            habit_id = normalized.pop("habitId", None) or normalized.pop("habit_id", None)
+            if "name" not in normalized and "title" in normalized:
+                normalized["name"] = normalized.pop("title")
+            if "primary_stat" in normalized:
+                normalized["primaryStat"] = normalized.pop("primary_stat")
             return {"habitId": habit_id, **HabitUpdateSchema.model_validate(normalized).model_dump(mode="json", exclude_none=True)}
         if operation == "archive_habit":
             return {"habitId": normalized["habitId"], "status": HabitStatus.ARCHIVED.value}
@@ -169,8 +177,6 @@ async def validate_aira_execution(
 ) -> dict[str, Any]:
     """Validate token identity and ownership before any domain adapter can run."""
     actor_id = _actor_id(current_user)
-    if not await verify_character_ownership(request.characterId, current_user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to access this character.")
     try:
         claims = verify_confirmation_token(request.confirmationToken, secret=secret)
     except ConfirmationTokenError as error:
@@ -182,4 +188,8 @@ async def validate_aira_execution(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Confirmation token belongs to a different character.")
     if claims["operation"] != request.operation or claims["requestId"] != request.requestId:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Confirmation token does not match this operation.")
+
+    if not await verify_character_ownership(request.characterId, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to access this character.")
+
     return claims

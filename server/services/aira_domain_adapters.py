@@ -82,8 +82,28 @@ async def execute_aira_domain_operation(
 ) -> dict[str, Any]:
     """Delegate validated arguments to existing handlers; never issue raw ORM writes."""
     if operation == "create_habit":
-        habit = await create_habit(character_id, HabitCreateSchema.model_validate(arguments), current_user)
-        return {"habitId": habit.id, "name": habit.name}
+        try:
+            habit = await create_habit(character_id, HabitCreateSchema.model_validate(arguments), current_user)
+        except Exception as error:
+            err_name = error.__class__.__name__
+            err_msg = str(error).lower()
+            if err_name == "UniqueViolationError" or "unique constraint" in err_msg or "already exists" in err_msg or "duplicate key" in err_msg or "p2002" in err_msg:
+                habit_name = arguments.get("name", "Habit")
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"An active habit named '{habit_name}' already exists for this character.",
+                ) from error
+            raise
+        result = {
+            "habitId": habit.id,
+            "name": habit.name,
+            "canonicalNarration": f"Protocol locked: '{habit.name}' successfully registered to daily routines.",
+        }
+        if getattr(habit, "category", None):
+            result["category"] = habit.category
+        if getattr(habit, "primaryStat", None):
+            result["primaryStat"] = habit.primaryStat
+        return result
 
     if operation == "update_habit":
         habit_id = arguments["habitId"]
