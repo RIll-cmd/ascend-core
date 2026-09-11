@@ -223,4 +223,18 @@ async def execute_aira_domain_operation(
             })
         return {"created": created, "count": len(created)}
 
+    if operation == "trigger_negative_habit":
+        from services.habit_trigger_service import trigger_negative_habit
+        habit_id = arguments["habitId"]
+        penalty_result = await trigger_negative_habit(habit_id, character_id)
+        habit = penalty_result["habit"]
+        penalty = penalty_result["penalty"]
+        return {
+            "habitId": habit_id,
+            "name": habit.name,
+            "relapseCount": habit.relapseCount,
+            "penalty": penalty,
+            "canonicalNarration": f"Protocol breached: '{habit.name}' relapse logged. -{penalty['amount']} {penalty['target']} deducted.",
+        }
+
     raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=f"Unsupported AIRA operation: {operation}.")

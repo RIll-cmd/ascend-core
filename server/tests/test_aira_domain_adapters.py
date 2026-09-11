@@ -229,4 +229,29 @@ async def test_create_calendar_schedule_multi_adapter(monkeypatch):
     assert res["created"][1]["title"] == "Math Class"
 
 
+@pytest.mark.asyncio
+async def test_trigger_negative_habit_adapter_applies_penalty_and_returns_narration(monkeypatch):
+    from services import aira_domain_adapters
 
+    async def mock_trigger(habit_id, char_id):
+        return {
+            "success": True,
+            "habit": SimpleNamespace(id=habit_id, name="Doomscrolling", relapseCount=3),
+            "penalty": {"amount": 10, "target": "HP", "previousValue": 100, "newValue": 90},
+        }
+
+    monkeypatch.setattr("services.habit_trigger_service.trigger_negative_habit", mock_trigger)
+
+    res = await aira_domain_adapters.execute_aira_domain_operation(
+        "trigger_negative_habit",
+        "character-1",
+        {"habitId": "hab-bad-1"},
+        {"id": "user-1"},
+    )
+
+    assert res["habitId"] == "hab-bad-1"
+    assert res["name"] == "Doomscrolling"
+    assert res["relapseCount"] == 3
+    assert res["penalty"]["amount"] == 10
+    assert "Protocol breached" in res["canonicalNarration"]
+    assert "-10 HP deducted" in res["canonicalNarration"]

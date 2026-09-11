@@ -98,9 +98,12 @@ class AscendCoreVisionClient:
         difficulty: str = "MEDIUM",
         primary_stat: str = "discipline",
         description: str = "",
+        habit_type: str = "POSITIVE",
+        affected_stat: str = "HP",
+        stat_modifier: int = 10,
     ) -> Dict[str, Any]:
         """
-        Create a habit routine and supporting daily mission using the Two-Phase Commit pattern.
+        Create a habit routine (POSITIVE or NEGATIVE) using the Two-Phase Commit pattern.
 
         Guarantees:
         - Deterministic schema validation
@@ -115,6 +118,9 @@ class AscendCoreVisionClient:
             "difficulty": difficulty,
             "primaryStat": primary_stat,
             "description": description,
+            "type": habit_type,
+            "affectedStat": affected_stat,
+            "statModifier": stat_modifier,
         }
 
         async with httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout) as client:
@@ -209,3 +215,72 @@ class AscendCoreVisionClient:
                 "reason": "TOKEN_EXPIRY_CIRCUIT_BROKEN",
                 "message": "Authorization expired twice due to extreme latency or clock drift. Action aborted.",
             }
+
+    async def trigger_negative_habit(self, habit_id: str) -> Dict[str, Any]:
+        """Apply a penalty and increment relapse count on an existing negative habit."""
+        async with httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout) as client:
+            res = await client.post(f"/api/habits/{habit_id}/trigger", headers=self.headers)
+            if res.status_code == 404:
+                return {"success": False, "reason": "NOT_FOUND", "message": "Habit not found."}
+            res.raise_for_status()
+            data = res.json()
+            penalty = data.get("penalty", {})
+            habit = data.get("habit", {})
+            name = habit.get("name", "Bad Habit")
+            return {
+                "success": True,
+                "habitId": habit_id,
+                "name": name,
+                "relapseCount": habit.get("relapseCount", 1),
+                "penalty": penalty,
+                "canonicalNarration": f"Protocol breached: '{name}' relapse logged. -{penalty.get('amount', 10)} {penalty.get('target', 'HP')} deducted.",
+            }
+
+    async def record_bad_habit_offense(
+        self,
+        name: str,
+        penalty_stat: str = "HP",
+        penalty_amount: int = 10,
+        category: str = "DISCIPLINE",
+        description: str = "Logged automatically via Ascend Vision sensor observation.",
+    ) -> Dict[str, Any]:
+        """
+        Record a repeat bad habit offense (e.g. Doomscrolling, Bad Posture, Staying Up Late):
+        - If an active negative habit with this name already exists, logs a relapse and deducts penalty.
+        - If it does NOT exist yet, automatically creates it and registers it to the character deck.
+        """
+        query_res = await self.query_state(intent="habits_summary")
+        existing_habits = query_res.get("data", {}).get("habits", [])
+
+        target_name_lower = name.strip().lower()
+        matching_habit = next(
+            (
+                h for h in existing_habits
+                if h.get("name", "").strip().lower() == target_name_lower
+                and str(h.get("type", "POSITIVE")).upper() == "NEGATIVE"
+                and str(h.get("status", "ACTIVE")).upper() == "ACTIVE"
+            ),
+            None,
+        )
+
+        if matching_habit:
+            trigger_res = await self.trigger_negative_habit(matching_habit["id"])
+            if trigger_res.get("success"):
+                trigger_res["action"] = "RELAPSE_LOGGED"
+            return trigger_res
+
+        create_res = await self.create_habit_routine(
+            name=name,
+            category=category,
+            habit_type="NEGATIVE",
+            affected_stat=penalty_stat,
+            stat_modifier=penalty_amount,
+            description=description,
+        )
+        if create_res.get("success"):
+            create_res["action"] = "BAD_HABIT_CREATED"
+            create_res["canonicalNarration"] = (
+                f"Warning protocol breached: Negative habit '{name}' registered. Maintain vigilance."
+            )
+        return create_res
+

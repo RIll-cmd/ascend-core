@@ -123,6 +123,11 @@ def normalize_aira_write_arguments(operation: str, arguments: dict[str, Any]) ->
             if not isinstance(schedule_id, str) or not schedule_id.strip():
                 raise ValueError("scheduleId must be a non-empty string")
             return {"scheduleId": schedule_id}
+        if operation == "trigger_negative_habit":
+            habit_id = normalized.get("habitId") or normalized.get("habit_id")
+            if not isinstance(habit_id, str) or not habit_id.strip():
+                raise ValueError("habitId must be a non-empty string")
+            return {"habitId": habit_id}
     except (KeyError, ValueError) as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
