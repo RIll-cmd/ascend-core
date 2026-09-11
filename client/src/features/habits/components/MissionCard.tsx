@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import {
-  CheckCircle2,
   Target,
   Dumbbell,
   HeartPulse,
@@ -14,8 +13,7 @@ import {
 import { Mission, Habit, CompletionType, HabitDifficulty } from "../types";
 import { getBaseReward, calculateFinalReward } from "../utils";
 import { playUISound } from "@/utils/audio";
-import { PixelButton } from "@/components/ui/pixel/PixelButton";
-import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
+import { FieldBrassButton, WaxSealCheck } from "@/components/ui/field";
 
 export interface MissionCardProps {
   mission: Mission;
@@ -75,22 +73,22 @@ export function MissionCard({ mission, onComplete }: MissionCardProps) {
 
   return (
     <div
-      className={`p-3.5 bg-[#1A0D2E] border border-[#3b1861] relative overflow-hidden select-none ${
+      className={`p-3.5 bg-[#17120c] border rounded-sm relative overflow-hidden select-none transition-all duration-200 ${
         isCompleted
-          ? "border-emerald-500/60 bg-[#14291e]"
-          : "hover:border-white/40"
+          ? "border-[#10b981]/50 bg-[#0f2016]"
+          : "border-[#c59b27]/30 hover:border-[#c59b27]/60 shadow-[0_2px_6px_rgba(0,0,0,0.6)]"
       }`}
     >
       {/* Task Completion Burst Particles & Floating Text */}
       {showBurst && (
         <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center overflow-hidden">
-          <div className="font-pixel text-sm font-bold text-white drop-shadow-[0_2px_4px_#000] animate-[pixel-burst_1.2s_steps(8)_forwards]">
+          <div className="font-expedition text-sm font-bold text-[#ffd875] drop-shadow-[0_2px_4px_#000] animate-[pixel-burst_1.2s_steps(8)_forwards]">
             +{burstExp} EXP!
           </div>
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-2 h-2 bg-white border border-black animate-[pixel-burst_0.8s_steps(6)_forwards]"
+              className="absolute w-2 h-2 bg-[#d4a373] border border-[#130f0a] animate-[pixel-burst_0.8s_steps(6)_forwards]"
               style={{
                 top: `${40 + (i % 3) * 10}%`,
                 left: `${30 + (i * 7) % 50}%`,
@@ -104,80 +102,83 @@ export function MissionCard({ mission, onComplete }: MissionCardProps) {
       <div className="space-y-2.5 relative z-10">
         {/* Header Badges & Title */}
         <div className="flex items-start justify-between gap-2">
-          <div className="space-y-1.5 min-w-0">
+          <div className="space-y-1 min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
-              <PixelBadge variant="purple" className="text-xs">
+              <span className="px-1.5 py-0.5 bg-[#251c14] border border-[#c59b27]/40 text-[10px] font-expedition uppercase text-[#c59b27] font-bold rounded-xs">
                 {habit.category || "General"}
-              </PixelBadge>
-              <PixelBadge
-                variant={
+              </span>
+              <span
+                className={`px-1.5 py-0.5 border text-[10px] font-expedition uppercase font-bold rounded-xs ${
                   difficulty === "HARD"
-                    ? "warning"
+                    ? "bg-[#331111] border-[#ef4444]/60 text-[#fca5a5]"
                     : difficulty === "MEDIUM"
-                    ? "primary"
-                    : "success"
-                }
-                className="text-xs"
+                    ? "bg-[#2d2211] border-[#f59e0b]/60 text-[#fde68a]"
+                    : "bg-[#11291b] border-[#10b981]/60 text-[#a7f3d0]"
+                }`}
               >
                 {difficulty}
-              </PixelBadge>
+              </span>
             </div>
-            <h4 className="font-pixel text-xs sm:text-sm font-bold text-white truncate">
+            <h4
+              className={`font-expedition text-xs sm:text-sm font-bold truncate ${
+                isCompleted ? "text-[#f5dab0]/60 line-through" : "text-[#f5dab0]"
+              }`}
+            >
               {habit.name}
             </h4>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[#120824] px-2 py-1 border border-[#3b1861] text-xs font-pixel text-white font-bold">
-            <StatIcon className="w-3.5 h-3.5 text-white" />
+          <div className="flex items-center gap-1.5 bg-[#130f0a] px-2 py-1 border border-[#c59b27]/40 text-[11px] font-expedition text-[#ffd875] font-bold rounded-xs flex-shrink-0">
+            <StatIcon className="w-3.5 h-3.5 text-[#c59b27]" />
             <span className="capitalize">{habit.primaryStat}</span>
           </div>
         </div>
 
-        {/* COMPLETED STATE */}
+        {/* COMPLETED STATE: WAX SEAL IMPRESSION */}
         {isCompleted ? (
-          <div className="p-2.5 bg-[#0f241a] border border-emerald-500/40 flex items-center justify-between font-pixel text-xs">
-            <div className="flex items-center gap-1.5 text-white font-bold">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>CLEARED ({mission.completionType || "NORMAL"})</span>
+          <div className="p-2.5 bg-[#0a1811] border border-[#10b981]/40 rounded-xs flex items-center justify-between font-expedition text-xs">
+            <div className="flex items-center gap-2 text-[#a7f3d0] font-bold">
+              <WaxSealCheck completed={true} size="sm" />
+              <span>SEALED & CLEARED ({mission.completionType || "NORMAL"})</span>
             </div>
-            <div className="flex items-center gap-2 text-white font-bold">
+            <div className="flex items-center gap-2 font-mono text-[#ffd875] font-bold">
               <span>+{mission.expEarned || normalReward.exp} EXP</span>
               <span>+{mission.statsEarned || normalReward.stat} STAT</span>
             </div>
           </div>
         ) : (
-          /* PENDING TIER BUTTONS */
-          <div className="pt-2 border-t border-[#3b1861] space-y-1">
+          /* PENDING TIER BRASS BUTTONS */
+          <div className="pt-2 border-t border-[#c59b27]/20 space-y-1">
             <div className="grid grid-cols-3 gap-2">
-              <PixelButton
+              <FieldBrassButton
                 size="sm"
-                variant="dark"
+                variant="walnut"
                 onClick={() => handleComplete("MINI", miniReward.exp)}
-                className="flex flex-col py-1.5 h-auto text-xs"
+                className="flex flex-col py-1.5 h-auto text-[10px]"
               >
                 <span>MINI (40%)</span>
-                <span className="text-white mt-0.5">+{miniReward.exp} EXP</span>
-              </PixelButton>
+                <span className="font-mono text-[#ffd875] mt-0.5">+{miniReward.exp} EXP</span>
+              </FieldBrassButton>
 
-              <PixelButton
+              <FieldBrassButton
                 size="sm"
-                variant="primary"
+                variant="brass"
                 onClick={() => handleComplete("NORMAL", normalReward.exp)}
-                className="flex flex-col py-1.5 h-auto text-xs"
+                className="flex flex-col py-1.5 h-auto text-[10px]"
               >
                 <span>NORMAL</span>
-                <span className="text-white mt-0.5">+{normalReward.exp} EXP</span>
-              </PixelButton>
+                <span className="font-mono text-[#130f0a] font-black mt-0.5">+{normalReward.exp} EXP</span>
+              </FieldBrassButton>
 
-              <PixelButton
+              <FieldBrassButton
                 size="sm"
-                variant="warning"
+                variant="brass"
                 onClick={() => handleComplete("ELITE", eliteReward.exp)}
-                className="flex flex-col py-1.5 h-auto text-xs"
+                className="flex flex-col py-1.5 h-auto text-[10px]"
               >
                 <span>ELITE (170%)</span>
-                <span className="text-white mt-0.5">+{eliteReward.exp} EXP</span>
-              </PixelButton>
+                <span className="font-mono text-[#130f0a] font-black mt-0.5">+{eliteReward.exp} EXP</span>
+              </FieldBrassButton>
             </div>
           </div>
         )}

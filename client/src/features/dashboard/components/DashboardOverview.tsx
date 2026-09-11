@@ -6,14 +6,16 @@ import { useRouter } from "next/navigation";
 import {
   Plus,
   Package,
+  Swords,
+  Footprints,
+  Activity,
+  Skull,
+  Crosshair,
+  Compass,
+  Scroll,
+  ShieldAlert,
+  Flame,
 } from "lucide-react";
-import {
-  PixelCrosshairIcon,
-  PixelSkullIcon,
-  PixelFootprintsIcon,
-  PixelActivityIcon,
-  PixelSwordIcon,
-} from "@/components/ui/pixel/PixelIcons";
 import { useCharacterStore } from "@/store/useCharacterStore";
 import { useInventoryStore } from "@/features/inventory/store/useInventoryStore";
 import { useHabitStore } from "@/features/habits/store/useHabitStore";
@@ -21,138 +23,20 @@ import { useTowerStore } from "@/features/tower/store/useTowerStore";
 import { useBossStore } from "@/features/bosses/store/useBossStore";
 import { useBeastStore } from "@/features/beasts/store/useBeastStore";
 import { useWorkoutStore } from "@/features/workouts/store/useWorkoutStore";
+import { useKanbanMissionStore } from "@/features/habits/store/useKanbanMissionStore";
 import { getEnemySpritePath } from "@/utils/sprites";
 import { PaperDoll } from "@/features/inventory/components/PaperDoll";
 import { MissionCard } from "@/features/habits/components/MissionCard";
 import { DashboardQuestCard } from "@/features/habits/components/DashboardQuestCard";
 import { CompanionSanctumCard } from "./CompanionSanctumCard";
-import { PixelCard } from "@/components/ui/pixel/PixelCard";
-import { PixelButton } from "@/components/ui/pixel/PixelButton";
-import { PixelProgress } from "@/components/ui/pixel/PixelProgress";
-import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
 import { NumberTicker } from "@/components/ui/number-ticker";
-import { useKanbanMissionStore } from "@/features/habits/store/useKanbanMissionStore";
-
-// Radar Chart for Attributes in 8-Bit Wireframe
-function RadarChart({
-  data,
-}: {
-  data: { name: string; value: number; fullMark: number }[];
-}) {
-  const size = 150;
-  const center = size / 2;
-  const radius = size * 0.38;
-  const angleStep = (Math.PI * 2) / data.length;
-
-  const points = data.map((d, i) => {
-    const angle = i * angleStep - Math.PI / 2;
-    const r = (Math.min(100, Math.max(10, d.value)) / 100) * radius;
-    const x = center + r * Math.cos(angle);
-    const y = center + r * Math.sin(angle);
-    return `${x},${y}`;
-  });
-
-  const polygonPoints = points.join(" ");
-
-  return (
-    <div className="relative flex items-center justify-center w-full h-[150px]">
-      <svg
-        width={size}
-        height={size}
-        className="overflow-visible"
-      >
-        {/* Hexagon Web Lines */}
-        {[0.25, 0.5, 0.75, 1].map((scale) => {
-          const webPoints = data
-            .map((_, i) => {
-              const angle = i * angleStep - Math.PI / 2;
-              const r = radius * scale;
-              const x = center + r * Math.cos(angle);
-              const y = center + r * Math.sin(angle);
-              return `${x},${y}`;
-            })
-            .join(" ");
-          return (
-            <polygon
-              key={scale}
-              points={webPoints}
-              fill="none"
-              stroke="#4a2175"
-              strokeWidth="1.5"
-              strokeDasharray={scale === 1 ? "none" : "2,2"}
-            />
-          );
-        })}
-
-        {/* Axis Spokes */}
-        {data.map((_, i) => {
-          const angle = i * angleStep - Math.PI / 2;
-          const x = center + radius * Math.cos(angle);
-          const y = center + radius * Math.sin(angle);
-          return (
-            <line
-              key={i}
-              x1={center}
-              y1={center}
-              x2={x}
-              y2={y}
-              stroke="#4a2175"
-              strokeWidth="1.5"
-            />
-          );
-        })}
-
-        {/* Data Polygon */}
-        <polygon
-          points={polygonPoints}
-          fill="rgba(255, 255, 255, 0.2)"
-          stroke="#ffffff"
-          strokeWidth="2"
-        />
-
-        {/* Data Vertices */}
-        {data.map((d, i) => {
-          const angle = i * angleStep - Math.PI / 2;
-          const r = (Math.min(100, Math.max(10, d.value)) / 100) * radius;
-          const x = center + r * Math.cos(angle);
-          const y = center + r * Math.sin(angle);
-          return (
-            <rect
-              key={i}
-              x={x - 2}
-              y={y - 2}
-              width="4"
-              height="4"
-              fill="#ffffff"
-              stroke="#000000"
-              strokeWidth="1"
-            />
-          );
-        })}
-
-        {/* Attribute Labels */}
-        {data.map((d, i) => {
-          const angle = i * angleStep - Math.PI / 2;
-          const labelRadius = radius + 14;
-          const x = center + labelRadius * Math.cos(angle);
-          const y = center + labelRadius * Math.sin(angle);
-          return (
-            <text
-              key={i}
-              x={x}
-              y={y}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              className="fill-white font-pixel text-[11px] font-bold"
-            >
-              {d.name.slice(0, 3).toUpperCase()}
-            </text>
-          );
-        })}
-      </svg>
-    </div>
-  );
-}
+import {
+  FieldParchmentCard,
+  FieldBrassButton,
+  BarometerProgress,
+  BotanicalRadarChart,
+  type BotanicalRadarStat,
+} from "@/components/ui/field";
 
 export function DashboardOverview() {
   const router = useRouter();
@@ -197,96 +81,110 @@ export function DashboardOverview() {
       ? completedHabitsCount
       : completedQuestsCount;
 
-  const radarData = [
+  const radarData: BotanicalRadarStat[] = [
     {
       name: "STR",
       value: character?.stats?.strength || 18,
       fullMark: 100,
+      herbariumLabel: "Ironwood",
     },
     {
       name: "END",
       value: character?.stats?.endurance || 15,
       fullMark: 100,
+      herbariumLabel: "Briar",
     },
     {
       name: "DIS",
       value: character?.stats?.discipline || 22,
       fullMark: 100,
+      herbariumLabel: "Root",
     },
     {
       name: "KNO",
       value: character?.stats?.knowledge || 14,
       fullMark: 100,
+      herbariumLabel: "Spore",
     },
     {
       name: "FOC",
       value: character?.stats?.focus || 16,
       fullMark: 100,
+      herbariumLabel: "Hawk",
     },
     {
       name: "REC",
       value: character?.stats?.recovery || 20,
       fullMark: 100,
+      herbariumLabel: "Dew",
     },
   ];
 
   return (
     <div
       suppressHydrationWarning
-      className="space-y-6 max-w-7xl mx-auto select-none"
+      className="space-y-6 max-w-7xl mx-auto select-none font-sans"
     >
       <div
         suppressHydrationWarning
         className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start"
       >
         {/* ========================================================= */}
-        {/* COLUMN 1: CHARACTER, ARMOR & ATTRIBUTES */}
+        {/* COLUMN 1: NATURALIST'S WARDROBE & ASTROLABE */}
         {/* ========================================================= */}
         <div suppressHydrationWarning className="space-y-5">
-          <PixelCard title="CHARACTER" className="space-y-4">
-            {/* Portrait & Symmetrical Item Slots Viewport */}
-            <div className="mb-2">
+          <FieldParchmentCard
+            title="NATURALIST'S WARDROBE"
+            subtitle="Museum Vitrine • Relics & Astrolabe"
+            className="space-y-4"
+          >
+            {/* Museum Vitrine for PaperDoll Gear Display */}
+            <div className="p-3 bg-[#130f0a] border border-[#c59b27]/40 rounded-sm shadow-[inset_0_2px_8px_rgba(0,0,0,0.8)] relative">
               <PaperDoll equippedItems={items.filter((i) => i.isEquipped)} />
             </div>
 
-            {/* Power Score Counter */}
-            <div className="p-3.5 bg-[#1A0D2E] border border-[#3b1861] shadow-[inset_2px_2px_0_0_#140a24] flex flex-col items-center justify-center text-center">
-              <div className="flex items-center justify-center gap-2 font-pixel text-xs text-white uppercase tracking-wider">
-                <PixelSwordIcon className="w-4 h-4 text-white" />
-                <span>POWER</span>
+            {/* Rotary Brass Power Index Odometer */}
+            <div className="p-3.5 bg-gradient-to-b from-[#1c1611] to-[#120e0a] border border-[#c59b27]/40 rounded-sm shadow-[0_2px_6px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.05)] flex flex-col items-center justify-center text-center">
+              <div className="flex items-center justify-center gap-2 font-expedition text-xs text-[#c59b27] uppercase tracking-widest font-bold">
+                <Swords className="w-4 h-4 text-[#c59b27]" />
+                <span>EXPEDITION POWER INDEX</span>
               </div>
-              <div className="text-4xl sm:text-5xl font-bold pixel-text-outlined text-white mt-1 text-center">
+              <div className="text-4xl sm:text-5xl font-mono font-bold text-[#f5dab0] mt-1 text-center drop-shadow-[0_0_12px_rgba(245,158,11,0.4)]">
                 <NumberTicker value={character?.power || 97} />
               </div>
             </div>
 
-            {/* Title and Guild */}
-            <div className="grid grid-cols-2 gap-2 font-pixel text-xs p-3 bg-[#1A0D2E] border border-[#3b1861]">
+            {/* Expedition Credentials: Title & Guild */}
+            <div className="grid grid-cols-2 gap-2 p-3 bg-[#130f0a] border border-[#c59b27]/30 rounded-sm">
               <div>
-                <span className="text-white/70 block text-xs uppercase">TITLE</span>
-                <span className="text-white font-bold truncate block mt-0.5">
+                <span className="font-expedition text-[10px] text-[#c59b27] block uppercase tracking-wider font-bold">
+                  SURVEYOR TITLE
+                </span>
+                <span className="font-field italic text-sm text-[#f5dab0] font-bold truncate block mt-0.5">
                   {character?.title || "Hydration Monarch"}
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-white/70 block text-xs uppercase">GUILD</span>
-                <span className="text-white font-bold truncate block mt-0.5">
+                <span className="font-expedition text-[10px] text-[#c59b27] block uppercase tracking-wider font-bold">
+                  FELLOWSHIP
+                </span>
+                <span className="font-field italic text-sm text-[#f5dab0] font-bold truncate block mt-0.5">
                   Lone Ascendants
                 </span>
               </div>
             </div>
 
-            {/* Familiar Link Section */}
-            <div className="p-3 bg-[#1A0D2E] border border-[#3b1861] flex items-center justify-between">
+            {/* Familiar Link Dispatch Tag */}
+            <div className="p-3 bg-[#130f0a] border border-[#c59b27]/30 rounded-sm flex items-center justify-between">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 bg-[#120824] border border-[#3b1861] flex items-center justify-center text-white flex-shrink-0">
-                  <PixelFootprintsIcon className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 bg-[#1b150f] border border-[#c59b27]/40 rounded-xs flex items-center justify-center text-[#c59b27] flex-shrink-0 shadow-sm">
+                  <Footprints className="w-4 h-4 text-[#c59b27]" />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-xs font-pixel text-white/70 block uppercase tracking-wider">
-                    FAMILIAR LINK
+                  <span className="text-[10px] font-expedition text-[#c59b27] block uppercase tracking-wider font-bold">
+                    FAMILIAR BOND
                   </span>
-                  <span className="text-xs sm:text-sm font-pixel text-white font-bold truncate block">
+                  <span className="text-xs sm:text-sm font-field italic text-[#f5dab0] font-bold truncate block">
                     {collection?.equippedBeast
                       ? collection.equippedBeast.name
                       : "No Companion Linked"}
@@ -294,119 +192,133 @@ export function DashboardOverview() {
                 </div>
               </div>
               <Link href="/beasts">
-                <PixelButton size="sm" variant="dark">
+                <FieldBrassButton size="sm" variant="walnut">
                   {collection?.equippedBeast
                     ? `+${collection.equippedBeast.statBonusValue}%`
                     : "Incubate"}
-                </PixelButton>
+                </FieldBrassButton>
               </Link>
             </div>
 
-            {/* Bio-Recovery Telemetry Section */}
-            <div className="p-3 bg-[#1A0D2E] border border-[#3b1861] flex items-center justify-between">
+            {/* Bio-Recovery Telemetry Voucher */}
+            <div className="p-3 bg-[#130f0a] border border-[#c59b27]/30 rounded-sm flex items-center justify-between">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 bg-[#120824] border border-[#3b1861] flex items-center justify-center text-white flex-shrink-0">
-                  <PixelActivityIcon className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 bg-[#1b150f] border border-[#c59b27]/40 rounded-xs flex items-center justify-center text-[#10b981] flex-shrink-0 shadow-sm">
+                  <Activity className="w-4 h-4 text-[#10b981]" />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-xs font-pixel text-white/70 block uppercase tracking-wider">
-                    BIO-RECOVERY TELEMETRY
+                  <span className="text-[10px] font-expedition text-[#c59b27] block uppercase tracking-wider font-bold">
+                    BIO-RECOVERY VITALITY
                   </span>
-                  <span className="text-xs sm:text-sm font-pixel text-white font-bold block">
+                  <span className="text-xs sm:text-sm font-field italic text-[#f5dab0] font-bold block">
                     {muscleRecovery?.summary.overallFreshness ?? 100}% Fresh (
                     {muscleRecovery?.summary.freshCount ?? 16}/16 Ready)
                   </span>
                 </div>
               </div>
               <Link href="/workouts">
-                <PixelButton size="sm" variant="dark">
+                <FieldBrassButton size="sm" variant="walnut">
                   Scanner
-                </PixelButton>
+                </FieldBrassButton>
               </Link>
             </div>
 
-            {/* Attributes Matrix */}
-            <div className="pt-2 border-t-2 border-black/40 space-y-3">
-              <h3 className="text-xs font-pixel text-white uppercase tracking-wider flex items-center gap-1.5 font-bold">
-                <span className="w-2.5 h-3.5 bg-[#22c55e] inline-block shadow-[1px_1px_0_0_#000]" />
-                ATTRIBUTES
-              </h3>
+            {/* Botanical Attributes & Astrolabe */}
+            <div className="pt-3 border-t border-[#c59b27]/20 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-expedition text-[#c59b27] uppercase tracking-widest flex items-center gap-1.5 font-bold">
+                  <span className="text-[#c59b27]">❧</span>
+                  BOTANICAL ATTRIBUTES
+                </h3>
+                <span className="font-field text-[11px] text-[#c59b27]/70 italic">
+                  Astrolabe Alignment
+                </span>
+              </div>
 
               <div className="grid grid-cols-2 gap-3 items-center">
-                {/* Stats List */}
+                {/* Slotted Barometer Attribute Bars */}
                 <div className="space-y-2">
                   {radarData.map((stat) => (
-                    <div key={stat.name} className="space-y-1 font-pixel text-xs">
-                      <div className="flex justify-between text-white font-bold">
-                        <span>{stat.name}</span>
-                        <span>{stat.value}</span>
+                    <div key={stat.name} className="space-y-0.5">
+                      <div className="flex justify-between text-xs font-expedition text-[#f5dab0]">
+                        <span className="font-bold flex items-center gap-1">
+                          <span className="text-[#c59b27]">{stat.name}</span>
+                          <span className="text-[9px] text-[#c59b27]/60 font-field italic font-normal">
+                            ({stat.herbariumLabel})
+                          </span>
+                        </span>
+                        <span className="font-mono text-[#ffd875] font-bold">
+                          {stat.value}
+                        </span>
                       </div>
-                      <PixelProgress
+                      <BarometerProgress
                         value={stat.value}
                         max={100}
-                        variant="primary"
+                        variant="amber"
                         height="sm"
+                        showTicks={false}
                       />
                     </div>
                   ))}
                 </div>
 
-                {/* Radar Chart */}
-                <div className="flex items-center justify-center p-1 bg-[#120824] border border-[#3b1861] shadow-[inset_2px_2px_0_0_#000]">
-                  <RadarChart data={radarData} />
+                {/* Antique Astrolabe Radar Chart */}
+                <div className="flex items-center justify-center p-1 bg-[#130f0a] border border-[#c59b27]/30 rounded-sm shadow-[inset_0_2px_6px_rgba(0,0,0,0.8)]">
+                  <BotanicalRadarChart data={radarData} />
                 </div>
               </div>
             </div>
-          </PixelCard>
+          </FieldParchmentCard>
         </div>
 
         {/* ========================================================= */}
-        {/* COLUMN 2: TODAY'S MISSIONS & CURRENT BOSS */}
+        {/* COLUMN 2: FIELD BOUNTY DISPATCH & APEX BEAST TARGET */}
         {/* ========================================================= */}
         <div suppressHydrationWarning className="space-y-5">
-          {/* Today's Missions Card */}
-          <PixelCard
-            title="TODAY'S MISSIONS"
+          {/* Today's Missions & Habits Card */}
+          <FieldParchmentCard
+            title="FIELD BOUNTY DISPATCH"
+            subtitle="Today's Expeditions & Daily Vouchers"
             titleBadge={
-              <PixelBadge variant="purple">
+              <span className="px-2 py-0.5 bg-[#2a1f16] border border-[#c59b27]/60 text-xs font-expedition text-[#ffd875] font-bold rounded-xs shadow-sm">
                 {currentCompletedCount}/{currentTotalCount} CLEARED
-              </PixelBadge>
+              </span>
             }
-            className="flex flex-col min-h-[460px]"
+            className="flex flex-col min-h-[480px]"
           >
-            {/* Filter Tabs: ALL / HABITS / MISSIONS */}
-            <div className="grid grid-cols-3 gap-2 mb-3.5 bg-[#120824] p-1.5 border border-[#3b1861]">
-              <PixelButton
+            {/* Stamped Brass Filter Index Tabs: ALL / HABITS / MISSIONS */}
+            <div className="grid grid-cols-3 gap-2 mb-3.5 bg-[#130f0a] p-1 border border-[#c59b27]/30 rounded-sm">
+              <FieldBrassButton
                 size="sm"
-                variant={missionViewFilter === "all" ? "purple" : "dark"}
+                variant={missionViewFilter === "all" ? "brass" : "walnut"}
                 onClick={() => setMissionViewFilter("all")}
                 className="text-xs"
               >
                 ALL ({combinedTotalCount})
-              </PixelButton>
-              <PixelButton
+              </FieldBrassButton>
+              <FieldBrassButton
                 size="sm"
-                variant={missionViewFilter === "habits" ? "purple" : "dark"}
+                variant={missionViewFilter === "habits" ? "brass" : "walnut"}
                 onClick={() => setMissionViewFilter("habits")}
                 className="text-xs"
               >
                 HABITS ({totalHabitsCount})
-              </PixelButton>
-              <PixelButton
+              </FieldBrassButton>
+              <FieldBrassButton
                 size="sm"
-                variant={missionViewFilter === "missions" ? "purple" : "dark"}
+                variant={missionViewFilter === "missions" ? "brass" : "walnut"}
                 onClick={() => setMissionViewFilter("missions")}
                 className="text-xs"
               >
                 MISSIONS ({totalQuestsCount})
-              </PixelButton>
+              </FieldBrassButton>
             </div>
 
             {/* Scrollable Missions List */}
             <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[300px]">
               {isLoading ? (
-                <div className="py-8 text-center font-pixel text-xs text-white animate-pulse">
-                  Loading missions & habits...
+                <div className="py-8 text-center font-expedition text-xs text-[#c59b27] animate-pulse">
+                  Consulting field journals & dispatches...
                 </div>
               ) : (
                 (() => {
@@ -423,15 +335,15 @@ export function DashboardOverview() {
                   if (!hasAny) {
                     return (
                       <div className="py-10 flex flex-col items-center justify-center text-center space-y-3">
-                        <div className="w-10 h-10 bg-[#120824] border border-[#3b1861] flex items-center justify-center text-white">
-                          <PixelCrosshairIcon className="w-5 h-5 text-white" />
+                        <div className="w-10 h-10 bg-[#1b150f] border border-[#c59b27]/40 rounded-xs flex items-center justify-center text-[#c59b27]">
+                          <Scroll className="w-5 h-5 text-[#c59b27]" />
                         </div>
-                        <p className="font-pixel text-xs text-white max-w-xs">
+                        <p className="font-field text-xs text-[#c59b27]/80 italic max-w-xs">
                           {missionViewFilter === "habits"
-                            ? "No active habits scheduled for today."
+                            ? "No active habits scheduled for this day's expedition."
                             : missionViewFilter === "missions"
-                            ? "No custom missions created yet."
-                            : "No active missions or habits for today."}
+                            ? "No custom bounty vouchers created yet."
+                            : "No active missions or habits recorded for today."}
                         </p>
                         <Link
                           href={
@@ -440,12 +352,12 @@ export function DashboardOverview() {
                               : "/missions"
                           }
                         >
-                          <PixelButton size="sm" variant="dark">
+                          <FieldBrassButton size="sm" variant="brass">
                             <Plus className="w-3.5 h-3.5 mr-1" />
                             {missionViewFilter === "habits"
-                              ? "Add Habit"
-                              : "Create Mission"}
-                          </PixelButton>
+                              ? "Draft Habit"
+                              : "Issue Mission"}
+                          </FieldBrassButton>
                         </Link>
                       </div>
                     );
@@ -477,34 +389,38 @@ export function DashboardOverview() {
               )}
             </div>
 
-            {/* Daily Completion Progress */}
-            <div className="mt-4 pt-3 border-t-2 border-black/40 space-y-1.5">
-              <div className="flex items-center justify-between font-pixel text-xs text-white uppercase font-bold">
-                <span>DAILY COMPLETION</span>
-                <Package className="w-4 h-4 text-white" />
+            {/* Daily Barometer Completion Progress Tube */}
+            <div className="mt-4 pt-3 border-t border-[#c59b27]/20 space-y-1.5">
+              <div className="flex items-center justify-between font-expedition text-xs text-[#c59b27] uppercase font-bold tracking-wider">
+                <span>DAILY EXPEDITION COMPLETION</span>
+                <Package className="w-4 h-4 text-[#c59b27]" />
               </div>
-              <PixelProgress
+              <BarometerProgress
                 value={
                   currentTotalCount > 0
                     ? (currentCompletedCount / currentTotalCount) * 100
                     : 0
                 }
                 max={100}
-                variant="primary"
-                height="sm"
+                variant="emerald"
+                height="md"
               />
             </div>
-          </PixelCard>
+          </FieldParchmentCard>
 
-          {/* Current Boss Card */}
-          <PixelCard title="CURRENT BOSS" variant="danger">
+          {/* Current Boss Danger Dossier */}
+          <FieldParchmentCard
+            title="APEX BEAST DANGER DOSSIER"
+            subtitle="Primeval Threat Targeted"
+            variant="danger"
+          >
             {(() => {
               const activeBoss =
                 bosses.find((b) => b.status === "ACTIVE") || bosses[0];
               if (isBossesLoading && bosses.length === 0) {
                 return (
-                  <div className="py-6 text-center font-pixel text-xs text-white animate-pulse">
-                    Scanning active boss threats...
+                  <div className="py-6 text-center font-expedition text-xs text-[#fca5a5] animate-pulse">
+                    Scanning primeval canopy for active threats...
                   </div>
                 );
               }
@@ -512,20 +428,20 @@ export function DashboardOverview() {
               if (!activeBoss) {
                 return (
                   <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
-                    <div className="w-12 h-12 bg-[#330c12] border border-[#7f1d1d] flex items-center justify-center text-white">
-                      <PixelSkullIcon className="w-6 h-6 text-white" />
+                    <div className="w-12 h-12 bg-[#2d0f12] border border-[#991b1b]/60 rounded-xs flex items-center justify-center text-[#fca5a5]">
+                      <Skull className="w-6 h-6 text-[#ef4444]" />
                     </div>
-                    <p className="font-pixel text-xs text-white">
-                      No active boss threat targeted.
+                    <p className="font-field text-xs text-[#fca5a5]/80 italic">
+                      No apex beast threat currently targeted for bounty.
                     </p>
-                    <PixelButton
+                    <FieldBrassButton
                       size="sm"
-                      variant="error"
+                      variant="danger"
                       onClick={() => router.push("/bosses")}
                     >
-                      <PixelSkullIcon className="w-3.5 h-3.5 mr-1" />
-                      Summon Boss
-                    </PixelButton>
+                      <Skull className="w-3.5 h-3.5 mr-1" />
+                      Target Apex Beast
+                    </FieldBrassButton>
                   </div>
                 );
               }
@@ -543,8 +459,8 @@ export function DashboardOverview() {
               return (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    {/* Boss Sprite */}
-                    <div className="w-16 h-16 bg-[#2a0a10] border border-black flex items-center justify-center flex-shrink-0 p-1">
+                    {/* Illustrated Field Specimen Vitrine for Boss Sprite */}
+                    <div className="w-16 h-16 bg-[#200b0d] border border-[#991b1b]/60 rounded-xs flex items-center justify-center flex-shrink-0 p-1 relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.9)]">
                       <img
                         src={getEnemySpritePath(activeBoss.name, 1, true)}
                         alt={activeBoss.name}
@@ -554,61 +470,62 @@ export function DashboardOverview() {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-pixel text-sm font-bold text-white truncate">
+                      <h3 className="font-expedition text-sm font-bold text-[#fca5a5] truncate">
                         {activeBoss.name}
                       </h3>
-                      <p className="font-pixel text-xs text-white/80 mt-0.5">
+                      <p className="font-field text-xs text-[#fca5a5]/80 italic mt-0.5">
                         {activeBoss.difficulty} • {activeBoss.category}
                       </p>
-                      <div className="font-pixel text-xs text-white font-bold mt-1">
-                        CONTRIBUTION: {contributionPct}%
+                      <div className="font-expedition text-xs text-[#ffd875] font-bold mt-1">
+                        EXPEDITION CONTRIBUTION: {contributionPct}%
                       </div>
                     </div>
                   </div>
 
-                  {/* HP Progress Bar */}
+                  {/* Blood-Mercury Barometer Tube */}
                   <div className="space-y-1">
-                    <div className="flex justify-between font-pixel text-xs text-white font-bold">
-                      <span>
+                    <div className="flex justify-between font-expedition text-xs text-[#fca5a5] font-bold">
+                      <span className="font-mono">
                         {activeBoss.currentHp.toLocaleString()} /{" "}
                         {activeBoss.maxHp.toLocaleString()} HP
                       </span>
-                      <span>{hpPercent.toFixed(1)}%</span>
+                      <span className="font-mono">{hpPercent.toFixed(1)}%</span>
                     </div>
-                    <PixelProgress
+                    <BarometerProgress
                       value={hpPercent}
                       max={100}
-                      variant="danger"
+                      variant="crimson"
                       height="sm"
                     />
                   </div>
 
-                  <PixelButton
+                  <FieldBrassButton
                     size="sm"
-                    variant="error"
+                    variant="danger"
                     className="w-full"
                     onClick={() => router.push("/bosses")}
                   >
-                    View Boss Details
-                  </PixelButton>
+                    Examine Threat Dossier
+                  </FieldBrassButton>
                 </div>
               );
             })()}
-          </PixelCard>
+          </FieldParchmentCard>
         </div>
 
         {/* ========================================================= */}
-        {/* COLUMN 3: COMPANION SANCTUM & TOWER OF ASCENSION */}
+        {/* COLUMN 3: BOTANICAL SANCTUM & TOPOGRAPHIC ASCENT */}
         {/* ========================================================= */}
         <div suppressHydrationWarning className="space-y-5 flex flex-col">
-          {/* Companion & Step Matrix Hub */}
+          {/* Companion Vivarium & Pedometer Hub */}
           <CompanionSanctumCard />
 
-          {/* Tower of Ascension Card */}
-          <PixelCard
+          {/* Topographic Mountain Ascent (Tower of Ascension) */}
+          <FieldParchmentCard
             title="TOWER OF ASCENSION"
+            subtitle="Topographic Mountain Ascent"
             titleBadge={
-              <PixelBadge variant="purple">
+              <span className="px-2 py-0.5 bg-[#2a1f16] border border-[#c59b27]/60 text-xs font-expedition text-[#ffd875] font-bold rounded-xs shadow-sm">
                 {(() => {
                   const sorted = [...floors].sort((a, b) => a.floorNumber - b.floorNumber);
                   const activeFloor =
@@ -617,7 +534,7 @@ export function DashboardOverview() {
                     ) || sorted[0];
                   return activeFloor ? `FLOOR ${activeFloor.floorNumber}` : "1";
                 })()}
-              </PixelBadge>
+              </span>
             }
           >
             {(() => {
@@ -631,8 +548,8 @@ export function DashboardOverview() {
 
               if (!activeFloor) {
                 return (
-                  <div className="py-6 text-center font-pixel text-xs text-white animate-pulse">
-                    Loading Tower Data...
+                  <div className="py-6 text-center font-expedition text-xs text-[#c59b27] animate-pulse">
+                    Consulting Topographic Survey Maps...
                   </div>
                 );
               }
@@ -643,41 +560,43 @@ export function DashboardOverview() {
               const enemyDesc = `Level ${
                 activeFloor.enemy?.level || activeFloor.floorNumber
               } ${
-                activeFloor.isBoss ? "Boss Threat" : "Tower Sentinel"
-              }. Defeat to claim ascension rewards.`;
+                activeFloor.isBoss ? "Apex Sentinel" : "Canopy Guardian"
+              }. Overcome to claim botanical ascent tokens.`;
               const towerTokensReward =
                 activeFloor.towerTokensReward ||
                 activeFloor.floorNumber * 10 * (activeFloor.isBoss ? 3 : 1);
 
               return (
                 <div className="space-y-3">
-                  <div className="p-3 bg-[#1A0D2E] border border-[#3b1861] space-y-2">
-                    <div className="flex items-center justify-between font-pixel text-xs">
-                      <span className="text-white font-bold">{enemyName}</span>
-                      <span className="text-white font-bold">
+                  <div className="p-3 bg-[#130f0a] border border-[#c59b27]/30 rounded-sm space-y-2">
+                    <div className="flex items-center justify-between font-expedition text-xs">
+                      <span className="text-[#f5dab0] font-bold">{enemyName}</span>
+                      <span className="text-[#ffd875] font-mono font-bold">
                         REQ: {activeFloor.requiredPower.toLocaleString()}
                       </span>
                     </div>
 
-                    <p className="font-pixel text-xs text-white/80 line-clamp-2">
+                    <p className="font-field text-xs text-[#c59b27]/80 italic line-clamp-2">
                       {enemyDesc}
                     </p>
 
-                    <div className="flex items-center justify-between font-pixel text-xs pt-1.5 text-white font-bold border-t border-[#3b1861]">
-                      <span>REWARD</span>
-                      <span>+{towerTokensReward} Tokens</span>
+                    <div className="flex items-center justify-between font-expedition text-xs pt-1.5 text-[#f5dab0] font-bold border-t border-[#c59b27]/20">
+                      <span className="text-[#c59b27]">BOUNTY REWARD</span>
+                      <span className="text-[#ffd875] font-mono">
+                        +{towerTokensReward} Tokens
+                      </span>
                     </div>
                   </div>
 
                   <Link href="/tower" className="block w-full">
-                    <PixelButton size="sm" variant="purple" className="w-full">
-                      Challenge Floor {activeFloor.floorNumber}
-                    </PixelButton>
+                    <FieldBrassButton size="sm" variant="brass" className="w-full">
+                      Ascend Floor {activeFloor.floorNumber}
+                    </FieldBrassButton>
                   </Link>
                 </div>
               );
             })()}
-          </PixelCard>
+          </FieldParchmentCard>
         </div>
       </div>
     </div>

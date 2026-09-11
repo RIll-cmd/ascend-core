@@ -6,15 +6,19 @@ import {
   Sparkles,
   ChevronRight,
   Plus,
+  Footprints,
+  Flame,
+  Milestone,
+  Zap,
 } from "lucide-react";
-import { PixelLightningIcon, PixelFootprintsIcon } from "@/components/ui/pixel/PixelIcons";
 import { useBeastStore } from "@/features/beasts/store/useBeastStore";
 import { useCharacterStore } from "@/store/useCharacterStore";
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
-import { PixelCard } from "@/components/ui/pixel/PixelCard";
-import { PixelButton } from "@/components/ui/pixel/PixelButton";
-import { PixelProgress } from "@/components/ui/pixel/PixelProgress";
-import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
+import {
+  FieldParchmentCard,
+  FieldBrassButton,
+  BarometerProgress,
+} from "@/components/ui/field";
 
 export function CompanionSanctumCard() {
   const { character } = useCharacterStore();
@@ -60,12 +64,13 @@ export function CompanionSanctumCard() {
   };
 
   return (
-    <PixelCard
-      title="COMPANION & STEP MATRIX"
+    <FieldParchmentCard
+      title="BOTANICAL SANCTUM & PEDOMETER"
+      subtitle="Familiar Vivarium • Mechanical Pocket Instrument"
       titleBadge={
         <Link
           href="/beasts"
-          className="font-pixel text-xs text-white/80 hover:text-white flex items-center gap-1 font-bold"
+          className="font-expedition text-xs text-[#c59b27] hover:text-[#f5dab0] flex items-center gap-1 font-bold transition-colors"
         >
           <span>Bestiary</span>
           <ChevronRight className="w-3.5 h-3.5" />
@@ -73,13 +78,13 @@ export function CompanionSanctumCard() {
       }
       className="space-y-4"
     >
-      {/* 1. COMPANION BIND / EQUIPPED CONTAINER */}
-      <div className="p-3.5 bg-[#1A0D2E] border border-[#3b1861] shadow-[inset_2px_2px_0_0_#140a24]">
+      {/* 1. COMPANION VIVARIUM CLOCHE */}
+      <div className="p-3 bg-[#130f0a] border border-[#c59b27]/40 rounded-sm shadow-[inset_0_2px_8px_rgba(0,0,0,0.8)] relative">
         {equippedBeast ? (
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              {/* 8-bit Companion Sprite */}
-              <div className="w-14 h-14 bg-[#120824] border border-[#3b1861] flex items-center justify-center p-1 relative flex-shrink-0">
+              {/* Glass Cloche Specimen Frame */}
+              <div className="w-14 h-14 bg-[#1b150f] border border-[#c59b27]/60 rounded-sm flex items-center justify-center p-1 relative flex-shrink-0 shadow-[inset_0_1px_4px_rgba(0,0,0,0.9)]">
                 <img
                   src={
                     equippedBeast.spritePath
@@ -90,22 +95,22 @@ export function CompanionSanctumCard() {
                   className="w-full h-full object-contain animate-pixel-bob"
                   style={{ imageRendering: "pixelated" }}
                 />
-                <div className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 bg-[#281545] border border-white text-xs font-pixel text-white font-bold">
+                <div className="absolute -top-1.5 -right-1.5 px-1.5 py-0.2 bg-[#2a1f16] border border-[#c59b27] text-[10px] font-expedition text-[#f5dab0] font-bold rounded-xs shadow-sm">
                   LV.{equippedBeast.level || 1}
                 </div>
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-pixel text-xs sm:text-sm font-bold text-white truncate">
+                  <h3 className="font-expedition text-xs sm:text-sm font-bold text-[#f5dab0] truncate">
                     {equippedBeast.name}
                   </h3>
-                  <PixelBadge variant="purple" className="text-xs">
+                  <span className="px-1.5 py-0.5 bg-[#2a1f16] border border-[#c59b27]/50 text-[10px] font-expedition uppercase text-[#ffd875] rounded-xs">
                     {equippedBeast.rarity}
-                  </PixelBadge>
+                  </span>
                 </div>
-                <div className="flex items-center gap-1.5 mt-1 text-xs font-pixel text-white font-bold">
-                  <Sparkles className="w-3.5 h-3.5 text-white" />
+                <div className="flex items-center gap-1.5 mt-1 text-xs font-field text-[#10b981] font-bold">
+                  <Sparkles className="w-3.5 h-3.5 text-[#10b981]" />
                   <span>
                     +{equippedBeast.statBonusValue}%{" "}
                     {equippedBeast.statBonusType?.replace("_", " ")}
@@ -123,43 +128,39 @@ export function CompanionSanctumCard() {
               const bGoldReq = equippedBeast.goldUpgradeReq || bLevel * 1000;
               const charGold = character?.gold || 0;
 
-              const stepProgress = Math.min(
-                100,
-                Math.round((effectiveSteps / bStepReq) * 100)
-              );
               const canUpgrade =
                 effectiveSteps >= bStepReq && charGold >= bGoldReq && bLevel < 10;
 
               return (
-                <div className="pt-2.5 border-t border-[#3b1861] space-y-1.5">
-                  <div className="flex items-center justify-between text-xs font-pixel text-white font-bold">
-                    <span>STEPS TO LEVEL UP</span>
-                    <span>
+                <div className="pt-2.5 border-t border-[#c59b27]/20 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs font-expedition text-[#c59b27] font-bold">
+                    <span>VIVARIUM ASCENSION STEPS</span>
+                    <span className="font-mono text-[#f5dab0]">
                       {effectiveSteps.toLocaleString()} / {bStepReq.toLocaleString()}
                     </span>
                   </div>
-                  <PixelProgress
-                    value={stepProgress}
-                    max={100}
-                    variant="primary"
+                  <BarometerProgress
+                    value={effectiveSteps}
+                    max={bStepReq}
+                    variant="amber"
                     height="sm"
                   />
                   <div className="flex items-center justify-between gap-2 pt-1">
-                    <span className="font-pixel text-xs text-white font-bold">
-                      {bGoldReq.toLocaleString()} Gold
+                    <span className="font-expedition text-xs text-[#d4a373] font-bold">
+                      {bGoldReq.toLocaleString()} Sovereigns
                     </span>
-                    <PixelButton
+                    <FieldBrassButton
                       size="sm"
-                      variant={canUpgrade ? "warning" : "dark"}
+                      variant={canUpgrade ? "brass" : "walnut"}
                       onClick={handleUpgradeBeast}
                       disabled={!canUpgrade || isUpgrading}
                     >
                       {isUpgrading
-                        ? "ASCENDING..."
+                        ? "ATTUNING..."
                         : bLevel >= 10
-                        ? "MAX LVL"
-                        : `UPGRADE LV.${bLevel + 1}`}
-                    </PixelButton>
+                        ? "MAX LEVEL"
+                        : `ASCEND LV.${bLevel + 1}`}
+                    </FieldBrassButton>
                   </div>
                 </div>
               );
@@ -167,137 +168,139 @@ export function CompanionSanctumCard() {
           </div>
         ) : (
           <div className="py-3 text-center space-y-2.5">
-            <p className="font-pixel text-xs text-white">
-              No Companion currently linked.
+            <p className="font-field text-xs text-[#c59b27]/80 italic">
+              No Familiar currently bound to the sanctum cloche.
             </p>
             <Link href="/beasts">
-              <PixelButton size="sm" variant="dark">
-                <Plus className="w-3.5 h-3.5 mr-1" /> Bind Companion
-              </PixelButton>
+              <FieldBrassButton size="sm" variant="walnut">
+                <Plus className="w-3.5 h-3.5 mr-1" /> Bind Familiar
+              </FieldBrassButton>
             </Link>
           </div>
         )}
       </div>
 
-      {/* 2. DAILY STEPS TRACKER CONTAINER */}
-      <div className="p-3.5 bg-[#1A0D2E] border border-[#3b1861] shadow-[inset_2px_2px_0_0_#140a24] space-y-3">
+      {/* 2. MECHANICAL POCKET PEDOMETER */}
+      <div className="p-3 bg-[#130f0a] border border-[#c59b27]/40 rounded-sm shadow-[inset_0_2px_8px_rgba(0,0,0,0.8)] space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-[#120824] border border-[#3b1861] flex items-center justify-center text-white">
-              <PixelFootprintsIcon className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 bg-[#1f1812] border border-[#c59b27]/60 rounded-xs flex items-center justify-center text-[#c59b27] shadow-sm">
+              <Footprints className="w-4 h-4 text-[#c59b27]" />
             </div>
             <div>
-              <span className="font-pixel text-xs text-white/70 block uppercase">
-                DAILY STEPS TRACKER
+              <span className="font-expedition text-xs text-[#c59b27] block uppercase tracking-wider">
+                POCKET PEDOMETER
               </span>
-              <span className="font-pixel text-xs sm:text-sm font-bold text-white">
+              <span className="font-mono text-xs sm:text-sm font-bold text-[#f5dab0]">
                 {dailySteps.toLocaleString()} / {dailyStepGoal.toLocaleString()}
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 font-pixel text-xs text-white font-bold">
-            <span className="px-2 py-0.5 bg-[#120824] border border-[#3b1861]">
+          <div className="flex items-center gap-1.5 font-mono text-xs text-[#c59b27] font-bold">
+            <span className="px-2 py-0.5 bg-[#1b150f] border border-[#c59b27]/30 rounded-xs flex items-center gap-1">
+              <Milestone className="w-3 h-3 text-[#c59b27]" />
               {distanceKm} km
             </span>
-            <span className="px-2 py-0.5 bg-[#120824] border border-[#3b1861]">
+            <span className="px-2 py-0.5 bg-[#1b150f] border border-[#c59b27]/30 rounded-xs flex items-center gap-1">
+              <Flame className="w-3 h-3 text-[#f59e0b]" />
               {caloriesBurned} kcal
             </span>
           </div>
         </div>
 
-        {/* Step Progress Bar */}
-        <PixelProgress
+        {/* Step Barometer Progress Tube */}
+        <BarometerProgress
           value={dailyProgress}
           max={100}
-          variant="success"
+          variant="emerald"
           height="md"
         />
 
-        <div className="flex items-center justify-between font-pixel text-xs text-white font-bold">
-          <span>{dailyProgress}% OF DAILY TARGET</span>
-          <span>
+        <div className="flex items-center justify-between font-expedition text-xs text-[#c59b27] font-bold">
+          <span>{dailyProgress}% OF EXPEDITION TARGET</span>
+          <span className="font-field italic font-normal text-[#f5dab0]/80">
             {caloriesBurned} kcal • {distanceKm} km
           </span>
         </div>
 
-        {/* Quick Add Step Buttons: [+500], [+1,000], [+2,500] */}
+        {/* Knurled Brass Winding Crown Quick Adds */}
         <div className="grid grid-cols-3 gap-2 pt-1">
-          <PixelButton
+          <FieldBrassButton
             size="sm"
-            variant="dark"
+            variant="walnut"
             onClick={() => handleQuickAddSteps(500)}
             disabled={isSyncingSteps}
           >
             +500
-          </PixelButton>
-          <PixelButton
+          </FieldBrassButton>
+          <FieldBrassButton
             size="sm"
-            variant="dark"
+            variant="walnut"
             onClick={() => handleQuickAddSteps(1000)}
             disabled={isSyncingSteps}
           >
             +1,000
-          </PixelButton>
-          <PixelButton
+          </FieldBrassButton>
+          <FieldBrassButton
             size="sm"
-            variant="dark"
+            variant="walnut"
             onClick={() => handleQuickAddSteps(2500)}
             disabled={isSyncingSteps}
           >
             +2,500
-          </PixelButton>
+          </FieldBrassButton>
         </div>
       </div>
 
-      {/* 3. INCUBATION CHAMBER */}
-      <div className="p-3.5 bg-[#1A0D2E] border border-[#3b1861] shadow-[inset_2px_2px_0_0_#140a24]">
+      {/* 3. INCUBATION BELL JAR */}
+      <div className="p-3 bg-[#130f0a] border border-[#c59b27]/40 rounded-sm shadow-[inset_0_2px_8px_rgba(0,0,0,0.8)]">
         {activeEgg ? (
           <div className="space-y-2 text-center">
-            <div className="flex items-center justify-between font-pixel text-xs text-white font-bold">
-              <span>INCUBATING EGG</span>
-              <span>{activeEgg.name}</span>
+            <div className="flex items-center justify-between font-expedition text-xs text-[#f5dab0] font-bold">
+              <span>INCUBATION BELL JAR</span>
+              <span className="text-[#ffd875]">{activeEgg.name}</span>
             </div>
-            <PixelProgress
+            <BarometerProgress
               value={activeEgg.currentSteps ?? activeEgg.current_steps ?? 0}
               max={activeEgg.targetSteps ?? activeEgg.target_steps ?? 5000}
-              variant="warning"
+              variant="amber"
               height="sm"
             />
             {((activeEgg.currentSteps ?? activeEgg.current_steps ?? 0) >=
               (activeEgg.targetSteps ?? activeEgg.target_steps ?? 5000) ||
               activeEgg.status === "READY_TO_HATCH") && (
-              <PixelButton
+              <FieldBrassButton
                 size="sm"
-                variant="warning"
+                variant="brass"
                 onClick={handleHatchEgg}
                 disabled={isHatching}
                 className="w-full mt-2 flex items-center justify-center gap-1.5"
               >
                 {isHatching ? (
-                  "HATCHING..."
+                  "HATCHING SPECIMEN..."
                 ) : (
                   <>
-                    <PixelLightningIcon className="w-3.5 h-3.5" />
-                    <span>HATCH EGG</span>
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>HATCH SPECIMEN</span>
                   </>
                 )}
-              </PixelButton>
+              </FieldBrassButton>
             )}
           </div>
         ) : (
           <div className="py-2 text-center space-y-2">
-            <p className="font-pixel text-xs text-white">
-              Incubation chamber empty
+            <p className="font-field text-xs text-[#c59b27]/80 italic">
+              Incubation bell jar is currently empty.
             </p>
             <Link href="/beasts">
-              <PixelButton size="sm" variant="dark">
-                <Plus className="w-3.5 h-3.5 mr-1" /> Place Egg in Chamber
-              </PixelButton>
+              <FieldBrassButton size="sm" variant="walnut">
+                <Plus className="w-3.5 h-3.5 mr-1" /> Place Egg in Bell Jar
+              </FieldBrassButton>
             </Link>
           </div>
         )}
       </div>
-    </PixelCard>
+    </FieldParchmentCard>
   );
 }
 

@@ -2,9 +2,14 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { eventBus } from "./EventBus";
 import { ProgressionEngine } from "./ProgressionEngine";
 import { useCharacterStore } from "@/store/useCharacterStore";
+import { useDailyBonusStore } from "@/store/useDailyBonusStore";
 
 describe("Progression Engine & EventBus", () => {
   beforeEach(() => {
+    // Reset daily bonus charges so tests don't inadvertently trigger 2x boost
+    const today = new Date().toISOString().split("T")[0];
+    useDailyBonusStore.setState({ lastResetDate: today, habitBoostCharges: 0 });
+
     // Reset character store to initial state
     useCharacterStore.setState({
       character: {

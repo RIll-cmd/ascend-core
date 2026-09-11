@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Jersey+10&family=Pixelify+Sans:wght@500;600;700;800&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Jersey+10&family=Pixelify+Sans:wght@500;600;700;800&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -27,6 +27,8 @@
   --font-mono: var(--font-jetbrains-mono), monospace;
   --font-pixel: "Pixelify Sans", "Jersey 10", "Press Start 2P", monospace;
   --font-pixel-chunky: "Jersey 10", "Pixelify Sans", monospace;
+  --font-expedition: "Cinzel", "Cormorant Garamond", Georgia, serif;
+  --font-field: "Cormorant Garamond", Georgia, serif;
 }
 
 :root {
@@ -2106,5 +2108,123 @@ h6 {
 
 [data-sonner-toast]:hover [data-close-button] {
   opacity: 0.9;
+}
+
+/* ========================================================================= */
+/* THE NATURALIST'S FIELD STATION — BOTANICAL EXPEDITION & BRASS THEME       */
+/* ========================================================================= */
+
+.font-expedition {
+  font-family: var(--font-expedition);
+  letter-spacing: 0.04em;
+}
+
+.font-field {
+  font-family: var(--font-field);
+}
+
+/* Dark Aged Walnut Background */
+.bg-field-walnut {
+  background-color: #0c0906;
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(42, 31, 20, 0.4) 0%, transparent 75%),
+    radial-gradient(circle at 100% 100%, rgba(27, 67, 50, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 0% 100%, rgba(180, 83, 9, 0.08) 0%, transparent 45%);
+}
+
+/* Weathered Field Parchment Card Surface */
+.field-parchment-card {
+  background: linear-gradient(175deg, #1f1812 0%, #17120e 60%, #120e0a 100%);
+  border: 1px solid rgba(197, 155, 39, 0.28);
+  box-shadow: 
+    0 4px 20px -2px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 0 rgba(245, 218, 143, 0.15),
+    inset 0 0 20px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+/* Burnished Brass Corner Brackets */
+.brass-corner-tl {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid #c59b27;
+  border-left: 2px solid #c59b27;
+  pointer-events: none;
+}
+.brass-corner-tr {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid #c59b27;
+  border-right: 2px solid #c59b27;
+  pointer-events: none;
+}
+.brass-corner-bl {
+  position: absolute;
+  bottom: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  border-bottom: 2px solid #c59b27;
+  border-left: 2px solid #c59b27;
+  pointer-events: none;
+}
+.brass-corner-br {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 10px;
+  height: 10px;
+  border-bottom: 2px solid #c59b27;
+  border-right: 2px solid #c59b27;
+  pointer-events: none;
+}
+
+/* Antique Engraved Brass Rivet */
+.brass-rivet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ecd285 0%, #c59b27 45%, #66490f 100%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), inset 0 0 1px rgba(0, 0, 0, 0.6);
+  border: 0.5px solid #453006;
+}
+
+/* Crimson Wax Seal Stamp Animation */
+@keyframes wax-stamp-drop {
+  0% {
+    transform: scale(2.2) rotate(-15deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.92) rotate(2deg);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(1.05) rotate(-1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-wax-stamp {
+  animation: wax-stamp-drop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Glass Barometer Tube Specimen */
+.barometer-glass-glow {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.15) 0%, 
+    rgba(255, 255, 255, 0.05) 15%, 
+    transparent 50%, 
+    rgba(0, 0, 0, 0.3) 100%
+  );
 }
 

@@ -30,7 +30,7 @@ def test_signed_preview_token_round_trips_exact_claims():
 
 def test_signed_preview_token_rejects_tampering():
     token = create_confirmation_token(preview_claims(), secret="test-secret")
-    tampered = f"{token[:-1]}{'a' if token[-1] != 'a' else 'b'}"
+    tampered = f"{'b' if token[0] != 'b' else 'c'}{token[1:]}"
 
     with pytest.raises(ConfirmationTokenError, match="invalid"):
         verify_confirmation_token(tampered, secret="test-secret")
