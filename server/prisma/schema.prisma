@@ -100,6 +100,8 @@ model Character {
   automationExecutions AutomationExecution[]
   airaOperationAudits AIRAOperationAudit[]
   calendarSchedules   CalendarSchedule[]
+  visionDisciplineSettings VisionDisciplineSetting[]
+  visionDisciplineLogs VisionDisciplineLog[]
 }
 
 model CharacterStats {
@@ -125,6 +127,36 @@ model ProgressHistory {
   amount      Int
   description String
   createdAt   DateTime @default(now())
+}
+
+model VisionDisciplineSetting {
+  id            String    @id @default(uuid())
+  characterId   String
+  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  behavior      String
+  penaltyAmount Int       @default(10)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([characterId, behavior])
+}
+
+model VisionDisciplineLog {
+  id            String    @id @default(uuid())
+  eventId       String    @unique
+  characterId   String
+  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  behavior      String
+  stage         String
+  deviceId      String
+  observedAt    DateTime
+  reason        String
+  penaltyAmount Int       @default(0)
+  previousHp    Int?
+  newHp         Int?
+  createdAt     DateTime  @default(now())
+
+  @@index([characterId, createdAt])
 }
 
 model IntegrationObservation {
