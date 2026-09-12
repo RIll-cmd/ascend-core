@@ -122,11 +122,16 @@ class LogDelegate:
             raise RuntimeError("log storage unavailable")
         if data["eventId"] in self.owner.state["logs"]:
             raise UniqueViolationError("duplicate key violates unique constraint")
+        persisted_data = dict(data)
+        observed_at = persisted_data["observedAt"]
+        persisted_data["observedAt"] = observed_at.replace(
+            microsecond=(observed_at.microsecond // 1000) * 1000
+        )
         number = self.owner.state["next_log"]
         self.owner.state["next_log"] += 1
         row = {
             "id": f"log-{number}",
-            **data,
+            **persisted_data,
             "createdAt": OBSERVED_AT + timedelta(seconds=number),
         }
         self.owner.state["logs"][data["eventId"]] = row
@@ -141,6 +146,12 @@ class DatabaseView:
         self.character = CharacterDelegate(self)
         self.visiondisciplinesetting = SettingDelegate(self)
         self.visiondisciplinelog = LogDelegate(self)
+
+    async def query_raw(self, query, character_id):
+        assert 'FOR UPDATE' in query
+        if character_id not in self.state["characters"]:
+            return []
+        return [{"id": character_id}]
 
 
 class TransactionContext:
@@ -213,6 +224,76 @@ class RacingTransactionContext:
 class RacingDatabase(FakeDatabase):
     def tx(self):
         return RacingTransactionContext(self)
+
+
+class ConcurrentCharacterDelegate(CharacterDelegate):
+    def __init__(self, owner, database):
+        super().__init__(owner)
+        self.database = database
+
+    async def find_unique(self, where):
+        row = await super().find_unique(where)
+        if not self.owner.row_lock_acquired:
+            self.database.unlocked_character_reads += 1
+            if self.database.unlocked_character_reads == 2:
+                self.database.unlocked_reads_ready.set()
+            await self.database.unlocked_reads_ready.wait()
+        return row
+
+
+class ConcurrentDatabaseView(DatabaseView):
+    def __init__(self, state, database):
+        super().__init__(state)
+        self.database = database
+        self.row_lock_acquired = False
+        self.character = ConcurrentCharacterDelegate(self, database)
+
+    async def query_raw(self, query, character_id):
+        assert 'FOR UPDATE' in query
+        await self.database.character_lock.acquire()
+        self.row_lock_acquired = True
+        self.state = copy.deepcopy(self.database.state)
+        if character_id not in self.state["characters"]:
+            return []
+        return [{"id": character_id}]
+
+
+class ConcurrentTransactionContext:
+    def __init__(self, database):
+        self.database = database
+        self.view = None
+
+    async def __aenter__(self):
+        self.view = ConcurrentDatabaseView(
+            copy.deepcopy(self.database.state), self.database
+        )
+        return self.view
+
+    async def __aexit__(self, exc_type, _exc, _traceback):
+        if exc_type is None:
+            self.database.state["characters"] = copy.deepcopy(
+                self.view.state["characters"]
+            )
+            self.database.state["logs"].update(
+                copy.deepcopy(self.view.state["logs"])
+            )
+            self.database.state["next_log"] = max(
+                self.database.state["next_log"], self.view.state["next_log"]
+            )
+        if self.view.row_lock_acquired:
+            self.database.character_lock.release()
+        return False
+
+
+class ConcurrentDatabase(FakeDatabase):
+    def __init__(self):
+        super().__init__()
+        self.character_lock = asyncio.Lock()
+        self.unlocked_character_reads = 0
+        self.unlocked_reads_ready = asyncio.Event()
+
+    def tx(self):
+        return ConcurrentTransactionContext(self)
 
 
 @pytest.fixture
@@ -333,6 +414,48 @@ async def test_exact_replay_returns_the_existing_log_without_a_second_deduction(
 
 
 @pytest.mark.asyncio
+async def test_exact_replay_survives_prisma_millisecond_timestamp_serialization(fake_db):
+    observed_at = OBSERVED_AT.replace(microsecond=123456)
+    request = discipline_event(
+        observedAt=observed_at,
+        stage="PENALTY",
+        reason="Phone use repeated.",
+    )
+
+    first = await record_discipline_event(request, db_client=fake_db)
+    replay = await record_discipline_event(request, db_client=fake_db)
+
+    assert first["log"]["observedAt"].microsecond == 123000
+    assert replay["log"]["id"] == first["log"]["id"]
+    assert replay["idempotentReplay"] is True
+    assert fake_db.state["characters"]["character-1"]["currentHp"] == 90
+
+
+@pytest.mark.asyncio
+async def test_replay_preserves_the_original_configured_amount_after_setting_changes(
+    fake_db,
+):
+    await update_discipline_setting(
+        "character-1", "PHONE_USE", 25, db_client=fake_db
+    )
+    fake_db.state["characters"]["character-1"]["currentHp"] = 4
+    request = discipline_event(stage="PENALTY", reason="Phone use repeated.")
+
+    first = await record_discipline_event(request, db_client=fake_db)
+    await update_discipline_setting(
+        "character-1", "PHONE_USE", 7, db_client=fake_db
+    )
+    replay = await record_discipline_event(request, db_client=fake_db)
+
+    assert first["penalty"]["configuredAmount"] == 25
+    assert first["penalty"]["amount"] == 4
+    assert first["log"]["configuredAmount"] == 25
+    assert replay["penalty"]["configuredAmount"] == 25
+    assert replay["penalty"]["amount"] == 4
+    assert replay["log"]["configuredAmount"] == 25
+
+
+@pytest.mark.asyncio
 async def test_concurrent_duplicate_delivery_deducts_only_once(fake_db):
     request = discipline_event(stage="PENALTY", reason="Phone use repeated.")
 
@@ -344,6 +467,32 @@ async def test_concurrent_duplicate_delivery_deducts_only_once(fake_db):
     assert fake_db.state["characters"]["character-1"]["currentHp"] == 90
     assert len(fake_db.state["logs"]) == 1
     assert {first["idempotentReplay"], second["idempotentReplay"]} == {False, True}
+
+
+@pytest.mark.asyncio
+async def test_concurrent_distinct_penalties_serialize_character_hp_updates():
+    database = ConcurrentDatabase()
+    first_request = discipline_event(
+        eventId="vision-discipline-a",
+        stage="PENALTY",
+        reason="First repeated offense.",
+    )
+    second_request = discipline_event(
+        eventId="vision-discipline-b",
+        stage="PENALTY",
+        reason="Second repeated offense.",
+    )
+
+    first, second = await asyncio.gather(
+        record_discipline_event(first_request, db_client=database),
+        record_discipline_event(second_request, db_client=database),
+    )
+
+    assert database.state["characters"]["character-1"]["currentHp"] == 80
+    assert len(database.state["logs"]) == 2
+    assert sorted(
+        [first["penalty"]["newValue"], second["penalty"]["newValue"]]
+    ) == [80, 90]
 
 
 @pytest.mark.asyncio

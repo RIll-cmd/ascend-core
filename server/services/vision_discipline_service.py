@@ -43,8 +43,10 @@ def _normalize_observed_at(value: datetime | str) -> datetime:
     if isinstance(value, str):
         value = datetime.fromisoformat(value.replace("Z", "+00:00"))
     if value.tzinfo is None or value.utcoffset() is None:
-        return value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc)
+        value = value.replace(tzinfo=timezone.utc)
+    else:
+        value = value.astimezone(timezone.utc)
+    return value.replace(microsecond=(value.microsecond // 1000) * 1000)
 
 
 def _is_exact_replay(log: Any, request: VisionDisciplineEventRequest) -> bool:
@@ -86,7 +88,6 @@ def _event_response(
     log: Any,
     *,
     idempotent_replay: bool,
-    configured_amount: int | None = None,
 ) -> dict:
     log_data = _record_dict(log)
     stage = _enum_value(log_data["stage"])
@@ -97,9 +98,7 @@ def _event_response(
         actual_amount = log_data["penaltyAmount"]
         penalty = {
             "target": "HP",
-            "configuredAmount": (
-                actual_amount if configured_amount is None else configured_amount
-            ),
+            "configuredAmount": log_data["configuredAmount"],
             "amount": actual_amount,
             "previousValue": log_data["previousHp"],
             "newValue": log_data["newHp"],
@@ -116,27 +115,18 @@ def _event_response(
     }
 
 
-async def _replay_response(
+def _replay_response(
     log: Any,
     request: VisionDisciplineEventRequest,
-    db_client: Any,
 ) -> dict:
     if not _is_exact_replay(log, request):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="eventId has already been used for a different discipline event",
         )
-    configured_amount = None
-    if _enum_value(log.stage) == VisionDisciplineStage.PENALTY.value:
-        configured_amount = await _setting_amount(
-            db_client,
-            request.characterId,
-            request.behavior.value,
-        )
     return _event_response(
         log,
         idempotent_replay=True,
-        configured_amount=configured_amount,
     )
 
 
@@ -224,7 +214,7 @@ async def record_discipline_event(
         where={"eventId": request.eventId}
     )
     if existing:
-        return await _replay_response(existing, request, database)
+        return _replay_response(existing, request)
 
     try:
         async with database.tx() as transaction:
@@ -232,8 +222,13 @@ async def record_discipline_event(
                 where={"eventId": request.eventId}
             )
             if existing:
-                return await _replay_response(existing, request, transaction)
+                return _replay_response(existing, request)
 
+            if request.stage == VisionDisciplineStage.PENALTY:
+                await transaction.query_raw(
+                    'SELECT "id" FROM "Character" WHERE "id" = $1 FOR UPDATE',
+                    request.characterId,
+                )
             character = await transaction.character.find_unique(
                 where={"id": request.characterId}
             )
@@ -270,8 +265,11 @@ async def record_discipline_event(
                     "behavior": behavior,
                     "stage": stage,
                     "deviceId": request.deviceId,
-                    "observedAt": request.observedAt,
+                    "observedAt": _normalize_observed_at(request.observedAt),
                     "reason": request.reason,
+                    "configuredAmount": (
+                        configured_amount if configured_amount is not None else 0
+                    ),
                     "penaltyAmount": actual_amount,
                     "previousHp": previous_hp,
                     "newHp": new_hp,
@@ -280,7 +278,6 @@ async def record_discipline_event(
             return _event_response(
                 log,
                 idempotent_replay=False,
-                configured_amount=configured_amount,
             )
     except HTTPException:
         raise
@@ -292,4 +289,4 @@ async def record_discipline_event(
         )
         if not winning_log:
             raise
-        return await _replay_response(winning_log, request, database)
+        return _replay_response(winning_log, request)

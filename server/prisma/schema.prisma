@@ -151,6 +151,7 @@ model VisionDisciplineLog {
   deviceId      String
   observedAt    DateTime
   reason        String
+  configuredAmount Int    @default(0)
   penaltyAmount Int       @default(0)
   previousHp    Int?
   newHp         Int?
