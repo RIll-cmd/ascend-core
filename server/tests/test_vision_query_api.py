@@ -82,11 +82,11 @@ def test_capabilities_reject_invalid_vision_tokens(client, token):
     assert response.status_code == 401
 
 
-def test_capabilities_return_the_read_only_manifest(client):
+def test_capabilities_advertise_direct_discipline_write(client):
     response = client.get("/api/integration/vision/capabilities", headers=vision_headers("user-1"))
 
     assert response.status_code == 200
-    assert response.json()["writes"] == []
+    assert response.json()["writes"]["discipline_event"]["path"] == "/api/integration/vision/discipline-events"
     assert response.json()["reads"]["recovery_summary"]["availability"] == "available"
 
 

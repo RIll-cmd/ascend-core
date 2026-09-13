@@ -72,5 +72,10 @@ def vision_capabilities() -> dict[str, Any]:
             "sleep_summary": {"availability": "unavailable"},
             "health_summary": {"availability": "unavailable"},
         },
-        "writes": [],
+        "writes": {
+            "discipline_event": {
+                "availability": "available",
+                "path": "/api/integration/vision/discipline-events",
+            },
+        },
     }

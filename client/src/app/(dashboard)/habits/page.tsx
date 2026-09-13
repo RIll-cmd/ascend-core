@@ -7,6 +7,7 @@ import { useHabitStore } from "@/features/habits/store/useHabitStore";
 import { useCharacterStore } from "@/store/useCharacterStore";
 import { HabitCard } from "@/features/habits/components";
 import { HabitHeatmap } from "@/features/habits/components/HabitHeatmap";
+import { VisionDisciplinePanel } from "@/features/habits/components/VisionDisciplinePanel";
 import {
   PixelPlusIcon,
   PixelSearchIcon,
@@ -262,6 +263,8 @@ export default function HabitsDashboardPage() {
           </div>
         </div>
       </div>
+
+      <VisionDisciplinePanel characterId={charId} />
 
       {/* ========================================================= */}
       {/* 🔍 3. SEARCH & CATEGORY FILTER TOOLBAR (SHOJI LATTICE)    */}
