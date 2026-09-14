@@ -139,7 +139,9 @@ export default function HabitsDashboardPage() {
       {/* ========================================================= */}
       {/* ⛩️ 1. HERO: KYOTO DUSK SANCTUARY - DAILY RITUALS          */}
       {/* ========================================================= */}
-      <div className="relative overflow-hidden backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,18,22,0.92)_0%,rgba(20,11,14,0.96)_100%)] border-2 border-[#e05344]/40 shadow-[4px_4px_0_0_#140b0e] p-5 md:p-6 text-[#fdf2e9]">
+      <div className="relative overflow-hidden backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,18,22,0.92)_0%,rgba(20,11,14,0.96)_100%)] border-y-4 border-[#e05344]/60 shadow-[4px_4px_0_0_#000] p-5 md:p-6 text-[#fdf2e9]">
+        {/* Stepped pixel side borders */}
+        <div className="absolute inset-0 border-x-4 -mx-1 border-[#e05344]/60 pointer-events-none" aria-hidden="true" />
         {/* Shoji Lattice Corner Brackets */}
         <div className="absolute top-1.5 left-1.5 w-2 h-2 border-t-2 border-l-2 border-[#fba170] pointer-events-none" />
         <div className="absolute top-1.5 right-1.5 w-2 h-2 border-t-2 border-r-2 border-[#fba170] pointer-events-none" />
@@ -149,7 +151,7 @@ export default function HabitsDashboardPage() {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-4">
             {/* Shrine Torii Sanctuary Icon Slot */}
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#1c1114] border-2 border-[#e05344]/50 flex items-center justify-center shadow-[inset_0_0_12px_rgba(0,0,0,0.8),2px_2px_0_0_#140b0e] shrink-0 p-2">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#1c1114] border-2 border-black flex items-center justify-center shadow-[inset_0_0_12px_rgba(0,0,0,0.8),2px_2px_0_0_#000] shrink-0 p-2">
               <PixelGrimoireIcon className="w-8 h-8 sm:w-9 sm:h-9" />
             </div>
 
@@ -173,10 +175,10 @@ export default function HabitsDashboardPage() {
                 playUIMenuSFX("click");
                 setShowQuestLog((prev) => !prev);
               }}
-              className={`px-3.5 py-2.5 font-pixel font-bold text-xs border shadow-[3px_3px_0_0_#140b0e] active:translate-y-0.5 cursor-pointer flex items-center gap-2 transition-all ${
+              className={`px-3.5 py-2.5 font-pixel font-bold text-xs border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer flex items-center gap-2 transition-all ${
                 showQuestLog
-                  ? "bg-[#fba170] text-[#140b0e] border-[#fba170]"
-                  : "bg-[#1c1114] text-[#fba170] border-[#e05344]/50 hover:bg-[#2e181c]"
+                  ? "bg-[#fba170] text-[#140b0e]"
+                  : "bg-[#1c1114] text-[#fba170] hover:bg-[#2e181c]"
               }`}
             >
               <PixelScrollIcon className="w-4 h-4" />
@@ -186,7 +188,7 @@ export default function HabitsDashboardPage() {
             <Link href="/habits/create" onClick={() => playUIMenuSFX("confirm")}>
               <button
                 type="button"
-                className="px-4 py-2.5 bg-[#e05344] hover:bg-[#ef4444] text-white font-pixel font-bold text-xs border border-[#821e14] shadow-[3px_3px_0_0_#47110c] active:translate-y-0.5 cursor-pointer flex items-center gap-2 shrink-0 transition-all focus-visible:ring-2 focus-visible:ring-[#fba170]"
+                className="px-4 py-2.5 bg-[#e05344] hover:bg-[#ef4444] text-white font-pixel font-bold text-xs border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer flex items-center gap-2 shrink-0 transition-all focus-visible:ring-2 focus-visible:ring-[#fba170]"
               >
                 <PixelPlusIcon className="w-4 h-4 text-white" />
                 <span>Forge New Ritual</span>
@@ -230,12 +232,13 @@ export default function HabitsDashboardPage() {
       {/* ========================================================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* Active Rituals Card */}
-        <div className="p-3.5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,20,23,0.88)_0%,rgba(20,13,16,0.95)_100%)] border border-[#e05344]/30 shadow-[3px_3px_0_0_#140b0e] flex flex-col justify-between space-y-2 text-[#fdf2e9] hover:border-[#fba170]/60 transition-colors">
+        <div className="p-3.5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,20,23,0.88)_0%,rgba(20,13,16,0.95)_100%)] border-y-4 border-[#e05344]/40 shadow-[3px_3px_0_0_#000] relative flex flex-col justify-between space-y-2 text-[#fdf2e9] hover:border-[#fba170]/60 transition-colors">
+          <div className="absolute inset-0 border-x-4 -mx-1 border-[#e05344]/40 pointer-events-none" aria-hidden="true" />
           <div className="flex items-center justify-between border-b border-[#e05344]/20 pb-1.5">
             <span className="text-[11px] uppercase font-bold text-[#c4b5a5] tracking-wider">
               Active Rituals
             </span>
-            <div className="w-7 h-7 bg-[#1c1114] text-[#ffd166] border border-[#e05344]/40 flex items-center justify-center shadow-inner">
+            <div className="w-7 h-7 bg-[#1c1114] text-[#ffd166] border-2 border-black shadow-[2px_2px_0_0_#000] flex items-center justify-center">
               <PixelScrollIcon className="w-4 h-4 text-[#ffd166]" />
             </div>
           </div>
@@ -250,12 +253,13 @@ export default function HabitsDashboardPage() {
         </div>
 
         {/* Habit Strength (Mastery Depth) Card */}
-        <div className="p-3.5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,20,23,0.88)_0%,rgba(20,13,16,0.95)_100%)] border border-[#e05344]/30 shadow-[3px_3px_0_0_#140b0e] flex flex-col justify-between space-y-2 text-[#fdf2e9] hover:border-[#fba170]/60 transition-colors">
+        <div className="p-3.5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,20,23,0.88)_0%,rgba(20,13,16,0.95)_100%)] border-y-4 border-[#e05344]/40 shadow-[3px_3px_0_0_#000] relative flex flex-col justify-between space-y-2 text-[#fdf2e9] hover:border-[#fba170]/60 transition-colors">
+          <div className="absolute inset-0 border-x-4 -mx-1 border-[#e05344]/40 pointer-events-none" aria-hidden="true" />
           <div className="flex items-center justify-between border-b border-[#e05344]/20 pb-1.5">
             <span className="text-[11px] uppercase font-bold text-[#c4b5a5] tracking-wider">
               Mastery Depth
             </span>
-            <div className="w-7 h-7 bg-[#1c1114] text-[#fba170] border border-[#e05344]/40 flex items-center justify-center shadow-inner">
+            <div className="w-7 h-7 bg-[#1c1114] text-[#fba170] border-2 border-black shadow-[2px_2px_0_0_#000] flex items-center justify-center">
               <PixelAnvilIcon className="w-4 h-4 text-[#fba170]" />
             </div>
           </div>
@@ -263,7 +267,7 @@ export default function HabitsDashboardPage() {
             <span className="text-2xl font-bold text-[#fba170] tabular-nums font-mono">
               <NumberTicker value={averageStrength} />%
             </span>
-            <div className="w-full h-2 bg-[#120a0d] border border-[#2e181c] p-0.5 overflow-hidden">
+            <div className="w-full h-2.5 bg-[#120a0d] border-2 border-black p-0.5 overflow-hidden shadow-[1px_1px_0_0_#000]">
               <div
                 className="h-full bg-[linear-gradient(90deg,#e05344_0%,#fba170_60%,#f472b6_100%)] shadow-[0_0_6px_rgba(224,83,68,0.7)] transition-all duration-300"
                 style={{ width: `${averageStrength}%` }}
@@ -273,12 +277,13 @@ export default function HabitsDashboardPage() {
         </div>
 
         {/* Sacred Flame Streaks Card */}
-        <div className="p-3.5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,20,23,0.88)_0%,rgba(20,13,16,0.95)_100%)] border border-[#e05344]/30 shadow-[3px_3px_0_0_#140b0e] flex flex-col justify-between space-y-2 text-[#fdf2e9] hover:border-[#fba170]/60 transition-colors">
+        <div className="p-3.5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,20,23,0.88)_0%,rgba(20,13,16,0.95)_100%)] border-y-4 border-[#e05344]/40 shadow-[3px_3px_0_0_#000] relative flex flex-col justify-between space-y-2 text-[#fdf2e9] hover:border-[#fba170]/60 transition-colors">
+          <div className="absolute inset-0 border-x-4 -mx-1 border-[#e05344]/40 pointer-events-none" aria-hidden="true" />
           <div className="flex items-center justify-between border-b border-[#e05344]/20 pb-1.5">
             <span className="text-[11px] uppercase font-bold text-[#c4b5a5] tracking-wider">
               Sacred Flame
             </span>
-            <div className="w-7 h-7 bg-[#1c1114] text-[#fba170] border border-[#e05344]/40 flex items-center justify-center shadow-inner">
+            <div className="w-7 h-7 bg-[#1c1114] text-[#fba170] border-2 border-black shadow-[2px_2px_0_0_#000] flex items-center justify-center">
               <PixelCampfireIcon className="w-4 h-4 text-[#fba170]" />
             </div>
           </div>
@@ -293,12 +298,13 @@ export default function HabitsDashboardPage() {
         </div>
 
         {/* Consistency Index Card */}
-        <div className="p-3.5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,20,23,0.88)_0%,rgba(20,13,16,0.95)_100%)] border border-[#e05344]/30 shadow-[3px_3px_0_0_#140b0e] flex flex-col justify-between space-y-2 text-[#fdf2e9] hover:border-[#fba170]/60 transition-colors">
+        <div className="p-3.5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,20,23,0.88)_0%,rgba(20,13,16,0.95)_100%)] border-y-4 border-[#e05344]/40 shadow-[3px_3px_0_0_#000] relative flex flex-col justify-between space-y-2 text-[#fdf2e9] hover:border-[#fba170]/60 transition-colors">
+          <div className="absolute inset-0 border-x-4 -mx-1 border-[#e05344]/40 pointer-events-none" aria-hidden="true" />
           <div className="flex items-center justify-between border-b border-[#e05344]/20 pb-1.5">
             <span className="text-[11px] uppercase font-bold text-[#c4b5a5] tracking-wider">
               Zen Adherence
             </span>
-            <div className="w-7 h-7 bg-[#1c1114] text-[#34d399] border border-[#e05344]/40 flex items-center justify-center shadow-inner">
+            <div className="w-7 h-7 bg-[#1c1114] text-[#34d399] border-2 border-black shadow-[2px_2px_0_0_#000] flex items-center justify-center">
               <PixelHourglassIcon className="w-4 h-4 text-[#34d399]" />
             </div>
           </div>
@@ -316,7 +322,9 @@ export default function HabitsDashboardPage() {
       {/* ========================================================= */}
       {/* 🔍 3. SEARCH & CATEGORY FILTER TOOLBAR (SHOJI LATTICE)    */}
       {/* ========================================================= */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 backdrop-blur-md bg-[linear-gradient(180deg,rgba(30,18,21,0.88)_0%,rgba(20,12,14,0.95)_100%)] border border-[#e05344]/30 p-3 shadow-[3px_3px_0_0_#140b0e]">
+      <div className="relative flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 backdrop-blur-md bg-[linear-gradient(180deg,rgba(30,18,21,0.88)_0%,rgba(20,12,14,0.95)_100%)] border-y-4 border-[#e05344]/40 p-3 shadow-[3px_3px_0_0_#000]">
+        {/* Stepped pixel side borders */}
+        <div className="absolute inset-0 border-x-4 -mx-1 border-[#e05344]/40 pointer-events-none" aria-hidden="true" />
         {/* Search Input Inset */}
         <div className="relative flex-1">
           <PixelSearchIcon className="w-4 h-4 text-[#8c7b7d] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -325,7 +333,7 @@ export default function HabitsDashboardPage() {
             placeholder="Search rituals by name, stat, or category..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#170e10] border border-[#e05344]/30 focus:border-[#fba170] pl-9 pr-3 py-2 text-xs text-[#fdf2e9] placeholder-[#8c7b7d] focus:outline-none font-mono font-bold shadow-[inset_0_0_8px_rgba(0,0,0,0.5)] transition-colors"
+            className="w-full bg-[#170e10] border-2 border-black focus:border-[#fba170] pl-9 pr-3 py-2 text-xs text-[#fdf2e9] placeholder-[#8c7b7d] focus:outline-none font-mono font-bold shadow-[2px_2px_0_0_#000] transition-colors"
           />
         </div>
 
@@ -341,10 +349,10 @@ export default function HabitsDashboardPage() {
                   playUIMenuSFX();
                   setSelectedCategory(cat);
                 }}
-                className={`px-2.5 py-1.5 font-pixel font-bold text-xs uppercase border transition-all active:translate-y-0.5 cursor-pointer shrink-0 flex items-center gap-1.5 ${
+                className={`px-2.5 py-1.5 font-pixel font-bold text-xs uppercase border-2 border-black shadow-[2px_2px_0_0_#000] transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer shrink-0 flex items-center gap-1.5 ${
                   isSelected
-                    ? "bg-[#e05344] text-white border-[#821e14] shadow-[2px_2px_0_0_#47110c]"
-                    : "bg-[#1c1114] text-[#c4b5a5] border-[#382025] hover:border-[#e05344]/60 hover:text-white"
+                    ? "bg-[#e05344] text-white"
+                    : "bg-[#1c1114] text-[#c4b5a5] hover:text-white"
                 }`}
               >
                 {getCategoryIcon(cat)}
@@ -359,16 +367,18 @@ export default function HabitsDashboardPage() {
       {/* ⚔️ 4. ACTIVE HABITS GRID / EMPTY STATE                    */}
       {/* ========================================================= */}
       {isLoading ? (
-        <div className="text-center py-16 backdrop-blur-md bg-[#1f1416]/80 border border-[#e05344]/30 p-6 shadow-[3px_3px_0_0_#140b0e]">
+        <div className="relative text-center py-16 backdrop-blur-md bg-[#1f1416]/80 border-y-4 border-[#e05344]/30 p-6 shadow-[3px_3px_0_0_#000]">
+          <div className="absolute inset-0 border-x-4 -mx-1 border-[#e05344]/30 pointer-events-none" aria-hidden="true" />
           <div className="inline-block animate-spin w-8 h-8 border-3 border-[#fba170] border-t-transparent mb-3" />
           <p className="text-[#c4b5a5] text-xs uppercase font-bold font-mono">
             Loading Sacred Disciplines...
           </p>
         </div>
       ) : filteredHabits.length === 0 ? (
-        <div className="backdrop-blur-md bg-[linear-gradient(180deg,rgba(30,18,21,0.88)_0%,rgba(20,12,14,0.95)_100%)] border-2 border-dashed border-[#e05344]/40 p-8 text-center flex flex-col items-center justify-center space-y-3 text-[#fdf2e9] shadow-[3px_3px_0_0_#140b0e]">
+        <div className="relative backdrop-blur-md bg-[linear-gradient(180deg,rgba(30,18,21,0.88)_0%,rgba(20,12,14,0.95)_100%)] border-y-4 border-[#e05344]/50 p-8 text-center flex flex-col items-center justify-center space-y-3 text-[#fdf2e9] shadow-[4px_4px_0_0_#000]">
+          <div className="absolute inset-0 border-x-4 -mx-1 border-[#e05344]/50 pointer-events-none" aria-hidden="true" />
           <div className="flex items-center gap-3 flex-wrap justify-center">
-            <div className="w-12 h-12 bg-[#1c1114] text-[#fba170] border border-[#e05344]/40 flex items-center justify-center shadow-[inset_0_0_8px_rgba(0,0,0,0.8)] shrink-0">
+            <div className="w-12 h-12 bg-[#1c1114] text-[#fba170] border-2 border-black shadow-[2px_2px_0_0_#000] flex items-center justify-center shrink-0">
               <PixelOpenGrimoireIcon className="w-7 h-7 text-[#fba170]" />
             </div>
             <h2 className="text-sm sm:text-base font-bold uppercase text-[#fdf2e9]">
@@ -383,7 +393,7 @@ export default function HabitsDashboardPage() {
           <Link href="/habits/create" onClick={() => playUIMenuSFX("confirm")}>
             <button
               type="button"
-              className="px-4 py-2 bg-[#e05344] hover:bg-[#ef4444] text-white font-pixel font-bold text-xs border border-[#821e14] shadow-[2px_2px_0_0_#47110c] active:translate-y-0.5 cursor-pointer flex items-center gap-1.5 mt-2 transition-all focus-visible:ring-2 focus-visible:ring-[#fba170]"
+              className="px-4 py-2 bg-[#e05344] hover:bg-[#ef4444] text-white font-pixel font-bold text-xs border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer flex items-center gap-1.5 mt-2 transition-all focus-visible:ring-2 focus-visible:ring-[#fba170]"
             >
               <PixelPlusIcon className="w-3.5 h-3.5 text-white" />
               <span>Forge Your First Ritual</span>

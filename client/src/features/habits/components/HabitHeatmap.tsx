@@ -50,7 +50,10 @@ export function HabitHeatmap({ characterId }: { characterId: string }) {
   const totalActiveDays = data.filter((d) => d.count > 0).length;
 
   return (
-    <div className="p-4 sm:p-5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,18,22,0.90)_0%,rgba(20,11,14,0.96)_100%)] border-2 border-[#e05344]/40 shadow-[4px_4px_0_0_#140b0e] font-pixel text-[#fdf2e9] select-none relative overflow-hidden">
+    <div className="relative p-4 sm:p-5 backdrop-blur-md bg-[linear-gradient(180deg,rgba(32,18,22,0.90)_0%,rgba(20,11,14,0.96)_100%)] border-y-4 border-[#e05344]/50 shadow-[4px_4px_0_0_#000] font-pixel text-[#fdf2e9] select-none overflow-hidden">
+      {/* 8bitcn stepped pixel side notch borders */}
+      <div className="absolute inset-0 border-x-4 -mx-1 border-[#e05344]/50 pointer-events-none" aria-hidden="true" />
+
       {/* Shoji Lattice Corner Brackets */}
       <div className="absolute top-1.5 left-1.5 w-2.5 h-2.5 border-t-2 border-l-2 border-[#fba170] pointer-events-none" />
       <div className="absolute top-1.5 right-1.5 w-2.5 h-2.5 border-t-2 border-r-2 border-[#fba170] pointer-events-none" />
@@ -60,7 +63,7 @@ export function HabitHeatmap({ characterId }: { characterId: string }) {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 border-b border-[#e05344]/20 pb-3 relative z-10">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-[#1c1114] border border-[#e05344]/50 flex items-center justify-center text-[#fba170] shadow-[inset_0_0_8px_rgba(0,0,0,0.8)] shrink-0">
+          <div className="w-9 h-9 bg-[#1c1114] border-2 border-black flex items-center justify-center text-[#fba170] shadow-[2px_2px_0_0_#000] shrink-0">
             <PixelMonolithIcon className="w-5 h-5 text-[#fba170]" />
           </div>
           <div>
@@ -73,7 +76,7 @@ export function HabitHeatmap({ characterId }: { characterId: string }) {
           </div>
         </div>
 
-        <div className="px-3 py-1 bg-[#1c1114] border border-[#e05344]/40 shadow-[2px_2px_0_0_#140b0e] flex items-center gap-1.5">
+        <div className="px-3 py-1 bg-[#1c1114] border-2 border-black shadow-[2px_2px_0_0_#000] flex items-center gap-1.5">
           <PixelFlameIcon className="w-3.5 h-3.5 text-[#fba170]" />
           <span className="text-[10px] font-bold text-[#fba170]">
             ACTIVE DAYS: {totalActiveDays}

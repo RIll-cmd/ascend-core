@@ -105,18 +105,20 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
 
   return (
     <MagicCard
-      className={`relative select-none p-4 font-pixel transition-all duration-150 border-2 rounded-none flex flex-col justify-between space-y-3.5 backdrop-blur-md ${
+      className={`relative select-none p-4 font-pixel transition-all duration-150 border-y-4 rounded-none flex flex-col justify-between space-y-3.5 backdrop-blur-md shadow-[4px_4px_0_0_#000] ${
         isNegative
-          ? "bg-[linear-gradient(180deg,rgba(48,16,24,0.92)_0%,rgba(32,10,16,0.96)_100%)] border-[#be123c]/60 hover:border-[#f43f5e]"
+          ? "bg-[linear-gradient(180deg,rgba(48,16,24,0.92)_0%,rgba(32,10,16,0.96)_100%)] border-[#be123c]"
           : isCompletedToday
-          ? "bg-[linear-gradient(180deg,rgba(20,38,28,0.92)_0%,rgba(14,26,20,0.96)_100%)] border-emerald-500/60 shadow-[3px_3px_0_0_#0f1f17]"
-          : "bg-[linear-gradient(180deg,rgba(32,20,23,0.90)_0%,rgba(20,13,16,0.96)_100%)] border-[#e05344]/30 hover:border-[#fba170]/80 shadow-[4px_4px_0_0_#140b0e]"
+          ? "bg-[linear-gradient(180deg,rgba(20,38,28,0.92)_0%,rgba(14,26,20,0.96)_100%)] border-emerald-500"
+          : "bg-[linear-gradient(180deg,rgba(32,20,23,0.90)_0%,rgba(20,13,16,0.96)_100%)] border-[#e05344]"
       }`}
       gradientColor="rgba(224, 83, 68, 0.15)"
       gradientFrom="#e05344"
       gradientTo="#fba170"
       gradientSize={260}
     >
+      {/* Stepped pixel side borders */}
+      <div className="absolute inset-0 border-x-4 -mx-1 border-inherit pointer-events-none" aria-hidden="true" />
       {floatingPenalty && (
         <div className="absolute right-5 top-10 z-30 text-xl font-black text-[#f43f5e] animate-damage-float drop-shadow-[2px_2px_0_#1a050a]">
           {floatingPenalty}
@@ -134,7 +136,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
         <div className="flex items-start justify-between gap-2.5 mb-2.5 border-b border-[#e05344]/20 pb-2.5">
           <div className="flex items-center gap-2.5 min-w-0">
             {/* Shrine Icon Chamber */}
-            <div className="w-10 h-10 bg-[#1c1114] text-[#fba170] border border-[#e05344]/40 flex items-center justify-center shadow-[inset_0_0_8px_rgba(0,0,0,0.8)] shrink-0">
+            <div className="w-10 h-10 bg-[#1c1114] text-[#fba170] border-2 border-black flex items-center justify-center shadow-[2px_2px_0_0_#000] shrink-0">
               <HabitIconRenderer habit={habit} className="w-6 h-6 text-[#fba170]" />
             </div>
 
@@ -156,10 +158,10 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
 
           {/* Streak Flame Badge */}
           <div
-            className={`px-2 py-0.5 border shadow-[1px_1px_0_0_#140b0e] flex items-center gap-1 shrink-0 ${
+            className={`px-2 py-0.5 border-2 border-black shadow-[2px_2px_0_0_#000] flex items-center gap-1 shrink-0 ${
               currentStreak > 0
-                ? "bg-[#29161a] border-[#fba170] text-[#fba170]"
-                : "bg-[#1f1416]/80 border-[#3d2429] text-[#8c7b7d]"
+                ? "bg-[#29161a] text-[#fba170]"
+                : "bg-[#1f1416]/80 text-[#8c7b7d]"
             }`}
             title={`Current streak: ${currentStreak} days`}
           >
@@ -188,7 +190,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
         </div>
 
         {/* Habit Strength Progress Track */}
-        <div className="p-2 bg-[#170e11] border border-[#e05344]/30 shadow-[inset_0_0_6px_rgba(0,0,0,0.6)] space-y-1 my-1.5">
+        <div className="p-2 bg-[#170e11] border-2 border-black shadow-[2px_2px_0_0_#000] space-y-1 my-1.5">
           <div className="flex justify-between items-center text-[10px]">
             <span className="text-[#c4b5a5] font-bold uppercase flex items-center gap-1">
               <PixelAnvilIcon className="w-3 h-3 text-[#e05344]" />
@@ -199,7 +201,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
             </span>
           </div>
 
-          <div className="w-full h-2 bg-[#10090b] border border-[#2e181c] p-0.5 overflow-hidden">
+          <div className="w-full h-2.5 bg-[#10090b] border-2 border-black p-0.5 overflow-hidden shadow-[1px_1px_0_0_#000]">
             <div
               className="h-full bg-[linear-gradient(90deg,#e05344_0%,#fba170_60%,#f472b6_100%)] shadow-[0_0_8px_rgba(224,83,68,0.7)] transition-all duration-300"
               style={{ width: `${strength}%` }}
@@ -216,13 +218,13 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
               type="button"
               onClick={handleTrigger}
               disabled={isLogging}
-              className="w-full py-2 px-3 bg-[#9f1239] hover:bg-[#be123c] text-white font-pixel font-bold text-xs border border-[#4c1024] shadow-[2px_2px_0_0_#2b0914] active:translate-y-0.5 cursor-pointer flex items-center justify-center gap-1.5 transition-all"
+              className="w-full py-2 px-3 bg-[#9f1239] hover:bg-[#be123c] text-white font-pixel font-bold text-xs border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer flex items-center justify-center gap-1.5 transition-all"
             >
               <span>☠</span>
               <span>{isLogging ? "Recording..." : "Record Relapse"}</span>
             </button>
           ) : isCompletedToday ? (
-            <div className="p-2 bg-[#14281c] border border-emerald-500/70 shadow-[inset_0_0_6px_rgba(0,0,0,0.4)] flex items-center justify-between text-xs text-white">
+            <div className="p-2 bg-[#14281c] border-2 border-black shadow-[2px_2px_0_0_#000] flex items-center justify-between text-xs text-white">
               <div className="flex items-center gap-1.5 font-bold text-emerald-300">
                 <PixelCheckIcon className="w-4 h-4 text-emerald-400" />
                 <span className="uppercase text-[10px] tracking-wider">
@@ -242,7 +244,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
                       type="button"
                       onClick={() => handleLog("NORMAL")}
                       disabled={isLogging}
-                      className="w-full py-2 px-3 bg-[#e05344] hover:bg-[#ef4444] text-white font-pixel font-bold text-xs border border-[#821e14] shadow-[2px_2px_0_0_#47110c] active:translate-y-0.5 cursor-pointer flex items-center justify-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-[#fba170]"
+                      className="w-full py-2 px-3 bg-[#e05344] hover:bg-[#ef4444] text-white font-pixel font-bold text-xs border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer flex items-center justify-center gap-1.5 transition-all focus-visible:ring-2 focus-visible:ring-[#fba170]"
                     >
                       <PixelCheckIcon className="w-3.5 h-3.5 text-white" />
                       <span>{isLogging ? "Fulfilling..." : "Fulfill Ritual"}</span>
@@ -255,7 +257,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
                       playUIMenuSFX();
                       setShowTierPicker(true);
                     }}
-                    className="py-2 px-2.5 bg-[#24171a] hover:bg-[#332025] text-[#fba170] font-pixel font-bold text-xs border border-[#e05344]/40 shadow-[2px_2px_0_0_#140b0e] active:translate-y-0.5 cursor-pointer flex items-center gap-1 transition-all"
+                    className="py-2 px-2.5 bg-[#24171a] hover:bg-[#332025] text-[#fba170] font-pixel font-bold text-xs border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer flex items-center gap-1 transition-all"
                     title="Choose Completion Tier"
                   >
                     <span>Tiers</span>
@@ -263,7 +265,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
                   </button>
                 </div>
               ) : (
-                <div className="p-2 bg-[#1b1114] border border-[#e05344]/40 space-y-1.5 animate-in fade-in duration-100">
+                <div className="p-2 bg-[#1b1114] border-2 border-black shadow-[2px_2px_0_0_#000] space-y-1.5 animate-in fade-in duration-100">
                   <div className="flex justify-between items-center text-[9px] text-[#c4b5a5] uppercase font-mono font-bold">
                     <span>Select Effort Tier:</span>
                     <button
@@ -281,7 +283,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
                         type="button"
                         onClick={() => handleLog("MINI")}
                         disabled={isLogging}
-                        className="w-full p-1 bg-[#24171a] hover:bg-[#332025] border border-[#3d2429] text-center text-[#c4b5a5] hover:text-white cursor-pointer active:translate-y-0.5"
+                        className="w-full p-1 bg-[#24171a] hover:bg-[#332025] border-2 border-black shadow-[2px_2px_0_0_#000] text-center text-[#c4b5a5] hover:text-white cursor-pointer active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
                       >
                         <span className="block text-[9px] font-bold">MINI</span>
                         <span className="block text-[8px] text-[#fba170] font-mono">
@@ -295,7 +297,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
                         type="button"
                         onClick={() => handleLog("NORMAL")}
                         disabled={isLogging}
-                        className="w-full p-1 bg-[#e05344] hover:bg-[#ef4444] border border-[#821e14] text-center text-white cursor-pointer active:translate-y-0.5 font-bold"
+                        className="w-full p-1 bg-[#e05344] hover:bg-[#ef4444] border-2 border-black shadow-[2px_2px_0_0_#000] text-center text-white cursor-pointer active:translate-x-0.5 active:translate-y-0.5 active:shadow-none font-bold"
                       >
                         <span className="block text-[9px]">TARGET</span>
                         <span className="block text-[8px] font-mono">+{expReward} XP</span>
@@ -307,7 +309,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
                         type="button"
                         onClick={() => handleLog("ELITE")}
                         disabled={isLogging}
-                        className="w-full p-1 bg-[#f97316] hover:bg-[#fb923c] border border-[#7c2d12] text-center text-white cursor-pointer active:translate-y-0.5"
+                        className="w-full p-1 bg-[#f97316] hover:bg-[#fb923c] border-2 border-black shadow-[2px_2px_0_0_#000] text-center text-white cursor-pointer active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
                       >
                         <span className="block text-[9px] font-bold">ELITE</span>
                         <span className="block text-[8px] text-[#fef08a] font-mono">
@@ -357,7 +359,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit }) => {
         <Link href={`/habits/${habit.id}`} onClick={() => playUIMenuSFX("confirm")}>
           <button
             type="button"
-            className="px-2.5 py-1 bg-[#24171a] hover:bg-[#332025] text-[#fba170] font-pixel font-bold text-xs border border-[#e05344]/40 shadow-[2px_2px_0_0_#140b0e] active:translate-y-0.5 cursor-pointer flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-[#fba170]"
+            className="px-2.5 py-1 bg-[#24171a] hover:bg-[#332025] text-[#fba170] font-pixel font-bold text-xs border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer flex items-center gap-1 transition-all focus-visible:ring-2 focus-visible:ring-[#fba170]"
           >
             <span>Details</span>
             <PixelArrowRightIcon className="w-3 h-3 ml-0.5" />
