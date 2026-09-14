@@ -112,15 +112,18 @@ export const KanbanQuestBoard: React.FC = () => {
       {/* CARVED WOODEN QUEST BOARD HEADER PLAQUE (Directly on Board) */}
       {/* ======================================================= */}
       <div className="relative mx-auto max-w-2xl mb-1">
-        <div className="bg-[#422211] border-4 border-[#1f0f08] p-2.5 sm:p-3 shadow-[inset_2px_2px_0_0_#733d1e,inset_-2px_-2px_0_0_#140a05,0_4px_8px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center relative">
+        <div className="bg-[#422211] border-y-4 border-[#1f0f08] p-2.5 sm:p-3 shadow-[inset_2px_2px_0_0_#733d1e,inset_-2px_-2px_0_0_#140a05,3px_3px_0_0_#000] flex flex-col items-center justify-center relative">
+          {/* Stepped pixel side borders */}
+          <div className="absolute inset-0 border-x-4 -mx-1 border-[#1f0f08] pointer-events-none" aria-hidden="true" />
           {/* Corner Iron Screws / Nails */}
-          <div className="absolute top-2 left-2 w-2 h-2 rounded-full bg-[#111827] border border-[#4b5563] shadow-[inset_1px_1px_0_0_#9ca3af]" />
-          <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#111827] border border-[#4b5563] shadow-[inset_1px_1px_0_0_#9ca3af]" />
-          <div className="absolute bottom-2 left-2 w-2 h-2 rounded-full bg-[#111827] border border-[#4b5563] shadow-[inset_1px_1px_0_0_#9ca3af]" />
-          <div className="absolute bottom-2 right-2 w-2 h-2 rounded-full bg-[#111827] border border-[#4b5563] shadow-[inset_1px_1px_0_0_#9ca3af]" />
+          <div className="absolute top-2 left-2 w-2 h-2 rounded-full bg-[#111827] border border-[#4b5563] shadow-[inset_1px_1px_0_0_#9ca3af] z-10" />
+          <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#111827] border border-[#4b5563] shadow-[inset_1px_1px_0_0_#9ca3af] z-10" />
+          <div className="absolute bottom-2 left-2 w-2 h-2 rounded-full bg-[#111827] border border-[#4b5563] shadow-[inset_1px_1px_0_0_#9ca3af] z-10" />
+          <div className="absolute bottom-2 right-2 w-2 h-2 rounded-full bg-[#111827] border border-[#4b5563] shadow-[inset_1px_1px_0_0_#9ca3af] z-10" />
 
           {/* Inset Parchment / Light Wood Carved Title Plate */}
-          <div className="bg-[#edd19d] border-2 border-[#2b1810] px-8 py-1.5 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.4),0_2px_4px_rgba(0,0,0,0.5)] flex items-center justify-center gap-3">
+          <div className="relative bg-[#edd19d] border-y-2 border-[#2b1810] px-8 py-1.5 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.4),0_2px_4px_rgba(0,0,0,0.5)] flex items-center justify-center gap-3">
+            <div className="absolute inset-0 border-x-2 -mx-0.5 border-[#2b1810] pointer-events-none" aria-hidden="true" />
             <span className="text-[#3d2110] font-pixel text-xs sm:text-sm">✦</span>
             <h1 className="text-base sm:text-lg md:text-xl font-bold uppercase tracking-widest text-[#241208] font-pixel text-center">
               QUEST BOARD
@@ -138,7 +141,9 @@ export const KanbanQuestBoard: React.FC = () => {
       {/* ========================================================= */}
       {/* TELEMETRY HUD BAR (Carved Brass & Timber Plaque) */}
       {/* ========================================================= */}
-      <div className="p-3 sm:p-3.5 bg-[#180d08] border-2 border-[#542d17] shadow-[inset_1px_1px_0_0_#6e3d20,inset_-1px_-1px_0_0_#0a0503] flex flex-wrap items-center justify-between gap-4 font-pixel text-xs text-white relative">
+      <div className="p-3 sm:p-3.5 bg-[#180d08] border-y-4 border-[#542d17] shadow-[3px_3px_0_0_#000] flex flex-wrap items-center justify-between gap-4 font-pixel text-xs text-white relative">
+        {/* Stepped pixel side borders */}
+        <div className="absolute inset-0 border-x-4 -mx-1 border-[#542d17] pointer-events-none" aria-hidden="true" />
         <div className="flex items-center gap-4 flex-wrap z-10">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-[#2d170c] border border-[#6e3d20] flex items-center justify-center text-amber-400 shadow-[inset_1px_1px_0_0_#42220f]">
@@ -193,7 +198,9 @@ export const KanbanQuestBoard: React.FC = () => {
       {/* ========================================================= */}
       {/* FILTER & SEARCH TOOLBAR (Inlaid Wood & Parchment Search) */}
       {/* ========================================================= */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 bg-[#1e0f09] border-2 border-[#542d17] shadow-[inset_1px_1px_0_0_#381e10]">
+      <div className="relative flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-3 bg-[#1e0f09] border-y-4 border-[#542d17] shadow-[3px_3px_0_0_#000]">
+        {/* Stepped pixel side borders */}
+        <div className="absolute inset-0 border-x-4 -mx-1 border-[#542d17] pointer-events-none" aria-hidden="true" />
         {/* Search Input (Parchment Filter Field) */}
         <div className="relative flex-1">
           <PixelSearchIcon className="w-4 h-4 text-[#8c5225] absolute left-3 top-1/2 -translate-y-1/2" />
@@ -301,7 +308,9 @@ export const KanbanQuestBoard: React.FC = () => {
       {/* EMPTY STATE BANNER (Grand Pinned Parchment Decree) */}
       {/* ========================================================= */}
       {totalQuests === 0 && (
-        <div className="w-full py-3.5 px-4 sm:px-6 pixel-parchment border-4 border-[#381e0f] text-center flex flex-col sm:flex-row items-center justify-between gap-3 font-pixel my-3 shadow-[0_8px_16px_rgba(0,0,0,0.6)]">
+        <div className="relative w-full py-3.5 px-4 sm:px-6 pixel-parchment border-y-4 border-[#381e0f] text-center flex flex-col sm:flex-row items-center justify-between gap-3 font-pixel my-3 shadow-[4px_4px_0_0_#000]">
+          {/* Stepped pixel side borders */}
+          <div className="absolute inset-0 border-x-4 -mx-1 border-[#381e0f] pointer-events-none" aria-hidden="true" />
           <div className="flex items-center gap-3 text-left">
             <div className="w-8 h-8 bg-[#ebd099] border-2 border-[#381e0f] flex items-center justify-center text-[#2b170c] shrink-0">
               <PixelCrosshairIcon className="w-4 h-4 text-[#2b170c]" />
@@ -344,10 +353,14 @@ export const KanbanQuestBoard: React.FC = () => {
           return (
             <div
               key={col.id}
-              className="pixel-cork-board border-4 border-[#3a1d0d] p-3 flex flex-col min-h-0 h-auto relative shadow-[inset_0_0_30px_rgba(30,15,5,0.85),0_8px_16px_rgba(0,0,0,0.7)] transition-all duration-200"
+              className="pixel-cork-board border-y-6 border-[#3a1d0d] p-3 flex flex-col min-h-0 h-auto relative shadow-[inset_0_0_30px_rgba(30,15,5,0.85),4px_4px_0_0_#000] transition-all duration-200"
             >
+              {/* Stepped pixel side borders */}
+              <div className="absolute inset-0 border-x-6 -mx-1.5 border-[#3a1d0d] pointer-events-none" aria-hidden="true" />
+
               {/* Column Header Plaque (Carved Timber Beam) */}
-              <div className="bg-[#381c0d] border-2 border-[#1c0c04] px-3 py-2 mb-3 shadow-[inset_1px_1px_0_0_#693518,inset_-1px_-1px_0_0_#140702,0_3px_6px_rgba(0,0,0,0.6)] flex items-center justify-between">
+              <div className="relative bg-[#381c0d] border-y-4 border-[#1c0c04] px-3 py-2 mb-3 shadow-[2px_2px_0_0_#000] flex items-center justify-between">
+                <div className="absolute inset-0 border-x-4 -mx-1 border-[#1c0c04] pointer-events-none" aria-hidden="true" />
                 <div className="flex items-center gap-2">
                   {col.icon}
                   <div>
@@ -368,7 +381,7 @@ export const KanbanQuestBoard: React.FC = () => {
               {/* Column Quests Stack (Parchment Scrolls) */}
               <div className="space-y-4 flex-1 relative z-10">
                 {colQuests.length === 0 ? (
-                  <div className="h-44 border-2 border-dashed border-[#542d17]/70 flex flex-col items-center justify-center text-[#2b180f] font-pixel text-xs p-4 text-center bg-[#edd19d]/30 mt-2 shadow-[inset_0_0_12px_rgba(0,0,0,0.2)]">
+                  <div className="h-44 border-2 border-dashed border-[#542d17] shadow-[2px_2px_0_0_#000] flex flex-col items-center justify-center text-[#2b180f] font-pixel text-xs p-4 text-center bg-[#edd19d]/30 mt-2">
                     <span className="text-[#3d2110] mb-1 font-bold">NO ACTIVE MISSIONS</span>
                     <span className="text-[10px] text-[#5c3317]/80 leading-relaxed">No missions in {col.id}</span>
                   </div>
