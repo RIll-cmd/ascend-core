@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { FloatingRuneField } from "@/components/shared/FloatingRuneField";
 import { playUIMenuSFX, playBuffSFX } from "@/utils/audio";
 import { API_BASE_URL } from "@/constants";
+import DifficultySelect from "@/components/ui/8bit/blocks/difficulty-select";
 
 interface CreateCustomWorkoutModalProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
   const { addCustomTemplate } = useWorkoutStore();
   const [planName, setPlanName] = useState("");
   const [targetFocus, setTargetFocus] = useState("");
+  const [intensityTier, setIntensityTier] = useState("normal");
   const [availableCatalog, setAvailableCatalog] = useState<ExerciseDefinition[]>([]);
   const [selectedExercises, setSelectedExercises] = useState<ExerciseDefinition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,13 +80,19 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
       .filter((v, i, a) => a.indexOf(v) === i)
       .join(" • ");
 
-    addCustomTemplate(planName, targetFocus.trim() || defaultTarget, selectedExercises);
+    const tierPrefix = intensityTier.toUpperCase();
+    const finalTarget = targetFocus.trim() 
+      ? `[${tierPrefix}] ${targetFocus.trim()}`
+      : `[${tierPrefix}] ${defaultTarget}`;
+
+    addCustomTemplate(planName, finalTarget, selectedExercises);
     playBuffSFX("buff");
     toast.success(`Custom plan "${planName}" created successfully!`);
 
     // Reset and close
     setPlanName("");
     setTargetFocus("");
+    setIntensityTier("normal");
     setSelectedExercises([]);
     onClose();
   };
@@ -92,7 +100,7 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-xl bg-[#140e0c] border-4 border-[#5c4033] text-stone-100 p-6 rounded-none select-none"
+        className="max-w-xl max-h-[calc(100vh-2.5rem)] flex flex-col min-h-0 overflow-hidden bg-[#140e0c] border-4 border-[#5c4033] text-stone-100 p-4 sm:p-5 rounded-none select-none"
         style={{
           boxShadow: "0 0 0 2px #261914, 0 12px 0 0 #0d0807, 0 20px 30px rgba(0,0,0,0.85)",
         }}
@@ -103,7 +111,7 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
         <span className="absolute bottom-1 left-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
         <span className="absolute bottom-1 right-1 font-mono text-[9px] text-[#5c4033] leading-none select-none pointer-events-none">+</span>
 
-        <DialogHeader className="border-b-2 border-[#2c1e19] pb-3 relative z-10">
+        <DialogHeader className="border-b-2 border-[#2c1e19] pb-3 relative z-10 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-[#261914] border-2 border-[#5c4033] flex items-center justify-center text-[#f59e0b]">
               <PixelDumbbellIcon className="w-4 h-4 text-[#f59e0b]" />
@@ -119,7 +127,7 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 py-3 max-h-[60vh] overflow-y-auto pr-1 relative z-10 custom-scrollbar">
+        <div className="space-y-4 py-3 flex-1 min-h-0 overflow-y-auto pr-1 relative z-10 custom-scrollbar">
           {/* Plan Name & Target Inputs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
@@ -147,6 +155,23 @@ export function CreateCustomWorkoutModal({ isOpen, onClose }: CreateCustomWorkou
                 onChange={(e) => setTargetFocus(e.target.value)}
               />
             </div>
+          </div>
+
+          {/* 8-bit Intensity Tier Selector */}
+          <div>
+            <label className="block font-pixel text-[9px] text-[#f59e0b] uppercase tracking-wider mb-1.5 flex items-center gap-1">
+              <PixelActivityIcon className="w-3 h-3 text-[#f59e0b]" />
+              Workout Intensity Tier
+            </label>
+            <DifficultySelect
+              value={intensityTier}
+              onChange={(tier) => {
+                playUIMenuSFX("hover");
+                setIntensityTier(tier);
+              }}
+              layout="grid"
+              className="bg-[#0c0a09] border-2 border-[#4a3830] shadow-none"
+            />
           </div>
 
           {/* Selected Exercises Chips */}

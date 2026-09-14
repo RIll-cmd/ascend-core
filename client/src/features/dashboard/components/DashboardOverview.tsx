@@ -15,6 +15,7 @@ import {
   Scroll,
   ShieldAlert,
   Flame,
+  ChevronRight,
 } from "lucide-react";
 import { useCharacterStore } from "@/store/useCharacterStore";
 import { useInventoryStore } from "@/features/inventory/store/useInventoryStore";
@@ -31,12 +32,29 @@ import { DashboardQuestCard } from "@/features/habits/components/DashboardQuestC
 import { CompanionSanctumCard } from "./CompanionSanctumCard";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import {
-  FieldParchmentCard,
-  FieldBrassButton,
-  BarometerProgress,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/8bit/card";
+import { Badge } from "@/components/ui/8bit/badge";
+import { Progress } from "@/components/ui/8bit/progress";
+import { Button } from "@/components/ui/8bit/button";
+import { EnemyHealthDisplay } from "@/components/ui/8bit/enemy-health-display";
+import {
   BotanicalRadarChart,
   type BotanicalRadarStat,
 } from "@/components/ui/field";
+
+const STAT_COLORS: Record<string, string> = {
+  STR: "bg-amber-500",
+  END: "bg-emerald-500",
+  DIS: "bg-cyan-500",
+  KNO: "bg-purple-500",
+  FOC: "bg-rose-500",
+  REC: "bg-lime-500",
+};
 
 export function DashboardOverview() {
   const router = useRouter();
@@ -123,480 +141,556 @@ export function DashboardOverview() {
   return (
     <div
       suppressHydrationWarning
-      className="space-y-6 max-w-7xl mx-auto select-none font-sans"
+      className="space-y-6 max-w-7xl mx-auto select-none"
     >
       <div
         suppressHydrationWarning
-        className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start"
       >
         {/* ========================================================= */}
-        {/* COLUMN 1: NATURALIST'S WARDROBE & ASTROLABE */}
+        {/* COLUMN 1: HERO VITRINE & ARMORY */}
         {/* ========================================================= */}
-        <div suppressHydrationWarning className="space-y-5">
-          <FieldParchmentCard
-            title="NATURALIST'S WARDROBE"
-            subtitle="Museum Vitrine • Relics & Astrolabe"
-            className="space-y-4"
+        <div suppressHydrationWarning className="space-y-6">
+          <Card
+            variant="tavern"
+            font="retro"
+            className="shadow-[4px_4px_0_0_#000]"
           >
-            {/* Museum Vitrine for PaperDoll Gear Display */}
-            <div className="p-3 bg-[#130f0a] border border-[#c59b27]/40 rounded-sm shadow-[inset_0_2px_8px_rgba(0,0,0,0.8)] relative">
-              <PaperDoll equippedItems={items.filter((i) => i.isEquipped)} />
-            </div>
-
-            {/* Rotary Brass Power Index Odometer */}
-            <div className="p-3.5 bg-gradient-to-b from-[#1c1611] to-[#120e0a] border border-[#c59b27]/40 rounded-sm shadow-[0_2px_6px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.05)] flex flex-col items-center justify-center text-center">
-              <div className="flex items-center justify-center gap-2 font-expedition text-xs text-[#c59b27] uppercase tracking-widest font-bold">
-                <Swords className="w-4 h-4 text-[#c59b27]" />
-                <span>EXPEDITION POWER INDEX</span>
-              </div>
-              <div className="text-4xl sm:text-5xl font-mono font-bold text-[#f5dab0] mt-1 text-center drop-shadow-[0_0_12px_rgba(245,158,11,0.4)]">
-                <NumberTicker value={character?.power || 97} />
-              </div>
-            </div>
-
-            {/* Expedition Credentials: Title & Guild */}
-            <div className="grid grid-cols-2 gap-2 p-3 bg-[#130f0a] border border-[#c59b27]/30 rounded-sm">
-              <div>
-                <span className="font-expedition text-[10px] text-[#c59b27] block uppercase tracking-wider font-bold">
-                  SURVEYOR TITLE
-                </span>
-                <span className="font-field italic text-sm text-[#f5dab0] font-bold truncate block mt-0.5">
-                  {character?.title || "Hydration Monarch"}
-                </span>
-              </div>
-              <div className="text-right">
-                <span className="font-expedition text-[10px] text-[#c59b27] block uppercase tracking-wider font-bold">
-                  FELLOWSHIP
-                </span>
-                <span className="font-field italic text-sm text-[#f5dab0] font-bold truncate block mt-0.5">
-                  Lone Ascendants
-                </span>
-              </div>
-            </div>
-
-            {/* Familiar Link Dispatch Tag */}
-            <div className="p-3 bg-[#130f0a] border border-[#c59b27]/30 rounded-sm flex items-center justify-between">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 bg-[#1b150f] border border-[#c59b27]/40 rounded-xs flex items-center justify-center text-[#c59b27] flex-shrink-0 shadow-sm">
-                  <Footprints className="w-4 h-4 text-[#c59b27]" />
+            <CardHeader className="p-4 pb-2">
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className="text-xs sm:text-sm text-[#f3df9d] tracking-wider">
+                    HERO LOADOUT & ARMORY
+                  </CardTitle>
+                  <CardDescription className="text-[8px] sm:text-[9px] text-[#c59b27] mt-0.5">
+                    Equipment Vitrine • Kinetic Astrolabe
+                  </CardDescription>
                 </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-expedition text-[#c59b27] block uppercase tracking-wider font-bold">
-                    FAMILIAR BOND
+                <Badge variant="gold" className="text-[7px]">
+                  LV.{character?.level || 1}
+                </Badge>
+              </div>
+            </CardHeader>
+
+            <CardContent className="p-4 pt-2 space-y-4">
+              {/* Retro Chamber for PaperDoll Gear Display */}
+              <div className="p-3 bg-[#0f1424] border-2 border-[#8c7a53] shadow-[inset_0_2px_8px_rgba(0,0,0,0.8),2px_2px_0_0_#000] relative">
+                <PaperDoll equippedItems={items.filter((i) => i.isEquipped)} />
+              </div>
+
+              {/* 8-Bit Power Index Odometer */}
+              <div className="p-3 bg-[#141a2e]/90 border-2 border-[#8c7a53] shadow-[2px_2px_0_0_#000] flex flex-col items-center justify-center text-center">
+                <div className="flex items-center justify-center gap-2 retro text-[9px] sm:text-[10px] text-[#c59b27] uppercase tracking-wider font-bold">
+                  <Swords className="w-3.5 h-3.5 text-[#f59e0b]" />
+                  <span>EXPEDITION POWER INDEX</span>
+                </div>
+                <div className="text-3xl sm:text-4xl font-bold font-mono text-[#ffd875] mt-1 text-center drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]">
+                  <NumberTicker value={character?.power || 97} />
+                </div>
+              </div>
+
+              {/* Expedition Credentials: Title & Guild */}
+              <div className="grid grid-cols-2 gap-2 p-2.5 bg-[#141a2e]/90 border-2 border-[#8c7a53] shadow-[2px_2px_0_0_#000]">
+                <div>
+                  <span className="retro text-[8px] text-[#c59b27] block font-bold">
+                    TITLE
                   </span>
-                  <span className="text-xs sm:text-sm font-field italic text-[#f5dab0] font-bold truncate block">
+                  <span className="retro text-[9px] sm:text-[10px] text-[#f5dab0] font-bold truncate block mt-1">
+                    {character?.title || "Ascendant"}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="retro text-[8px] text-[#c59b27] block font-bold">
+                    FELLOWSHIP
+                  </span>
+                  <span className="retro text-[9px] sm:text-[10px] text-[#f5dab0] font-bold truncate block mt-1">
+                    Lone Ascendants
+                  </span>
+                </div>
+              </div>
+
+              {/* Familiar Link Dispatch Tag */}
+              <div className="p-2.5 bg-[#141a2e]/90 border-2 border-[#8c7a53] shadow-[2px_2px_0_0_#000] flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-8 h-8 bg-[#0d1220] border border-[#8c7a53] flex items-center justify-center text-[#ffd875] shrink-0">
+                    <Footprints className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="retro text-[8px] text-[#c59b27] block font-bold">
+                      FAMILIAR
+                    </span>
+                    <span className="retro text-[9px] text-[#f5dab0] font-bold truncate block">
+                      {collection?.equippedBeast
+                        ? collection.equippedBeast.name
+                        : "No Companion"}
+                    </span>
+                  </div>
+                </div>
+                <Link href="/beasts">
+                  <Button size="sm" variant="gold" className="text-[8px] h-6 px-2">
                     {collection?.equippedBeast
-                      ? collection.equippedBeast.name
-                      : "No Companion Linked"}
-                  </span>
-                </div>
-              </div>
-              <Link href="/beasts">
-                <FieldBrassButton size="sm" variant="walnut">
-                  {collection?.equippedBeast
-                    ? `+${collection.equippedBeast.statBonusValue}%`
-                    : "Incubate"}
-                </FieldBrassButton>
-              </Link>
-            </div>
-
-            {/* Bio-Recovery Telemetry Voucher */}
-            <div className="p-3 bg-[#130f0a] border border-[#c59b27]/30 rounded-sm flex items-center justify-between">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 bg-[#1b150f] border border-[#c59b27]/40 rounded-xs flex items-center justify-center text-[#10b981] flex-shrink-0 shadow-sm">
-                  <Activity className="w-4 h-4 text-[#10b981]" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-expedition text-[#c59b27] block uppercase tracking-wider font-bold">
-                    BIO-RECOVERY VITALITY
-                  </span>
-                  <span className="text-xs sm:text-sm font-field italic text-[#f5dab0] font-bold block">
-                    {muscleRecovery?.summary.overallFreshness ?? 100}% Fresh (
-                    {muscleRecovery?.summary.freshCount ?? 16}/16 Ready)
-                  </span>
-                </div>
-              </div>
-              <Link href="/workouts">
-                <FieldBrassButton size="sm" variant="walnut">
-                  Scanner
-                </FieldBrassButton>
-              </Link>
-            </div>
-
-            {/* Botanical Attributes & Astrolabe */}
-            <div className="pt-3 border-t border-[#c59b27]/20 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-expedition text-[#c59b27] uppercase tracking-widest flex items-center gap-1.5 font-bold">
-                  <span className="text-[#c59b27]">❧</span>
-                  BOTANICAL ATTRIBUTES
-                </h3>
-                <span className="font-field text-[11px] text-[#c59b27]/70 italic">
-                  Astrolabe Alignment
-                </span>
+                      ? `+${collection.equippedBeast.statBonusValue}%`
+                      : "Incubate"}
+                  </Button>
+                </Link>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 items-center">
-                {/* Slotted Barometer Attribute Bars */}
-                <div className="space-y-2">
-                  {radarData.map((stat) => (
-                    <div key={stat.name} className="space-y-0.5">
-                      <div className="flex justify-between text-xs font-expedition text-[#f5dab0]">
-                        <span className="font-bold flex items-center gap-1">
-                          <span className="text-[#c59b27]">{stat.name}</span>
-                          <span className="text-[9px] text-[#c59b27]/60 font-field italic font-normal">
-                            ({stat.herbariumLabel})
+              {/* Bio-Recovery Telemetry Voucher */}
+              <div className="p-2.5 bg-[#141a2e]/90 border-2 border-[#8c7a53] shadow-[2px_2px_0_0_#000] flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-8 h-8 bg-[#0d1220] border border-[#8c7a53] flex items-center justify-center text-[#10b981] shrink-0">
+                    <Activity className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="retro text-[8px] text-[#c59b27] block font-bold">
+                      BIO-VITALITY
+                    </span>
+                    <span className="retro text-[8px] sm:text-[9px] text-[#10b981] font-bold block">
+                      {muscleRecovery?.summary.overallFreshness ?? 100}% Ready
+                    </span>
+                  </div>
+                </div>
+                <Link href="/workouts">
+                  <Button size="sm" variant="secondary" className="text-[8px] h-6 px-2">
+                    Scanner
+                  </Button>
+                </Link>
+              </div>
+
+              {/* 8-Bit Segmented Attributes & Astrolabe */}
+              <div className="pt-3 border-t border-[#8c7a53]/40 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="retro text-[9px] text-[#ffd875] tracking-wider flex items-center gap-1 font-bold">
+                    <span>⚔</span>
+                    ATTRIBUTES
+                  </h3>
+                  <Badge variant="secondary" className="text-[7px]">
+                    RADAR SYNC
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 items-center">
+                  {/* Segmented Retro Attribute Bars */}
+                  <div className="space-y-2">
+                    {radarData.map((stat) => (
+                      <div key={stat.name} className="space-y-0.5">
+                        <div className="flex justify-between retro text-[8px] text-[#f5dab0]">
+                          <span className="font-bold">{stat.name}</span>
+                          <span className="font-mono text-[#ffd875]">
+                            {stat.value}
                           </span>
-                        </span>
-                        <span className="font-mono text-[#ffd875] font-bold">
-                          {stat.value}
-                        </span>
+                        </div>
+                        <Progress
+                          value={stat.value}
+                          max={100}
+                          variant="retro"
+                          progressBg={STAT_COLORS[stat.name] || "bg-amber-500"}
+                          className="h-2.5 border border-black"
+                        />
                       </div>
-                      <BarometerProgress
-                        value={stat.value}
-                        max={100}
-                        variant="amber"
-                        height="sm"
-                        showTicks={false}
-                      />
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
 
-                {/* Antique Astrolabe Radar Chart */}
-                <div className="flex items-center justify-center p-1 bg-[#130f0a] border border-[#c59b27]/30 rounded-sm shadow-[inset_0_2px_6px_rgba(0,0,0,0.8)]">
-                  <BotanicalRadarChart data={radarData} />
+                  {/* Antique Astrolabe Radar Chart */}
+                  <div className="flex items-center justify-center p-1 bg-[#0f1424] border-2 border-[#8c7a53]/60 shadow-[inset_0_2px_6px_rgba(0,0,0,0.8),2px_2px_0_0_#000]">
+                    <BotanicalRadarChart data={radarData} />
+                  </div>
                 </div>
               </div>
-            </div>
-          </FieldParchmentCard>
+            </CardContent>
+          </Card>
         </div>
 
         {/* ========================================================= */}
         {/* COLUMN 2: FIELD BOUNTY DISPATCH & APEX BEAST TARGET */}
         {/* ========================================================= */}
-        <div suppressHydrationWarning className="space-y-5">
+        <div suppressHydrationWarning className="space-y-6">
           {/* Today's Missions & Habits Card */}
-          <FieldParchmentCard
-            title="FIELD BOUNTY DISPATCH"
-            subtitle="Today's Expeditions & Daily Vouchers"
-            titleBadge={
-              <span className="px-2 py-0.5 bg-[#2a1f16] border border-[#c59b27]/60 text-xs font-expedition text-[#ffd875] font-bold rounded-xs shadow-sm">
-                {currentCompletedCount}/{currentTotalCount} CLEARED
-              </span>
-            }
-            className="flex flex-col min-h-[480px]"
+          <Card
+            variant="default"
+            font="retro"
+            className="shadow-[4px_4px_0_0_#000] flex flex-col min-h-[490px]"
           >
-            {/* Stamped Brass Filter Index Tabs: ALL / HABITS / MISSIONS */}
-            <div className="grid grid-cols-3 gap-2 mb-3.5 bg-[#130f0a] p-1 border border-[#c59b27]/30 rounded-sm">
-              <FieldBrassButton
-                size="sm"
-                variant={missionViewFilter === "all" ? "brass" : "walnut"}
-                onClick={() => setMissionViewFilter("all")}
-                className="text-xs"
-              >
-                ALL ({combinedTotalCount})
-              </FieldBrassButton>
-              <FieldBrassButton
-                size="sm"
-                variant={missionViewFilter === "habits" ? "brass" : "walnut"}
-                onClick={() => setMissionViewFilter("habits")}
-                className="text-xs"
-              >
-                HABITS ({totalHabitsCount})
-              </FieldBrassButton>
-              <FieldBrassButton
-                size="sm"
-                variant={missionViewFilter === "missions" ? "brass" : "walnut"}
-                onClick={() => setMissionViewFilter("missions")}
-                className="text-xs"
-              >
-                MISSIONS ({totalQuestsCount})
-              </FieldBrassButton>
-            </div>
-
-            {/* Scrollable Missions List */}
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[300px]">
-              {isLoading ? (
-                <div className="py-8 text-center font-expedition text-xs text-[#c59b27] animate-pulse">
-                  Consulting field journals & dispatches...
+            <CardHeader className="p-4 pb-2">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <CardTitle className="text-xs sm:text-sm text-white tracking-wider">
+                    FIELD BOUNTY DISPATCH
+                  </CardTitle>
+                  <CardDescription className="text-[8px] sm:text-[9px] text-slate-400 mt-0.5">
+                    Today's Expeditions & Quests
+                  </CardDescription>
                 </div>
-              ) : (
-                (() => {
-                  const displayHabits =
-                    missionViewFilter === "all" || missionViewFilter === "habits"
-                      ? todayMissions
-                      : [];
-                  const displayQuests =
-                    missionViewFilter === "all" || missionViewFilter === "missions"
-                      ? quests
-                      : [];
-                  const hasAny = displayHabits.length > 0 || displayQuests.length > 0;
-
-                  if (!hasAny) {
-                    return (
-                      <div className="py-10 flex flex-col items-center justify-center text-center space-y-3">
-                        <div className="w-10 h-10 bg-[#1b150f] border border-[#c59b27]/40 rounded-xs flex items-center justify-center text-[#c59b27]">
-                          <Scroll className="w-5 h-5 text-[#c59b27]" />
-                        </div>
-                        <p className="font-field text-xs text-[#c59b27]/80 italic max-w-xs">
-                          {missionViewFilter === "habits"
-                            ? "No active habits scheduled for this day's expedition."
-                            : missionViewFilter === "missions"
-                            ? "No custom bounty vouchers created yet."
-                            : "No active missions or habits recorded for today."}
-                        </p>
-                        <Link
-                          href={
-                            missionViewFilter === "habits"
-                              ? "/habits/create"
-                              : "/missions"
-                          }
-                        >
-                          <FieldBrassButton size="sm" variant="brass">
-                            <Plus className="w-3.5 h-3.5 mr-1" />
-                            {missionViewFilter === "habits"
-                              ? "Draft Habit"
-                              : "Issue Mission"}
-                          </FieldBrassButton>
-                        </Link>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <>
-                      {/* Habit Mission Cards */}
-                      {displayHabits.map((mission) => (
-                        <div key={`habit-${mission.id}`}>
-                          <MissionCard
-                            mission={mission}
-                            onComplete={(id, habit, completionType) =>
-                              executeMissionCompletion(id, habit, completionType)
-                            }
-                          />
-                        </div>
-                      ))}
-
-                      {/* Custom Kanban Mission Cards */}
-                      {displayQuests.map((quest) => (
-                        <div key={`quest-${quest.id}`}>
-                          <DashboardQuestCard quest={quest} />
-                        </div>
-                      ))}
-                    </>
-                  );
-                })()
-              )}
-            </div>
-
-            {/* Daily Barometer Completion Progress Tube */}
-            <div className="mt-4 pt-3 border-t border-[#c59b27]/20 space-y-1.5">
-              <div className="flex items-center justify-between font-expedition text-xs text-[#c59b27] uppercase font-bold tracking-wider">
-                <span>DAILY EXPEDITION COMPLETION</span>
-                <Package className="w-4 h-4 text-[#c59b27]" />
+                <Badge variant="gold" className="text-[8px]">
+                  {currentCompletedCount}/{currentTotalCount} CLEARED
+                </Badge>
               </div>
-              <BarometerProgress
-                value={
-                  currentTotalCount > 0
-                    ? (currentCompletedCount / currentTotalCount) * 100
-                    : 0
-                }
-                max={100}
-                variant="emerald"
-                height="md"
-              />
-            </div>
-          </FieldParchmentCard>
+            </CardHeader>
+
+            <CardContent className="p-4 pt-2 flex flex-col flex-1 space-y-3">
+              {/* 8-Bit Tab Switchers */}
+              <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#0b101c] border-2 border-[#8c7a53] shadow-[2px_2px_0_0_#000]">
+                <Button
+                  size="sm"
+                  variant={missionViewFilter === "all" ? "gold" : "ghost"}
+                  onClick={() => setMissionViewFilter("all")}
+                  className="text-[8px] h-7"
+                >
+                  ALL ({combinedTotalCount})
+                </Button>
+                <Button
+                  size="sm"
+                  variant={missionViewFilter === "habits" ? "gold" : "ghost"}
+                  onClick={() => setMissionViewFilter("habits")}
+                  className="text-[8px] h-7"
+                >
+                  HABITS ({totalHabitsCount})
+                </Button>
+                <Button
+                  size="sm"
+                  variant={missionViewFilter === "missions" ? "gold" : "ghost"}
+                  onClick={() => setMissionViewFilter("missions")}
+                  className="text-[8px] h-7"
+                >
+                  QUESTS ({totalQuestsCount})
+                </Button>
+              </div>
+
+              {/* Scrollable Missions List */}
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[300px]">
+                {isLoading ? (
+                  <div className="py-8 text-center retro text-[9px] text-[#c59b27] animate-pulse">
+                    Scanning field dispatches...
+                  </div>
+                ) : (
+                  (() => {
+                    const displayHabits =
+                      missionViewFilter === "all" || missionViewFilter === "habits"
+                        ? todayMissions
+                        : [];
+                    const displayQuests =
+                      missionViewFilter === "all" || missionViewFilter === "missions"
+                        ? quests
+                        : [];
+                    const hasAny = displayHabits.length > 0 || displayQuests.length > 0;
+
+                    if (!hasAny) {
+                      return (
+                        <div className="py-10 flex flex-col items-center justify-center text-center space-y-3 bg-[#0d1322]/50 border-2 border-dashed border-slate-700 p-4">
+                          <div className="w-10 h-10 bg-[#141a2e] border-2 border-[#8c7a53] flex items-center justify-center text-[#ffd875] shadow-[2px_2px_0_0_#000]">
+                            <Scroll className="w-5 h-5" />
+                          </div>
+                          <p className="retro text-[8px] sm:text-[9px] text-slate-400 max-w-xs">
+                            {missionViewFilter === "habits"
+                              ? "No active habits scheduled for today."
+                              : missionViewFilter === "missions"
+                              ? "No active bounty quests recorded."
+                              : "No missions or habits active today."}
+                          </p>
+                          <Link
+                            href={
+                              missionViewFilter === "habits"
+                                ? "/habits/create"
+                                : "/missions"
+                            }
+                          >
+                            <Button size="sm" variant="gold" className="text-[8px] h-7">
+                              <Plus className="w-3 h-3 mr-1" />
+                              {missionViewFilter === "habits"
+                                ? "Draft Habit"
+                                : "Issue Mission"}
+                            </Button>
+                          </Link>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <>
+                        {/* Habit Mission Cards */}
+                        {displayHabits.map((mission) => (
+                          <div key={`habit-${mission.id}`}>
+                            <MissionCard
+                              mission={mission}
+                              onComplete={(id, habit, completionType) =>
+                                executeMissionCompletion(id, habit, completionType)
+                              }
+                            />
+                          </div>
+                        ))}
+
+                        {/* Custom Kanban Mission Cards */}
+                        {displayQuests.map((quest) => (
+                          <div key={`quest-${quest.id}`}>
+                            <DashboardQuestCard quest={quest} />
+                          </div>
+                        ))}
+                      </>
+                    );
+                  })()
+                )}
+              </div>
+
+              {/* 8-Bit Daily Completion Progress */}
+              <div className="mt-auto pt-3 border-t border-[#8c7a53]/40 space-y-1.5">
+                <div className="flex items-center justify-between retro text-[8px] text-[#ffd875]">
+                  <span>DAILY EXPEDITION COMPLETION</span>
+                  <Package className="w-3.5 h-3.5 text-[#ffd875]" />
+                </div>
+                <Progress
+                  value={
+                    currentTotalCount > 0
+                      ? (currentCompletedCount / currentTotalCount) * 100
+                      : 0
+                  }
+                  max={100}
+                  variant="retro"
+                  progressBg="bg-emerald-500"
+                  className="h-3.5 border border-black"
+                />
+                <div className="flex justify-between retro text-[7px] text-slate-400">
+                  <span>PROGRESS</span>
+                  <span>
+                    {currentTotalCount > 0
+                      ? Math.round((currentCompletedCount / currentTotalCount) * 100)
+                      : 0}
+                    %
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Current Boss Danger Dossier */}
-          <FieldParchmentCard
-            title="APEX BEAST DANGER DOSSIER"
-            subtitle="Primeval Threat Targeted"
-            variant="danger"
+          <Card
+            variant="dungeon"
+            font="retro"
+            className="shadow-[4px_4px_0_0_#000] border-[#991b1b]"
           >
-            {(() => {
-              const activeBoss =
-                bosses.find((b) => b.status === "ACTIVE") || bosses[0];
-              if (isBossesLoading && bosses.length === 0) {
-                return (
-                  <div className="py-6 text-center font-expedition text-xs text-[#fca5a5] animate-pulse">
-                    Scanning primeval canopy for active threats...
-                  </div>
-                );
-              }
+            <CardHeader className="p-4 pb-2">
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className="text-xs sm:text-sm text-red-400 tracking-wider">
+                    APEX BEAST DANGER DOSSIER
+                  </CardTitle>
+                  <CardDescription className="text-[8px] sm:text-[9px] text-red-300/80 mt-0.5">
+                    Primeval Threat Targeted
+                  </CardDescription>
+                </div>
+                <Badge variant="destructive" className="text-[7px]">
+                  BOUNTY
+                </Badge>
+              </div>
+            </CardHeader>
 
-              if (!activeBoss) {
-                return (
-                  <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
-                    <div className="w-12 h-12 bg-[#2d0f12] border border-[#991b1b]/60 rounded-xs flex items-center justify-center text-[#fca5a5]">
-                      <Skull className="w-6 h-6 text-[#ef4444]" />
+            <CardContent className="p-4 pt-2">
+              {(() => {
+                const activeBoss =
+                  bosses.find((b) => b.status === "ACTIVE") || bosses[0];
+                if (isBossesLoading && bosses.length === 0) {
+                  return (
+                    <div className="py-6 text-center retro text-[9px] text-red-300 animate-pulse">
+                      Scanning primeval canopy for active threats...
                     </div>
-                    <p className="font-field text-xs text-[#fca5a5]/80 italic">
-                      No apex beast threat currently targeted for bounty.
-                    </p>
-                    <FieldBrassButton
-                      size="sm"
-                      variant="danger"
-                      onClick={() => router.push("/bosses")}
-                    >
-                      <Skull className="w-3.5 h-3.5 mr-1" />
-                      Target Apex Beast
-                    </FieldBrassButton>
-                  </div>
+                  );
+                }
+
+                if (!activeBoss) {
+                  return (
+                    <div className="flex flex-col items-center justify-center py-6 text-center space-y-3 bg-[#1d0a0d] border-2 border-[#991b1b] p-4 shadow-[2px_2px_0_0_#000]">
+                      <div className="w-10 h-10 bg-[#2d0f12] border-2 border-[#ef4444] flex items-center justify-center text-[#ef4444] shadow-[1px_1px_0_0_#000]">
+                        <Skull className="w-5 h-5" />
+                      </div>
+                      <p className="retro text-[8px] sm:text-[9px] text-red-200">
+                        No apex threat currently targeted.
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => router.push("/bosses")}
+                        className="text-[8px] h-7"
+                      >
+                        <Skull className="w-3 h-3 mr-1" />
+                        Target Apex Beast
+                      </Button>
+                    </div>
+                  );
+                }
+
+                const hpPercent = Math.max(
+                  0,
+                  Math.min(100, (activeBoss.currentHp / activeBoss.maxHp) * 100)
                 );
-              }
+                const damageDealt = activeBoss.maxHp - activeBoss.currentHp;
+                const contributionPct =
+                  activeBoss.maxHp > 0
+                    ? ((damageDealt / activeBoss.maxHp) * 100).toFixed(1)
+                    : "0.0";
 
-              const hpPercent = Math.max(
-                0,
-                Math.min(100, (activeBoss.currentHp / activeBoss.maxHp) * 100)
-              );
-              const damageDealt = activeBoss.maxHp - activeBoss.currentHp;
-              const contributionPct =
-                activeBoss.maxHp > 0
-                  ? ((damageDealt / activeBoss.maxHp) * 100).toFixed(1)
-                  : "0.0";
+                return (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-2 bg-[#200b0d] border-2 border-[#991b1b] shadow-[2px_2px_0_0_#000]">
+                      {/* Boss Sprite Vitrine */}
+                      <div className="w-14 h-14 bg-[#120507] border border-[#ef4444]/60 flex items-center justify-center flex-shrink-0 p-1 relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.9)]">
+                        <img
+                          src={getEnemySpritePath(activeBoss.name, 1, true)}
+                          alt={activeBoss.name}
+                          className="w-full h-full object-contain pixelated animate-pixel-bob"
+                        />
+                      </div>
 
-              return (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    {/* Illustrated Field Specimen Vitrine for Boss Sprite */}
-                    <div className="w-16 h-16 bg-[#200b0d] border border-[#991b1b]/60 rounded-xs flex items-center justify-center flex-shrink-0 p-1 relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.9)]">
-                      <img
-                        src={getEnemySpritePath(activeBoss.name, 1, true)}
-                        alt={activeBoss.name}
-                        className="w-full h-full object-contain animate-pixel-bob"
-                        style={{ imageRendering: "pixelated" }}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="retro text-[10px] sm:text-xs font-bold text-red-200 truncate">
+                            {activeBoss.name}
+                          </h3>
+                        </div>
+                        <p className="retro text-[8px] text-red-300/80 mt-0.5">
+                          {activeBoss.difficulty} • {activeBoss.category}
+                        </p>
+                        <div className="retro text-[8px] text-[#ffd875] font-bold mt-1">
+                          CONTRIBUTION: {contributionPct}%
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Integrated 8-Bit EnemyHealthDisplay */}
+                    <div className="p-2 bg-[#120507] border border-[#991b1b]">
+                      <EnemyHealthDisplay
+                        enemyName={activeBoss.name}
+                        isBoss={true}
+                        currentHealth={activeBoss.currentHp}
+                        maxHealth={activeBoss.maxHp}
+                        textColor="red"
+                        healthBarColor="bg-red-600"
+                        showLevel={false}
+                        size="sm"
                       />
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-expedition text-sm font-bold text-[#fca5a5] truncate">
-                        {activeBoss.name}
-                      </h3>
-                      <p className="font-field text-xs text-[#fca5a5]/80 italic mt-0.5">
-                        {activeBoss.difficulty} • {activeBoss.category}
-                      </p>
-                      <div className="font-expedition text-xs text-[#ffd875] font-bold mt-1">
-                        EXPEDITION CONTRIBUTION: {contributionPct}%
-                      </div>
-                    </div>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="w-full text-[8px] h-7"
+                      onClick={() => router.push("/bosses")}
+                    >
+                      Examine Threat Dossier
+                    </Button>
                   </div>
-
-                  {/* Blood-Mercury Barometer Tube */}
-                  <div className="space-y-1">
-                    <div className="flex justify-between font-expedition text-xs text-[#fca5a5] font-bold">
-                      <span className="font-mono">
-                        {activeBoss.currentHp.toLocaleString()} /{" "}
-                        {activeBoss.maxHp.toLocaleString()} HP
-                      </span>
-                      <span className="font-mono">{hpPercent.toFixed(1)}%</span>
-                    </div>
-                    <BarometerProgress
-                      value={hpPercent}
-                      max={100}
-                      variant="crimson"
-                      height="sm"
-                    />
-                  </div>
-
-                  <FieldBrassButton
-                    size="sm"
-                    variant="danger"
-                    className="w-full"
-                    onClick={() => router.push("/bosses")}
-                  >
-                    Examine Threat Dossier
-                  </FieldBrassButton>
-                </div>
-              );
-            })()}
-          </FieldParchmentCard>
+                );
+              })()}
+            </CardContent>
+          </Card>
         </div>
 
         {/* ========================================================= */}
         {/* COLUMN 3: BOTANICAL SANCTUM & TOPOGRAPHIC ASCENT */}
         {/* ========================================================= */}
-        <div suppressHydrationWarning className="space-y-5 flex flex-col">
+        <div suppressHydrationWarning className="space-y-6 flex flex-col">
           {/* Companion Vivarium & Pedometer Hub */}
           <CompanionSanctumCard />
 
           {/* Topographic Mountain Ascent (Tower of Ascension) */}
-          <FieldParchmentCard
-            title="TOWER OF ASCENSION"
-            subtitle="Topographic Mountain Ascent"
-            titleBadge={
-              <span className="px-2 py-0.5 bg-[#2a1f16] border border-[#c59b27]/60 text-xs font-expedition text-[#ffd875] font-bold rounded-xs shadow-sm">
+          <Card
+            variant="dungeon"
+            font="retro"
+            className="shadow-[4px_4px_0_0_#000]"
+          >
+            <CardHeader className="p-4 pb-2">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <CardTitle className="text-xs sm:text-sm text-[#fff8df] tracking-wider">
+                    TOWER OF ASCENSION
+                  </CardTitle>
+                  <CardDescription className="text-[8px] sm:text-[9px] text-[#8c7a53] mt-0.5">
+                    Spire Mountain Ascent
+                  </CardDescription>
+                </div>
                 {(() => {
-                  const sorted = [...floors].sort((a, b) => a.floorNumber - b.floorNumber);
+                  const sorted = [...floors].sort(
+                    (a, b) => a.floorNumber - b.floorNumber
+                  );
                   const activeFloor =
                     sorted.find(
                       (f) => f.status === "AVAILABLE" || f.status === "ATTEMPTED"
                     ) || sorted[0];
-                  return activeFloor ? `FLOOR ${activeFloor.floorNumber}` : "1";
+                  return (
+                    <Badge variant="gold" className="text-[8px]">
+                      {activeFloor ? `F${activeFloor.floorNumber}` : "F1"}
+                    </Badge>
+                  );
                 })()}
-              </span>
-            }
-          >
-            {(() => {
-              const sortedTowerFloors = [...floors].sort(
-                (a, b) => a.floorNumber - b.floorNumber
-              );
-              const activeFloor =
-                sortedTowerFloors.find(
-                  (f) => f.status === "AVAILABLE" || f.status === "ATTEMPTED"
-                ) || sortedTowerFloors[0];
+              </div>
+            </CardHeader>
 
-              if (!activeFloor) {
+            <CardContent className="p-4 pt-2">
+              {(() => {
+                const sortedTowerFloors = [...floors].sort(
+                  (a, b) => a.floorNumber - b.floorNumber
+                );
+                const activeFloor =
+                  sortedTowerFloors.find(
+                    (f) => f.status === "AVAILABLE" || f.status === "ATTEMPTED"
+                  ) || sortedTowerFloors[0];
+
+                if (!activeFloor) {
+                  return (
+                    <div className="py-6 text-center retro text-[9px] text-[#c59b27] animate-pulse">
+                      Consulting Tower Maps...
+                    </div>
+                  );
+                }
+
+                const enemyName =
+                  activeFloor.enemy?.name ||
+                  `Floor ${activeFloor.floorNumber} Guardian`;
+                const enemyDesc = `Level ${
+                  activeFloor.enemy?.level || activeFloor.floorNumber
+                } ${
+                  activeFloor.isBoss ? "Apex Sentinel" : "Canopy Guardian"
+                }. Overcome to claim botanical ascent tokens.`;
+                const towerTokensReward =
+                  activeFloor.towerTokensReward ||
+                  activeFloor.floorNumber * 10 * (activeFloor.isBoss ? 3 : 1);
+
                 return (
-                  <div className="py-6 text-center font-expedition text-xs text-[#c59b27] animate-pulse">
-                    Consulting Topographic Survey Maps...
+                  <div className="space-y-3">
+                    <div className="p-3 bg-[#111611] border-2 border-[#8c7a53] shadow-[2px_2px_0_0_#000] space-y-2">
+                      <div className="flex items-center justify-between retro text-[9px]">
+                        <span className="text-[#f5dab0] font-bold">
+                          {enemyName}
+                        </span>
+                        <span className="text-[#ffd875] font-mono">
+                          REQ: {activeFloor.requiredPower.toLocaleString()}
+                        </span>
+                      </div>
+
+                      <p className="retro text-[8px] text-slate-300 line-clamp-2">
+                        {enemyDesc}
+                      </p>
+
+                      <div className="flex items-center justify-between retro text-[8px] pt-1.5 text-[#f5dab0] border-t border-[#8c7a53]/30">
+                        <span className="text-[#c59b27]">BOUNTY</span>
+                        <span className="text-[#ffd875] font-mono">
+                          +{towerTokensReward} Tokens
+                        </span>
+                      </div>
+                    </div>
+
+                    <Link href="/tower" className="block w-full">
+                      <Button
+                        size="sm"
+                        variant="gold"
+                        className="w-full text-[8px] sm:text-[9px] h-8"
+                      >
+                        Ascend Floor {activeFloor.floorNumber}
+                      </Button>
+                    </Link>
                   </div>
                 );
-              }
-
-              const enemyName =
-                activeFloor.enemy?.name ||
-                `Floor ${activeFloor.floorNumber} Guardian`;
-              const enemyDesc = `Level ${
-                activeFloor.enemy?.level || activeFloor.floorNumber
-              } ${
-                activeFloor.isBoss ? "Apex Sentinel" : "Canopy Guardian"
-              }. Overcome to claim botanical ascent tokens.`;
-              const towerTokensReward =
-                activeFloor.towerTokensReward ||
-                activeFloor.floorNumber * 10 * (activeFloor.isBoss ? 3 : 1);
-
-              return (
-                <div className="space-y-3">
-                  <div className="p-3 bg-[#130f0a] border border-[#c59b27]/30 rounded-sm space-y-2">
-                    <div className="flex items-center justify-between font-expedition text-xs">
-                      <span className="text-[#f5dab0] font-bold">{enemyName}</span>
-                      <span className="text-[#ffd875] font-mono font-bold">
-                        REQ: {activeFloor.requiredPower.toLocaleString()}
-                      </span>
-                    </div>
-
-                    <p className="font-field text-xs text-[#c59b27]/80 italic line-clamp-2">
-                      {enemyDesc}
-                    </p>
-
-                    <div className="flex items-center justify-between font-expedition text-xs pt-1.5 text-[#f5dab0] font-bold border-t border-[#c59b27]/20">
-                      <span className="text-[#c59b27]">BOUNTY REWARD</span>
-                      <span className="text-[#ffd875] font-mono">
-                        +{towerTokensReward} Tokens
-                      </span>
-                    </div>
-                  </div>
-
-                  <Link href="/tower" className="block w-full">
-                    <FieldBrassButton size="sm" variant="brass" className="w-full">
-                      Ascend Floor {activeFloor.floorNumber}
-                    </FieldBrassButton>
-                  </Link>
-                </div>
-              );
-            })()}
-          </FieldParchmentCard>
+              })()}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

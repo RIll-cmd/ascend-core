@@ -5,6 +5,58 @@ import Image from "next/image";
 import { getEnemySpriteUrl } from "@/utils/spriteUtils";
 import { SystemTooltip } from "@/components/ui/SystemTooltip";
 import { getEnemyLore } from "@/features/lore/loreData";
+import EnemyHealthDisplay from "@/components/ui/8bit/enemy-health-display";
+
+export interface EnemyBattlePresentation {
+  flip: boolean;
+  scale: number;
+  translateY: number;
+}
+
+export function getEnemyBattlePresentation(name: string, isBoss: boolean): EnemyBattlePresentation {
+  const normalized = (name || "").toLowerCase();
+  const isNightborne = normalized.includes("nightborne") || normalized.includes("night");
+  const isNecromancer = normalized.includes("necromancer");
+  const isGolux = normalized.includes("golux") || normalized.includes("gollux");
+  const isWizard = normalized.includes("wizard");
+  const isCrab = normalized.includes("crab");
+  const isRat = normalized.includes("rat");
+  const isSlime = normalized.includes("slime");
+
+  if (isBoss) {
+    if (isNightborne) {
+      // Nightborne: flip horizontally to face left towards the player, moved lower to match ground
+      return { flip: true, scale: 1.9, translateY: 26 };
+    }
+    if (isNecromancer) {
+      // Necromancer: flip horizontally to face left towards the player, moved lower to match ground
+      return { flip: true, scale: 1.5, translateY: 28 };
+    }
+    if (isGolux) {
+      // Golux raw faces right -> flip horizontally to face left towards the player
+      return { flip: true, scale: 1.75, translateY: 6 };
+    }
+    if (isWizard) {
+      // Arcane Wizard raw faces left -> no flip. Scale 1.4, translateY -4px to ensure hood is visible
+      return { flip: false, scale: 1.4, translateY: -4 };
+    }
+    return { flip: false, scale: 1.6, translateY: 0 };
+  }
+
+  // Specific standard mobs facing right that need to be flipped to face left towards the player
+  if (isCrab || isRat || isSlime) {
+    return { flip: true, scale: 1.0, translateY: 0 };
+  }
+  if (isNecromancer) {
+    return { flip: true, scale: 1.5, translateY: 28 };
+  }
+  if (isNightborne) {
+    return { flip: true, scale: 1.9, translateY: 26 };
+  }
+
+  // All other dungeon mobs remain untouched with default presentation
+  return { flip: false, scale: 1.0, translateY: 0 };
+}
 
 interface FloorBattleBannerProps {
   playerName?: string;
@@ -13,9 +65,20 @@ interface FloorBattleBannerProps {
   enemyLevel: number;
   floorNumber: number;
   isBoss?: boolean;
+  enemyHp?: number;
+  enemyMaxHp?: number;
 }
 
-export function FloorBattleBanner({ playerName = "Player", playerPower = 0, enemyName, enemyLevel, floorNumber, isBoss = false }: FloorBattleBannerProps) {
+export function FloorBattleBanner({
+  playerName = "Player",
+  playerPower = 0,
+  enemyName,
+  enemyLevel,
+  floorNumber,
+  isBoss = false,
+  enemyHp,
+  enemyMaxHp,
+}: FloorBattleBannerProps) {
   const spriteUrl = getEnemySpriteUrl(enemyName, { floorOrLevel: floorNumber, isBoss });
   const enemyLore = getEnemyLore(enemyName, floorNumber, isBoss);
 
@@ -93,7 +156,11 @@ export function FloorBattleBanner({ playerName = "Player", playerPower = 0, enem
               name={enemyName}
               detail={`Level ${enemyLevel}`}
               image={spriteUrl}
-              flip
+              isEnemy
+              isBoss={isBoss}
+              enemyHp={enemyHp}
+              enemyMaxHp={enemyMaxHp}
+              level={enemyLevel}
               onImageError={(image) => {
                 image.src = "/sprites/static/slime.png";
               }}
@@ -109,37 +176,75 @@ function Combatant({
   name,
   detail,
   image,
-  flip = false,
+  isEnemy = false,
+  isBoss = false,
+  enemyHp,
+  enemyMaxHp,
+  level,
   onImageError,
 }: {
   name: string;
   detail: string;
   image: string;
-  flip?: boolean;
+  isEnemy?: boolean;
+  isBoss?: boolean;
+  enemyHp?: number;
+  enemyMaxHp?: number;
+  level?: number;
   onImageError?: (image: HTMLImageElement) => void;
 }) {
+  const presentation = isEnemy
+    ? getEnemyBattlePresentation(name, isBoss)
+    : { flip: false, scale: 1.0, translateY: 0 };
+
   return (
-    <div className="flex w-full max-w-[180px] cursor-help flex-col items-center text-center">
-      <div className="flex size-24 sm:size-28 items-end justify-center drop-shadow-[0_8px_12px_rgba(0,0,0,0.8)] transition-transform hover:scale-105 duration-200">
+    <div className="flex w-full max-w-[220px] cursor-help flex-col items-center text-center">
+      <div
+        className={`flex ${
+          isBoss ? "size-28 sm:size-36" : "size-24 sm:size-28"
+        } items-end justify-center drop-shadow-[0_8px_16px_rgba(0,0,0,0.85)] transition-transform hover:scale-105 duration-200 relative`}
+      >
         <Image
           unoptimized
-          width={96}
-          height={96}
+          width={isBoss ? 160 : 96}
+          height={isBoss ? 160 : 96}
           src={image}
           alt={name}
           onError={(event) => onImageError?.(event.currentTarget)}
-          className={`size-20 sm:size-24 object-contain [image-rendering:pixelated] ${
-            flip ? "-scale-x-100" : ""
-          }`}
+          style={{
+            transform: presentation.flip ? "scaleX(-1)" : undefined,
+            scale: presentation.scale !== 1.0 ? presentation.scale : undefined,
+            translate: presentation.translateY !== 0 ? `0px ${presentation.translateY}px` : undefined,
+          }}
+          className={`${
+            isBoss ? "size-28 sm:size-32" : "size-20 sm:size-24"
+          } object-contain [image-rendering:pixelated] origin-bottom transition-all duration-300`}
         />
       </div>
-      <div className="mb-3 sm:mb-4 w-full min-w-0 rounded-md border border-[#9d885c] bg-[#1c1813]/95 px-3 py-1.5 shadow-[0_6px_14px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.1)]">
-        <p className="truncate font-pixel text-xs sm:text-sm font-bold text-[#fff3c4] tracking-wide drop-shadow-[0_1px_2px_#000]">
-          {name}
-        </p>
-        <p className="font-mono text-[10px] sm:text-[11px] text-[#cfc39c] font-semibold">
-          {detail}
-        </p>
+      <div className="mb-3 sm:mb-4 w-full min-w-0 rounded-md border border-[#9d885c] bg-[#1c1813]/95 px-3 py-1.5 shadow-[0_6px_14px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.1)] relative z-20">
+        {isEnemy && enemyMaxHp && enemyHp !== undefined ? (
+          <EnemyHealthDisplay
+            enemyName={name}
+            level={level}
+            currentHealth={enemyHp}
+            maxHealth={enemyMaxHp}
+            isBoss={isBoss}
+            showLevel={true}
+            showHealthText={true}
+            variant="retro"
+            className="w-full"
+            healthBarColor="bg-gradient-to-r from-red-600 to-rose-500"
+          />
+        ) : (
+          <>
+            <p className="truncate font-pixel text-xs sm:text-sm font-bold text-[#fff3c4] tracking-wide drop-shadow-[0_1px_2px_#000]">
+              {name}
+            </p>
+            <p className="font-mono text-[10px] sm:text-[11px] text-[#cfc39c] font-semibold">
+              {detail}
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

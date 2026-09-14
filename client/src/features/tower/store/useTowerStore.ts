@@ -149,7 +149,7 @@ export const useTowerStore = create<TowerStore>((set, get) => ({
       // Fetch Ciel Analysis
       set({ isAnalyzing: true });
       try {
-        const logsStr = data.events.map((e: any) => `[Turn ${e.turn}] ${e.actor} ${e.action}, dealing ${e.damage} damage.`);
+        const logsStr = (data.events || []).map((e: any) => `[Turn ${e.turn}] ${e.actor} ${e.action}, dealing ${e.damage} damage.`);
         const analysisRes = await fetch(`${API_BASE_URL}/api/aira/analyze-combat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -177,3 +177,8 @@ export const useTowerStore = create<TowerStore>((set, get) => ({
   
   clearCombatLog: () => set({ combatLog: null, cielAnalysis: null }),
 }));
+
+if (typeof window !== "undefined") {
+  (window as any).__TOWER_STORE__ = useTowerStore;
+}
+

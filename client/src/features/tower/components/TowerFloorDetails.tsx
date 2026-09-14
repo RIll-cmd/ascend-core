@@ -81,6 +81,8 @@ export function TowerFloorDetails({
           enemyLevel={selectedFloor.enemy.level}
           floorNumber={selectedFloor.floorNumber}
           isBoss={selectedFloor.isBoss}
+          enemyHp={selectedFloor.enemy.hp}
+          enemyMaxHp={selectedFloor.enemy.hp}
         />
 
         {/* Enemy Tactical Briefing */}

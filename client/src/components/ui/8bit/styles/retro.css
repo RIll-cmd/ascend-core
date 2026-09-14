@@ -1,0 +1,54 @@
+/* 8-bit Retro Aesthetic Tokens & Utilities */
+.retro {
+  font-family: "Press Start 2P", var(--font-pixel), monospace, sans-serif;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+}
+
+.retro-silkscreen {
+  font-family: "Silkscreen", var(--font-pixel), monospace, sans-serif;
+}
+
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+@keyframes pixel-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-pixel-blink {
+  animation: pixel-blink 0.6s step-end infinite;
+}
+
+@keyframes retro-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-retro-bounce {
+  animation: retro-bounce 0.8s ease-in-out infinite;
+}
+
+@keyframes crt-scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.retro-scanline-overlay {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%
+  ),
+  linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 3px, 3px 100%;
+  pointer-events: none;
+}

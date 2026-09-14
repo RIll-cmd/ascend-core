@@ -65,6 +65,7 @@ import {
   playAIRASound,
 } from "@/utils/audio";
 import Link from "next/link";
+import SaveSlots, { SaveSlotData } from "@/components/ui/8bit/blocks/save-slots";
 
 const PREDEFINED_SPLITS = [
   {
@@ -158,6 +159,7 @@ export default function WorkoutsPage() {
   const [isLoggerModalOpen, setIsLoggerModalOpen] = useState(false);
   const [selectedMuscleKey, setSelectedMuscleKey] = useState<MuscleGroupKey | null>(null);
   const [activeBoss, setActiveBoss] = useState<any>(null);
+  const [routinesViewMode, setRoutinesViewMode] = useState<"cards" | "slots">("cards");
 
   useEffect(() => {
     useWorkoutStore.getState().hydrateTemplates();
@@ -564,23 +566,101 @@ export default function WorkoutsPage() {
             </p>
           </div>
 
-          <PixelButton
-            variant="gold"
-            size="sm"
-            onClick={() => {
-              playUIMenuSFX();
-              setIsCreateModalOpen(true);
-            }}
-            className="text-xs shrink-0 self-start sm:self-auto"
-          >
-            <span className="flex items-center gap-1.5">
-              <PixelPlusIcon className="w-3.5 h-3.5" /> CREATE ROUTINE
-            </span>
-          </PixelButton>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            {/* View Mode Toggle */}
+            <div className="flex items-center bg-[#140e0c] border border-[#4a3830] p-0.5">
+              <button
+                type="button"
+                onClick={() => {
+                  playUIMenuSFX("hover");
+                  setRoutinesViewMode("cards");
+                }}
+                className={`px-2.5 py-1 text-[9px] font-pixel transition-colors ${
+                  routinesViewMode === "cards"
+                    ? "bg-[#f59e0b] text-black font-bold"
+                    : "text-stone-400 hover:text-white"
+                }`}
+              >
+                GRID
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  playUIMenuSFX("hover");
+                  setRoutinesViewMode("slots");
+                }}
+                className={`px-2.5 py-1 text-[9px] font-pixel transition-colors ${
+                  routinesViewMode === "slots"
+                    ? "bg-[#f59e0b] text-black font-bold"
+                    : "text-stone-400 hover:text-white"
+                }`}
+              >
+                SAVE SLOTS
+              </button>
+            </div>
+
+            <PixelButton
+              variant="gold"
+              size="sm"
+              onClick={() => {
+                playUIMenuSFX();
+                setIsCreateModalOpen(true);
+              }}
+              className="text-xs shrink-0"
+            >
+              <span className="flex items-center gap-1.5">
+                <PixelPlusIcon className="w-3.5 h-3.5" /> CREATE ROUTINE
+              </span>
+            </PixelButton>
+          </div>
         </div>
 
         {/* Content inside Main Box */}
-        {customTemplates.length > 0 ? (
+        {routinesViewMode === "slots" ? (
+          <SaveSlots
+            title="WORKOUT ROUTINE MEMORY SLOTS"
+            maxSlots={Math.max(6, customTemplates.length + 1)}
+            slots={(() => {
+              const mapped: SaveSlotData[] = customTemplates.map((plan, idx) => ({
+                id: plan.id,
+                slotNumber: idx + 1,
+                isEmpty: false,
+                name: plan.name,
+                description: `${plan.target} • ${plan.exercises.map((e) => e.name).slice(0, 3).join(", ")}${plan.exercises.length > 3 ? ` +${plan.exercises.length - 3} more` : ""}`,
+                exerciseCount: plan.exercises.length,
+                lastUpdated: "Active Split",
+              }));
+              // Append empty slots up to max
+              const totalSlots = Math.max(6, customTemplates.length + 2);
+              for (let i = mapped.length + 1; i <= totalSlots; i++) {
+                mapped.push({
+                  id: `empty-slot-${i}`,
+                  slotNumber: i,
+                  isEmpty: true,
+                });
+              }
+              return mapped;
+            })()}
+            onSelectSlot={(slot) => {
+              const plan = customTemplates.find((p) => p.id === slot.id);
+              if (plan) {
+                playBuffSFX("buff");
+                handleStartTemplate(plan.name, plan.exercises);
+              }
+            }}
+            onSaveSlot={() => {
+              playUIMenuSFX();
+              setIsCreateModalOpen(true);
+            }}
+            onDeleteSlot={(id) => {
+              playUIMenuSFX("decline");
+              const plan = customTemplates.find((p) => p.id === id);
+              deleteCustomTemplate(id);
+              toast.info(`Deleted custom routine "${plan?.name || "preset"}"`);
+            }}
+            className="bg-[#140e0c]/90 border-2 border-[#4a3830]"
+          />
+        ) : customTemplates.length > 0 ? (
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 list-none p-0 m-0">
             {customTemplates.map((plan) => (
               <li

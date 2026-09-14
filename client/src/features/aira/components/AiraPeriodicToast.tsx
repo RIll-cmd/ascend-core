@@ -69,19 +69,7 @@ export function AiraPeriodicToast() {
                   />
                 </div>
 
-                {/* Speech Bubble Beak pointer at 4:30 o'clock */}
-                <div className="absolute -right-[10px] top-[29px] sm:top-[32px] pointer-events-none">
-                  <svg className="w-3.5 h-4.5" viewBox="0 0 14 18" fill="none">
-                    <path d="M0 0 L12 5 L0 15 Z" fill="#08090d" />
-                    <path
-                      d="M0 0 L12 5 L0 15"
-                      stroke="#ffffff"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
+
               </div>
             </div>
 

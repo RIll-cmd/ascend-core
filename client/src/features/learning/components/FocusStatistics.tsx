@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   PixelFlameIcon,
   PixelAwardIcon,
@@ -462,6 +463,11 @@ function TomeModal({
   initialTome?: CustomStudyTome | null;
 }) {
   const { addCustomTome, updateCustomTome } = useLearningStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [title, setTitle] = useState(initialTome?.title || "");
   const [statBonus, setStatBonus] = useState<StatBonusType>(initialTome?.statBonus || "INTELLIGENCE");
@@ -470,7 +476,25 @@ function TomeModal({
   const [targetMinutes, setTargetMinutes] = useState<number>(initialTome?.targetMinutes || 25);
   const [notes, setNotes] = useState(initialTome?.notes || "");
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (initialTome) {
+      setTitle(initialTome.title || "");
+      setStatBonus(initialTome.statBonus || "INTELLIGENCE");
+      setSigilType(initialTome.sigilType || "KEY");
+      setCategory(initialTome.category || "STUDY");
+      setTargetMinutes(initialTome.targetMinutes || 25);
+      setNotes(initialTome.notes || "");
+    } else {
+      setTitle("");
+      setStatBonus("INTELLIGENCE");
+      setSigilType("KEY");
+      setCategory("STUDY");
+      setTargetMinutes(25);
+      setNotes("");
+    }
+  }, [initialTome, isOpen]);
+
+  if (!isOpen || !mounted) return null;
 
   const statList: { type: StatBonusType; label: string; desc: string }[] = [
     { type: "INTELLIGENCE", label: "Intelligence", desc: "Logic, Code, Philosophy" },
@@ -525,183 +549,205 @@ function TomeModal({
     createdAt: new Date().toISOString(),
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-[#2a1309] border-4 border-[#140804] text-slate-100 p-5 sm:p-6 w-full max-w-xl shadow-[0_16px_32px_rgba(0,0,0,0.9)] space-y-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#542d17] pb-3">
-          <div className="flex items-center gap-2">
-            <PixelScrollIcon className="w-5 h-5 text-amber-400" />
-            <h3 className="font-pixel text-base sm:text-lg font-bold text-[#fef08a] uppercase tracking-wider">
-              {initialTome ? "Modify Inscribed Tome" : "Inscribe New Study Tome"}
-            </h3>
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200">
+      <div
+        className="relative my-auto w-full max-w-xl bg-[#231109] border-4 border-[#542d17] text-slate-100 p-4 sm:p-5 shadow-[0_0_0_2px_#140804,0_16px_32px_rgba(0,0,0,0.9)] max-h-[min(780px,calc(100dvh-2.5rem))] flex flex-col min-h-0 overflow-hidden select-none"
+        style={{
+          boxShadow: "0 0 0 2px #140804, 0 8px 0 0 #0a0402, 0 20px 30px rgba(0,0,0,0.9)",
+        }}
+      >
+        {/* Arcane Beveled Corner Studs */}
+        <span className="absolute top-1 left-1 font-mono text-[9px] text-[#f59e0b] leading-none select-none pointer-events-none">+</span>
+        <span className="absolute top-1 right-1 font-mono text-[9px] text-[#f59e0b] leading-none select-none pointer-events-none">+</span>
+        <span className="absolute bottom-1 left-1 font-mono text-[9px] text-[#f59e0b] leading-none select-none pointer-events-none">+</span>
+        <span className="absolute bottom-1 right-1 font-mono text-[9px] text-[#f59e0b] leading-none select-none pointer-events-none">+</span>
+
+        {/* Pinned Header */}
+        <div className="flex items-center justify-between border-b-2 border-[#542d17] pb-3 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-[#180a04] border-2 border-[#542d17] flex items-center justify-center text-amber-400">
+              <PixelScrollIcon className="w-4 h-4 text-amber-400" />
+            </div>
+            <div>
+              <span className="font-pixel text-[8.5px] text-[#f59e0b] uppercase tracking-wider block font-bold">
+                SCRIPTORIUM CODEX
+              </span>
+              <h3 className="font-pixel text-sm sm:text-base font-bold text-[#fef08a] uppercase tracking-wider">
+                {initialTome ? "Modify Inscribed Tome" : "Inscribe New Study Tome"}
+              </h3>
+            </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 hover:bg-[#3d1d0c] text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className="w-7 h-7 bg-[#180a04] border-2 border-[#542d17] hover:border-[#ef4444] text-slate-400 hover:text-[#ef4444] flex items-center justify-center cursor-pointer transition-colors"
           >
-            <PixelCloseIcon className="w-5 h-5" />
+            <PixelCloseIcon className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        <form onSubmit={handleSave} className="space-y-4">
-          {/* Live Book Spine Preview */}
-          <div className="p-3 bg-[#121626] border-2 border-[#2b121e] flex items-center justify-between gap-4">
-            <div className="flex flex-col">
-              <span className="text-xs font-pixel text-[#f59e0b] uppercase font-bold">
-                Tome Spine Preview ({previewDimensions.volumeLabel} • {targetMinutes}m)
-              </span>
-              <span className="text-xs text-slate-300 font-sans">
-                Leather binding reflects stat; thickness ({previewDimensions.width}px) and height ({previewDimensions.height}px) scale with session duration.
-              </span>
+        {/* Form with Internal Scroll Body and Pinned Footer */}
+        <form onSubmit={handleSave} className="flex-1 min-h-0 flex flex-col overflow-hidden mt-3">
+          {/* Scrollable Body */}
+          <div className="space-y-4 overflow-y-auto pr-1.5 flex-1 min-h-0 custom-scrollbar">
+            {/* Live Book Spine Preview */}
+            <div className="p-3 bg-[#121626] border-2 border-[#2b121e] flex items-center justify-between gap-4 shrink-0">
+              <div className="flex flex-col">
+                <span className="text-xs font-pixel text-[#f59e0b] uppercase font-bold">
+                  Tome Spine Preview ({previewDimensions.volumeLabel} • {targetMinutes}m)
+                </span>
+                <span className="text-xs text-slate-300 font-sans">
+                  Leather binding reflects stat; thickness ({previewDimensions.width}px) and height ({previewDimensions.height}px) scale with session duration.
+                </span>
+              </div>
+              <div className="flex items-end justify-center h-28 pr-4 shrink-0">
+                <PixelAntiqueBookSpine tome={previewTome} isSelected={true} />
+              </div>
             </div>
-            <div className="flex items-end justify-center h-32 pr-4">
-              <PixelAntiqueBookSpine tome={previewTome} isSelected={true} />
+
+            {/* Tome Title */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-pixel font-bold text-[#fbbf24] uppercase block">
+                Tome Title / Subject *
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Advanced Calculus & Proofs"
+                required
+                className="w-full px-3 py-2 bg-[#120703] border-2 border-[#542d17] text-white text-sm font-sans focus:outline-none focus:border-[#f59e0b] placeholder-slate-500 rounded-none"
+              />
             </div>
-          </div>
 
-          {/* Tome Title */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-pixel font-bold text-[#fbbf24] uppercase block">
-              Tome Title / Subject *
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Advanced Calculus & Proofs"
-              required
-              className="w-full px-3 py-2 bg-[#120703] border-2 border-[#542d17] text-white text-sm font-sans focus:outline-none focus:border-[#f59e0b] placeholder-slate-500"
-            />
-          </div>
+            {/* Stat to Enhance (Color-Coded) */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-pixel font-bold text-[#fbbf24] uppercase block">
+                Primary Stat to Enhance (Determines Leather Color)
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {statList.map((st) => {
+                  const palette = getStatTomeColor(st.type);
+                  const isSelected = statBonus === st.type;
+                  return (
+                    <button
+                      key={st.type}
+                      type="button"
+                      onClick={() => {
+                        playUIMenuSFX("confirm");
+                        setStatBonus(st.type);
+                      }}
+                      className={cn(
+                        "p-2 text-left border-2 transition-all cursor-pointer flex flex-col justify-between",
+                        isSelected
+                          ? "border-[#fde047] ring-1 ring-[#fde047] bg-[#3a1b0b]"
+                          : "border-[#45200c] bg-[#1a0c05] hover:bg-[#281308]"
+                      )}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className="w-2.5 h-2.5 rounded-xs shrink-0 border border-black"
+                          style={{ backgroundColor: palette.dotColor }}
+                        />
+                        <span className="font-pixel text-xs font-bold text-slate-200">
+                          {st.label}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-sans mt-0.5">{st.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-          {/* Stat to Enhance (Color-Coded) */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-pixel font-bold text-[#fbbf24] uppercase block">
-              Primary Stat to Enhance (Determines Leather Color)
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {statList.map((st) => {
-                const palette = getStatTomeColor(st.type);
-                const isSelected = statBonus === st.type;
-                return (
+            {/* Sigil Selection */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-pixel font-bold text-[#fbbf24] uppercase block">
+                Arcane Gold Sigil
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {sigils.map((sig) => (
                   <button
-                    key={st.type}
+                    key={sig}
                     type="button"
                     onClick={() => {
                       playUIMenuSFX("confirm");
-                      setStatBonus(st.type);
+                      setSigilType(sig);
                     }}
                     className={cn(
-                      "p-2 text-left border-2 transition-all cursor-pointer flex flex-col justify-between",
-                      isSelected
-                        ? "border-[#fde047] ring-1 ring-[#fde047] bg-[#3a1b0b]"
-                        : "border-[#45200c] bg-[#1a0c05] hover:bg-[#281308]"
+                      "px-3 py-1.5 text-xs font-pixel font-bold border-2 transition-all cursor-pointer",
+                      sigilType === sig
+                        ? "bg-[#f59e0b] text-[#1a0c05] border-[#fde047]"
+                        : "bg-[#180a04] text-slate-300 border-[#45200c] hover:border-[#f59e0b]"
                     )}
                   >
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="w-2.5 h-2.5 rounded-xs shrink-0 border border-black"
-                        style={{ backgroundColor: palette.dotColor }}
-                      />
-                      <span className="font-pixel text-xs font-bold text-slate-200">
-                        {st.label}
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-slate-400 font-sans mt-0.5">{st.desc}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Sigil Selection */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-pixel font-bold text-[#fbbf24] uppercase block">
-              Arcane Gold Sigil
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {sigils.map((sig) => (
-                <button
-                  key={sig}
-                  type="button"
-                  onClick={() => {
-                    playUIMenuSFX("confirm");
-                    setSigilType(sig);
-                  }}
-                  className={cn(
-                    "px-3 py-1.5 text-xs font-pixel font-bold border-2 transition-all cursor-pointer",
-                    sigilType === sig
-                      ? "bg-[#f59e0b] text-[#1a0c05] border-[#fde047]"
-                      : "bg-[#180a04] text-slate-300 border-[#45200c] hover:border-[#f59e0b]"
-                  )}
-                >
-                  {sig}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Domain Category & Target Duration */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-xs font-pixel font-bold text-[#fbbf24] uppercase block">
-                Domain Category
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value as FocusCategory)}
-                className="w-full px-3 py-2 bg-[#120703] border-2 border-[#542d17] text-white text-sm font-sans focus:outline-none focus:border-[#f59e0b]"
-              >
-                {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-pixel font-bold text-[#fbbf24] uppercase block">
-                Target Session Rite (Minutes)
-              </label>
-              <div className="flex items-center gap-2">
-                {[15, 25, 45, 60, 90].map((mins) => (
-                  <button
-                    key={mins}
-                    type="button"
-                    onClick={() => setTargetMinutes(mins)}
-                    className={cn(
-                      "flex-1 py-1.5 text-xs font-mono font-bold border transition-colors cursor-pointer",
-                      targetMinutes === mins
-                        ? "bg-[#d97706] text-black border-[#fde047]"
-                        : "bg-[#120703] text-slate-300 border-[#542d17] hover:bg-[#281308]"
-                    )}
-                  >
-                    {mins}m
+                    {sig}
                   </button>
                 ))}
               </div>
             </div>
+
+            {/* Domain Category & Target Duration */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-pixel font-bold text-[#fbbf24] uppercase block">
+                  Domain Category
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value as FocusCategory)}
+                  className="w-full px-3 py-2 bg-[#120703] border-2 border-[#542d17] text-white text-sm font-sans focus:outline-none focus:border-[#f59e0b]"
+                >
+                  {categories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-pixel font-bold text-[#fbbf24] uppercase block">
+                  Target Session Rite (Minutes)
+                </label>
+                <div className="flex items-center gap-2">
+                  {[15, 25, 45, 60, 90].map((mins) => (
+                    <button
+                      key={mins}
+                      type="button"
+                      onClick={() => setTargetMinutes(mins)}
+                      className={cn(
+                        "flex-1 py-1.5 text-xs font-mono font-bold border transition-colors cursor-pointer",
+                        targetMinutes === mins
+                          ? "bg-[#d97706] text-black border-[#fde047]"
+                          : "bg-[#120703] text-slate-300 border-[#542d17] hover:bg-[#281308]"
+                      )}
+                    >
+                      {mins}m
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Notes / Objectives */}
+            <div className="space-y-1.5 pb-1">
+              <label className="text-xs font-pixel font-bold text-[#fbbf24] uppercase block">
+                Study Objectives / Inscription Notes
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Key concepts, chapters, or syllabus goals to record..."
+                rows={2}
+                className="w-full px-3 py-2 bg-[#120703] border-2 border-[#542d17] text-white text-sm font-sans focus:outline-none focus:border-[#f59e0b] placeholder-slate-500 resize-none"
+              />
+            </div>
           </div>
 
-          {/* Notes / Objectives */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-pixel font-bold text-[#fbbf24] uppercase block">
-              Study Objectives / Inscription Notes
-            </label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Key concepts, chapters, or syllabus goals to record..."
-              rows={2}
-              className="w-full px-3 py-2 bg-[#120703] border-2 border-[#542d17] text-white text-sm font-sans focus:outline-none focus:border-[#f59e0b] placeholder-slate-500"
-            />
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#542d17]">
+          {/* Pinned Action Buttons Footer */}
+          <div className="flex items-center justify-end gap-2.5 pt-3 mt-3 border-t-2 border-[#542d17] shrink-0 bg-[#231109]">
             <PixelButton
               type="button"
               variant="dark"
@@ -722,7 +768,8 @@ function TomeModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

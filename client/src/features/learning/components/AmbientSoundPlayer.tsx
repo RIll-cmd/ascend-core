@@ -12,6 +12,7 @@ import {
 import { useLearningStore, AmbientSoundType } from "../store/useLearningStore";
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
 import { cn } from "@/lib/utils";
+import Slider from "@/components/ui/8bit/slider";
 
 const SOUND_OPTIONS: {
   id: AmbientSoundType;
@@ -269,15 +270,15 @@ export const AmbientSoundPlayer: React.FC<{ className?: string }> = ({ className
           ) : (
             <PixelVolumeMuteIcon className="w-4 h-4 text-[#78695d] shrink-0" />
           )}
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
+          <Slider
+            min={0}
+            max={1}
+            step={0.05}
             value={ambientVolume}
-            onChange={(e) => setAmbientVolume(parseFloat(e.target.value))}
+            onChange={(val) => setAmbientVolume(val)}
+            variant="retro"
+            className="w-20 sm:w-24"
             aria-label="Ambient soundscape volume"
-            className="w-20 sm:w-24 h-2 bg-[#251208] appearance-none cursor-pointer accent-[#f59e0b] border border-[#4a2813]"
           />
           <span className="text-xs sm:text-sm font-mono font-bold text-[#fbbf24] tabular-nums min-w-[36px] text-right">
             {Math.round(ambientVolume * 100)}%

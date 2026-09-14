@@ -11,6 +11,11 @@ const WeeklyExpChart = dynamic(
   { ssr: false }
 );
 
+const ChartAreaStep = dynamic(
+  () => import("@/components/ui/8bit/blocks/chart-area-step").then((mod) => mod.ChartAreaStep),
+  { ssr: false }
+);
+
 export default function AnalyticsPage() {
   const {
     goldLogs,
@@ -19,6 +24,8 @@ export default function AnalyticsPage() {
     loadWeeklyAnalytics,
     isLoading: isAnalyticsLoading,
   } = useProgressionStore();
+
+  const [chartMode, setChartMode] = React.useState<"smooth" | "retro">("retro");
 
   useEffect(() => {
     loadWeeklyAnalytics("char-id-123");
@@ -60,22 +67,66 @@ export default function AnalyticsPage() {
 
       {/* ANALYTICS CONTAINER CARD */}
       <div className="rounded-[24px] bg-[#151C33] border border-white/10 p-6 md:p-8 shadow-2xl relative overflow-hidden">
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10 flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <Activity className="w-5 h-5 text-purple-400" />
             <h2 className="text-lg font-bold font-heading text-white">
               System Telemetry Matrix
             </h2>
           </div>
-          <span className="text-xs font-mono text-slate-400">
-            REAL-TIME DATA STREAM
-          </span>
+
+          <div className="flex items-center gap-3">
+            {/* Chart Style Switcher */}
+            <div className="flex items-center bg-[#0B1020] border border-white/20 p-0.5 rounded-md">
+              <button
+                type="button"
+                onClick={() => setChartMode("retro")}
+                className={`px-2.5 py-1 text-[10px] font-mono font-bold rounded transition-colors ${
+                  chartMode === "retro"
+                    ? "bg-[#f6c453] text-black shadow-sm"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                8-BIT STEP
+              </button>
+              <button
+                type="button"
+                onClick={() => setChartMode("smooth")}
+                className={`px-2.5 py-1 text-[10px] font-mono font-bold rounded transition-colors ${
+                  chartMode === "smooth"
+                    ? "bg-purple-600 text-white shadow-sm"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                BÉZIER SMOOTH
+              </button>
+            </div>
+
+            <span className="text-xs font-mono text-slate-400 hidden sm:inline">
+              REAL-TIME DATA STREAM
+            </span>
+          </div>
         </div>
 
         {/* CHARTS GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <WeeklyExpChart data={weeklyExpData} isLoading={isAnalyticsLoading} />
+            {chartMode === "retro" ? (
+              <ChartAreaStep
+                title="WEEKLY EXP ASCENSION VELOCITY"
+                description="Stepped 8-bit velocity telemetry across daily cycles"
+                valueLabel="EXP Gained"
+                unit="EXP"
+                color="gold"
+                data={weeklyExpData.map((d) => ({
+                  label: d.day.toUpperCase(),
+                  value: d.exp,
+                }))}
+                className="bg-[#0D1322] border-slate-800/80"
+              />
+            ) : (
+              <WeeklyExpChart data={weeklyExpData} isLoading={isAnalyticsLoading} />
+            )}
           </div>
           <div className="lg:col-span-1">
             <HistoryTimeline logs={goldLogs} isLoading={isAnalyticsLoading} />

@@ -27,13 +27,16 @@ import {
   PixelMoonSleepIcon,
 } from "@/components/ui/pixel/PixelIcons";
 import { NumberTicker } from "@/components/ui/number-ticker";
-import { playUIMenuSFX } from "@/utils/audio";
+import { playUIMenuSFX, playBuffSFX } from "@/utils/audio";
+import { toast } from "sonner";
+import QuestLog, { QuestItemData } from "@/components/ui/8bit/blocks/quest-log";
 
 export default function HabitsDashboardPage() {
   const { habits, isLoading, loadHabits } = useHabitStore();
   const { character } = useCharacterStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const [showQuestLog, setShowQuestLog] = useState(false);
 
   useEffect(() => {
     loadHabits();
@@ -163,16 +166,63 @@ export default function HabitsDashboardPage() {
             </div>
           </div>
 
-          <Link href="/habits/create" onClick={() => playUIMenuSFX("confirm")}>
+          <div className="flex items-center gap-2.5 flex-wrap shrink-0">
             <button
               type="button"
-              className="px-4 py-2.5 bg-[#e05344] hover:bg-[#ef4444] text-white font-pixel font-bold text-xs border border-[#821e14] shadow-[3px_3px_0_0_#47110c] active:translate-y-0.5 cursor-pointer flex items-center gap-2 shrink-0 transition-all focus-visible:ring-2 focus-visible:ring-[#fba170]"
+              onClick={() => {
+                playUIMenuSFX("click");
+                setShowQuestLog((prev) => !prev);
+              }}
+              className={`px-3.5 py-2.5 font-pixel font-bold text-xs border shadow-[3px_3px_0_0_#140b0e] active:translate-y-0.5 cursor-pointer flex items-center gap-2 transition-all ${
+                showQuestLog
+                  ? "bg-[#fba170] text-[#140b0e] border-[#fba170]"
+                  : "bg-[#1c1114] text-[#fba170] border-[#e05344]/50 hover:bg-[#2e181c]"
+              }`}
             >
-              <PixelPlusIcon className="w-4 h-4 text-white" />
-              <span>Forge New Ritual</span>
+              <PixelScrollIcon className="w-4 h-4" />
+              <span>{showQuestLog ? "Hide Quest Log" : "Active Bounties"}</span>
             </button>
-          </Link>
+
+            <Link href="/habits/create" onClick={() => playUIMenuSFX("confirm")}>
+              <button
+                type="button"
+                className="px-4 py-2.5 bg-[#e05344] hover:bg-[#ef4444] text-white font-pixel font-bold text-xs border border-[#821e14] shadow-[3px_3px_0_0_#47110c] active:translate-y-0.5 cursor-pointer flex items-center gap-2 shrink-0 transition-all focus-visible:ring-2 focus-visible:ring-[#fba170]"
+              >
+                <PixelPlusIcon className="w-4 h-4 text-white" />
+                <span>Forge New Ritual</span>
+              </button>
+            </Link>
+          </div>
         </div>
+
+        {/* 8-bit Expandable Quest Log Drawer */}
+        {showQuestLog && (
+          <div className="mt-5 pt-4 border-t border-[#e05344]/30 animate-in fade-in slide-in-from-top-3 duration-300">
+            <QuestLog
+              title="SACRED DISCIPLINE BOUNTIES & QUESTS"
+              emptyStateMessage="No active bounties or habits found. Forge a new ritual to begin your ascent."
+              quests={activeHabits.slice(0, 8).map((h, i): QuestItemData => {
+                const category: "DAILY" | "WEEKLY" | "TOWER" | "BOUNTY" = 
+                  h.schedule?.daysOfWeek ? "WEEKLY" : (i % 3 === 0 ? "BOUNTY" : "DAILY");
+                return {
+                  id: h.id,
+                  title: h.name,
+                  description: h.description || `Daily habit tracking ${h.category || "discipline"} with mastery rating ${h.metrics?.habitStrength || 0}%.`,
+                  status: (h.metrics?.currentStreak || 0) > 0 ? "active" : "pending",
+                  category,
+                  expReward: 50 + (h.metrics?.currentStreak || 1) * 10,
+                  goldReward: 20 + (h.metrics?.currentStreak || 1) * 5,
+                  deadline: h.schedule?.daysOfWeek ? "Weekly Target" : "Daily Reset",
+                };
+              })}
+              onClaim={(id) => {
+                playBuffSFX("buff");
+                toast.success(`Ritual discipline bounty claimed! +EXP and +Gold awarded.`);
+              }}
+              className="bg-[#140b0e]/95 border-[#e05344]/50"
+            />
+          </div>
+        )}
       </div>
 
       {/* ========================================================= */}

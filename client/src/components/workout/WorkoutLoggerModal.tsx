@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   EnrichedExercise,
   LoggedSetInput,
@@ -60,7 +61,12 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
     { id: "set-2", weight: 65, reps: 8, rpe: 8.5, completed: true },
     { id: "set-3", weight: 70, reps: 6, rpe: 9.0, completed: true },
   ]);
+  const [mounted, setMounted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -78,7 +84,7 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
     }
   }, [availableExercises, initialExerciseId, selectedExerciseId]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const filteredExercises = availableExercises.filter(
     (ex) =>
@@ -97,7 +103,7 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
     setSets((prev) => [
       ...prev,
       {
-        id: `set-${Date.now()}`,
+        id: `set-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         weight: lastSet ? lastSet.weight : 50,
         reps: lastSet ? lastSet.reps : 10,
         rpe: lastSet ? lastSet.rpe : 8.0,
@@ -170,12 +176,12 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-2xl bg-[#140e0c] border-4 border-[#5c4033] p-5 sm:p-6 text-stone-100 space-y-5 max-h-[90vh] flex flex-col rounded-none select-none"
+        className="relative my-auto w-full max-w-2xl bg-[#140e0c] border-4 border-[#5c4033] p-4 sm:p-5 text-stone-100 max-h-[min(800px,calc(100dvh-2.5rem))] flex flex-col min-h-0 overflow-hidden rounded-none select-none"
         style={{
-          boxShadow: "0 0 0 2px #261914, 0 12px 0 0 #0d0807, 0 24px 36px rgba(0,0,0,0.9)",
+          boxShadow: "0 0 0 2px #261914, 0 8px 0 0 #0d0807, 0 20px 30px rgba(0,0,0,0.9)",
         }}
       >
         {/* Iron Corner Studs */}
@@ -209,7 +215,7 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
         </div>
 
         {/* Modal Scrollable Body */}
-        <div className="space-y-4 overflow-y-auto pr-1 flex-1 custom-scrollbar">
+        <div className="space-y-3.5 overflow-y-auto pr-1 flex-1 min-h-0 custom-scrollbar mt-3">
           {/* Exercise Search & Selection Bar */}
           <div className="space-y-2">
             <label className="font-pixel text-[9px] text-[#f59e0b] flex items-center justify-between uppercase tracking-wider">
@@ -231,7 +237,7 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
             </div>
 
             {/* Quick Exercise Carousel/Selector */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-36 overflow-y-auto pr-1 custom-scrollbar">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-28 sm:max-h-32 overflow-y-auto pr-1 custom-scrollbar">
               {filteredExercises.slice(0, 9).map((ex) => {
                 const isSel = ex.id === selectedExerciseId;
                 return (
@@ -436,7 +442,7 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
         </div>
 
         {/* Footer / Submit Bar */}
-        <div className="pt-3 border-t-2 border-[#2c1e19] flex items-center justify-between gap-4 shrink-0">
+        <div className="pt-3 mt-3 border-t-2 border-[#2c1e19] flex items-center justify-between gap-4 shrink-0">
           <div className="font-pixel text-[9px] text-stone-400">
             XP: <span className="text-[#f59e0b] font-bold">+{sets.length * 50} EXP</span> • BOSS DMG:{" "}
             <span className="text-[#ef4444] font-bold">APPLIED</span>
@@ -461,6 +467,7 @@ export const WorkoutLoggerModal: React.FC<WorkoutLoggerModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

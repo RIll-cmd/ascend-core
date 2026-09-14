@@ -49,6 +49,7 @@ import { useNotificationStore } from "@/store/useNotificationStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { fetcher } from "@/lib/api";
 import { PixelProgress } from "@/components/ui/pixel/PixelProgress";
+import XpBar from "@/components/ui/8bit/xp-bar";
 
 export function Topbar() {
   const router = useRouter();
@@ -67,12 +68,12 @@ export function Topbar() {
   const pomodoroMode = useLearningStore((state) => state.mode);
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isMounted, setIsMounted] = React.useState(false);
+  const isMounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const unreadCount = useNotificationStore((state) => state.getUnreadCount());
-
-  React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const name = character?.name || "Shadow Monarch";
   const rank = character?.rank || "F";
@@ -172,15 +173,15 @@ export function Topbar() {
 
                   {/* 8-bit EXP Progress Bar */}
                   <div className="flex items-center gap-2">
-                    <div className="w-28">
-                      <PixelProgress
+                    <div className="w-28 sm:w-32">
+                      <XpBar
                         value={levelData.progressPercentage}
-                        max={100}
-                        variant="primary"
-                        height="sm"
+                        currentExp={levelData.currentExpInLevel}
+                        expToNextLevel={levelData.expToNextLevel}
+                        progressProps={{ className: "h-2 sm:h-2.5" }}
                       />
                     </div>
-                    <span className="text-xs text-white font-pixel">
+                    <span className="text-xs text-white font-pixel tabular-nums">
                       EXP {levelData.currentExpInLevel}/{levelData.expToNextLevel}
                     </span>
                   </div>
@@ -213,6 +214,17 @@ export function Topbar() {
                     </span>
                   </div>
                 </div>
+              </div>
+
+              {/* Level EXP Stepped Progress */}
+              <div className="mb-3 px-0.5">
+                <XpBar
+                  value={levelData.progressPercentage}
+                  currentExp={levelData.currentExpInLevel}
+                  expToNextLevel={levelData.expToNextLevel}
+                  showText
+                  progressProps={{ className: "h-3" }}
+                />
               </div>
 
               {/* Mini Stat Matrix */}
