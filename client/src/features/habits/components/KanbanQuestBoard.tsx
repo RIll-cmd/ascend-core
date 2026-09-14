@@ -112,9 +112,9 @@ export const KanbanQuestBoard: React.FC = () => {
       {/* CARVED WOODEN QUEST BOARD HEADER PLAQUE (Directly on Board) */}
       {/* ======================================================= */}
       <div className="relative mx-auto max-w-2xl mb-1">
-        <div className="bg-[#422211] border-y-4 border-[#1f0f08] p-2.5 sm:p-3 shadow-[inset_2px_2px_0_0_#733d1e,inset_-2px_-2px_0_0_#140a05,3px_3px_0_0_#000] flex flex-col items-center justify-center relative">
+        <div className="bg-[#422211] border-y-6 border-[#1f0f08] p-2.5 sm:p-3 shadow-[inset_2px_2px_0_0_#733d1e,inset_-2px_-2px_0_0_#140a05,4px_4px_0_0_#000] flex flex-col items-center justify-center relative">
           {/* Stepped pixel side borders */}
-          <div className="absolute inset-0 border-x-4 -mx-1 border-[#1f0f08] pointer-events-none" aria-hidden="true" />
+          <div className="absolute inset-0 border-x-6 -mx-1.5 border-[#1f0f08] pointer-events-none" aria-hidden="true" />
           {/* Corner Iron Screws / Nails */}
           <div className="absolute top-2 left-2 w-2 h-2 rounded-full bg-[#111827] border border-[#4b5563] shadow-[inset_1px_1px_0_0_#9ca3af] z-10" />
           <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#111827] border border-[#4b5563] shadow-[inset_1px_1px_0_0_#9ca3af] z-10" />
@@ -122,8 +122,8 @@ export const KanbanQuestBoard: React.FC = () => {
           <div className="absolute bottom-2 right-2 w-2 h-2 rounded-full bg-[#111827] border border-[#4b5563] shadow-[inset_1px_1px_0_0_#9ca3af] z-10" />
 
           {/* Inset Parchment / Light Wood Carved Title Plate */}
-          <div className="relative bg-[#edd19d] border-y-2 border-[#2b1810] px-8 py-1.5 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.4),0_2px_4px_rgba(0,0,0,0.5)] flex items-center justify-center gap-3">
-            <div className="absolute inset-0 border-x-2 -mx-0.5 border-[#2b1810] pointer-events-none" aria-hidden="true" />
+          <div className="relative bg-[#edd19d] border-y-4 border-[#2b1810] px-8 py-1.5 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.4),2px_2px_0_0_#000] flex items-center justify-center gap-3">
+            <div className="absolute inset-0 border-x-4 -mx-1 border-[#2b1810] pointer-events-none" aria-hidden="true" />
             <span className="text-[#3d2110] font-pixel text-xs sm:text-sm">✦</span>
             <h1 className="text-base sm:text-lg md:text-xl font-bold uppercase tracking-widest text-[#241208] font-pixel text-center">
               QUEST BOARD
@@ -209,7 +209,7 @@ export const KanbanQuestBoard: React.FC = () => {
             placeholder="Search missions by title, description, category..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#fcedc7] border-2 border-[#42220f] pl-9 pr-9 py-2 text-xs text-[#2b170c] placeholder-[#8c5225]/70 focus:outline-none focus:border-amber-600 font-pixel transition-none shadow-[inset_1px_1px_0_0_#d4a373]"
+            className="w-full bg-[#fcedc7] border-2 border-black pl-9 pr-9 py-2 text-xs text-[#2b170c] placeholder-[#8c5225]/70 focus:outline-none focus:border-amber-600 font-pixel transition-none shadow-[2px_2px_0_0_#000]"
           />
           {searchQuery && (
             <button
@@ -231,7 +231,7 @@ export const KanbanQuestBoard: React.FC = () => {
               playUIMenuSFX();
               setSelectedRank((e.target.value as QuestRank) || null);
             }}
-            className="bg-[#fcedc7] border-2 border-[#42220f] hover:border-amber-600 px-3 py-2 text-xs text-[#2b170c] font-pixel focus:outline-none cursor-pointer shadow-[inset_1px_1px_0_0_#d4a373]"
+            className="bg-[#fcedc7] border-2 border-black hover:border-amber-600 px-3 py-2 text-xs text-[#2b170c] font-pixel focus:outline-none cursor-pointer shadow-[2px_2px_0_0_#000]"
           >
             <option value="" className="bg-[#fcedc7] text-[#2b170c]">All Mission Ranks</option>
             <option value="S" className="bg-[#fcedc7] text-amber-800 font-bold">S-Rank (Legendary)</option>
@@ -275,10 +275,10 @@ export const KanbanQuestBoard: React.FC = () => {
               playUIMenuSFX();
               setSelectedTag(null);
             }}
-            className={`text-[11px] py-1 px-2.5 border-2 transition-none cursor-pointer active:translate-y-0.5 ${
+            className={`text-[11px] py-1 px-2.5 border-2 border-black transition-none cursor-pointer shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none ${
               selectedTag === null
-                ? "bg-[#f5e0a3] text-[#2b170c] border-[#2b1810] shadow-[inset_1px_1px_0_0_#ffffff]"
-                : "bg-[#2b1810] text-[#d4a373] border-[#542d17] hover:border-[#8c5225]"
+                ? "bg-[#f5e0a3] text-[#2b170c] font-bold"
+                : "bg-[#2b1810] text-[#d4a373] hover:text-white"
             }`}
           >
             ALL TAGS (<NumberTicker value={quests.length} />)
@@ -292,10 +292,10 @@ export const KanbanQuestBoard: React.FC = () => {
                 playUIMenuSFX();
                 setSelectedTag(selectedTag === tag ? null : tag);
               }}
-              className={`text-[11px] py-1 px-2.5 border-2 transition-none cursor-pointer active:translate-y-0.5 lowercase ${
+              className={`text-[11px] py-1 px-2.5 border-2 border-black transition-none cursor-pointer shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none lowercase ${
                 selectedTag === tag
-                  ? "bg-[#ebd198] text-[#2b170c] border-[#2b1810] shadow-[inset_1px_1px_0_0_#ffffff] font-bold"
-                  : "bg-[#24140c] text-[#d4a373] border-[#4a2813] hover:border-[#6e3d20]"
+                  ? "bg-[#ebd198] text-[#2b170c] font-bold"
+                  : "bg-[#24140c] text-[#d4a373] hover:text-white"
               }`}
             >
               {tag.startsWith("#") ? tag : `#${tag}`}
@@ -312,7 +312,7 @@ export const KanbanQuestBoard: React.FC = () => {
           {/* Stepped pixel side borders */}
           <div className="absolute inset-0 border-x-4 -mx-1 border-[#381e0f] pointer-events-none" aria-hidden="true" />
           <div className="flex items-center gap-3 text-left">
-            <div className="w-8 h-8 bg-[#ebd099] border-2 border-[#381e0f] flex items-center justify-center text-[#2b170c] shrink-0">
+            <div className="w-8 h-8 bg-[#ebd099] border-2 border-black shadow-[2px_2px_0_0_#000] flex items-center justify-center text-[#2b170c] shrink-0">
               <PixelCrosshairIcon className="w-4 h-4 text-[#2b170c]" />
             </div>
             <div>
@@ -373,7 +373,7 @@ export const KanbanQuestBoard: React.FC = () => {
                   </div>
                 </div>
 
-                <span className="font-pixel text-xs font-bold px-2 py-0.5 bg-[#1f0e06] border border-[#522912] text-[#fef08a] shadow-[inset_1px_1px_0_0_#000]">
+                <span className="font-pixel text-xs font-bold px-2 py-0.5 bg-[#1f0e06] border-2 border-black text-[#fef08a] shadow-[2px_2px_0_0_#000]">
                   <NumberTicker value={colQuests.length} />
                 </span>
               </div>

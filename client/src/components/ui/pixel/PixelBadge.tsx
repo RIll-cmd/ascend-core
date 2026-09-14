@@ -36,14 +36,23 @@ export function PixelBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 font-pixel uppercase tracking-wider text-white font-bold border border-black shadow-[inset_1px_1px_0_0_rgba(255,255,255,0.25)]",
+        "relative inline-flex items-center gap-1.5 font-pixel uppercase tracking-wider text-white font-bold border-2 border-black shadow-[2px_2px_0_0_#000] select-none",
         variantStyles[variant] || variantStyles.default,
         sizeStyles[size],
         className
       )}
       {...props}
     >
+      {/* 8bitcn stepped pixel side notches */}
+      <span
+        aria-hidden="true"
+        className="absolute -left-[3px] inset-y-[2px] w-[3px] bg-inherit border-y-2 border-l-2 border-black pointer-events-none"
+      />
       {children}
+      <span
+        aria-hidden="true"
+        className="absolute -right-[3px] inset-y-[2px] w-[3px] bg-inherit border-y-2 border-r-2 border-black pointer-events-none"
+      />
     </span>
   );
 }

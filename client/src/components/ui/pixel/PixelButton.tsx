@@ -68,7 +68,7 @@ export function PixelButton({
       type={type}
       disabled={disabled}
       className={cn(
-        "pixel-btn font-pixel normal-case tracking-wider font-bold rounded-none active:translate-y-0.5 transition-colors cursor-pointer",
+        "pixel-btn font-pixel normal-case tracking-wider font-bold rounded-none border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-colors cursor-pointer",
         variantStyles[variant] || variantStyles.primary,
         sizeStyles[size],
         disabled && "opacity-50 cursor-not-allowed pointer-events-none filter grayscale",
