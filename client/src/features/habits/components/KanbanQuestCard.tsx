@@ -100,9 +100,9 @@ export const KanbanQuestCard: React.FC<KanbanQuestCardProps> = ({ quest }) => {
           <PixelBadge variant={rankVariant} size="sm" className="font-bold tracking-wider text-[10px]">
             {quest.rank}-RANK
           </PixelBadge>
-          <span className="font-pixel text-[10px] text-[#4a2612] font-bold uppercase bg-[#dfba7c]/70 border border-[#8a572c]/60 px-1.5 py-0.5 shadow-[1px_1px_0_0_rgba(0,0,0,0.1)]">
+          <PixelBadge variant="gold" size="sm" className="font-bold tracking-wider text-[10px]">
             {quest.category}
-          </span>
+          </PixelBadge>
         </div>
 
         <div className="flex items-center gap-1">
@@ -154,7 +154,7 @@ export const KanbanQuestCard: React.FC<KanbanQuestCardProps> = ({ quest }) => {
           {quest.tags.map((tag) => (
             <span
               key={tag}
-              className="font-pixel text-[9px] text-[#452714] bg-[#ebd198] border border-[#a8743e]/50 px-1 py-0.2 shadow-[1px_1px_0_0_rgba(0,0,0,0.15)] lowercase"
+              className="font-pixel text-[9px] text-[#452714] bg-[#ebd198] border border-black shadow-[1px_1px_0_0_#000] px-1.5 py-0.5 lowercase"
             >
               {tag.startsWith("#") ? tag : `#${tag}`}
             </span>
