@@ -107,6 +107,7 @@ export const SIDEBAR_NAV_SECTIONS: SidebarNavSection[] = [
       { id: "aira", index: "17", label: "AI System / AIRA", href: "/aira", ariaLabel: "Open AIRA AI System", icon: GraphicAiraIcon, category: "system" },
       { id: "achievements", index: "18", label: "Achievements", href: "/achievements", ariaLabel: "Open Achievements", icon: GraphicAchievementsIcon, category: "system" },
       { id: "automations", index: "19", label: "Automations", href: "/automations", ariaLabel: "Manage automation rules", icon: GraphicAutomationsIcon, category: "system" },
+      { id: "editor", index: "20", label: "8bitcn Studio", href: "/editor", ariaLabel: "Open 8bitcn Element Studio", icon: GraphicSkillsIcon, category: "system" },
     ],
   },
 ];

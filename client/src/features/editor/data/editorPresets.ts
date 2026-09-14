@@ -1,0 +1,246 @@
+import { EditorPreset } from "../types/editor";
+
+export const EDITOR_PRESETS: EditorPreset[] = [
+  {
+    id: "combat-hud",
+    name: "⚔️ Boss Battle HUD",
+    description: "Complete boss combat layout with boss HP, player stats, and battle actions.",
+    icon: "Sword",
+    elements: [
+      {
+        id: "preset-boss-hp",
+        type: "enemy-health",
+        name: "Boss Health Display",
+        category: "combat",
+        props: {
+          bossName: "MALIKETH, THE VOID TITAN",
+          currentHp: 14200,
+          maxHp: 20000,
+          phase: 2,
+          maxPhases: 3,
+        },
+      },
+      {
+        id: "preset-player-hp",
+        type: "health-bar",
+        name: "Player Health Bar",
+        category: "combat",
+        props: {
+          currentHp: 920,
+          maxHp: 1000,
+          showText: true,
+        },
+      },
+      {
+        id: "preset-player-mp",
+        type: "mana-bar",
+        name: "Player Mana Bar",
+        category: "combat",
+        props: {
+          currentMp: 410,
+          maxMp: 600,
+          showText: true,
+        },
+      },
+      {
+        id: "preset-battle-btn",
+        type: "button",
+        name: "Strike Action Button",
+        category: "primitives",
+        props: {
+          text: "⚔️ CAST SACRED BLADE [SPACE]",
+          variant: "gold",
+          size: "lg",
+        },
+      },
+    ],
+  },
+  {
+    id: "quest-bounty-deck",
+    name: "📜 Quest & Bounty Board",
+    description: "Main quest card with S-rank badge, rewards pool, and action.",
+    icon: "Scroll",
+    elements: [
+      {
+        id: "preset-quest-1",
+        type: "quest-card",
+        name: "Main Quest Card",
+        category: "rpg",
+        props: {
+          title: "Kindle the Kyoto Lanterns",
+          category: "MAIN QUEST",
+          rank: "S-RANK",
+          rewardExp: 2400,
+          rewardGold: 1200,
+          objective: "Maintain unbroken 7-day habit discipline cadence",
+          progress: "6 / 7",
+        },
+      },
+      {
+        id: "preset-badge-1",
+        type: "badge",
+        name: "Guild Decree Badge",
+        category: "primitives",
+        props: {
+          text: "✦ GUILDMASTER CERTIFIED REWARD ✦",
+          variant: "gold",
+          font: "retro",
+        },
+      },
+      {
+        id: "preset-claim-btn",
+        type: "button",
+        name: "Claim Reward Button",
+        category: "primitives",
+        props: {
+          text: "CLAIM 1,200G & ASCEND",
+          variant: "gold",
+          size: "md",
+        },
+      },
+    ],
+  },
+  {
+    id: "story-dialogue",
+    name: "💬 RPG Story Encounter",
+    description: "NPC dialogue scene with typewriter message and choice responses.",
+    icon: "MessageSquare",
+    elements: [
+      {
+        id: "preset-dialogue-1",
+        type: "dialogue",
+        name: "AIRA System Dialogue",
+        category: "rpg",
+        props: {
+          speakerName: "A.I.R.A. (Ascension Core)",
+          avatarFallback: "AI",
+          dialogueText: "Greetings Aspirant CB. You have attained 98.4% habit fulfillment this cycle. The Spire gates are ready.",
+          isPlayer: false,
+        },
+      },
+      {
+        id: "preset-choice-1",
+        type: "button",
+        name: "Affirm Choice Button",
+        category: "primitives",
+        props: {
+          text: "1. ENTER THE SPIRE OF ASCENSION",
+          variant: "gold",
+          size: "md",
+        },
+      },
+      {
+        id: "preset-choice-2",
+        type: "button",
+        name: "Meditate Choice Button",
+        category: "primitives",
+        props: {
+          text: "2. COMMUNE WITH SANCTUARY SPIRITS",
+          variant: "secondary",
+          size: "md",
+        },
+      },
+    ],
+  },
+  {
+    id: "inventory-armory",
+    name: "🎒 Armory & Equipment Deck",
+    description: "Equipment slots showing common, rare, and legendary 8bit items.",
+    icon: "Package",
+    elements: [
+      {
+        id: "preset-item-legendary",
+        type: "item-slot",
+        name: "Mythic Item Slot",
+        category: "rpg",
+        props: {
+          name: "Void Sovereign Katana",
+          rarity: "mythic",
+          level: 99,
+          iconType: "sword",
+          description: "+180 Attack, +25% Critical Velocity, Soul Leech",
+          quantity: 1,
+        },
+      },
+      {
+        id: "preset-item-rare",
+        type: "item-slot",
+        name: "Rare Item Slot",
+        category: "rpg",
+        props: {
+          name: "Ronin Stepping Boots",
+          rarity: "rare",
+          level: 45,
+          iconType: "shield",
+          description: "+30 Agility, Decreases Dash Interval by 15%",
+          quantity: 1,
+        },
+      },
+      {
+        id: "preset-xp-bar",
+        type: "xp-bar",
+        name: "Player XP Progress",
+        category: "combat",
+        props: {
+          currentXp: 8800,
+          maxXp: 10000,
+          level: 50,
+          showText: true,
+        },
+      },
+    ],
+  },
+  {
+    id: "sanctuary-telemetry",
+    name: "📊 Sanctuary Telemetry Deck",
+    description: "Stepped telemetry card, ambient sound slider, and retro switches.",
+    icon: "Activity",
+    elements: [
+      {
+        id: "preset-plaque",
+        type: "container-plaque",
+        name: "Sanctuary Plaque",
+        category: "layout",
+        props: {
+          title: "KYOTO SANCTUARY // TELEMETRY HUB",
+          subtitle: "REAL-TIME CADENCE & HARMONY MONITOR",
+        },
+      },
+      {
+        id: "preset-telemetry",
+        type: "telemetry-card",
+        name: "Mastery Card",
+        category: "layout",
+        props: {
+          label: "CONSECUTIVE ZEN CADENCE",
+          value: "365 DAYS",
+          change: "+100% UNBROKEN STREAK",
+          iconType: "monolith",
+        },
+      },
+      {
+        id: "preset-slider",
+        type: "slider",
+        name: "BGM Volume Slider",
+        category: "primitives",
+        props: {
+          label: "Temple Hearth Ambience",
+          value: 80,
+          min: 0,
+          max: 100,
+          step: 5,
+        },
+      },
+      {
+        id: "preset-switch",
+        type: "switch",
+        name: "Scanlines Switch",
+        category: "primitives",
+        props: {
+          label: "CRT Retro Phosphor Scanlines",
+          checked: true,
+        },
+      },
+    ],
+  },
+];
