@@ -235,7 +235,20 @@ export default function AutomationsPage() {
   /*  RENDER                                                                */
   /* ═══════════════════════════════════════════════════════════════════════ */
   return (
-    <div className="automations-neo-theme space-y-5 pb-12">
+    <div className="automations-neo-theme relative space-y-5 pb-12">
+      {/* Neo grid background — covers entire automations viewport */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          backgroundImage: "url('/backgrounds/automations-neo-grid.jpg')",
+          backgroundRepeat: "repeat",
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+          opacity: 0.06,
+        }}
+      />
+      <div className="relative z-10 space-y-5">
       {/* ── Page Header ────────────────────────────────────────────────── */}
       <section className="rounded-base border-2 border-border bg-card p-5 shadow-shadow">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -500,6 +513,7 @@ export default function AutomationsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>{/* end z-10 content wrapper */}
     </div>
   );
 }

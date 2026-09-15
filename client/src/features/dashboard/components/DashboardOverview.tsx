@@ -42,21 +42,36 @@ export function DashboardOverview() {
   return (
     <div
       suppressHydrationWarning
-      className="dashboard-8bit-theme w-full min-h-full bg-background text-foreground space-y-4 sm:space-y-5 p-2 sm:p-4 md:p-6 select-none max-w-[1600px] mx-auto"
+      className="dashboard-8bit-theme relative w-full min-h-full text-foreground space-y-4 sm:space-y-5 p-2 sm:p-4 md:p-6 select-none max-w-[1600px] mx-auto"
     >
+      {/* Pixel forest background — covers entire dashboard viewport */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          backgroundImage: "url('/backgrounds/dashboard-pixel-forest.png')",
+          backgroundRepeat: "repeat",
+          backgroundPosition: "bottom center",
+          backgroundSize: "auto 50%",
+          opacity: 0.12,
+          imageRendering: "pixelated",
+        }}
+      />
       {/* ========================================================= */}
       {/* ROW 1: DASHBOARD COMMAND CENTER HEADER (12 COLUMNS)       */}
       {/* ========================================================= */}
-      <DashboardHeader
-        level={character?.level || 1}
-        completedCount={combinedCompletedCount}
-        totalCount={combinedTotalCount}
-      />
+      <div className="relative z-10">
+        <DashboardHeader
+          level={character?.level || 1}
+          completedCount={combinedCompletedCount}
+          totalCount={combinedTotalCount}
+        />
+      </div>
 
       {/* ========================================================= */}
       {/* RESPONSIVE 12-COLUMN BENTO GRID                           */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-12 gap-4 sm:gap-5 items-stretch">
+      <div className="relative z-10 grid grid-cols-12 gap-4 sm:gap-5 items-stretch">
         {/* ROW 2: TODAY / FIELD DISPATCH (7 COLUMNS) */}
         <div className="col-span-12 xl:col-span-7 flex flex-col min-h-[460px]">
           <DashboardTodayCard

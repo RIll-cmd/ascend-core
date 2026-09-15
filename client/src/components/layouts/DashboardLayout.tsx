@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { SidebarNav } from "@/components/SidebarNav";
 import { Topbar } from "@/components/Topbar";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -9,16 +10,23 @@ import { SleepDrawer } from "@/features/sleep/components/SleepDrawer";
 import { LearningDrawer } from "@/features/learning/components/LearningDrawer";
 import { PixelCelestialNightBackground } from "@/components/ui/pixel/PixelCelestialNightBackground";
 
+/** Routes that use their own scoped backgrounds instead of the shared celestial sky */
+const ROUTES_WITHOUT_CELESTIAL_BG = ["/dashboard", "/aira", "/automations"];
+
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   useAiraNotification();
+  const pathname = usePathname();
+  const showCelestialBg = !ROUTES_WITHOUT_CELESTIAL_BG.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  );
 
   return (
     <div
       suppressHydrationWarning
       className="flex h-screen h-[100dvh] min-h-screen w-full bg-[#060412] text-zinc-100 overflow-hidden font-sans relative"
     >
-      {/* === 16-BIT AUTHENTIC CELESTIAL NIGHT SKY (AURORAS, CONSTELLATIONS & SHOOTING STARS) === */}
-      <PixelCelestialNightBackground />
+      {/* === 16-BIT AUTHENTIC CELESTIAL NIGHT SKY (hidden on routes with scoped backgrounds) === */}
+      {showCelestialBg && <PixelCelestialNightBackground />}
 
       <SidebarNav />
 
@@ -43,3 +51,4 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 }
 
 export default DashboardLayout;
+
