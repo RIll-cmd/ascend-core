@@ -1,7 +1,7 @@
 <div align="center">
 
 # 🌌 ASCEND CORE
-### The Gamified Self-Mastery & Physical Evolution. Preview Pictures and Vercel Deployment is outdated, will update later. 
+### The Gamified Self-Mastery & Physical Evolution. Preview Pictures, Videos and Vercel Deployment is outdated, will update later. 
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.12-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-blue?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
