@@ -107,7 +107,10 @@ client/.impeccable/
 
 # AI Agent Artifacts & Skill Locks
 skills-lock.json
-.agents/
+.agents/*
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/impeccable/
 .agent/
 .agentskills/
 

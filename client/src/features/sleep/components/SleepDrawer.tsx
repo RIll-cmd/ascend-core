@@ -36,7 +36,7 @@ export const SleepDrawer: React.FC = () => {
 
       {/* Slide-out 8-Bit Retro Sidebar Drawer */}
       <aside
-        className="relative w-full max-w-lg h-full bg-[#120824]/98 border-l-4 border-[#3c1860] p-5 sm:p-6 shadow-[-8px_0_0_0_#000] flex flex-col justify-between overflow-y-auto z-10 space-y-5 animate-in slide-in-from-right duration-300 text-slate-100 select-none"
+        className="relative w-full max-w-lg h-full bg-[#120824]/98 border-l-2 border-[#3c1860] p-5 sm:p-6 shadow-[-8px_0_0_0_#000] flex flex-col justify-between overflow-y-auto z-10 space-y-5 animate-in slide-in-from-right duration-300 text-slate-100 select-none"
       >
         {/* Top Drawer Controls */}
         <div className="flex items-center justify-between border-b-2 border-[#3c1860] pb-4">

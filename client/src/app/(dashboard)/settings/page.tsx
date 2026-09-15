@@ -508,7 +508,7 @@ export default function SettingsPage() {
                 type="button"
                 onClick={handleUpdateUsername}
                 disabled={isUpdatingUsername || usernameStatus === "taken" || newUsername === user?.username || !newUsername.trim()}
-                className="h-10 px-4 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold font-mono text-xs rounded-xl disabled:opacity-40 cursor-pointer"
+                className="h-10 px-4 bg-cyan-600 hover:bg-cyan-500 text-black font-bold font-mono text-xs rounded-xl disabled:opacity-40 cursor-pointer"
               >
                 {isUpdatingUsername ? "Updating..." : "Update Handle"}
               </Button>
@@ -579,7 +579,7 @@ export default function SettingsPage() {
                         type="button"
                         onClick={handleVerifyLinkOtp}
                         disabled={isVerifyingLinkOtp || linkOtp.length !== 6}
-                        className="h-10 px-4 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold font-mono text-xs rounded-lg disabled:opacity-40 cursor-pointer"
+                        className="h-10 px-4 bg-emerald-600 hover:bg-emerald-500 text-black font-bold font-mono text-xs rounded-lg disabled:opacity-40 cursor-pointer"
                       >
                         {isVerifyingLinkOtp ? "Verifying..." : "Verify & Link"}
                       </Button>

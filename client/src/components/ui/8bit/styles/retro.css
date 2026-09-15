@@ -24,13 +24,13 @@
   animation: pixel-blink 0.6s step-end infinite;
 }
 
-@keyframes retro-bounce {
+@keyframes retro-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
 
-.animate-retro-bounce {
-  animation: retro-bounce 0.8s ease-in-out infinite;
+.animate-retro-float {
+  animation: retro-float 0.8s ease-in-out infinite;
 }
 
 @keyframes crt-scanline {

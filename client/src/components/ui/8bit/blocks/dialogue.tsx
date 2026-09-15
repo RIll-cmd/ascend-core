@@ -148,7 +148,7 @@ export default function Dialogue({
         {showContinuePrompt && !currentlyTyping && (
           <div
             className={cn(
-              "absolute bottom-2 right-3 font-pixel text-xs text-[#f6c453] animate-retro-bounce select-none pointer-events-none"
+              "absolute bottom-2 right-3 font-pixel text-xs text-[#f6c453] animate-retro-float select-none pointer-events-none"
             )}
           >
             ▼

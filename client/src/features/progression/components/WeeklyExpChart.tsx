@@ -67,7 +67,7 @@ export function WeeklyExpChart({ data, isLoading }: WeeklyExpChartProps) {
           </div>
         </div>
         <div className="text-right">
-          <div className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">
+          <div className="text-lg font-bold text-indigo-400">
             +{totalExp} EXP
           </div>
           <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">

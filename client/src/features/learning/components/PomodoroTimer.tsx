@@ -801,7 +801,7 @@ function CitadelWaxSealStamp() {
     <div className="absolute inset-0 bg-black/65 backdrop-blur-xs flex items-center justify-center z-30 animate-in zoom-in-90 fade-in duration-300">
       <div className="relative flex flex-col items-center justify-center p-6 bg-[#2c120c] border-4 border-[#140804] text-center space-y-3 shadow-[0_16px_32px_rgba(0,0,0,0.9)] max-w-sm mx-4">
         {/* Glowing Citadel Red Wax Seal */}
-        <div className="w-18 h-18 bg-[#991b1b] border-4 border-[#7f1d1d] rounded-full flex items-center justify-center shadow-[0_0_24px_rgba(239,68,68,0.7),inset_2px_2px_0_#ef4444] animate-bounce">
+        <div className="w-18 h-18 bg-[#991b1b] border-4 border-[#7f1d1d] rounded-full flex items-center justify-center shadow-[0_0_24px_rgba(239,68,68,0.7),inset_2px_2px_0_#ef4444] animate-pulse">
           <div className="w-12 h-12 border-2 border-dashed border-[#fecaca] rounded-full flex items-center justify-center">
             <PixelWaxSealIcon className="w-7 h-7 text-[#fecaca]" />
           </div>
@@ -1191,7 +1191,7 @@ export const PomodoroTimer: React.FC<{ className?: string }> = ({ className = ""
               <div className="text-xs sm:text-sm font-sans font-bold text-[#78350f]">
                 {status === "RUNNING" ? (
                   <span className="text-[#047857] flex items-center gap-1.5 justify-center">
-                    <PixelQuillIcon className="w-4 h-4 text-[#10b981] drop-shadow-[0_0_6px_rgba(16,185,129,0.7)] animate-bounce" /> Deep Scribing State Active
+                    <PixelQuillIcon className="w-4 h-4 text-[#10b981] drop-shadow-[0_0_6px_rgba(16,185,129,0.7)] animate-pulse" /> Deep Scribing State Active
                   </span>
                 ) : status === "PAUSED" ? (
                   <span className="text-[#b45309]">Scribe Rite Paused • Quill at Rest</span>

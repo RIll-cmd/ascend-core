@@ -55,7 +55,7 @@ export const PixelOvergrownNest: React.FC<PixelOvergrownNestProps> = ({
               height={160}
               className={`w-32 h-32 sm:w-36 sm:h-36 object-contain drop-shadow-[0_8px_16px_rgba(15,10,5,0.7)] transition-transform duration-300 ${
                 isHatching
-                  ? "animate-bounce scale-110"
+                  ? "animate-pulse scale-110"
                   : ready
                   ? "animate-[wiggle_1.6s_ease-in-out_infinite] scale-105 cursor-pointer"
                   : "hover:scale-105"
@@ -105,10 +105,10 @@ export const PixelOvergrownNest: React.FC<PixelOvergrownNestProps> = ({
       {/* Hatching / Ready Wildflower Sparkle Particles */}
       {ready && (
         <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden">
-          <span className="absolute left-[20%] top-[25%] text-xs animate-bounce opacity-85">🌸</span>
-          <span className="absolute right-[22%] top-[28%] text-xs animate-[bounce_2s_infinite_0.4s] opacity-85">✨</span>
-          <span className="absolute left-[30%] bottom-[20%] text-xs animate-[bounce_2.2s_infinite_0.8s] opacity-85">🌱</span>
-          <span className="absolute right-[26%] bottom-[22%] text-xs animate-[bounce_1.8s_infinite_0.2s] opacity-85">🌼</span>
+          <span className="absolute left-[20%] top-[25%] text-xs animate-pulse opacity-85">🌸</span>
+          <span className="absolute right-[22%] top-[28%] text-xs animate-[pulse_2s_infinite_0.4s] opacity-85">✨</span>
+          <span className="absolute left-[30%] bottom-[20%] text-xs animate-[pulse_2.2s_infinite_0.8s] opacity-85">🌱</span>
+          <span className="absolute right-[26%] bottom-[22%] text-xs animate-[pulse_1.8s_infinite_0.2s] opacity-85">🌼</span>
         </div>
       )}
     </div>

@@ -216,7 +216,7 @@ export function BeastsAndPetsView() {
                       title="Ring the Sanctuary Bell to summon your familiar"
                       aria-label="Ring the Sanctuary Bell to summon your familiar"
                     >
-                      <Bell className={`w-3.5 h-3.5 ${bellRung ? "animate-bounce text-amber-700" : ""}`} />
+                      <Bell className={`w-3.5 h-3.5 ${bellRung ? "animate-pulse text-amber-700" : ""}`} />
                     </button>
                   </CoolMode>
                 </div>

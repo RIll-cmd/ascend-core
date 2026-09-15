@@ -51,7 +51,7 @@ export default function RootLayout({
     >
       <body
         suppressHydrationWarning
-        className="h-full bg-[#0B1020] text-slate-100 antialiased selection:bg-blue-500 selection:text-white flex flex-col font-sans"
+        className="h-full bg-[#0B1020] text-slate-100 antialiased selection:bg-[#3b82f6] selection:text-white flex flex-col font-sans"
       >
         <div suppressHydrationWarning className="flex flex-col h-full w-full">
           <UserProvider>

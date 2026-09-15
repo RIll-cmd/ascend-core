@@ -10,7 +10,7 @@ export default function GlobalLoading() {
       {/* CENTERED PULSING LOGO */}
       <div className="relative z-10 flex flex-col items-center gap-4 text-center">
         <div className="relative">
-          <div className="w-16 h-16 rounded-[22px] bg-blue-600 flex items-center justify-center text-white shadow-2xl shadow-blue-600/50 animate-bounce">
+          <div className="w-16 h-16 rounded-[22px] bg-blue-600 flex items-center justify-center text-white shadow-2xl shadow-blue-600/50 animate-pulse">
             <Sparkles className="w-9 h-9" />
           </div>
           <div className="absolute -inset-2 bg-blue-500/20 rounded-[28px] blur-md -z-10 animate-pulse" />

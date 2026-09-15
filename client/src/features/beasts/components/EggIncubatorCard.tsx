@@ -169,7 +169,7 @@ export const EggIncubatorCard: React.FC<EggIncubatorCardProps> = ({
                 alt={egg.name}
                 className={`w-full h-full object-contain drop-shadow-[0_0_20px_rgba(6,182,212,0.6)] transition-transform duration-500 select-none ${
                   isReady
-                    ? "animate-bounce scale-110"
+                    ? "animate-pulse scale-110"
                     : crackStage >= 2
                     ? "hover:scale-105"
                     : ""

@@ -9,9 +9,9 @@ const badgeVariants = cva(
       variant: {
         default: "bg-main text-main-foreground",
         neutral: "bg-secondary-background text-foreground",
-        cyan: "bg-cyan-400 text-slate-950 font-black",
-        emerald: "bg-emerald-400 text-slate-950 font-black",
-        amber: "bg-amber-400 text-slate-950 font-black",
+        cyan: "bg-cyan-400 text-black font-black",
+        emerald: "bg-emerald-400 text-black font-black",
+        amber: "bg-amber-400 text-black font-black",
         destructive: "bg-red-500 text-white font-black",
         outline: "bg-transparent text-foreground border-border",
       },

@@ -48,7 +48,7 @@ export const RestTimer: React.FC = () => {
     <>
       {/* Rest Completed Notification Banner */}
       {restTimerCompletedBanner && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 animate-bounce">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="bg-cyan-950 border-2 border-cyan-400 text-cyan-100 px-6 py-4 rounded-xl shadow-[0_0_25px_rgba(34,211,238,0.5)] flex items-center gap-4">
             <div className="p-2 bg-cyan-500/20 rounded-lg text-cyan-300">
               <Bell className="w-6 h-6 animate-pulse" />

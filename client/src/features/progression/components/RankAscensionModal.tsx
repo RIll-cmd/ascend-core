@@ -100,7 +100,7 @@ export function RankAscensionModal({
                 <span className="text-[10px] uppercase font-mono text-amber-400 font-semibold block">
                   New Rank
                 </span>
-                <span className="text-3xl font-extrabold font-mono text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 drop-shadow-md">
+                <span className="text-3xl font-extrabold font-mono text-amber-300 drop-shadow-md">
                   Rank {newRank}
                 </span>
               </div>

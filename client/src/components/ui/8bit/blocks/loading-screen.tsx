@@ -80,7 +80,7 @@ export default function LoadingScreen({
   const content = (
     <div className="flex flex-col items-center justify-center gap-6 p-6 sm:p-10 max-w-lg mx-auto text-center">
       {/* Loading Skull / Rune Sprite */}
-      <div className="size-16 border-2 border-[#8c7a53] bg-[#141a2e] flex items-center justify-center shadow-[3px_3px_0_0_#000] animate-bounce">
+      <div className="size-16 border-2 border-[#8c7a53] bg-[#141a2e] flex items-center justify-center shadow-[3px_3px_0_0_#000] animate-pulse">
         <span className="retro text-2xl select-none">⚔️</span>
       </div>
 

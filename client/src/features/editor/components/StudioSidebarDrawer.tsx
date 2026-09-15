@@ -115,7 +115,7 @@ export function StudioSidebarDrawer() {
   return (
     <div
       data-studio-drawer
-      className="fixed inset-y-0 right-0 z-50 w-96 max-w-[92vw] bg-[#140b0e] border-l-4 border-[#e05344] shadow-[-8px_0_0_0_#000] flex flex-col font-pixel text-[#fdf2e9] select-none animate-in slide-in-from-right duration-200"
+      className="fixed inset-y-0 right-0 z-50 w-96 max-w-[92vw] bg-[#140b0e] border-l-2 border-[#e05344] shadow-[-8px_0_0_0_#000] flex flex-col font-pixel text-[#fdf2e9] select-none animate-in slide-in-from-right duration-200"
     >
       {/* 8bit stepped side notches */}
       <div className="absolute top-0 -left-1 w-1 h-3 bg-[#e05344] pointer-events-none" />

@@ -119,7 +119,7 @@ export default function OnboardingPage() {
   const SelectedAvatarIcon = selectedAvatar.icon;
 
   return (
-    <div className="min-h-screen w-full bg-[#0B1020] text-slate-100 flex flex-col items-center justify-center p-4 sm:p-8 relative overflow-x-hidden selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen w-full bg-[#0B1020] text-slate-100 flex flex-col items-center justify-center p-4 sm:p-8 relative overflow-x-hidden selection:bg-[#3b82f6] selection:text-white">
       {/* AMBIENT BACKGROUND GLOWS */}
       <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-blue-600/10 rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute bottom-[5%] right-[10%] w-[450px] h-[450px] bg-purple-600/10 rounded-full blur-[140px] pointer-events-none" />

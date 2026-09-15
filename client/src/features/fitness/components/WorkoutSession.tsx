@@ -304,7 +304,7 @@ export const WorkoutSessionView: React.FC = () => {
                     onClick={() => setSelectedCategory(cat)}
                     className={`px-3 py-1 text-xs rounded-lg font-medium whitespace-nowrap transition-colors ${
                       selectedCategory === cat
-                        ? "bg-cyan-500 text-slate-950 font-bold"
+                        ? "bg-cyan-500 text-black font-bold"
                         : "bg-slate-800 text-slate-400 hover:text-slate-200"
                     }`}
                   >

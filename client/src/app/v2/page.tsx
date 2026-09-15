@@ -25,7 +25,7 @@ export default function V2LandingPage() {
   return (
     <div
       suppressHydrationWarning
-      className="relative w-full min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-cyan-950"
+      className="relative w-full min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-[#06b6d4] selection:text-cyan-950"
     >
       {/* 1. Stripe-Style Navbar with Sign In & Launch CTA */}
       <LandingNavbar

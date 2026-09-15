@@ -74,7 +74,7 @@ export default function VictoryScreen({
       <CardContent className="p-0 space-y-5">
         {/* Header Fanfare */}
         <div className="flex flex-col items-center justify-center text-center space-y-2">
-          <div className="size-12 rounded-lg bg-[#54351d] border-2 border-[#f6c453] flex items-center justify-center text-[#fef08a] font-bold text-2xl shadow-[2px_2px_0_0_#000] animate-retro-bounce">
+          <div className="size-12 rounded-lg bg-[#54351d] border-2 border-[#f6c453] flex items-center justify-center text-[#fef08a] font-bold text-2xl shadow-[2px_2px_0_0_#000] animate-retro-float">
             🏆
           </div>
           {floorNumber !== undefined && (

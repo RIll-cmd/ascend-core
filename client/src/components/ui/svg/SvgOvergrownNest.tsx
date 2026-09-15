@@ -213,7 +213,7 @@ export const SvgOvergrownNest: React.FC<SvgOvergrownNestProps> = ({
               height={154}
               className={`w-32 h-32 sm:w-36 sm:h-36 object-contain drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)] transition-transform duration-300 select-none ${
                 isHatching
-                  ? "animate-bounce scale-110"
+                  ? "animate-pulse scale-110"
                   : ready
                   ? "animate-[wiggle_1.6s_ease-in-out_infinite] scale-105 cursor-pointer"
                   : "hover:scale-105"

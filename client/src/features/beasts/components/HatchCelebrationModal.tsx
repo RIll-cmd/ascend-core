@@ -148,7 +148,7 @@ export const HatchCelebrationModal: React.FC<HatchCelebrationModalProps> = ({
 
               <div
                 className={`relative w-28 h-28 ${
-                  phase === "VIBRATING" ? "animate-bounce" : "scale-125"
+                  phase === "VIBRATING" ? "animate-pulse" : "scale-125"
                 }`}
               >
                 <img

@@ -162,7 +162,7 @@ export function Sidebar() {
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 group relative overflow-hidden sweep-light ${
                   isActive
                     ? "bg-cyan-950/50 text-cyan-300 border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.15)] animate-border-glow"
-                    : "text-slate-400 hover:text-cyan-200 hover:bg-cyan-500/[0.06] hover:border-cyan-500/15 border border-transparent"
+                    : "text-slate-400 hover:text-cyan-200 hover:bg-[#06b6d4]/[0.06] hover:border-cyan-500/15 border border-transparent"
                 }`}
               >
                 {/* Active left indicator — animated glow bar */}
