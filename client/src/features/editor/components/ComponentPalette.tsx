@@ -27,6 +27,7 @@ export function ComponentPalette({ onAddElement }: ComponentPaletteProps) {
 
   const categoryTags: { id: "all" | ElementCategory; label: string }[] = [
     { id: "all", label: "ALL" },
+    { id: "borders", label: "BORDERS" },
     { id: "primitives", label: "PRIMITIVES" },
     { id: "combat", label: "COMBAT" },
     { id: "rpg", label: "RPG" },

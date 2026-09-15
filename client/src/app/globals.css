@@ -29,6 +29,19 @@
   --font-pixel-chunky: "Jersey 10", "Pixelify Sans", monospace;
   --font-expedition: "Cinzel", "Cormorant Garamond", Georgia, serif;
   --font-field: "Cormorant Garamond", Georgia, serif;
+
+  /* Neobrutalism Tokens */
+  --color-main: var(--main);
+  --color-secondary-background: var(--secondary-background);
+  --color-main-foreground: var(--main-foreground);
+  --color-overlay: var(--overlay);
+  --spacing-boxShadowX: 4px;
+  --spacing-boxShadowY: 4px;
+  --spacing-reverseBoxShadowX: -4px;
+  --spacing-reverseBoxShadowY: -4px;
+  --radius-base: 4px;
+  --font-base: 500;
+  --shadow-shadow: var(--shadow);
 }
 
 :root {
@@ -78,6 +91,203 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* ======================================================================= */
+/* 👾 SCOPED OFFICIAL 8BITCN DEFAULT THEME (DASHBOARD ONLY)                */
+/* ======================================================================= */
+.dashboard-8bit-theme {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark .dashboard-8bit-theme,
+.dashboard-8bit-theme.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ======================================================================= */
+/* ⚡ SCOPED NEOBRUTALISM THEME (AIRA ROUTE ONLY)                           */
+/* Spacecraft AI Console: Deep Navy, Electric Cyan, High-Contrast Borders   */
+/* ======================================================================= */
+.aira-neo-theme {
+  --background: #e2e8f0;
+  --secondary-background: #ffffff;
+  --foreground: #020617;
+  --main: #06b6d4;
+  --main-foreground: #020617;
+  --border: #000000;
+  --ring: #06b6d4;
+  --overlay: rgba(0, 0, 0, 0.8);
+  --shadow: 4px 4px 0px 0px var(--border);
+  --card: #ffffff;
+  --card-foreground: #020617;
+  --popover: #ffffff;
+  --popover-foreground: #020617;
+  --primary: #06b6d4;
+  --primary-foreground: #020617;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #020617;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #e2e8f0;
+  --accent-foreground: #020617;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --radius: 0.25rem;
+  --radius-base: 4px;
+}
+
+.dark .aira-neo-theme,
+.aira-neo-theme.dark {
+  --background: #060914;
+  --secondary-background: #0d1527;
+  --foreground: #f8fafc;
+  --main: #00e5ff;
+  --main-foreground: #020617;
+  --border: #000000;
+  --ring: #00e5ff;
+  --overlay: rgba(0, 0, 0, 0.85);
+  --shadow: 4px 4px 0px 0px var(--border);
+  --card: #090f20;
+  --card-foreground: #f8fafc;
+  --popover: #0d1527;
+  --popover-foreground: #f8fafc;
+  --primary: #00e5ff;
+  --primary-foreground: #020617;
+  --secondary: #17233f;
+  --secondary-foreground: #f8fafc;
+  --muted: #17233f;
+  --muted-foreground: #94a3b8;
+  --accent: #17233f;
+  --accent-foreground: #f8fafc;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --radius: 0.25rem;
+  --radius-base: 4px;
+}
+
+/* ======================================================================= */
+/* ⚙️ SCOPED NEOBRUTALISM THEME (AUTOMATIONS ROUTE ONLY)                   */
+/* Machinery Control Center: Deep Charcoal Steel, Signal Amber, 2px Borders*/
+/* ======================================================================= */
+.automations-neo-theme {
+  --background: #e2e8f0;
+  --secondary-background: #ffffff;
+  --foreground: #0f172a;
+  --main: #f59e0b;
+  --main-foreground: #000000;
+  --border: #000000;
+  --ring: #f59e0b;
+  --overlay: rgba(0, 0, 0, 0.8);
+  --shadow: 4px 4px 0px 0px var(--border);
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #f59e0b;
+  --primary-foreground: #000000;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+  --accent: #f59e0b;
+  --accent-foreground: #000000;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --radius: 0.25rem;
+  --radius-base: 4px;
+}
+
+.dark .automations-neo-theme,
+.automations-neo-theme.dark {
+  --background: #0b1017;
+  --secondary-background: #141c28;
+  --foreground: #f3f4f6;
+  --main: #f59e0b;
+  --main-foreground: #000000;
+  --border: #000000;
+  --ring: #f59e0b;
+  --overlay: rgba(0, 0, 0, 0.85);
+  --shadow: 4px 4px 0px 0px var(--border);
+  --card: #101722;
+  --card-foreground: #f3f4f6;
+  --popover: #141c28;
+  --popover-foreground: #f3f4f6;
+  --primary: #f59e0b;
+  --primary-foreground: #000000;
+  --secondary: #1a2433;
+  --secondary-foreground: #f3f4f6;
+  --muted: #1a2433;
+  --muted-foreground: #94a3b8;
+  --accent: #1a2433;
+  --accent-foreground: #f3f4f6;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --radius: 0.25rem;
+  --radius-base: 4px;
 }
 
 body {

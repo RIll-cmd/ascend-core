@@ -3,6 +3,8 @@ export type ElementTypeId =
   | "button"
   | "badge"
   | "card"
+  | "input"
+  | "select"
   | "progress"
   | "slider"
   | "switch"
@@ -20,12 +22,16 @@ export type ElementTypeId =
   | "quest-card"
   | "save-slot"
   | "difficulty-select"
+  // Authentic 8bitcn Showcase & Border Elements
+  | "date-picker"
+  | "checkbox-label"
+  | "card-form"
   // Compound / Layout
   | "telemetry-card"
   | "container-plaque"
   | "input-group";
 
-export type ElementCategory = "primitives" | "combat" | "rpg" | "layout";
+export type ElementCategory = "primitives" | "borders" | "combat" | "rpg" | "layout";
 
 export interface ComponentPaletteItem {
   type: ElementTypeId;

@@ -33,6 +33,11 @@ import {
   ItemDescription,
   Dialogue,
   DifficultySelect,
+  Input,
+  Checkbox,
+  Label,
+  DatePicker,
+  BitSelect,
 } from "@/components/ui/8bit";
 import { PixelMonolithIcon, PixelFlameIcon, PixelShieldIcon } from "@/components/ui/pixel/PixelIcons";
 
@@ -51,6 +56,7 @@ export function CanvasItemRenderer({ element, onUpdateProp }: CanvasItemRenderer
           <Button
             variant={props.variant || "gold"}
             size={props.size || "md"}
+            borderStyle={props.borderStyle || "retro-beveled"}
             disabled={props.disabled}
             onClick={() => {
               // tactile sound or response
@@ -119,8 +125,7 @@ export function CanvasItemRenderer({ element, onUpdateProp }: CanvasItemRenderer
 
     case "switch":
       return (
-        <div className="flex items-center justify-between p-3 border-2 border-black bg-[#1c1114] shadow-[2px_2px_0_0_#000] font-pixel w-full">
-          <span className="text-xs font-bold text-[#fdf2e9]">{props.label || "Option Switch"}</span>
+        <div className="flex items-center gap-3 py-2">
           <Switch
             checked={Boolean(props.checked)}
             onCheckedChange={(checked) => {
@@ -128,6 +133,46 @@ export function CanvasItemRenderer({ element, onUpdateProp }: CanvasItemRenderer
                 onUpdateProp("checked", checked);
               }
             }}
+            label={props.label || "Airplane Mode"}
+            font={props.font || "retro"}
+          />
+        </div>
+      );
+
+    case "input":
+      return (
+        <div className="w-full max-w-sm py-1">
+          <Input
+            placeholder={props.placeholder || "Enter text"}
+            value={props.value}
+            defaultValue={props.defaultValue}
+            onChange={(e) => {
+              if (onUpdateProp) {
+                onUpdateProp("value", e.target.value);
+              }
+            }}
+            font={props.font || "retro"}
+          />
+        </div>
+      );
+
+    case "select":
+      return (
+        <div className="w-full max-w-sm py-1">
+          <BitSelect
+            placeholder={props.placeholder || "Theme"}
+            value={props.value}
+            defaultValue={props.defaultValue}
+            onValueChange={(val) => {
+              if (onUpdateProp) {
+                onUpdateProp("value", val);
+              }
+            }}
+            options={[
+              { label: "Light", value: "light" },
+              { label: "Dark", value: "dark" },
+              { label: "System", value: "system" },
+            ]}
           />
         </div>
       );
@@ -333,6 +378,69 @@ export function CanvasItemRenderer({ element, onUpdateProp }: CanvasItemRenderer
             className="h-9 px-3 bg-[#160c0f] border-2 border-black shadow-[2px_2px_0_0_#000] text-xs font-pixel text-[#fdf2e9] placeholder:text-[#8c7b7d] focus:outline-none focus:border-[#fba170] flex-1"
           />
           <Button variant="gold" size="md">{props.buttonText || "SEARCH"}</Button>
+        </div>
+      );
+
+    case "date-picker":
+      return (
+        <div className="flex items-center gap-3">
+          <DatePicker placeholder={props.placeholder || "Pick a date"} />
+        </div>
+      );
+
+    case "checkbox-label":
+      return (
+        <div className="flex items-center gap-3 font-pixel">
+          <Checkbox
+            id="editor-checkbox"
+            checked={props.checked !== false}
+            onCheckedChange={(c) => onUpdateProp?.("checked", c)}
+          />
+          <Label htmlFor="editor-checkbox" className="text-xs cursor-pointer">
+            {props.label || "Accept terms and conditions"}
+          </Label>
+        </div>
+      );
+
+    case "card-form":
+      return (
+        <div className="relative border-y-6 border-foreground dark:border-ring bg-card text-card-foreground p-5 w-full max-w-sm font-pixel space-y-4 shadow-xl">
+          {/* 8bitcn Stepped Cut-Corner Overlay */}
+          <div className="absolute inset-0 border-x-6 -mx-1.5 border-foreground dark:border-ring pointer-events-none" aria-hidden="true" />
+
+          <div>
+            <h3 className="text-sm font-bold tracking-wider text-foreground">
+              {props.title || "Create project"}
+            </h3>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {props.description || "Deploy your new project in one-click."}
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-foreground block">Name</label>
+            <Input placeholder={props.namePlaceholder || "Project name"} />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-foreground block">
+              {props.frameworkLabel || "Framework"}
+            </label>
+            <div className="relative border-y-6 border-foreground dark:border-ring px-3 py-2 flex items-center justify-between text-xs retro bg-background cursor-pointer">
+              <span className="text-muted-foreground">Framework</span>
+              <span className="text-[10px] text-muted-foreground">▼</span>
+              <div className="absolute inset-0 border-x-6 -mx-1.5 border-foreground dark:border-ring pointer-events-none" aria-hidden="true" />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <Button variant="outline" size="sm">
+              {props.cancelText || "Cancel"}
+            </Button>
+            <Button variant="default" size="sm">
+              {props.createText || "Create"}
+            </Button>
+          </div>
         </div>
       );
 

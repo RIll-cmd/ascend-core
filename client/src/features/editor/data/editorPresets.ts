@@ -2,6 +2,74 @@ import { EditorPreset } from "../types/editor";
 
 export const EDITOR_PRESETS: EditorPreset[] = [
   {
+    id: "8bitcn-borders-showcase",
+    name: "🎮 Authentic 8bitcn Border Suite",
+    description: "Extracted official @8bitcn borders: Badge tabs, Beveled button, Date picker, Stepped checkbox & Card form.",
+    icon: "Sparkles",
+    elements: [
+      {
+        id: "preset-border-badge",
+        type: "badge",
+        name: "8-Bit Badge (Stepped Tabs)",
+        category: "borders",
+        props: {
+          text: "Badge",
+          variant: "default",
+          font: "retro",
+          borderStyle: "badge-tabs",
+        },
+      },
+      {
+        id: "preset-border-button",
+        type: "button",
+        name: "8-Bit Button (Retro Beveled)",
+        category: "borders",
+        props: {
+          text: "Button",
+          variant: "default",
+          size: "md",
+          borderStyle: "retro-beveled",
+        },
+      },
+      {
+        id: "preset-border-datepicker",
+        type: "date-picker",
+        name: "8-Bit Date Picker (Pill Contour)",
+        category: "borders",
+        props: {
+          placeholder: "Pick a date",
+          borderStyle: "pill-input",
+        },
+      },
+      {
+        id: "preset-border-checkbox",
+        type: "checkbox-label",
+        name: "8-Bit Checkbox & Label (Stepped Square)",
+        category: "borders",
+        props: {
+          label: "Accept terms and conditions",
+          checked: true,
+          borderStyle: "checkbox-square",
+        },
+      },
+      {
+        id: "preset-border-card-form",
+        type: "card-form",
+        name: "8-Bit Card Form (Showcase)",
+        category: "borders",
+        props: {
+          title: "Create project",
+          description: "Deploy your new project in one-click.",
+          namePlaceholder: "Project name",
+          frameworkLabel: "Framework",
+          cancelText: "Cancel",
+          createText: "Create",
+          borderStyle: "stepped-box",
+        },
+      },
+    ],
+  },
+  {
     id: "combat-hud",
     name: "⚔️ Boss Battle HUD",
     description: "Complete boss combat layout with boss HP, player stats, and battle actions.",

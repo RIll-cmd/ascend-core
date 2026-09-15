@@ -81,7 +81,6 @@ export function Sidebar() {
     { name: "Shop", href: "/shop", icon: GraphicShopIcon },
     { name: "Achievements", href: "/achievements", icon: GraphicAchievementsIcon },
     { name: "AI System", href: "/aira", icon: GraphicAiraIcon },
-    { name: "8bitcn Studio", href: "/editor", icon: GraphicSkillsIcon },
   ];
 
   return (

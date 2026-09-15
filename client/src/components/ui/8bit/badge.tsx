@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import "./styles/retro.css";
 
 export const bitBadgeVariants = cva(
-  "relative inline-flex items-center justify-center px-2 py-0.5 text-[8px] sm:text-[9px] font-bold border border-black shadow-[1px_1px_0_0_#000] tracking-wider uppercase select-none",
+  "relative inline-flex items-center justify-center px-2.5 py-0.5 text-[8px] sm:text-[9px] font-bold border border-black shadow-[1px_1px_0_0_#000] tracking-wider uppercase select-none",
   {
     variants: {
       font: {
@@ -12,9 +12,10 @@ export const bitBadgeVariants = cva(
         retro: "retro",
       },
       variant: {
-        default: "bg-primary text-primary-foreground",
-        secondary: "bg-[#252b21] text-[#f3df9d] border-[#8c7a53]",
-        destructive: "bg-[#991b1b] text-white border-[#f87171]",
+        default: "bg-foreground text-background dark:bg-foreground dark:text-background",
+        primary: "bg-primary text-primary-foreground",
+        secondary: "bg-secondary text-secondary-foreground border-border",
+        destructive: "bg-destructive text-destructive-foreground border-destructive",
         success: "bg-[#065f46] text-[#6ee7b7] border-[#10b981]",
         gold: "bg-[#78350f] text-[#fde047] border-[#f59e0b]",
         outline: "bg-background text-foreground border-foreground",
@@ -44,15 +45,15 @@ function Badge({
       className={cn(bitBadgeVariants({ variant, font }), className)}
       {...props}
     >
-      {/* Side pixel notches */}
+      {/* 8bitcn Authentic Stepped side tabs */}
       <span
         aria-hidden="true"
-        className="absolute -left-[3px] inset-y-[2px] w-[3px] bg-inherit border-y border-l border-black pointer-events-none"
+        className="absolute -left-1.5 inset-y-[3px] w-1.5 bg-inherit border-y border-l border-black pointer-events-none"
       />
       {children}
       <span
         aria-hidden="true"
-        className="absolute -right-[3px] inset-y-[2px] w-[3px] bg-inherit border-y border-r border-black pointer-events-none"
+        className="absolute -right-1.5 inset-y-[3px] w-1.5 bg-inherit border-y border-r border-black pointer-events-none"
       />
     </div>
   );

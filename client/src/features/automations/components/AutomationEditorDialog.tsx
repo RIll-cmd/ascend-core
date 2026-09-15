@@ -1,30 +1,60 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/neo/dialog";
+import { Button } from "@/components/ui/neo/button";
+import { Input } from "@/components/ui/neo/input";
+import { Label } from "@/components/ui/neo/label";
+import { Badge } from "@/components/ui/neo/badge";
+import { Switch } from "@/components/ui/neo/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/neo/select";
 import {
   buildAutomationPayload,
   cooldownToSeconds,
   createAutomation,
+  getAutomationCapabilities,
+  getEligibleAutomationHabits,
   updateAutomation,
-  type AutomationDraft,
   type AdvancedAutomationCondition,
+  type AutomationCapabilities,
+  type AutomationDraft,
   type AutomationRule,
   type ConditionField,
   type ConditionOperator,
   type CooldownUnit,
+  type EligibleHabit,
+  type MatchMode,
   type TriggerType,
 } from "../services/automation.service";
 import type { Habit } from "@/features/habits/types/habit";
+import {
+  AlertCircle,
+  ArrowRight,
+  Clock,
+  Hash,
+  Loader2,
+  Plus,
+  Shield,
+  Trash2,
+  Zap,
+} from "lucide-react";
 
-const fields: ConditionField[] = [
+/* ───────── fallback constants (used when capabilities API is unavailable) ── */
+const FALLBACK_FIELDS: ConditionField[] = [
   "event.type",
   "event.source",
   "event.timestamp",
@@ -35,7 +65,7 @@ const fields: ConditionField[] = [
   "payload.ear",
   "payload.slouch_score",
 ];
-const operators: ConditionOperator[] = [
+const FALLBACK_OPERATORS: ConditionOperator[] = [
   "equals",
   "not_equals",
   "greater_than",
@@ -44,11 +74,18 @@ const operators: ConditionOperator[] = [
   "less_than_or_equal",
   "contains",
 ];
-const triggers: TriggerType[] = [
+const FALLBACK_TRIGGERS: TriggerType[] = [
   "phone_usage_observed",
   "drowsiness_observed",
   "posture_observed",
 ];
+const NUMERIC_FIELDS: ConditionField[] = [
+  "payload.confidence",
+  "payload.ear",
+  "payload.slouch_score",
+];
+
+/* ───────── initial draft builder ─────────────────────────────────────────── */
 const initialDraft = (
   characterId: string,
   rule?: AutomationRule | null
@@ -76,6 +113,53 @@ const initialDraft = (
   cooldownUnit: "minutes",
 });
 
+/* ───────── human-readable trigger label ──────────────────────────────────── */
+function triggerLabel(t: TriggerType): string {
+  const map: Record<TriggerType, string> = {
+    phone_usage_observed: "📱 Phone Usage Observed",
+    drowsiness_observed: "😴 Drowsiness Observed",
+    posture_observed: "🧍 Posture Observed",
+  };
+  return map[t] ?? t.replaceAll("_", " ");
+}
+
+/* ───────── operator label ────────────────────────────────────────────────── */
+function operatorLabel(o: ConditionOperator): string {
+  return o.replaceAll("_", " ");
+}
+
+/* ───────── step section wrapper ──────────────────────────────────────────── */
+function StepSection({
+  step,
+  label,
+  icon,
+  children,
+}: {
+  step: number;
+  label: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="grid gap-3 rounded-base border-2 border-border bg-secondary-background p-4">
+      <div className="flex items-center gap-2">
+        <Badge variant="default" className="h-6 w-6 justify-center p-0 text-xs font-black">
+          {step}
+        </Badge>
+        <span className="flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-foreground">
+          {icon}
+          {label}
+        </span>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/*  MAIN COMPONENT                                                           */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
 export function AutomationEditorDialog({
   open,
   rule,
@@ -91,17 +175,71 @@ export function AutomationEditorDialog({
   onOpenChange: (open: boolean) => void;
   onSaved: (rule: AutomationRule) => void;
 }) {
+  /* ── local state ──────────────────────────────────────────────────────── */
   const [draft, setDraft] = useState(() => initialDraft(characterId, rule));
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+
+  /* ── capabilities + eligible habits (loaded once on dialog open) ─────── */
+  const [capabilities, setCapabilities] = useState<AutomationCapabilities | null>(null);
+  const [eligibleHabits, setEligibleHabits] = useState<EligibleHabit[] | null>(null);
+  const [capsLoading, setCapsLoading] = useState(false);
+
+  /* Reset draft when rule/open changes */
+  useEffect(() => {
+    if (open) {
+      setDraft(initialDraft(characterId, rule));
+      setError("");
+    }
+  }, [open, rule, characterId]);
+
+  /* Fetch capabilities and eligible habits */
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setCapsLoading(true);
+    Promise.allSettled([
+      getAutomationCapabilities(),
+      getEligibleAutomationHabits(characterId),
+    ]).then(([capsResult, habitsResult]) => {
+      if (cancelled) return;
+      if (capsResult.status === "fulfilled") setCapabilities(capsResult.value);
+      if (habitsResult.status === "fulfilled") setEligibleHabits(habitsResult.value);
+      setCapsLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [open, characterId]);
+
+  /* ── derived values ───────────────────────────────────────────────────── */
+  const triggers = capabilities?.triggers ?? FALLBACK_TRIGGERS;
+  const fields = capabilities?.fields ?? FALLBACK_FIELDS;
+  const allOperators = capabilities?.operators ?? FALLBACK_OPERATORS;
+  const fieldConstraints = capabilities?.fieldOperatorConstraints;
+
+  // Get operators valid for the currently selected field
+  const operatorsForField = (field: ConditionField): ConditionOperator[] => {
+    if (fieldConstraints) {
+      const constraint = fieldConstraints.find((c) => c.field === field);
+      if (constraint) return constraint.operators;
+    }
+    return allOperators;
+  };
+
+  // Habits list: prefer eligible-habits API, fallback to negativeHabits prop
+  const habitOptions: { id: string; name: string }[] =
+    eligibleHabits ?? negativeHabits.map((h) => ({ id: h.id, name: h.name }));
+
+  const maxConditions = capabilities?.limits?.maxConditions ?? 10;
+  const advancedCount = (draft.conditions ?? []).length;
+
+  /* ── helpers ──────────────────────────────────────────────────────────── */
   const setAdvancedConditions = (conditions: AdvancedAutomationCondition[]) =>
     setDraft({ ...draft, conditions });
+
+  /* ── save handler ─────────────────────────────────────────────────────── */
   const save = async (event: React.FormEvent) => {
     event.preventDefault();
-    const cooldown = cooldownToSeconds(
-      draft.cooldownAmount,
-      draft.cooldownUnit
-    );
+    const cooldown = cooldownToSeconds(draft.cooldownAmount, draft.cooldownUnit);
     if (!draft.name.trim() || !draft.habitId)
       return setError("Name and a bad habit target are required.");
     if (
@@ -139,355 +277,462 @@ export function AutomationEditorDialog({
       setSaving(false);
     }
   };
+
+  /* ═══════════════════════════════════════════════════════════════════════ */
+  /*  RENDER                                                                */
+  /* ═══════════════════════════════════════════════════════════════════════ */
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto border-2 border-[#4a5a63] bg-[#101722] text-slate-100">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-pixel text-sm uppercase">
-            {rule ? "Edit automation" : "Create automation"}
+          <DialogTitle>
+            {rule ? "Edit Automation" : "Create Automation"}
           </DialogTitle>
-          <DialogDescription className="text-slate-200">
-            When the condition matches, the selected bad habit is logged. Action
-            type: log bad habit.
+          <DialogDescription>
+            Define an observe → evaluate → act rule. Action type: log bad habit.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={save} className="grid gap-4 text-sm">
-          <label className="automation-field">
-            Name
-            <input
+
+        <form onSubmit={save} className="grid gap-4">
+          {/* ── Name field ─────────────────────────────────────────────── */}
+          <div className="grid gap-1.5">
+            <Label htmlFor="auto-name">Name</Label>
+            <Input
+              id="auto-name"
               required
-              value={draft.name}
               maxLength={120}
+              placeholder="e.g. Stop doomscrolling while working"
+              value={draft.name}
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
             />
-          </label>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="automation-field">
-              Trigger
-              <select
+          </div>
+
+          {/* ── STEP 1 — WHEN ──────────────────────────────────────────── */}
+          <StepSection step={1} label="When" icon={<Zap className="size-3.5" />}>
+            <div className="grid gap-1.5">
+              <Label htmlFor="auto-trigger">Trigger event</Label>
+              <Select
                 value={draft.triggerType}
-                onChange={(e) =>
-                  setDraft({
-                    ...draft,
-                    triggerType: e.target.value as TriggerType,
-                  })
+                onValueChange={(value) =>
+                  setDraft({ ...draft, triggerType: value as TriggerType })
                 }
               >
-                {triggers.map((value) => (
-                  <option key={value} value={value}>
-                    {value.replaceAll("_", " ")}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="automation-field">
-              Bad habit target
-              <select
-                required
-                value={draft.habitId}
-                onChange={(e) =>
-                  setDraft({ ...draft, habitId: e.target.value })
+                <SelectTrigger id="auto-trigger">
+                  <SelectValue placeholder="Select trigger" />
+                </SelectTrigger>
+                <SelectContent>
+                  {triggers.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {triggerLabel(t)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </StepSection>
+
+          {/* ── STEP 2 — CONDITIONS ────────────────────────────────────── */}
+          <StepSection
+            step={2}
+            label="Conditions"
+            icon={<ArrowRight className="size-3.5" />}
+          >
+            {/* Match mode */}
+            <div className="flex flex-wrap items-center gap-3">
+              <Label htmlFor="auto-matchmode" className="shrink-0">Match mode</Label>
+              <Select
+                value={draft.matchMode ?? "all"}
+                onValueChange={(value) =>
+                  setDraft({ ...draft, matchMode: value as MatchMode })
                 }
               >
-                <option value="">Select a negative habit</option>
-                {negativeHabits.map((habit) => (
-                  <option key={habit.id} value={habit.id}>
-                    {habit.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <label className="automation-field">
-              Condition field
-              <select
-                value={draft.condition.field}
-                onChange={(e) =>
-                  setDraft({
-                    ...draft,
-                    condition: {
-                      ...draft.condition,
-                      field: e.target.value as ConditionField,
-                    },
-                  })
-                }
-              >
-                {fields.map((value) => (
-                  <option key={value} value={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="automation-field">
-              Operator
-              <select
-                value={draft.condition.operator}
-                onChange={(e) =>
-                  setDraft({
-                    ...draft,
-                    condition: {
-                      ...draft.condition,
-                      operator: e.target.value as ConditionOperator,
-                    },
-                  })
-                }
-              >
-                {operators.map((value) => (
-                  <option key={value} value={value}>
-                    {value.replaceAll("_", " ")}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="automation-field">
-              Condition value
-              <input
-                required
-                value={String(draft.condition.value ?? "")}
-                onChange={(e) =>
-                  setDraft({
-                    ...draft,
-                    condition: {
-                      ...draft.condition,
-                      value:
-                        [
-                          "payload.confidence",
-                          "payload.ear",
-                          "payload.slouch_score",
-                        ].includes(draft.condition.field)
-                          ? Number(e.target.value)
-                          : e.target.value,
-                    },
-                  })
-                }
-              />
-            </label>
-          </div>
-          <section className="grid gap-3 border border-slate-700 bg-[#080c13] p-3">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <label className="automation-field max-w-48">
-                Condition match mode
-                <select
-                  value={draft.matchMode ?? "all"}
-                  onChange={(event) =>
-                    setDraft({
-                      ...draft,
-                      matchMode: event.target.value as "all" | "any",
-                    })
-                  }
-                >
-                  <option value="all">All conditions</option>
-                  <option value="any">Any condition</option>
-                </select>
-              </label>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  className="automation-button"
-                  onClick={() =>
-                    setAdvancedConditions([
-                      ...(draft.conditions ?? []),
-                      { type: "time_window", start: "09:00", end: "17:00" },
-                    ])
-                  }
-                >
-                  Add time window
-                </button>
-                <button
-                  type="button"
-                  className="automation-button"
-                  onClick={() =>
-                    setAdvancedConditions([
-                      ...(draft.conditions ?? []),
-                      {
-                        type: "occurrence_count",
-                        count: 2,
-                        windowSeconds: 1800,
-                      },
-                    ])
-                  }
-                >
-                  Add occurrence count
-                </button>
+                <SelectTrigger id="auto-matchmode" className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All conditions</SelectItem>
+                  <SelectItem value="any">Any condition</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Primary condition */}
+            <div className="grid gap-2 rounded-base border-2 border-border bg-card p-3">
+              <div className="flex items-center gap-2">
+                <Badge variant="neutral" className="text-[10px]">PRIMARY</Badge>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-3">
+                <div className="grid gap-1.5">
+                  <Label htmlFor="auto-cond-field">Field</Label>
+                  <Select
+                    value={draft.condition.field}
+                    onValueChange={(value) =>
+                      setDraft({
+                        ...draft,
+                        condition: {
+                          ...draft.condition,
+                          field: value as ConditionField,
+                          // reset operator if not valid for new field
+                          operator: operatorsForField(value as ConditionField).includes(
+                            draft.condition.operator
+                          )
+                            ? draft.condition.operator
+                            : operatorsForField(value as ConditionField)[0],
+                        },
+                      })
+                    }
+                  >
+                    <SelectTrigger id="auto-cond-field">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fields.map((f) => (
+                        <SelectItem key={f} value={f}>
+                          {f}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="auto-cond-op">Operator</Label>
+                  <Select
+                    value={draft.condition.operator}
+                    onValueChange={(value) =>
+                      setDraft({
+                        ...draft,
+                        condition: {
+                          ...draft.condition,
+                          operator: value as ConditionOperator,
+                        },
+                      })
+                    }
+                  >
+                    <SelectTrigger id="auto-cond-op">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {operatorsForField(draft.condition.field).map((op) => (
+                        <SelectItem key={op} value={op}>
+                          {operatorLabel(op)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="auto-cond-val">Value</Label>
+                  <Input
+                    id="auto-cond-val"
+                    required
+                    type={NUMERIC_FIELDS.includes(draft.condition.field) ? "number" : "text"}
+                    step={NUMERIC_FIELDS.includes(draft.condition.field) ? "any" : undefined}
+                    value={String(draft.condition.value ?? "")}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        condition: {
+                          ...draft.condition,
+                          value: NUMERIC_FIELDS.includes(draft.condition.field)
+                            ? Number(e.target.value)
+                            : e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </div>
               </div>
             </div>
+
+            {/* Advanced conditions */}
             {(draft.conditions ?? []).map((condition, index) => (
               <div
                 key={`${condition.type}-${index}`}
-                className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]"
+                className="grid gap-2 rounded-base border-2 border-border bg-card p-3"
               >
+                <div className="flex items-center justify-between gap-2">
+                  <Badge variant="neutral" className="text-[10px]">
+                    {condition.type === "time_window" ? (
+                      <><Clock className="mr-1 size-3" />TIME WINDOW</>
+                    ) : (
+                      <><Hash className="mr-1 size-3" />OCCURRENCE</>
+                    )}
+                  </Badge>
+                  <Button
+                    type="button"
+                    variant="neutral"
+                    size="icon-xs"
+                    onClick={() =>
+                      setAdvancedConditions(
+                        (draft.conditions ?? []).filter((_, i) => i !== index)
+                      )
+                    }
+                  >
+                    <Trash2 className="size-3" />
+                  </Button>
+                </div>
                 {condition.type === "time_window" ? (
-                  <>
-                    <label className="automation-field">
-                      Start
-                      <input
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="grid gap-1.5">
+                      <Label>Start time</Label>
+                      <Input
                         type="time"
                         value={condition.start}
-                        onChange={(event) =>
+                        onChange={(e) =>
                           setAdvancedConditions(
-                            (draft.conditions ?? []).map((item, itemIndex) =>
-                              itemIndex === index
-                                ? { ...condition, start: event.target.value }
+                            (draft.conditions ?? []).map((item, i) =>
+                              i === index
+                                ? { ...condition, start: e.target.value }
                                 : item
                             )
                           )
                         }
                       />
-                    </label>
-                    <label className="automation-field">
-                      End
-                      <input
+                    </div>
+                    <div className="grid gap-1.5">
+                      <Label>End time</Label>
+                      <Input
                         type="time"
                         value={condition.end}
-                        onChange={(event) =>
+                        onChange={(e) =>
                           setAdvancedConditions(
-                            (draft.conditions ?? []).map((item, itemIndex) =>
-                              itemIndex === index
-                                ? { ...condition, end: event.target.value }
+                            (draft.conditions ?? []).map((item, i) =>
+                              i === index
+                                ? { ...condition, end: e.target.value }
                                 : item
                             )
                           )
                         }
                       />
-                    </label>
-                  </>
+                    </div>
+                  </div>
                 ) : (
-                  <>
-                    <label className="automation-field">
-                      Occurrences
-                      <input
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="grid gap-1.5">
+                      <Label>Occurrences</Label>
+                      <Input
                         type="number"
                         min="1"
                         value={condition.count}
-                        onChange={(event) =>
+                        onChange={(e) =>
                           setAdvancedConditions(
-                            (draft.conditions ?? []).map((item, itemIndex) =>
-                              itemIndex === index
-                                ? {
-                                    ...condition,
-                                    count: Number(event.target.value),
-                                  }
+                            (draft.conditions ?? []).map((item, i) =>
+                              i === index
+                                ? { ...condition, count: Number(e.target.value) }
                                 : item
                             )
                           )
                         }
                       />
-                    </label>
-                    <label className="automation-field">
-                      Window minutes
-                      <input
+                    </div>
+                    <div className="grid gap-1.5">
+                      <Label>Window (minutes)</Label>
+                      <Input
                         type="number"
                         min="1"
                         value={condition.windowSeconds / 60}
-                        onChange={(event) =>
+                        onChange={(e) =>
                           setAdvancedConditions(
-                            (draft.conditions ?? []).map((item, itemIndex) =>
-                              itemIndex === index
+                            (draft.conditions ?? []).map((item, i) =>
+                              i === index
                                 ? {
                                     ...condition,
-                                    windowSeconds:
-                                      Number(event.target.value) * 60,
+                                    windowSeconds: Number(e.target.value) * 60,
                                   }
                                 : item
                             )
                           )
                         }
                       />
-                    </label>
-                  </>
+                    </div>
+                  </div>
                 )}
-                <button
-                  type="button"
-                  className="automation-button self-end"
-                  onClick={() =>
-                    setAdvancedConditions(
-                      (draft.conditions ?? []).filter(
-                        (_, itemIndex) => itemIndex !== index
-                      )
-                    )
-                  }
-                >
-                  Remove
-                </button>
               </div>
             ))}
-            <p className="font-sans text-xs text-slate-200">
+
+            {/* Add condition buttons */}
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="neutral"
+                size="sm"
+                disabled={advancedCount + 1 >= maxConditions}
+                onClick={() =>
+                  setAdvancedConditions([
+                    ...(draft.conditions ?? []),
+                    { type: "time_window", start: "09:00", end: "17:00" },
+                  ])
+                }
+              >
+                <Plus className="size-3" />
+                Add Time Window
+              </Button>
+              <Button
+                type="button"
+                variant="neutral"
+                size="sm"
+                disabled={advancedCount + 1 >= maxConditions}
+                onClick={() =>
+                  setAdvancedConditions([
+                    ...(draft.conditions ?? []),
+                    { type: "occurrence_count", count: 2, windowSeconds: 1800 },
+                  ])
+                }
+              >
+                <Plus className="size-3" />
+                Add Occurrence Rule
+              </Button>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
               Duration rules are unavailable until observations include paired
               started/ended events with a shared session identifier.
             </p>
-          </section>
-          <div className="grid gap-4 sm:grid-cols-[1fr_1fr_auto]">
-            <label className="automation-field">
-              Cooldown amount
-              <input
-                type="number"
-                min="0"
-                step="1"
-                value={draft.cooldownAmount}
-                onChange={(e) =>
-                  setDraft({ ...draft, cooldownAmount: Number(e.target.value) })
-                }
-              />
-            </label>
-            <label className="automation-field">
-              Cooldown unit
-              <select
-                value={draft.cooldownUnit}
-                onChange={(e) =>
-                  setDraft({
-                    ...draft,
-                    cooldownUnit: e.target.value as CooldownUnit,
-                  })
-                }
-              >
-                {(["seconds", "minutes", "hours"] as CooldownUnit[]).map(
-                  (value) => (
-                    <option key={value}>{value}</option>
-                  )
-                )}
-              </select>
-            </label>
-            <label className="flex items-end gap-2 pb-2 font-mono text-xs uppercase text-slate-300">
-              <input
-                type="checkbox"
-                checked={draft.enabled}
-                onChange={(e) =>
-                  setDraft({ ...draft, enabled: e.target.checked })
-                }
-              />{" "}
-              Enabled
-            </label>
-          </div>
-          {negativeHabits.length === 0 && (
-            <p className="border border-amber-700 bg-amber-950/40 p-3 text-xs text-amber-100">
-              Create a negative habit before creating an automation.
+          </StepSection>
+
+          {/* ── STEP 3 — THEN ──────────────────────────────────────────── */}
+          <StepSection
+            step={3}
+            label="Then"
+            icon={<ArrowRight className="size-3.5" />}
+          >
+            <div className="grid gap-1.5">
+              <Label htmlFor="auto-habit">Bad habit target</Label>
+              {capsLoading ? (
+                <div className="flex h-10 items-center gap-2 rounded-base border-2 border-border bg-secondary-background px-3 text-sm text-muted-foreground">
+                  <Loader2 className="size-3.5 animate-spin" />
+                  Loading habits…
+                </div>
+              ) : (
+                <Select
+                  value={draft.habitId}
+                  onValueChange={(value) =>
+                    setDraft({ ...draft, habitId: value })
+                  }
+                >
+                  <SelectTrigger id="auto-habit">
+                    <SelectValue placeholder="Select a negative habit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {habitOptions.map((habit) => (
+                      <SelectItem key={habit.id} value={habit.id}>
+                        {habit.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </StepSection>
+
+          {/* ── STEP 4 — SAFETY ────────────────────────────────────────── */}
+          <StepSection
+            step={4}
+            label="Safety"
+            icon={<Shield className="size-3.5" />}
+          >
+            <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+              <div className="grid gap-1.5">
+                <Label htmlFor="auto-cd-amount">Cooldown amount</Label>
+                <Input
+                  id="auto-cd-amount"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={draft.cooldownAmount}
+                  onChange={(e) =>
+                    setDraft({
+                      ...draft,
+                      cooldownAmount: Number(e.target.value),
+                    })
+                  }
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="auto-cd-unit">Cooldown unit</Label>
+                <Select
+                  value={draft.cooldownUnit}
+                  onValueChange={(value) =>
+                    setDraft({
+                      ...draft,
+                      cooldownUnit: value as CooldownUnit,
+                    })
+                  }
+                >
+                  <SelectTrigger id="auto-cd-unit">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="seconds">Seconds</SelectItem>
+                    <SelectItem value="minutes">Minutes</SelectItem>
+                    <SelectItem value="hours">Hours</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col items-start gap-1.5">
+                <Label htmlFor="auto-enabled">Enabled</Label>
+                <Switch
+                  id="auto-enabled"
+                  checked={draft.enabled}
+                  onCheckedChange={(checked) =>
+                    setDraft({ ...draft, enabled: checked })
+                  }
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Cooldown prevents this rule from firing again within the specified
+              duration after it last matched. Keep enabled to activate the rule
+              immediately.
             </p>
+          </StepSection>
+
+          {/* ── Warnings ───────────────────────────────────────────────── */}
+          {habitOptions.length === 0 && !capsLoading && (
+            <div className="flex items-start gap-2 rounded-base border-2 border-amber-500 bg-amber-500/10 p-3 text-xs text-foreground">
+              <AlertCircle className="mt-0.5 size-4 shrink-0 text-amber-500" />
+              <span>
+                Create a negative habit before creating an automation rule.
+              </span>
+            </div>
           )}
+
           {error && (
-            <p
+            <div
               role="alert"
-              className="border border-red-800 bg-red-950/50 p-3 text-sm text-red-200"
+              className="flex items-start gap-2 rounded-base border-2 border-red-500 bg-red-500/10 p-3 text-sm text-foreground"
             >
-              {error}
-            </p>
+              <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-500" />
+              <span>{error}</span>
+            </div>
           )}
-          <div className="flex justify-end gap-2">
-            <button
+
+          {/* ── Footer actions ─────────────────────────────────────────── */}
+          <DialogFooter>
+            <Button
               type="button"
+              variant="neutral"
               onClick={() => onOpenChange(false)}
-              className="automation-button"
             >
               Cancel
-            </button>
-            <button
-              disabled={saving || negativeHabits.length === 0}
-              className="automation-button bg-amber-500 text-[#1d2d2a] hover:bg-amber-300"
+            </Button>
+            <Button
+              type="submit"
+              variant="amber"
+              disabled={saving || habitOptions.length === 0}
             >
-              {saving ? "Saving…" : rule ? "Save changes" : "Create automation"}
-            </button>
-          </div>
+              {saving ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Saving…
+                </>
+              ) : rule ? (
+                "Save Changes"
+              ) : (
+                "Create Automation"
+              )}
+            </Button>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

@@ -11,7 +11,7 @@ const emptyMediaVariants = cva(
     variants: {
       variant: {
         default: "bg-transparent",
-        icon: "relative bg-[#1c2237] text-[#f6c453] border-2 border-black flex size-12 shrink-0 items-center justify-center shadow-[2px_2px_0_0_#000]",
+        icon: "relative bg-muted text-foreground flex size-12 shrink-0 items-center justify-center",
       },
       font: {
         normal: "font-mono",
@@ -34,7 +34,7 @@ function Empty({
     <div
       data-slot="empty"
       className={cn(
-        "flex min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-none border-2 border-dashed border-[#8c7a53]/50 bg-[#121626]/80 p-6 text-center md:p-10 select-none",
+        "flex min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-none border-2 border-dashed border-border bg-card/60 p-6 text-center select-none md:p-8",
         font !== "normal" && "retro",
         className
       )}
@@ -71,12 +71,12 @@ function EmptyMedia({
       />
       {variant !== "default" && (
         <>
-          <div className="absolute top-0 left-0 w-full h-1 bg-[#8c7a53] pointer-events-none" />
-          <div className="absolute bottom-0 w-full h-1 bg-[#8c7a53] pointer-events-none" />
-          <div className="absolute top-1 -left-1 w-1 h-1/2 bg-[#8c7a53] pointer-events-none" />
-          <div className="absolute bottom-1 -left-1 w-1 h-1/2 bg-[#8c7a53] pointer-events-none" />
-          <div className="absolute top-1 -right-1 w-1 h-1/2 bg-[#8c7a53] pointer-events-none" />
-          <div className="absolute bottom-1 -right-1 w-1 h-1/2 bg-[#8c7a53] pointer-events-none" />
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-foreground dark:bg-ring pointer-events-none" />
+          <div className="absolute bottom-0 w-full h-1.5 bg-foreground dark:bg-ring pointer-events-none" />
+          <div className="absolute top-1.5 -left-1.5 w-1.5 h-1/2 bg-foreground dark:bg-ring pointer-events-none" />
+          <div className="absolute bottom-1.5 -left-1.5 w-1.5 h-1/2 bg-foreground dark:bg-ring pointer-events-none" />
+          <div className="absolute top-1.5 -right-1.5 w-1.5 h-1/2 bg-foreground dark:bg-ring pointer-events-none" />
+          <div className="absolute bottom-1.5 -right-1.5 w-1.5 h-1/2 bg-foreground dark:bg-ring pointer-events-none" />
         </>
       )}
     </div>
@@ -87,7 +87,7 @@ function EmptyTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="empty-title"
-      className={cn("text-sm font-bold tracking-wide text-white", className)}
+      className={cn("text-xs sm:text-sm font-bold tracking-wide text-foreground", className)}
       {...props}
     />
   );
@@ -98,7 +98,7 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
     <p
       data-slot="empty-description"
       className={cn(
-        "text-slate-400 text-[9px] leading-relaxed max-w-xs",
+        "text-muted-foreground text-[10px] leading-relaxed max-w-xs",
         className
       )}
       {...props}

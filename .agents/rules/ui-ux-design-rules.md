@@ -1,3 +1,7 @@
+---
+trigger: model_decision
+---
+
 # UI/UX, Accessibility, and Interaction Design Guidelines
 
 Concise rules for building accessible, fast, delightful UIs. Use MUST/SHOULD/NEVER to guide decisions.

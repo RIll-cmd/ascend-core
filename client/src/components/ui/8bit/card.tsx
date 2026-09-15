@@ -18,7 +18,7 @@ export const cardVariants = cva("", {
       retro: "retro",
     },
     variant: {
-      default: "border-foreground dark:border-ring bg-[#141a2e]/95 text-slate-100",
+      default: "border-foreground dark:border-ring bg-card text-card-foreground",
       dungeon: "border-[#8c7a53] bg-[#181d17]/95 text-[#fff8df]",
       tavern: "border-[#c79d4d] bg-[#231710]/95 text-[#fff1b5]",
       cyber: "border-cyan-500 bg-[#09151c]/95 text-cyan-100",

@@ -4,7 +4,8 @@ import * as React from "react";
 import { CanvasElement } from "../types/editor";
 import { generateElementJsx } from "../utils/codeGenerator";
 import { Button, Badge } from "@/components/ui/8bit";
-import { Sliders, Code2, Copy, Check, Info } from "lucide-react";
+import { BORDER_CODE_SNIPPETS, PixelBorderStyle } from "@/components/ui/8bit/retro-borders";
+import { Sliders, Code2, Copy, Check, Info, Frame, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -282,6 +283,116 @@ export function ElementInspector({
                 />
               </div>
             )}
+
+            {/* Checkbox Toggle */}
+            {"checked" in element.props && (
+              <div className="flex items-center justify-between p-2 bg-[#11090c] border-2 border-black">
+                <span className="text-[9px] text-[#c4b5a5] font-bold uppercase">Checked State</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(element.props.checked)}
+                  onChange={(e) => onUpdateProp("checked", e.target.checked)}
+                  className="size-4 cursor-pointer accent-[#e05344]"
+                />
+              </div>
+            )}
+
+            {/* DatePicker Placeholder */}
+            {"placeholder" in element.props && (
+              <div className="space-y-1">
+                <label className="text-[9px] text-[#c4b5a5] uppercase font-bold">Placeholder</label>
+                <input
+                  type="text"
+                  value={element.props.placeholder}
+                  onChange={(e) => onUpdateProp("placeholder", e.target.value)}
+                  className="w-full h-8 px-2 bg-[#11090c] border-2 border-black text-[10px] font-pixel text-[#fdf2e9] focus:outline-none focus:border-[#fba170]"
+                />
+              </div>
+            )}
+
+            {/* ── 8bitcn Border Geometry & Extraction Section ── */}
+            <div className="pt-2 border-t border-[#e05344]/30 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-[9px] font-bold text-[#fba170] uppercase">
+                  <Frame className="w-3.5 h-3.5" />
+                  <span>8Bit Border Geometry</span>
+                </div>
+                <span className="text-[8px] text-[#c4b5a5] font-mono">@8bitcn</span>
+              </div>
+
+              <select
+                value={
+                  element.props.borderStyle ||
+                  (element.type === "card" || element.type === "card-form" || element.type === "input" || element.type === "select"
+                    ? "stepped-box"
+                    : element.type === "badge"
+                    ? "badge-tabs"
+                    : element.type === "checkbox-label"
+                    ? "checkbox-square"
+                    : element.type === "switch"
+                    ? "switch-track"
+                    : "retro-beveled")
+                }
+                onChange={(e) => onUpdateProp("borderStyle", e.target.value)}
+                className="w-full h-8 px-2 bg-[#11090c] border-2 border-black text-[10px] font-pixel text-[#fdf2e9] focus:outline-none focus:border-[#fba170] cursor-pointer"
+              >
+                <option value="retro-beveled">Retro Beveled (Button / Pill)</option>
+                <option value="stepped-box">Stepped Notched Box (Card / Input / Select)</option>
+                <option value="badge-tabs">Stepped Side Tabs (Badge)</option>
+                <option value="pill-input">Pill Contour (Date Picker)</option>
+                <option value="checkbox-square">Stepped Square (Checkbox)</option>
+                <option value="switch-track">Stepped Switch Track (Switch)</option>
+                <option value="classic-flat">Classic Solid Pixel</option>
+              </select>
+
+              {/* Instant Border Extraction Buttons */}
+              <div className="grid grid-cols-2 gap-1.5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const styleKey = (element.props.borderStyle ||
+                      (element.type === "card" || element.type === "card-form" || element.type === "input" || element.type === "select"
+                        ? "stepped-box"
+                        : element.type === "badge"
+                        ? "badge-tabs"
+                        : element.type === "checkbox-label"
+                        ? "checkbox-square"
+                        : element.type === "switch"
+                        ? "switch-track"
+                        : "retro-beveled")) as PixelBorderStyle;
+                    const snippet = BORDER_CODE_SNIPPETS[styleKey]?.tailwindClasses || "";
+                    navigator.clipboard.writeText(snippet);
+                    toast.success("✦ Border CSS / Tailwind classes copied! ✦");
+                  }}
+                  className="py-1 px-1.5 bg-[#1f1317] hover:bg-[#2a171f] border border-[#e05344]/50 text-[8px] font-bold text-[#fdf2e9] flex items-center justify-center gap-1 shadow-[1px_1px_0_0_#000]"
+                >
+                  <Copy className="w-2.5 h-2.5 text-[#fba170]" />
+                  <span>COPY CSS</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const styleKey = (element.props.borderStyle ||
+                      (element.type === "card" || element.type === "card-form" || element.type === "input" || element.type === "select"
+                        ? "stepped-box"
+                        : element.type === "badge"
+                        ? "badge-tabs"
+                        : element.type === "checkbox-label"
+                        ? "checkbox-square"
+                        : element.type === "switch"
+                        ? "switch-track"
+                        : "retro-beveled")) as PixelBorderStyle;
+                    const snippet = BORDER_CODE_SNIPPETS[styleKey]?.jsxSnippet || "";
+                    navigator.clipboard.writeText(snippet);
+                    toast.success("✦ Authentic Border JSX copied! ✦");
+                  }}
+                  className="py-1 px-1.5 bg-[#1f1317] hover:bg-[#2a171f] border border-[#e05344]/50 text-[8px] font-bold text-[#fdf2e9] flex items-center justify-center gap-1 shadow-[1px_1px_0_0_#000]"
+                >
+                  <Code2 className="w-2.5 h-2.5 text-amber-400" />
+                  <span>COPY JSX</span>
+                </button>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="space-y-2">

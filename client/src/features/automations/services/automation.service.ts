@@ -75,6 +75,30 @@ export interface VisionConnectionStatus {
   lastSeenAt: string | null;
 }
 
+export interface AutomationCapabilities {
+  version: string;
+  triggers: TriggerType[];
+  matchModes: MatchMode[];
+  fields: ConditionField[];
+  operators: ConditionOperator[];
+  fieldOperatorConstraints: { field: ConditionField; operators: ConditionOperator[] }[];
+  conditionTypes: { type: string; timeFormat?: string }[];
+  actions: { type: string; target: string }[];
+  limits: {
+    maxConditions: number;
+    minActions: number;
+    maxActions: number;
+    occurrenceCount: { min: number; max: number };
+    occurrenceWindowSeconds: { min: number; max: number };
+    cooldownSeconds: { min: number; max: number };
+  };
+}
+
+export interface EligibleHabit {
+  id: string;
+  name: string;
+}
+
 export const cooldownToSeconds = (amount: number, unit: CooldownUnit) =>
   Math.max(
     0,
@@ -82,7 +106,7 @@ export const cooldownToSeconds = (amount: number, unit: CooldownUnit) =>
   );
 
 export function buildAutomationPayload(draft: AutomationDraft) {
-  const conditions = draft.conditions ?? [draft.condition];
+  const conditions = [draft.condition, ...(draft.conditions ?? [])];
   return {
     characterId: draft.characterId,
     name: draft.name.trim(),
@@ -126,6 +150,12 @@ export const getVisionStatus = (characterId: string) =>
   request<VisionConnectionStatus>(
     `/api/integration/vision/status?characterId=${encodeURIComponent(characterId)}`
   );
+export const getAutomationCapabilities = () =>
+  request<AutomationCapabilities>("/api/automations/capabilities");
+export const getEligibleAutomationHabits = (characterId: string) =>
+  request<{ characterId: string; habits: EligibleHabit[] }>(
+    `/api/automations/eligible-habits?characterId=${encodeURIComponent(characterId)}`
+  ).then((response) => response.habits);
 export const createAutomation = (draft: AutomationDraft) =>
   request<AutomationRule>("/api/automations", {
     method: "POST",
@@ -144,7 +174,7 @@ export const deleteAutomation = (id: string) =>
 export const testAutomation = (
   id: string,
   observation: {
-    source: "phone_cv";
+    source: "phone_cv" | "vision_cv";
     type: TriggerType;
     timestamp: string;
     payload: Record<string, string | number | boolean | null>;

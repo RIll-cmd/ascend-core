@@ -59,6 +59,29 @@ describe("automation payload mapping", () => {
       }).matchMode
     ).toBe("all");
   });
+
+  it("preserves both primary condition and advanced conditions simultaneously (regression fix)", () => {
+    const payload = buildAutomationPayload({
+      characterId: "character-1",
+      name: "Night checks",
+      enabled: true,
+      triggerType: "phone_usage_observed",
+      matchMode: "all",
+      condition: {
+        field: "payload.state",
+        operator: "equals",
+        value: "started",
+      },
+      conditions: [{ type: "time_window", start: "22:00", end: "06:00" }],
+      habitId: "habit-1",
+      cooldownAmount: 30,
+      cooldownUnit: "minutes",
+    });
+    expect(payload.conditions).toEqual([
+      { field: "payload.state", operator: "equals", value: "started" },
+      { type: "time_window", start: "22:00", end: "06:00" },
+    ]);
+  });
 });
 
 describe("Vision connection status", () => {

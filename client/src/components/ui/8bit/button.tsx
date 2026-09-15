@@ -1,43 +1,63 @@
 import * as React from "react";
 import { type VariantProps, cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import { ButtonBorderDecorations } from "./retro-borders";
 import "./styles/retro.css";
 
 export const bitButtonVariants = cva(
-  "retro relative inline-flex items-center justify-center font-bold text-center select-none uppercase tracking-wider transition-all border-2 border-black disabled:pointer-events-none disabled:opacity-50 cursor-pointer active:translate-x-[2px] active:translate-y-[2px] active:shadow-none",
+  "retro relative inline-flex items-center justify-center font-bold text-center select-none uppercase tracking-wider transition-all disabled:pointer-events-none disabled:opacity-50 cursor-pointer active:translate-y-[2px]",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-[3px_3px_0_0_#000] hover:bg-primary/90",
+          "bg-foreground text-background dark:bg-foreground dark:text-background hover:opacity-90",
         secondary:
-          "bg-[#252b21] text-[#f3df9d] border-[#8c7a53] shadow-[3px_3px_0_0_#000] hover:bg-[#2f3829] hover:border-[#f6c453]",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         gold:
-          "bg-[#78350f] text-[#fde047] border-[#f59e0b] shadow-[3px_3px_0_0_#000] hover:bg-[#92400e] hover:text-[#fff]",
+          "bg-[#78350f] text-[#fde047] hover:bg-[#92400e] hover:text-[#fff]",
         destructive:
-          "bg-[#991b1b] text-white border-[#f87171] shadow-[3px_3px_0_0_#000] hover:bg-[#b91c1c]",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         success:
-          "bg-[#065f46] text-[#6ee7b7] border-[#10b981] shadow-[3px_3px_0_0_#000] hover:bg-[#047857]",
+          "bg-[#065f46] text-[#6ee7b7] hover:bg-[#047857]",
         dungeon:
-          "bg-[#181d17] text-[#fff8df] border-[#8c7a53] shadow-[3px_3px_0_0_#000] hover:border-[#f6c453] hover:bg-[#20271f]",
+          "bg-[#181d17] text-[#fff8df] hover:bg-[#20271f]",
         outline:
-          "bg-transparent text-foreground border-foreground shadow-[3px_3px_0_0_#000] hover:bg-accent hover:text-accent-foreground",
+          "bg-transparent text-foreground hover:bg-accent/30",
         ghost:
-          "border-transparent shadow-none hover:bg-accent/40 text-foreground active:translate-x-0 active:translate-y-0",
+          "bg-transparent hover:bg-accent/40 text-foreground active:translate-y-0",
+        link:
+          "bg-transparent text-primary underline-offset-4 hover:underline",
       },
       size: {
         sm: "h-7 px-2.5 text-[9px] sm:text-[10px]",
-        md: "h-9 px-3.5 text-xs",
-        lg: "h-11 px-5 text-sm",
-        icon: "h-8 w-8 text-xs p-0",
+        md: "h-9 px-4 text-xs",
+        lg: "h-11 px-6 text-sm",
+        icon: "size-8 text-xs p-0",
+      },
+      borderStyle: {
+        "retro-beveled": "border-none",
+        classic: "border-2 border-black shadow-[3px_3px_0_0_#000] active:translate-x-[2px] active:shadow-none",
       },
     },
     defaultVariants: {
       variant: "default",
       size: "md",
+      borderStyle: "retro-beveled",
     },
   }
 );
+
+const VARIANT_BORDER_COLORS: Record<string, string> = {
+  default: "bg-foreground dark:bg-ring",
+  secondary: "bg-foreground dark:bg-ring",
+  gold: "bg-[#f59e0b]",
+  destructive: "bg-foreground dark:bg-ring",
+  success: "bg-[#10b981]",
+  dungeon: "bg-[#8c7a53]",
+  outline: "bg-foreground dark:bg-ring",
+  ghost: "bg-transparent",
+  link: "bg-transparent",
+};
 
 export interface BitButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -46,13 +66,34 @@ export interface BitButtonProps
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, BitButtonProps>(
-  ({ className, variant, size, ...props }, ref) => {
+  (
+    {
+      children,
+      className,
+      variant = "default",
+      size = "md",
+      borderStyle = "retro-beveled",
+      ...props
+    },
+    ref
+  ) => {
+    const colorClass = VARIANT_BORDER_COLORS[variant || "default"] || "bg-foreground dark:bg-ring";
+
     return (
       <button
         ref={ref}
-        className={cn(bitButtonVariants({ variant, size, className }))}
+        className={cn(bitButtonVariants({ variant, size, borderStyle, className }))}
         {...props}
-      />
+      >
+        {children}
+        {borderStyle === "retro-beveled" && (
+          <ButtonBorderDecorations
+            size={size || "md"}
+            variant={variant || "default"}
+            colorClass={colorClass}
+          />
+        )}
+      </button>
     );
   }
 );

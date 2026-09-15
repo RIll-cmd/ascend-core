@@ -70,9 +70,8 @@ export function generateElementJsx(element: CanvasElement): { imports: string[];
     case "switch":
       return {
         imports: [`import { Switch } from "@/components/ui/8bit";`],
-        jsx: `<div className="flex items-center justify-between p-3 border-2 border-black bg-[#1a1012] shadow-[2px_2px_0_0_#000]">
-  <span className="text-xs font-pixel text-[#fdf2e9]">${props.label || "Toggle Option"}</span>
-  <Switch defaultChecked={${Boolean(props.checked)}} />
+        jsx: `<div className="flex items-center gap-3">
+  <Switch id="switch-demo" label="${props.label || "Airplane Mode"}" defaultChecked={${Boolean(props.checked)}} />
 </div>`,
       };
 
@@ -266,6 +265,81 @@ export function generateElementJsx(element: CanvasElement): { imports: string[];
     className="h-9 px-3 bg-[#160c0f] border-2 border-black shadow-[2px_2px_0_0_#000] text-xs font-pixel text-[#fdf2e9] placeholder:text-[#8c7b7d] focus:outline-none focus:border-[#fba170] flex-1"
   />
   <Button variant="gold" size="md">${props.buttonText || "SEARCH"}</Button>
+</div>`,
+      };
+
+    case "date-picker":
+      return {
+        imports: [`import { DatePicker } from "@/components/ui/8bit";`],
+        jsx: `<DatePicker placeholder="${props.placeholder || "Pick a date"}" />`,
+      };
+
+    case "input":
+      return {
+        imports: [`import { Input } from "@/components/ui/8bit";`],
+        jsx: `<Input placeholder="${props.placeholder || "Enter text"}" defaultValue="${props.defaultValue || ""}" />`,
+      };
+
+    case "select":
+      return {
+        imports: [
+          `import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/8bit";`,
+        ],
+        jsx: `<Select defaultValue="dark">
+  <SelectTrigger className="w-[180px]">
+    <SelectValue placeholder="${props.placeholder || "Theme"}" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="light">Light</SelectItem>
+    <SelectItem value="dark">Dark</SelectItem>
+    <SelectItem value="system">System</SelectItem>
+  </SelectContent>
+</Select>`,
+      };
+
+    case "checkbox-label":
+      return {
+        imports: [`import { Checkbox, Label } from "@/components/ui/8bit";`],
+        jsx: `<div className="flex items-center gap-3">
+  <Checkbox id="terms-checkbox" defaultChecked={${Boolean(props.checked)}} />
+  <Label htmlFor="terms-checkbox" className="text-xs">
+    ${props.label || "Accept terms and conditions"}
+  </Label>
+</div>`,
+      };
+
+    case "card-form":
+      return {
+        imports: [
+          `import { Input, Button } from "@/components/ui/8bit";`,
+        ],
+        jsx: `<div className="relative border-y-6 border-foreground dark:border-ring bg-card text-card-foreground p-5 max-w-sm space-y-4 shadow-xl">
+  {/* 8bitcn Stepped Cut-Corner Overlay */}
+  <div className="absolute inset-0 border-x-6 -mx-1.5 border-foreground dark:border-ring pointer-events-none" aria-hidden="true" />
+
+  <div>
+    <h3 className="text-sm font-bold tracking-wider">${props.title || "Create project"}</h3>
+    <p className="text-[10px] text-muted-foreground mt-0.5">${props.description || "Deploy your new project in one-click."}</p>
+  </div>
+
+  <div className="space-y-1.5">
+    <label className="text-[10px] font-bold block">Name</label>
+    <Input placeholder="${props.namePlaceholder || "Project name"}" />
+  </div>
+
+  <div className="space-y-1.5">
+    <label className="text-[10px] font-bold block">${props.frameworkLabel || "Framework"}</label>
+    <div className="relative border-y-6 border-foreground dark:border-ring px-3 py-2 flex items-center justify-between text-xs bg-background">
+      <span className="text-muted-foreground">Framework</span>
+      <span className="text-[10px]">▼</span>
+      <div className="absolute inset-0 border-x-6 -mx-1.5 border-foreground dark:border-ring pointer-events-none" aria-hidden="true" />
+    </div>
+  </div>
+
+  <div className="flex items-center justify-between pt-2">
+    <Button variant="outline" size="sm">${props.cancelText || "Cancel"}</Button>
+    <Button variant="default" size="sm">${props.createText || "Create"}</Button>
+  </div>
 </div>`,
       };
 

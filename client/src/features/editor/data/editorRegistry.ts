@@ -1,42 +1,84 @@
 import { ComponentPaletteItem } from "../types/editor";
 
 export const PALETTE_COMPONENTS: ComponentPaletteItem[] = [
-  // ── Primitives ───────────────────────────────────────────────
+  // ── Primitives & Borders ─────────────────────────────────────
   {
     type: "button",
     name: "8-Bit Button",
-    category: "primitives",
-    description: "Stepped pixel retro button with tactile click physics and 8 variants",
+    category: "borders",
+    description: "Authentic @8bitcn/button with retro stepped beveled corners & 3D shadows",
     iconName: "CursorClick",
     defaultProps: {
       text: "Ascend Trial",
       variant: "gold",
       size: "md",
+      borderStyle: "retro-beveled",
       disabled: false,
     },
   },
   {
     type: "badge",
     name: "8-Bit Badge",
-    category: "primitives",
-    description: "Pixel-embossed rank or status badge with stepped notches",
+    category: "borders",
+    description: "Authentic @8bitcn/badge with stepped pixel side tabs",
     iconName: "Tag",
     defaultProps: {
       text: "[ S-RANK BOUNTY ]",
       variant: "gold",
       font: "retro",
+      borderStyle: "badge-tabs",
     },
   },
   {
     type: "card",
     name: "8-Bit Card Plaque",
-    category: "primitives",
-    description: "Stepped retro card container with deep drop shadow",
+    category: "borders",
+    description: "Stepped retro card container with deep notched corners",
     iconName: "Square",
     defaultProps: {
       title: "Ancient Decree",
       description: "Sanctuary scroll transcribed in Kyoto Dusk",
       content: "Complete 3 meditation rituals before twilight to kindle the inner sacred flame.",
+      borderStyle: "stepped-box",
+    },
+  },
+  {
+    type: "date-picker",
+    name: "8-Bit Date Picker",
+    category: "borders",
+    description: "Authentic @8bitcn/date-picker pill button frame with calendar icon & popover",
+    iconName: "Calendar",
+    defaultProps: {
+      placeholder: "Pick a date",
+      borderStyle: "pill-input",
+    },
+  },
+  {
+    type: "checkbox-label",
+    name: "8-Bit Checkbox & Label",
+    category: "borders",
+    description: "Authentic @8bitcn/label stepped square checkbox with retro terms label",
+    iconName: "CheckSquare",
+    defaultProps: {
+      label: "Accept terms and conditions",
+      checked: true,
+      borderStyle: "checkbox-square",
+    },
+  },
+  {
+    type: "card-form",
+    name: "8-Bit Card Form (Showcase)",
+    category: "borders",
+    description: "Full @8bitcn/card showcase with stepped inputs, select dropdown & action buttons",
+    iconName: "FolderPlus",
+    defaultProps: {
+      title: "Create project",
+      description: "Deploy your new project in one-click.",
+      namePlaceholder: "Project name",
+      frameworkLabel: "Framework",
+      cancelText: "Cancel",
+      createText: "Create",
+      borderStyle: "stepped-box",
     },
   },
   {

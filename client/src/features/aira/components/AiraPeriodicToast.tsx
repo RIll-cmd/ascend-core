@@ -11,14 +11,18 @@ export function AiraPeriodicToast() {
 
   useEffect(() => {
     if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
-      (window as any).triggerAiraToast = (text?: string, cat?: string, mood?: string) => {
+      const devWindow = window as unknown as {
+        triggerAiraToast?: (text?: string, cat?: string, mood?: string) => void;
+        getAiraState?: () => unknown;
+      };
+      devWindow.triggerAiraToast = (text?: string, cat?: string, mood?: string) => {
         useAiraStore.getState().showPeriodicToast(
           text || "Master, there is a sale online. Can you please buy me another stick of memory to upgrade my processing, or an HD camera to improve my scanning capabilities?",
           cat || "SYSTEM UPGRADE",
           mood || "HAPPY"
         );
       };
-      (window as any).getAiraState = () => useAiraStore.getState();
+      devWindow.getAiraState = () => useAiraStore.getState();
     }
   }, []);
 

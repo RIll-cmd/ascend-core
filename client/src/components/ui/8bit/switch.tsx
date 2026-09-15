@@ -10,6 +10,8 @@ export interface BitSwitchProps
   defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
   variant?: "default" | "retro" | "destructive" | "cyber";
+  label?: React.ReactNode;
+  font?: "normal" | "retro";
 }
 
 const variantActiveStyles = {
