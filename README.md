@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌌 ASCEND OS
+# 🌌 ASCEND core
 ### The Next-Generation Gamified Self-Mastery & Physical Evolution Operating System
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.12-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
