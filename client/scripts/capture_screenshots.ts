@@ -197,7 +197,7 @@ async function captureScreenshots() {
   await context.addCookies([
     {
       name: "ascend_session",
-      value: "mock_jwt_session_token_123",
+      value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTBhNDAwMzMwIiwiZXhwIjoxNzkyMTU2MTQ1fQ.12pB_7G7GHHSmpetZl9F10anWYa82lXhLzMT6aS-sec",
       domain: "localhost",
       path: "/",
       httpOnly: false,
@@ -208,20 +208,20 @@ async function captureScreenshots() {
 
   const page = await context.newPage();
 
-  // Inject local storage for mock authentication state
+  // Inject local storage for authenticated state
   await page.addInitScript(() => {
     try {
-      localStorage.setItem("ascend_session", "mock_jwt_session_token_123");
+      localStorage.setItem("ascend_session", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLTBhNDAwMzMwIiwiZXhwIjoxNzkyMTU2MTQ1fQ.12pB_7G7GHHSmpetZl9F10anWYa82lXhLzMT6aS-sec");
       localStorage.setItem(
         "ascend_user",
         JSON.stringify({
-          id: "mock_char-id-123",
-          username: "ShadowMonarch",
-          email: "hunter@ascend.os",
+          id: "user-0a400330",
+          username: "cyrill",
+          email: "cyrill@ascend.core",
           isEmailVerified: true,
         })
       );
-      localStorage.setItem("ascend_character_id", "mock_char-id-123");
+      localStorage.setItem("ascend_character_id", "char-user-0a400330");
       localStorage.setItem("theme", "dark");
     } catch (e) {
       console.error("Failed to inject localStorage auth", e);
