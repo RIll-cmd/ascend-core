@@ -17,49 +17,135 @@ interface ScreenshotTarget {
 }
 
 const TARGETS: ScreenshotTarget[] = [
+  // 01 Dashboard
   {
     name: "main-dashboard.png",
     route: "/dashboard",
-    delayMs: 2000,
+    delayMs: 2500,
   },
+  // Sidebar Navigation Command Index
   {
-    name: "aira-system.png",
-    route: "/aira",
-    delayMs: 2000,
+    name: "sidebar-navigation.png",
+    route: "/dashboard",
+    delayMs: 1500,
+    beforeCapture: async (page: Page) => {
+      try {
+        const menuBtn = await page.$('button[aria-label="Toggle Navigation Menu"]');
+        if (menuBtn) {
+          await menuBtn.click();
+          await page.waitForTimeout(800);
+        }
+      } catch (e) {
+        console.warn("Could not toggle menu button", e);
+      }
+    },
   },
-  {
-    name: "tower.png",
-    route: "/tower",
-    delayMs: 2000,
-  },
-  {
-    name: "workout.png",
-    route: "/workouts",
-    delayMs: 2000,
-  },
-  {
-    name: "boss-pr.png",
-    route: "/workouts/boss-pr",
-    delayMs: 2000,
-  },
-  {
-    name: "habits.png",
-    route: "/habits",
-    delayMs: 2000,
-  },
+  // 02 Missions
   {
     name: "missions.png",
     route: "/missions",
     delayMs: 2000,
   },
+  // 03 Habits
+  {
+    name: "habits.png",
+    route: "/habits",
+    delayMs: 2000,
+  },
+  // 04 Calendar
+  {
+    name: "calendar.png",
+    route: "/calendar",
+    delayMs: 2000,
+  },
+  // 05 Profile
+  {
+    name: "profile.png",
+    route: "/profile",
+    delayMs: 2000,
+  },
+  // 06 Workouts
+  {
+    name: "workout.png",
+    route: "/workouts",
+    delayMs: 2000,
+  },
+  // 07 Sleep & Rest
+  {
+    name: "sleep.png",
+    route: "/sleep",
+    delayMs: 2000,
+  },
+  // 08 Learning & Focus
+  {
+    name: "learning.png",
+    route: "/learning",
+    delayMs: 2000,
+  },
+  // 09 Skills
+  {
+    name: "skills.png",
+    route: "/skills",
+    delayMs: 2000,
+  },
+  // 10 Tower
+  {
+    name: "tower.png",
+    route: "/tower",
+    delayMs: 2000,
+  },
+  // 11 Bosses
+  {
+    name: "bosses.png",
+    route: "/bosses",
+    delayMs: 2000,
+  },
+  // 12 Boss PR
+  {
+    name: "boss-pr.png",
+    route: "/workouts/boss-pr",
+    delayMs: 2000,
+  },
+  // 13 Inventory
+  {
+    name: "inventory.png",
+    route: "/inventory",
+    delayMs: 2000,
+  },
+  // 14 Forge & Craft
+  {
+    name: "crafting.png",
+    route: "/crafting",
+    delayMs: 2000,
+  },
+  // 15 Shop
+  {
+    name: "shop.png",
+    route: "/shop",
+    delayMs: 2000,
+  },
+  // 16 Beasts & Pets
   {
     name: "beasts.png",
     route: "/beasts",
     delayMs: 2000,
   },
+  // 17 AI System / AIRA
   {
-    name: "inventory.png",
-    route: "/inventory",
+    name: "aira-system.png",
+    route: "/aira",
+    delayMs: 2000,
+  },
+  // 18 Achievements
+  {
+    name: "achievements.png",
+    route: "/achievements",
+    delayMs: 2000,
+  },
+  // 19 Automations
+  {
+    name: "automations.png",
+    route: "/automations",
     delayMs: 2000,
   },
 ];

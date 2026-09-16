@@ -1,6 +1,7 @@
 <div align="center">
 
 # 🌌 ASCEND CORE
+
 ### The Next-Generation Gamified Self-Mastery & Physical Evolution Operating System
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.3.5-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -14,10 +15,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 <p align="center">
-  <em>Transform real-world workouts, habit streaks, cognitive deep work, and sleep hygiene into a tactical progression RPG. Ascend OS bridges real-world effort (The Reality Layer) with a deep simulated game world (The RPG Layer) to eliminate burnout, overcome the 30-day retention cliff, and turn daily mastery into an epic solo ascension.</em>
+  <em>Transform real-world workouts, habit streaks, cognitive deep work, and sleep hygiene into a tactical progression RPG. Ascend Core bridges real-world effort (The Reality Layer) with a deep simulated game world (The RPG Layer) to eliminate burnout, overcome the 30-day retention cliff, and turn daily mastery into an epic solo ascension.</em>
 </p>
 
-[Visual Showcase](#-visual-showcase) • [Key Features](#-key-features) • [System Architecture](#-system-architecture) • [Getting Started](#-getting-started) • [Environment Variables](#-environment-variables) • [Project Structure](#-project-structure) • [Testing](#-automated-testing) • [License](#-license)
+[Visual Showcase](#-visual-showcase) • [Key Features & Subsystems](#-key-features--sidebar-subsystems) • [System Architecture](#-system-architecture) • [Getting Started](#-getting-started) • [Environment Variables](#-environment-variables) • [Project Structure](#-project-structure) • [Testing](#-automated-testing) • [License](#-license)
 
 ---
 
@@ -25,35 +26,93 @@
 
 ## 🖼️ Visual Showcase
 
-### Command Center & High-Density HUD
-![Ascend OS Main Dashboard](client/public/previews/main-dashboard.png)
-
+### Command Center & Interactive Sidebar Navigation
 <div align="center">
 
-| 🩻 16-Muscle Anatomical Heatmap & Workout | ⚔️ Tower of Ascension Gauntlet |
+| 🖥️ 01. Main Dashboard HUD | 🧭 Command Index & Sidebar Navigation |
 | :---: | :---: |
-| ![Workout & Recovery Heatmap](client/public/previews/workout.png) | ![Tower of Ascension](client/public/previews/tower.png) |
-| *16-muscle anatomical time-decay silhouette & 1RM gym logger* | *20-Floor tactical turn-based auto-combat dungeon crawl* |
+| ![Ascend Core Main Dashboard](client/public/previews/main-dashboard.png) | ![Command Index Sidebar Navigation](client/public/previews/sidebar-navigation.png) |
+| *7-Stat radar, rank telemetry, active quests & beast companion* | *Radix-powered 19-route command index with 8-bit graphic icons* |
 
-| 🔁 Habit Mastery & Continuous Math | 🏆 Boss PR Breakthrough Arena |
+</div>
+
+<br>
+
+### 📁 Core Operations & Daily Routines
+<div align="center">
+
+| 🎯 02. Missions & Kanban Quests | 🔁 03. Habit Mastery & Heatmap |
 | :---: | :---: |
-| ![Habit Mastery Matrix](client/public/previews/habits.png) | ![Boss PR Arena](client/public/previews/boss-pr.png) |
-| *3-tier sizing, 365-day heatmap & streak freeze shields* | *Transform heavy compound lift records into titanic boss encounters* |
+| ![Missions & Kanban Quests](client/public/previews/missions.png) | ![Habit Mastery Matrix](client/public/previews/habits.png) |
+| *3-Tier quest sizing, subtask checklists & status columns* | *Continuous mathematical habit strength & 365-day grid* |
 
-| 🐉 Beast Incubation & 20 Dragons | 🧙 9-Slot PaperDoll Equipment |
+| 📅 04. Unified Schedule Calendar | 👤 05. Hunter Profile & Credentials |
 | :---: | :---: |
-| ![Beast Incubation Hub](client/public/previews/beasts.png) | ![Inventory & PaperDoll](client/public/previews/inventory.png) |
-| *Step incubation & 20 elemental animated dragon companions* | *9-Slot equipment grid, item lore tooltips, & stat modifiers* |
+| ![Schedule Calendar](client/public/previews/calendar.png) | ![Hunter Profile](client/public/previews/profile.png) |
+| *Integrated monthly timeline for habits, workouts & deadlines* | *Rank credentials, stat allocation matrix & equippable titles* |
 
-| ⚡ Daily System Surges & Boosts | 👑 Weekly Epic Directives Hub |
+</div>
+
+<br>
+
+### 🏋️ Disciplines & Cognitive Mastery
+<div align="center">
+
+| 🩻 06. Workouts & 16-Muscle Heatmap | 😴 07. Sleep & Circadian Recovery |
 | :---: | :---: |
-| ![Daily Bonuses Hub](client/public/screenshots/daily-bonuses.png) | ![Weekly Quests Hub](client/public/screenshots/weekly-quests.png) |
-| *Auto-applying 2x Habit, Learning & Workout Surges* | *Weekly PR Boss confrontation & 40k step quotas* |
+| ![Workouts & Heatmap](client/public/previews/workout.png) | ![Sleep & Recovery](client/public/previews/sleep.png) |
+| *16-Muscle time-decay silhouette & 1RM gym logger* | *Circadian efficiency curve & Recovery (REC) stat scaling* |
 
-| 🤖 AIRA Neural System & Contextual Notifications |
-| :---: |
-| ![AIRA System Terminal](client/public/previews/aira-system.png) |
-| *Conversational AI administrator, tool calling, and live contextual system briefings* |
+| 🧠 08. Learning Sanctuary & Cyber Rain | 🌌 09. Class Skills & Constellations |
+| :---: | :---: |
+| ![Learning & Focus](client/public/previews/learning.png) | ![Skills & Constellations](client/public/previews/skills.png) |
+| *Pomodoro deep work timer & Persona 5 ambient audio player* | *Branching specialization trees spending SP on active/passive skills* |
+
+</div>
+
+<br>
+
+### ⚔️ Combat Trials & Boss Gauntlets
+<div align="center">
+
+| 🏰 10. Tower of Ascension Gauntlet | 👹 11. World Bosses & Reality Raids |
+| :---: | :---: |
+| ![Tower of Ascension](client/public/previews/tower.png) | ![World Bosses](client/public/previews/bosses.png) |
+| *20-Floor auto-combat simulator & AIRA defeat analysis* | *Multi-month life goals damaged directly by real-world habits* |
+
+| 🏆 12. Boss PR Breakthrough Arena | 🎒 13. Inventory & 9-Slot PaperDoll |
+| :---: | :---: |
+| ![Boss PR Arena](client/public/previews/boss-pr.png) | ![Inventory & PaperDoll](client/public/previews/inventory.png) |
+| *Compound lift PR milestones transformed into titanic boss battles* | *Visual gear matrix, item inspection tooltips & deep lore* |
+
+</div>
+
+<br>
+
+### ⚒️ Armory, Economy & Draconic Beasts
+<div align="center">
+
+| ⚒️ 14. Blacksmith Forge & Crafting | 🏪 15. Armory Merchant & Provisions |
+| :---: | :---: |
+| ![Blacksmith Forge & Crafting](client/public/previews/crafting.png) | ![Merchant Shop](client/public/previews/shop.png) |
+| *Recipe crafting, equipment refinement (+1 to +10) & salvage* | *Rotating daily stock, gold/gem sinks & mystery eggs* |
+
+| 🐉 16. Beast Incubation & 20 Dragons | 🤖 17. AIRA Neural System Administrator |
+| :---: | :---: |
+| ![Beast Incubation Hub](client/public/previews/beasts.png) | ![AIRA System Terminal](client/public/previews/aira-system.png) |
+| *Physical step incubation & 20 animated elemental dragons* | *Clinical AI advisor, predictive intelligence & mutative tool calling* |
+
+</div>
+
+<br>
+
+### 🎖️ Milestones & Autonomous Automations
+<div align="center">
+
+| 🎖️ 18. Milestone Achievements Codex | ⚙️ 19. Autonomous System Automations |
+| :---: | :---: |
+| ![Achievements Codex](client/public/previews/achievements.png) | ![Automations Engine](client/public/previews/automations.png) |
+| *Tiered badges across Combat, Fitness, Discipline & Exploration* | *Event-driven rule triggers, habit evaluators & system workflows* |
 
 </div>
 
@@ -63,97 +122,132 @@
 
 Standard fitness and habit tracking apps suffer from an industry-wide **Day-30 retention cliff** (sub-4% retention) driven by **loss aversion**, **binary streak resets**, and the psychological **"What-the-Hell" effect**. A single missed day resets a counter to zero, causing users to abandon the habit entirely.
 
-**Ascend OS completely solves this through architectural separation:**
+**Ascend Core completely solves this through architectural separation:**
 1. **The Reality Layer (Real Life):** Real-world habits, compound gym lifts, deep work sessions, and sleep quality serve as the **training grounds** where player attributes are forged.
 2. **The RPG Layer (The Tower & Gauntlets):** The simulated game world where stats are put to the test. You never defeat monsters by merely checking off a box—you conquer dungeons using the tangible power earned through real-world discipline.
 3. **Algorithmic Mathematical Forgiveness:** Replaces fragile binary streak counters with an **asymptotic continuous habit strength curve** ($S_t \in [0.0, 1.0]$) and automated **Streak Freeze Shields**, preventing total momentum collapse on missed days.
 
 ---
 
-## ⚡ Key Features
+## ⚡ Key Features & Sidebar Subsystems
 
-### 🖥️ 1. Command Center & Hunter HUD
+Ascend Core organizes all user operations, disciplines, combat trials, economy, and system intelligence across **19 specialized sidebar subsystems**:
+
+### 📁 // OPERATIONS (Core & Daily Ops)
+
+#### 🖥️ 01. Dashboard (`/dashboard`)
 * **Hunter Identity & Telemetry:** Real-time HUD tracking **Level**, **Class Archetype**, **Hunter Rank** (E-Rank through National Level SSS-Rank), **Power Score**, and **HP/EXP** progression.
 * **Dual Currency Indicators:** Persistent tracking for soft currency (**Gold**) and premium currency (**Gems / Ascension Crystals**).
 * **7-Attribute Radar Visualization:** Recharts-powered interactive radar measuring real-time equilibrium across **Strength**, **Knowledge**, **Discipline**, **Focus**, **Endurance**, **Recovery**, and **Consistency**.
 * **Quick-Action Fast Logging:** Instant logging for daily habits, active quests, and step telemetry directly from the overview dashboard.
 
-### 🏋️ 2. Workout Tracker & 16-Muscle Anatomical Heatmap
-* **Active Gym Session Logger:** Log exercises, set categories (**Warmup**, **Working Set**, **Drop Set**, **Failure**), weights, reps, and **RPE** (Rating of Perceived Exertion).
-* **16-Muscle Anatomical Heatmap:** Interactive front/back vector anatomical model with computed real-time **time-decay recovery physics** (48h standard recovery, 72h compound muscle groups).
+#### 🎯 02. Missions & Quest Log (`/missions`)
+* **Kanban Quest Board:** Organize missions across *Pending*, *In Progress*, and *Completed* columns with smooth drag-and-drop animations.
+* **3-Tier Quest Sizing:**
+  * **Mini (Friction Baseline):** 10-15 minute task $\rightarrow$ $+15\text{ EXP}$, $+10\text{ Gold}$.
+  * **Normal (Standard Quest):** 30-45 minute task $\rightarrow$ $+45\text{ EXP}$, $+25\text{ Gold}$.
+  * **Elite (Major Objective):** 60+ minute major undertaking $\rightarrow$ $+120\text{ EXP}$, $+75\text{ Gold}$, $+0.5\text{ Stat Points}$.
+* **Multi-Step Subtask Checklists:** Create rich missions with sub-checklists; checking off subtasks updates progress bars dynamically.
+
+#### 🔁 03. Habit Mastery & Heatmap (`/habits`)
+* **Continuous Habit Strength Curve:** Mathematical formulation eliminating binary streak resets:
+  $$S_t = S_{t-1} + C_t \cdot \alpha \cdot (1 - S_{t-1}) - (1 - C_t) \cdot (1 - \delta) \cdot S_{t-1}$$
+* **3-Tier Habit Sizing Architecture:** Set **Mini**, **Normal**, and **Elite** thresholds to maintain momentum on low-energy days.
+* **GitHub-Style 365-Day Heatmap:** Visualizes daily execution density across all 365 days of the year.
+* **Streak Freeze Shields:** Consumable shields that auto-deploy on missed days to preserve accumulated multipliers.
+
+#### 📅 04. Unified Schedule Calendar (`/calendar`)
+* **Unified Visual Timeline:** Combines scheduled habits, planned workout splits, and mission due dates into a single cohesive monthly/weekly view.
+* **Historical Density Badges:** Inspect past completion records, logged workouts, and sleep quality scores for any date.
+
+---
+
+### 🏋️ // DISCIPLINES (Character & Disciplines)
+
+#### 👤 05. Hunter Profile & Credentials (`/profile`)
+* **Hunter License & Status Bar:** View official hunter rank credentials, lifetime statistics, and progression history.
+* **Stat Allocation Matrix:** Spend unallocated stat points directly into STR, KNW, REC, DIS, END, FCS, and CON.
+* **Equippable Milestone Titles:** Equip unlocked prestige titles (*"The Awakened"*, *"Void Conqueror"*, *"Titan of Iron"*) granting account-wide percentage multipliers.
+
+#### 🦾 06. Workouts & 16-Muscle Heatmap (`/workouts`)
+* **Active Gym Session Logger:** Log exercises, set types (**Warmup**, **Working Set**, **Drop Set**, **Failure**), weights, reps, and **RPE**.
+* **16-Muscle Anatomical Heatmap:** Interactive vector model with computed **time-decay recovery physics** (48h standard, 72h compound muscle groups).
 * **Brzycki 1RM Engine:** Dynamic calculation of Estimated One-Rep Max:
   $$\text{1RM} = \frac{\text{Weight}}{1.0278 - (0.0278 \times \text{Reps})}$$
-* **AIRA Workout Intel:** Automatic plateau evaluation suggesting **+2.5 kg progressive overload** increments when hitting $\ge 8$ clean repetitions.
+* **AIRA Workout Intel:** Automatic plateau evaluation suggesting **+2.5 kg progressive overload** increments upon achieving $\ge 8$ clean repetitions.
 
-### 🔁 3. Asymptotic Habit Engine & Streak Shields
-* **Continuous Habit Strength Curve:** Algorithmic formula preserving long-term consistency over binary all-or-nothing streaks:
-  $$S_t = S_{t-1} + C_t \cdot \alpha \cdot (1 - S_{t-1}) - (1 - C_t) \cdot (1 - \delta) \cdot S_{t-1}$$
-* **3-Tier Sizing Architecture:** Set **Mini** (friction baseline), **Normal** (standard goal), and **Elite** (peak performance) thresholds to maintain momentum on low-energy days.
-* **GitHub-Style 365-Day Heatmap:** Scannable annual execution density grid visualizing daily consistency.
-* **Streak Freeze Shields:** Consumable shields that auto-deploy on missed days to safeguard accumulated multipliers.
+#### 😴 07. Sleep & Rest Telemetry (`/sleep`)
+* **Sleep Logger:** Track bedtime, wake time, total sleep duration, and perceived rest quality (1–5 stars).
+* **Circadian Efficiency Curve:** Computes recovery efficiency against optimal circadian baseline (7.5–9 hours).
+* **Recovery (REC) Stat Scaling:** High-efficiency sleep awards direct attribute bonuses to **Recovery** and accelerates anatomical muscle regeneration.
 
-![Habits Interactive View](habits_gif.gif)
+#### 🧠 08. Learning Sanctuary & Ambient Audio (`/learning`)
+* **Pomodoro Deep Work Timer:** Configurable flow-state intervals (25m Focus / 5m Break / Custom) rewarding **Knowledge** and **Focus** attributes.
+* **Cyber Rain Ambient Sound Player:** Built-in audio streamer with seamless looping of the official **Rainy Mood (Persona 5 - Beneath the Mask)** jazz track.
+* **Generative Binaural Beats:** Features **432Hz deep space drone**, **4Hz theta waves**, and **14Hz beta wave focus pulses**.
 
-### 🤖 4. AIRA Neural System Administrator
-* **Clinical System Persona:** Unemotional, data-driven AI advisor inspired by *Solo Leveling's System* and *Ciel / Raphael*, providing concise actionable directives.
-* **Proactive Contextual Notifications:** Real-time toast alerts (`useAiraNotification.ts`) delivering circadian status briefings, midnight decay warnings, and muscle readiness alerts.
-* **Predictive Combat Intelligence:** Assesses player attribute preparedness before dungeon challenges and delivers tactical autopsy reports upon defeat.
-* **Mutative Tool Calling:** Generates personalized workout programs, schedules habits, and logs quests directly on user confirmation via the **Google Gemini API**.
+#### 🌌 09. Skill Constellations & Specializations (`/skills`)
+* **Branching Class Skill Trees:** Specialized constellation trees for *Warrior*, *Mage*, *Assassin*, *Paladin*, and *Shadow Monarch*.
+* **Skill Points (SP):** Earn SP upon leveling up and invest into Active Combat Skills, Passive Multipliers, and Ultimate Abilities.
+* **Interactive Node Modal:** Inspect cooldowns, mana costs, attribute scaling, and unlock prerequisites.
 
-![AIRA Notification Toast](client/public/screenshots/aira-notifications.png)
+---
 
-### ⚔️ 5. Tower of Ascension & Boss PR Arena
-* **20-Floor Dungeon Gauntlet:** 3 thematic sectors (*Iron Citadel*, *Sunken Archive*, *Void Monolith*) testing physical, cognitive, and recovery thresholds.
-* **Turn-Based Auto-Combat Simulator:** Formulas calculating physical damage from **Strength**, magic penetration from **Knowledge**, critical rate from **Focus**, maximum HP from **Endurance**, and round regeneration from **Recovery**.
-* **Personal Record Boss Battles:** Heavy compound lifts (**Squat**, **Bench Press**, **Deadlift**, **Overhead Press**) become titanic boss encounters where breaking PR records deals critical finishing blows.
+### ⚔️ // COMBAT (Conquest & Trials)
 
-<div align="center">
-  <img src="bosses_ritual_creation_modal.png" width="600" alt="Boss PR Ritual Modal" />
-</div>
+#### 🏰 10. Tower of Ascension (`/tower`)
+* **20-Floor Tactical Gauntlet:** Battle through 3 themed dungeon sectors (*Iron Citadel*, *Sunken Archive*, *Void Monolith*) testing physical and mental thresholds.
+* **Turn-Based Auto-Combat Simulator:** Calculates physical damage from **Strength**, spell damage from **Knowledge**, critical strikes from **Focus**, maximum HP from **Endurance**, and round regeneration from **Recovery**.
+* **AIRA Defeat Diagnosis:** In-depth tactical autopsy report upon defeat explaining exact failure points and recommending specific attributes to train.
 
-### 👹 6. Epic Goal Reality Raids
-* **Multi-Month Life Milestones:** Transform long-term achievements (e.g., *Defending a Thesis*, *Running a Marathon*, *Debt Elimination*) into multi-phase raid bosses.
-* **Habit-to-Boss Linking:** Direct damage applied to the boss's HP pool every time linked daily habits are checked off in the physical world.
-* **Enrage Mechanics & Phase Shifts:** Dynamic boss phases and countdown timers reinforcing real-world commitment.
+#### 👹 11. World Bosses & Reality Raids (`/bosses`)
+* **Multi-Month Life Raids:** Transform monumental real-world goals (*"Defend Master's Thesis"*, *"Run a Marathon"*) into multi-phase raid bosses.
+* **Habit-to-Boss Linking:** Checking off linked daily habits in real life deals direct damage to the boss's HP pool.
+* **Phase Shifts & Enrage Timers:** Bosses transition through enraged states as HP depletes, driving urgency.
 
-### 🐉 7. Beast Incubation & 20-Dragon Bestiary
-* **Kinetic & Step Incubation:** Real-world steps and active workout caloric burn hatch mystery elemental beast eggs.
-* **20 Unique Dragon Species:** Animated elemental dragons (`beast_1.gif` through `beast_20.gif`) spanning **Void**, **Nature**, **Frost**, **Fire**, **Cyber**, **Holy**, and **Storm** lineages.
-* **Leveling & Passive Scaling:** Feed steps and gold to scale companions up to Level 10, unlocking passive attribute buffs from **+6% up to +50%**.
+#### 🏆 12. Boss PR Breakthrough Arena (`/workouts/boss-pr`)
+* **Personal Record Boss Encounters:** Heavy compound lifts (**Squat**, **Bench Press**, **Deadlift**, **Overhead Press**) become titanic boss encounters.
+* **Breakthrough Damage:** Achieving a new 1RM deals massive critical damage, triggering celebratory confetti and high-tier loot.
 
-<div align="center">
-  <img src="beasts_cards_019_020_detail.png" width="650" alt="20-Dragon Bestiary Codex" />
-</div>
+---
 
-### 🎒 8. PaperDoll Inventory, Blacksmith Forge & Shop
-* **Interactive 9-Slot PaperDoll:** Visual gear grid (`HELMET`, `WEAPON`, `OFF_HAND`, `ARMOR`, `GLOVES`, `BOOTS`, `RING`, `NECKLACE`, `ARTIFACT`).
-* **Blacksmith Crafting & Refinement:** Craft high-tier gear using monster shards and refine equipment from **+1 to +10** to boost base attributes.
-* **Dual-Currency Market:** Rotating daily inventory featuring equipment, mystery beast eggs, stat elixirs, and streak shields with anti-inflation sinks.
+### 🎒 // ARMORY (Armory & Economy)
 
-<div align="center">
+#### 🎒 13. Inventory & 9-Slot PaperDoll (`/inventory`)
+* **Interactive 9-Slot PaperDoll:** Visual gear matrix (`HELMET`, `WEAPON`, `OFF_HAND`, `ARMOR`, `GLOVES`, `BOOTS`, `RING`, `NECKLACE`, `ARTIFACT`).
+* **Deep Item Lore & Modifiers:** Rich tooltips detailing item lore, equip requirements, and active stat modifiers.
+* **Rarity Hierarchy:** `COMMON` $\rightarrow$ `RARE` $\rightarrow$ `EPIC` $\rightarrow$ `LEGENDARY` $\rightarrow$ `MYTHIC`.
 
-| ⚒️ Blacksmith Forge & Crafting | 🏪 Rotating Armory & Provisions |
-| :---: | :---: |
-| ![Blacksmith Crafting](crafting_after.png) | ![Armory Shop](current_shop.png) |
+#### ⚒️ 14. Forge & Crafting (`/crafting`)
+* **Blacksmith Crafting:** Forge weapons, armor, and artifacts from monster shards and refined shadow steel ingots.
+* **Equipment Refinement:** Enhance gear from **+1 to +10** to scale base attributes.
+* **Gear Salvaging:** Dismantle obsolete gear into refinement shards and gold.
 
-</div>
+#### 🏪 15. Merchant Shop & Economy (`/shop`)
+* **Rotating Daily Market:** Browse equipment, potions, mystery beast eggs, and streak shields with daily stock limits.
+* **Dual Currency Balance:** Balanced economy with repair fees, refinement costs, and egg purchases preventing gold inflation.
 
-### 🧠 9. Focus Sanctuary & Cyber Rain Soundscapes
-* **Pomodoro Deep Work Timer:** Flow-state intervals with automatic stat allocation into **Knowledge** and **Focus** upon session completion.
-* **Cyber Rain Ambient Sound Player:** Integrated audio streamer with seamless looping of the official **Rainy Mood (Persona 5 - Beneath the Mask)** jazz ambiance.
-* **Generative Binaural Audio:** Built-in **432Hz deep space resonance**, **4Hz theta waves**, and **14Hz beta wave focus pulses**.
+#### 🐉 16. Beast Incubation & 20 Dragons (`/beasts`)
+* **Kinetic & Step Incubation:** Real-world walking steps and workout caloric expenditure incubate mystery elemental beast eggs.
+* **20 Unique Dragon Species:** Complete catalog of animated elemental dragons (`beast_1.gif` to `beast_20.gif`) spanning 7 elemental affinities (**Void**, **Nature**, **Frost**, **Fire**, **Cyber**, **Holy**, **Storm**).
+* **Companion Leveling:** Feed accumulated steps and gold to level companions up to Level 10, scaling passive buffs from **+6% up to +50%**.
 
-<div align="center">
-  <img src="learning_timer_readable.png" width="600" alt="Focus Timer and Cyber Rain" />
-</div>
+---
 
-### 😴 10. Circadian Sleep & Recovery Telemetry
-* **Circadian Efficiency Curve:** Evaluates bedtime, wake time, and perceived rest quality against optimal circadian windows.
-* **Recovery (REC) Stat Scaling:** High-efficiency sleep rewards direct attribute bonuses to **Recovery** and accelerates anatomical muscle recovery.
+### ⚙️ // SYSTEM CORE (System Core & Intelligence)
 
-### ⚡ 11. Daily System Surges & Weekly Epic Directives
-* **Daily Auto-Applying Boosts:** Automatic **2x Habit Multipliers**, **2x Learning Focus Boosts**, **2x Workout Surges**, and **Free Daily Egg Claims**.
-* **Weekly Epic Directives:** High-stakes weekly quotas rewarding large quantities of EXP, Gold, and rare Streak Freeze Shields.
+#### 🤖 17. AI System / AIRA (`/aira`)
+* **Clinical System Persona:** Unemotional, data-driven AI advisor inspired by *Solo Leveling's System* and *Ciel / Raphael*.
+* **Proactive Contextual Notifications:** Real-time toast notifications (`useAiraNotification.ts`) delivering circadian briefings, midnight decay warnings, and anatomical readiness alerts.
+* **Mutative Tool Calling:** Autonomously generates customized workout routines, creates habit schedules, and logs completed quests directly via the **Google Gemini API**.
+
+#### 🎖️ 18. Milestone Achievements Codex (`/achievements`)
+* **Structured Milestone Trophies:** Track progress across Combat, Fitness, Discipline, Knowledge, and Exploration.
+* **Account Perks:** Unlocks gems, exclusive hunter titles, and permanent account multipliers.
+
+#### ⚙️ 19. Automations Engine (`/automations`)
+* **Event-Driven Rules Engine:** Configure automation triggers linking habit completions to notifications, streak evaluations, and custom system webhooks.
+* **Daily System Surges:** Automated daily directives including **5x Habit 2x Boosts**, **1x Learning 2x Boost**, **1x Workout 2x Surge**, and **Free Daily Egg Claims**.
 
 ---
 
@@ -161,28 +255,30 @@ Standard fitness and habit tracking apps suffer from an industry-wide **Day-30 r
 
 ```mermaid
 flowchart TB
-    subgraph Frontend["🖥️ ASCEND OS FRONTEND (Next.js 16 App Router)"]
-        UI["Cyberpunk HUD & Design System"]
+    subgraph Frontend["🖥️ ASCEND CORE FRONTEND (Next.js 16 App Router)"]
+        UI["Cyberpunk & 8-Bit Neo-Retro HUD"]
+        SidebarNav["19-Route Sidebar Navigation Index"]
         Zustand["Zustand State Stores (15+ Modular Stores)"]
         Heatmap["Interactive 16-Muscle SVG Heatmap"]
-        Audio["Web Audio SFX Engine & Ambient Player"]
+        Audio["Web Audio SFX Engine & Cyber Rain Player"]
         PaperDoll["9-Slot PaperDoll Equipment Matrix"]
-        Kanban["Drag & Drop Kanban Quest Engine"]
-        SoundPlayer["Cyber Rain & Ambient Sound Player"]
+        Kanban["Drag & Drop Kanban Quest Board"]
+        AutomationsUI["Event-Driven Automations Engine"]
     end
 
     subgraph API_Bridge["🌐 API & SERVERLESS BRIDGE"]
-        RestAPI["REST API (FastAPI Routes)"]
+        RestAPI["REST API (FastAPI Endpoints)"]
         VercelHandler["Vercel Serverless Wrapper (api/index.py)"]
     end
 
-    subgraph Backend["⚙️ ASCEND OS CORE SERVER (FastAPI + Python 3.12)"]
+    subgraph Backend["⚙️ ASCEND CORE BACKEND (FastAPI + Python 3.12)"]
         DecayEngine["Real-Time Time-Decay Muscle Engine"]
         FitnessEngine["Brzycki 1RM & Progressive Overload Engine"]
         CombatSim["Turn-Based Auto-Combat Simulator"]
         AiraAI["AIRA Neural System Administrator (Gemini AI)"]
         BeastIncubator["Draconic Step & Energy Incubator"]
-        CraftingEngine["Item Refinement & Alchemy Pipeline"]
+        CraftingEngine["Item Refinement & Blacksmith Pipeline"]
+        AutomationsEngine["Event-Driven Trigger & Webhook Engine"]
         EconomyEngine["Dual-Currency & Anti-Inflation Sinks"]
     end
 
@@ -211,7 +307,7 @@ flowchart TB
 | **State Management** | [Zustand 5](https://github.com/pmndrs/zustand) (Modular Domain Stores with Optimistic Updates) |
 | **Data Visualization** | [Recharts](https://recharts.org/), Custom SVG 16-Muscle Heatmap, React Calendar Heatmap |
 | **Backend Framework** | [FastAPI](https://fastapi.tiangolo.com/) (Python 3.12+ Async Engine) |
-| **Server Engine** | [Uvicorn](https://www.uvicorn.org/) ASGI with custom lifespan management |
+| **Server Engine** | [Uvicorn](https://www.uvicorn.org/) ASGI with custom lifespan connection pool |
 | **ORM & Database** | [Prisma Client Python](https://prisma-client-py.readthedocs.io/) with [PostgreSQL](https://neon.tech/) / [SQLite](https://sqlite.org/) |
 | **Validation & Types** | [Pydantic v2](https://docs.pydantic.dev/) |
 | **AI Intelligence** | [Google Generative AI (Gemini 2.5 / 3)](https://ai.google.dev/) for AIRA System Intelligence |
@@ -329,50 +425,74 @@ ascend-core/
 │   │   ├── eggs/                       # Elemental beast egg sprites
 │   │   ├── icons/                      # 400+ RPG item & skill icons
 │   │   ├── music/                      # Ambient soundscapes (Cyber Rain, 432Hz)
-│   │   ├── previews/                   # High-resolution feature previews
+│   │   ├── previews/                   # 20 high-res UI screenshots across all routes
 │   │   ├── screenshots/                # System toast and bonus hub captures
 │   │   └── sounds/                     # Web Audio SFX & AIRA voice files
 │   ├── src/
 │   │   ├── app/                        # Next.js App Router (Layouts & Feature Pages)
 │   │   │   ├── (auth)/                 # Login, Register, OTP verification
-│   │   │   ├── (dashboard)/            # Authenticated Player Modules
-│   │   │   │   ├── achievements/       # Milestone & Domain achievements
-│   │   │   │   ├── aira/               # AIRA Conversational Terminal
-│   │   │   │   ├── analytics/          # Progress analytics & charts
-│   │   │   │   ├── beasts/             # Beast Incubator & 20-Dragon Bestiary
-│   │   │   │   ├── bosses/             # Boss PR Arena & Epic Goal Raids
-│   │   │   │   ├── calendar/           # Habit & workout schedule calendar
-│   │   │   │   ├── crafting/           # Blacksmith recipes & refinement
-│   │   │   │   ├── dashboard/          # Command Center Overview HUD
-│   │   │   │   ├── habits/             # Habit manager & 365-day heatmap
-│   │   │   │   ├── inventory/          # PaperDoll 9-slot gear grid & vault
-│   │   │   │   ├── learning/           # Pomodoro timer & Cyber Rain player
-│   │   │   │   ├── missions/           # Daily quest log & Kanban board
-│   │   │   │   ├── profile/            # Hunter credentials & Titles
-│   │   │   │   ├── season-pass/        # Battle Pass progression & rewards
-│   │   │   │   ├── settings/           # Audio, display, and account settings
-│   │   │   │   ├── shop/               # Rotating daily market
-│   │   │   │   ├── skills/             # Class specializations & SP Skill Tree
-│   │   │   │   ├── sleep/              # Circadian sleep efficiency logger
-│   │   │   │   ├── tower/              # 20-Floor Tower of Ascension
-│   │   │   │   └── workouts/           # Active gym session & set logger
-│   │   ├── components/                 # Global UI & Layout Components
+│   │   │   ├── (dashboard)/            # 19 Authenticated Sidebar Modules
+│   │   │   │   ├── dashboard/          # 01. Command Center Overview HUD
+│   │   │   │   ├── missions/           # 02. Daily quest log & Kanban board
+│   │   │   │   ├── habits/             # 03. Habit manager & 365-day heatmap
+│   │   │   │   ├── calendar/           # 04. Habit & workout schedule calendar
+│   │   │   │   ├── profile/            # 05. Hunter credentials & Titles
+│   │   │   │   ├── workouts/           # 06. Active gym session & set logger
+│   │   │   │   │   └── boss-pr/        # 12. Boss PR Breakthrough Arena
+│   │   │   │   ├── sleep/              # 07. Circadian sleep efficiency logger
+│   │   │   │   ├── learning/           # 08. Pomodoro timer & Cyber Rain player
+│   │   │   │   ├── skills/             # 09. Class specializations & SP Skill Tree
+│   │   │   │   ├── tower/              # 10. 20-Floor Tower of Ascension
+│   │   │   │   ├── bosses/             # 11. Epic Goal Reality Raids
+│   │   │   │   ├── inventory/          # 13. PaperDoll 9-slot gear grid & vault
+│   │   │   │   ├── crafting/           # 14. Blacksmith recipes & refinement
+│   │   │   │   ├── shop/               # 15. Rotating daily market
+│   │   │   │   ├── beasts/             # 16. Beast Incubator & 20-Dragon Bestiary
+│   │   │   │   ├── aira/               # 17. AIRA Conversational Terminal
+│   │   │   │   ├── achievements/       # 18. Milestone & Domain achievements
+│   │   │   │   └── automations/        # 19. Event triggers & System workflows
+│   │   ├── components/                 # Global UI, Layouts & 8-Bit Design Suite
+│   │   │   ├── layouts/                # DashboardLayout, Topbar, SidebarNav
+│   │   │   └── ui/8bit/                # 8-Bit retro RPG components & borders
 │   │   ├── features/                   # Domain-Driven Modular Components
-│   │   ├── store/                      # Zustand State Management Stores
+│   │   │   ├── aira/                   # AIRA AI coach & toast notification hooks
+│   │   │   ├── beasts/                 # Egg incubation, leveling & codex
+│   │   │   ├── bosses/                 # Raid encounters & PR benchmarks
+│   │   │   ├── fitness/                # 16-Muscle heatmap & 1RM calculator
+│   │   │   ├── habits/                 # Continuous math engine & streaks
+│   │   │   ├── inventory/              # PaperDoll grid & item inspect modal
+│   │   │   ├── learning/               # Pomodoro timer & audio streamer
+│   │   │   └── sleep/                  # Circadian telemetry & recovery curve
+│   │   ├── store/                      # Zustand State Management Stores (15+ stores)
 │   │   └── types/                      # TypeScript definitions & API contracts
+│   ├── scripts/
+│   │   └── capture_screenshots.ts      # Automated Playwright full-suite capture script
 │   ├── package.json                    # Frontend dependencies & scripts
 │   └── tsconfig.json                   # TypeScript compiler configuration
 ├── server/                             # Backend FastAPI Core Engine
 │   ├── prisma/
 │   │   ├── schema.prisma               # 35+ Model Relational Database Schema
 │   │   └── dev.db                      # Local development SQLite database
-│   ├── routers/                        # Domain REST Endpoints (Habits, Fitness, AIRA)
+│   ├── routers/                        # 20+ Domain REST Endpoints
+│   │   ├── auth.py                     # Authentication & JWT tokens
+│   │   ├── character.py                # Character stats & progression
+│   │   ├── habits.py                   # Habit CRUD & strength decay
+│   │   ├── workouts.py                 # Set logging & 1RM formulas
+│   │   ├── fitness.py                  # Anatomical muscle fatigue decay
+│   │   ├── tower.py                    # Dungeon combat calculations
+│   │   ├── aira.py                     # Gemini AI coaching & tool calling
+│   │   ├── beasts.py                   # Step sync & egg hatching
+│   │   ├── crafting.py                 # Refinement & forge recipes
+│   │   ├── shop.py                     # Rotating market items
+│   │   ├── automations.py              # Event triggers & daily boosts
+│   │   └── calendar.py                 # Schedule sync & timeline events
 │   ├── schemas/                        # Pydantic v2 Request/Response Schemas
-│   ├── services/                       # Business Logic, Decay & Combat Engines
+│   ├── services/                       # Mathematical & Simulation Engines
 │   ├── auth_utils.py                   # Password hashing & JWT helpers
 │   ├── main.py                         # FastAPI application factory & CORS configuration
 │   └── requirements.txt                # Python backend dependencies
 ├── docs/                               # System blueprints & architectural documents
+│   └── media/                          # High-resolution documentation screenshots
 ├── vercel.json                         # Vercel deployment configuration
 └── README.md                           # Master Project Documentation
 ```
@@ -405,7 +525,7 @@ npm run lint
 # Compile production Next.js build
 npm run build
 
-# Capture automated Playwright documentation screenshots
+# Capture automated Playwright documentation screenshots across all 19 routes
 npm run screenshots
 ```
 
