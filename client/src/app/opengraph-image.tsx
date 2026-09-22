@@ -1,6 +1,5 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
 export const alt = "Ascend OS - Continuous Progression Platform";
 export const size = {
   width: 1200,

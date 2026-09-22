@@ -5,7 +5,7 @@
   "description": "Ascend OS Core - Gamified SaaS Architecture (Next.js, FastAPI, Vercel & Neon)",
   "scripts": {
     "dev": "npm run dev --prefix client",
-    "build": "npm run build --prefix client",
+    "build": "npm run build --prefix client && node -e \"const fs=require('fs'); if(fs.existsSync('client/.next')) fs.cpSync('client/.next', '.next', {recursive: true})\"",
     "start": "npm run start --prefix client",
     "lint": "npm run lint --prefix client",
     "test": "npm run test --prefix client",

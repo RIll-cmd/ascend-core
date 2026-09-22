@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function RefundPolicyPage() {
   return (
-    <div className="min-h-screen w-full bg-[#0B1020] text-slate-100 selection:bg-amber-500/30 selection:text-amber-200">
+    <div className="min-h-screen w-full bg-[#0B1020] text-white selection:bg-amber-500/30 selection:text-amber-200">
       {/* Background ambient lighting */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-amber-600/10 rounded-full blur-[140px]" />
