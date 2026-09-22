@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "screenshots": "tsx scripts/capture_screenshots.ts",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [

@@ -11,5 +11,10 @@
     "test": "npm run test --prefix client",
     "backend:dev": "npm run dev --prefix server",
     "backend:build": "npm run build --prefix server"
+  },
+  "devDependencies": {
+    "next": "16.3.5",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
   }
 }
