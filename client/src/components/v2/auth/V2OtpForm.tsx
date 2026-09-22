@@ -1,8 +1,14 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { KeyRound, ArrowLeft, RefreshCw, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+} from "@/components/ui/8bit/input-otp";
 
 interface V2OtpFormProps {
   email?: string;
@@ -21,11 +27,10 @@ export function V2OtpForm({
   forceError = null,
   forceSuccess = false,
 }: V2OtpFormProps) {
-  const [digits, setDigits] = useState<string[]>(["7", "4", "2", "9", "", ""]);
+  const [otpValue, setOtpValue] = useState("7429");
   const [resendCountdown, setResendCountdown] = useState(42);
   const [localError, setLocalError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const activeError = forceError ?? localError;
   const isLoading = forceLoading || isSubmitting;
@@ -37,54 +42,9 @@ export function V2OtpForm({
     }
   }, [resendCountdown]);
 
-  const handleChange = (index: number, value: string) => {
-    if (localError) setLocalError(null);
-    const cleaned = value.replace(/[^0-9]/g, "");
-
-    if (!cleaned) {
-      const newDigits = [...digits];
-      newDigits[index] = "";
-      setDigits(newDigits);
-      return;
-    }
-
-    // Handle single digit
-    if (cleaned.length === 1) {
-      const newDigits = [...digits];
-      newDigits[index] = cleaned;
-      setDigits(newDigits);
-
-      // Auto-advance to next box
-      if (index < 5 && inputRefs.current[index + 1]) {
-        inputRefs.current[index + 1]?.focus();
-      }
-      return;
-    }
-
-    // Handle paste across multiple inputs
-    const pasted = cleaned.slice(0, 6).split("");
-    const newDigits = [...digits];
-    pasted.forEach((char, i) => {
-      if (index + i < 6) {
-        newDigits[index + i] = char;
-      }
-    });
-    setDigits(newDigits);
-
-    const nextIndex = Math.min(5, index + pasted.length);
-    inputRefs.current[nextIndex]?.focus();
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !digits[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const fullCode = digits.join("");
-    if (fullCode.length < 6) {
+    if (otpValue.length < 6) {
       setLocalError("Please enter all 6 digits of the security token.");
       return;
     }
@@ -102,8 +62,7 @@ export function V2OtpForm({
     if (resendCountdown > 0) return;
     setResendCountdown(60);
     setLocalError(null);
-    setDigits(["", "", "", "", "", ""]);
-    inputRefs.current[0]?.focus();
+    setOtpValue("");
   };
 
   return (
@@ -155,27 +114,31 @@ export function V2OtpForm({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        {/* 6-box OTP Input Array */}
-        <div className="flex items-center justify-between gap-2 sm:gap-3 py-2">
-          {digits.map((digit, index) => (
-            <input
-              key={index}
-              ref={(el) => {
-                inputRefs.current[index] = el;
-              }}
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={6}
-              value={digit}
-              onChange={(e) => handleChange(index, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              disabled={isLoading}
-              aria-label={`Verification digit ${index + 1} of 6`}
-              className="w-12 h-14 sm:w-13 sm:h-16 text-center text-xl font-mono font-bold bg-zinc-900/90 border border-zinc-800 focus:border-cyan-500 text-zinc-100 rounded-xl transition-all outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
-            />
-          ))}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5 items-center">
+        {/* 6-digit 8-bit OTP Input Array */}
+        <div className="flex justify-center py-2">
+          <InputOTP
+            maxLength={6}
+            value={otpValue}
+            onChange={(val) => {
+              setOtpValue(val.replace(/[^0-9]/g, ""));
+              if (localError) setLocalError(null);
+            }}
+            disabled={isLoading}
+            font="retro"
+          >
+            <InputOTPGroup>
+              <InputOTPSlot index={0} />
+              <InputOTPSlot index={1} />
+              <InputOTPSlot index={2} />
+            </InputOTPGroup>
+            <InputOTPSeparator />
+            <InputOTPGroup>
+              <InputOTPSlot index={3} />
+              <InputOTPSlot index={4} />
+              <InputOTPSlot index={5} />
+            </InputOTPGroup>
+          </InputOTP>
         </div>
 
         {/* Resend Action */}

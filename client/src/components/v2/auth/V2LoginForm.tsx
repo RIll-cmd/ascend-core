@@ -5,6 +5,7 @@ import { Eye, EyeOff, Lock, Mail, AlertCircle, Loader2, CheckCircle2 } from "luc
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/8bit/checkbox";
 import { V2GuestPass } from "./V2GuestPass";
 
 interface V2LoginFormProps {
@@ -204,11 +205,10 @@ export function V2LoginForm({
         {/* Remember Me Checkbox */}
         <div className="flex items-center justify-between pt-1">
           <label className="flex items-center gap-2.5 cursor-pointer select-none group min-h-[32px]">
-            <input
-              type="checkbox"
+            <Checkbox
+              id="v2-login-remember-me"
               checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-zinc-950 focus:ring-2 transition-all cursor-pointer"
+              onCheckedChange={(c) => setRememberMe(Boolean(c))}
             />
             <span className="text-xs text-zinc-400 group-hover:text-zinc-200 transition-colors">
               Maintain terminal session (30 days)

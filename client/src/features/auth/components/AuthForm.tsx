@@ -26,6 +26,12 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+} from "@/components/ui/8bit/input-otp";
 import { useAuthStore } from "@/store/useAuthStore";
 import { API_BASE_URL } from "@/constants";
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
@@ -772,15 +778,26 @@ export function AuthForm({ mode: initialMode }: AuthFormProps) {
                         </span>
                         <span className="text-[10px] text-slate-400">Expires in 5m</span>
                       </div>
-                      <Input
-                        type="text"
-                        maxLength={6}
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ""))}
-                        placeholder="123456"
-                        className="h-10 text-center font-mono text-base font-black tracking-[0.4em] bg-black/60 border-violet-500/40 text-cyan-300 rounded-lg"
-                        required
-                      />
+                      <div className="flex justify-center py-2">
+                        <InputOTP
+                          maxLength={6}
+                          value={otp}
+                          onChange={(val) => setOtp(val.replace(/[^0-9]/g, ""))}
+                          font="retro"
+                        >
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                          </InputOTPGroup>
+                          <InputOTPSeparator />
+                          <InputOTPGroup>
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      </div>
                     </div>
                   )}
                 </div>

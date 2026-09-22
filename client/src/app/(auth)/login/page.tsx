@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { AuthCard } from "@/components/v2/auth/AuthCard";
+import { LoginForm } from "@/components/ui/8bit";
 
 export default function LoginPage() {
   return (
-    <div suppressHydrationWarning className="w-full flex justify-center">
-      <AuthCard initialTab="login" />
+    <div suppressHydrationWarning className="w-full flex justify-center py-4 sm:py-6">
+      <LoginForm />
     </div>
   );
 }

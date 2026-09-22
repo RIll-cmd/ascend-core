@@ -5,6 +5,7 @@ import { Eye, EyeOff, Lock, Mail, User, AlertCircle, Loader2, CheckCircle2, Shie
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/8bit/checkbox";
 import { V2GuestPass } from "./V2GuestPass";
 
 interface V2RegisterFormProps {
@@ -300,11 +301,11 @@ export function V2RegisterForm({
         {/* Terms Acceptance */}
         <div className="pt-1">
           <label className="flex items-start gap-2.5 cursor-pointer select-none group min-h-[36px]">
-            <input
-              type="checkbox"
+            <Checkbox
+              id="v2-register-accept-terms"
               checked={acceptTerms}
-              onChange={(e) => setAcceptTerms(e.target.checked)}
-              className="w-4 h-4 mt-0.5 rounded border-zinc-700 bg-zinc-900 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-zinc-950 focus:ring-2 transition-all cursor-pointer"
+              onCheckedChange={(c) => setAcceptTerms(Boolean(c))}
+              className="mt-0.5"
             />
             <span className="text-xs text-zinc-400 group-hover:text-zinc-200 transition-colors leading-relaxed">
               I agree to the Ascend Protocol Covenant, biometric data safeguards, and terms of service.

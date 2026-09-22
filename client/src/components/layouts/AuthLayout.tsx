@@ -10,7 +10,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       suppressHydrationWarning
-      className="min-h-screen w-full bg-zinc-950 text-white flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden selection:bg-cyan-500 selection:text-cyan-950"
+      className="min-h-screen w-full bg-zinc-950 text-white flex flex-col items-center justify-between p-4 sm:p-6 relative overflow-x-hidden selection:bg-cyan-500 selection:text-cyan-950"
     >
       {/* Interactive Galaxy Background from React Bits */}
       <div
@@ -40,7 +40,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
       {/* Top Navigation Bar */}
       <header
         suppressHydrationWarning
-        className="absolute top-4 sm:top-6 left-4 sm:left-8 right-4 sm:right-8 flex items-center justify-between z-20"
+        className="relative sm:absolute top-0 sm:top-6 left-0 sm:left-8 right-0 sm:right-8 flex items-center justify-between z-20 w-full max-w-6xl mb-6 sm:mb-0 px-2 sm:px-0"
       >
         <Button
           variant="ghost"
@@ -70,7 +70,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
       {/* Main Centered Auth Card Container */}
       <main
         suppressHydrationWarning
-        className="relative z-10 w-full max-w-md my-auto pt-16 pb-8"
+        className="relative z-10 w-full max-w-4xl my-auto pt-6 sm:pt-16 pb-8"
       >
         {children}
       </main>
@@ -78,7 +78,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
       {/* Bottom Attribution */}
       <footer
         suppressHydrationWarning
-        className="absolute bottom-4 left-0 right-0 text-center z-20 pointer-events-none"
+        className="relative z-20 text-center py-2 pointer-events-none"
       >
         <p className="text-[11px] font-mono text-zinc-500">
           Zero-knowledge telemetry. All credentials securely hashed.
