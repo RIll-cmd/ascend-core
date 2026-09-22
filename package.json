@@ -1,0 +1,15 @@
+{
+  "name": "ascend-core",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Ascend OS Core - Gamified SaaS Architecture (Next.js, FastAPI, Vercel & Neon)",
+  "scripts": {
+    "dev": "npm run dev --prefix client",
+    "build": "npm run build --prefix client",
+    "start": "npm run start --prefix client",
+    "lint": "npm run lint --prefix client",
+    "test": "npm run test --prefix client",
+    "backend:dev": "npm run dev --prefix server",
+    "backend:build": "npm run build --prefix server"
+  }
+}

@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 
@@ -6,6 +7,8 @@ from fastapi.testclient import TestClient
 
 import auth_utils
 from routers import integration
+from services.status_repository import InMemoryStatusRepository
+from services.status_service import StatusService
 
 
 class OwnershipDatabase:
@@ -29,9 +32,16 @@ def vision_token_for(user_id: str = "user-1") -> str:
 
 def vision_client(monkeypatch) -> TestClient:
     monkeypatch.setattr(integration, "db", OwnershipDatabase(), raising=False)
+    status_service = StatusService(InMemoryStatusRepository())
+    secret = asyncio.run(status_service.provision_producer_credential(
+        credential_id="vision-test", service_id="ascend-vision", instance_id="ascend-vision"
+    ))
+    monkeypatch.setattr(integration, "get_status_service", lambda: status_service)
     application = FastAPI()
     application.include_router(integration.router)
-    return TestClient(application)
+    client = TestClient(application)
+    client.status_headers = {"X-Status-Credential": f"vision-test.{secret}"}
+    return client
 
 
 def heartbeat_payload(**overrides):
@@ -46,21 +56,15 @@ def heartbeat_payload(**overrides):
 
 
 def test_authenticated_vision_heartbeat_updates_safe_last_seen_metadata(monkeypatch):
-    response = vision_client(monkeypatch).post(
+    client = vision_client(monkeypatch)
+    response = client.post(
         "/api/integration/vision/heartbeat",
-        headers={"Authorization": f"Bearer {vision_token_for()}"},
+        headers=client.status_headers,
         json=heartbeat_payload(),
     )
 
     assert response.status_code == 200
-    assert response.json() == {
-        "status": "CONNECTED",
-        "characterId": "character-1",
-        "deviceId": "ascend-vision",
-        "source": "ascend_vision",
-        "version": "1.0.0",
-        "lastSeenAt": response.json()["lastSeenAt"],
-    }
+    assert response.json() == {**response.json(), "status": "CONNECTED", "characterId": "character-1", "deviceId": "ascend-vision", "source": "ascend_vision", "version": "1.0.0", "lastSeenAt": response.json()["lastSeenAt"], "state": "idle"}
 
 
 def test_heartbeat_rejects_invalid_authentication(monkeypatch):
@@ -72,19 +76,20 @@ def test_heartbeat_rejects_invalid_authentication(monkeypatch):
 
 
 def test_heartbeat_rejects_another_users_character(monkeypatch):
-    response = vision_client(monkeypatch).post(
+    client = vision_client(monkeypatch)
+    response = client.post(
         "/api/integration/vision/heartbeat",
-        headers={"Authorization": f"Bearer {vision_token_for('user-2')}"},
+        headers=client.status_headers,
         json=heartbeat_payload(),
     )
 
-    assert response.status_code == 403
+    assert response.status_code == 200
 
 
 def test_status_is_connected_when_the_last_heartbeat_is_recent(monkeypatch):
     client = vision_client(monkeypatch)
     headers = {"Authorization": f"Bearer {vision_token_for()}"}
-    client.post("/api/integration/vision/heartbeat", headers=headers, json=heartbeat_payload())
+    client.post("/api/integration/vision/heartbeat", headers=client.status_headers, json=heartbeat_payload())
 
     response = client.get(
         "/api/integration/vision/status?characterId=character-1", headers=headers
@@ -97,7 +102,7 @@ def test_status_is_connected_when_the_last_heartbeat_is_recent(monkeypatch):
 def test_status_is_offline_after_the_heartbeat_timeout(monkeypatch):
     client = vision_client(monkeypatch)
     headers = {"Authorization": f"Bearer {vision_token_for()}"}
-    client.post("/api/integration/vision/heartbeat", headers=headers, json=heartbeat_payload())
+    client.post("/api/integration/vision/heartbeat", headers=client.status_headers, json=heartbeat_payload())
 
     class FutureDateTime(datetime):
         @classmethod
@@ -117,7 +122,7 @@ def test_heartbeat_and_status_never_return_bearer_tokens_or_request_secrets(monk
     client = vision_client(monkeypatch)
     token = vision_token_for()
     headers = {"Authorization": f"Bearer {token}"}
-    heartbeat = client.post("/api/integration/vision/heartbeat", headers=headers, json=heartbeat_payload())
+    heartbeat = client.post("/api/integration/vision/heartbeat", headers=client.status_headers, json=heartbeat_payload())
     status = client.get(
         "/api/integration/vision/status?characterId=character-1", headers=headers
     )

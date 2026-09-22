@@ -12,6 +12,8 @@ def _default_calendar_db_path() -> Path:
     override = os.getenv("CALENDAR_SCHEDULES_PATH")
     if override:
         return Path(override)
+    if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        return Path("/tmp/calendar_schedules.sqlite3")
     return Path(__file__).resolve().parent.parent / "data" / "calendar_schedules.sqlite3"
 
 

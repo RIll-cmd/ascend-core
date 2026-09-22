@@ -20,6 +20,9 @@ describe("getAuthRedirect", () => {
 
   it("allows public routes and authenticated internal views", () => {
     expect(getAuthRedirect("/register", false)).toBeNull();
+    expect(getAuthRedirect("/privacy", false)).toBeNull();
+    expect(getAuthRedirect("/terms", false)).toBeNull();
+    expect(getAuthRedirect("/refund", false)).toBeNull();
     expect(getAuthRedirect("/dashboard", true)).toBeNull();
     expect(getAuthRedirect("/inventory", true)).toBeNull();
   });

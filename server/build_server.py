@@ -5,7 +5,7 @@ import subprocess
 from pathlib import Path
 
 def main():
-    print("[Build Script] Starting Render backend build...")
+    print("[Build Script] Starting serverless backend build...")
     
     # 1. Fetch Prisma CLI & Query Engine binaries
     print("[Build Script] Fetching Prisma engine binaries...")
@@ -57,7 +57,7 @@ def main():
     except Exception as e:
         print(f"[Build Script] Warning while bundling query engine: {e}")
 
-    print("[Build Script] Render backend build finished successfully!")
+    print("[Build Script] Serverless backend build finished successfully!")
 
 if __name__ == "__main__":
     main()

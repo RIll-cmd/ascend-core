@@ -5,6 +5,9 @@ const PUBLIC_ROUTES = [
   "/guest",
   "/unauthorized",
   "/v2",
+  "/privacy",
+  "/terms",
+  "/refund",
 ] as const;
 
 const isPublicRoute = (pathname: string) =>

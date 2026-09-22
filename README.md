@@ -533,18 +533,24 @@ npm run screenshots
 
 ## 🚢 Deployment
 
-### Option A: Monorepo Serverless (Vercel)
-The repository includes root `vercel.json` and `api/index.py` serverless functions for streamlined full-stack deployment on Vercel:
+### Production Architecture (Vercel & Neon Serverless)
+Ascend OS is engineered exclusively for **Vercel** compute/hosting and **Neon** serverless database storage:
+1. **Compute & API (Vercel):** Frontend assets (`client/`) and Python backend endpoints (`server/` via `api/index.py`) are hosted entirely as serverless functions on Vercel.
+2. **Database (Neon PostgreSQL):** Persistent data storage is powered exclusively by Neon Serverless PostgreSQL with connection pooling (`-pooler`).
+3. **Region Pairing:** Vercel functions are paired in region `sin1` (Singapore) matching Neon AWS region `aws-ap-southeast-1` to minimize latency.
+4. **Automated Crons:** Background maintenance tasks (heartbeats, sweeps, midnight decay) are scheduled via Vercel Cron Jobs (`vercel.json`) invoking `/api/cron/*` endpoints guarded by `CRON_SECRET`.
+
+#### Deployment Steps:
 1. Push the repository to GitHub.
 2. Import the project into [Vercel](https://vercel.com).
-3. Set the Root Directory to `./` and select **Next.js** framework preset.
-4. Set required environment variables (`DATABASE_URL`, `GEMINI_API_KEY`, `NEXT_PUBLIC_API_URL`).
-5. Deploy.
-
-### Option B: Split Production Architecture (Recommended for Scale)
-* **Frontend:** Deploy `client/` to [Vercel](https://vercel.com) or [Cloudflare Pages](https://pages.cloudflare.com/).
-* **Backend:** Deploy `server/` as a Docker container or Python service on [Render](https://render.com), [Railway](https://railway.app), or [AWS ECS / GCP Cloud Run].
-* **Database:** Connect a managed serverless [Neon PostgreSQL](https://neon.tech) or [Supabase](https://supabase.com) instance by configuring `DATABASE_URL` in `server/prisma/schema.prisma`.
+3. Set the Root Directory to `./` with the **Next.js** preset.
+4. Configure required environment variables in the Vercel Dashboard:
+   - `DATABASE_URL` (Neon pooled endpoint: `postgresql://...-pooler.../neondb?sslmode=require`)
+   - `DATABASE_URL_UNPOOLED` (Neon direct endpoint)
+   - `CRON_SECRET` (Secure token for Vercel Cron authorization)
+   - `SECRET_KEY` (JWT signing secret)
+   - `GEMINI_API_KEY` (AIRA AI integration)
+5. Deploy. Vercel automatically deploys the Next.js frontend, Python serverless API functions, and registers the Vercel Cron schedules.
 
 ---
 

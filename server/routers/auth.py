@@ -6,7 +6,6 @@ from slowapi.util import get_remote_address
 import re
 import uuid
 import secrets
-import sqlite3
 import os
 from datetime import datetime, timedelta, timezone
 from db import db
@@ -81,6 +80,7 @@ class LoginInput(BaseModel):
 
 class AccountDeleteInput(BaseModel):
     username: str
+    password: Optional[str] = None
 
 class LinkEmailRequestInput(BaseModel):
     email: str
@@ -748,3 +748,89 @@ async def update_username(data: UpdateUsernameInput, current_user: dict = Depend
         "message": "Hunter handle successfully updated.",
         "username": new_username
     }
+
+
+# =========================================================================
+# 7. GDPR/CCPA COMPLIANCE & DATA SOVEREIGNTY ENDPOINTS
+# =========================================================================
+
+@router.get("/api/auth/export-data")
+async def export_user_data(current_user: dict = Depends(get_current_user)):
+    """
+    GDPR/CCPA Data Subject Access Request (Portability).
+    Exports complete personal telemetry, character state, and progression logs.
+    """
+    user_id = current_user["id"]
+    char = None
+    user = None
+
+    if db.is_connected():
+        try:
+            char = await db.character.find_first(
+                where={"userId": user_id},
+                include={
+                    "stats": True,
+                    "habits": True,
+                    "missions": True,
+                    "achievements": True,
+                    "characterTitles": True,
+                    "workoutSessions": True,
+                    "beasts": True,
+                    "eggs": True,
+                    "history": {"take": 50},
+                }
+            )
+            user = await db.user.find_unique(where={"id": user_id})
+        except Exception as e:
+            print(f"[Export Warning] Database query failed ({e}). Using session fallback.")
+
+    export_payload = {
+        "exportVersion": "1.0",
+        "exportedAt": datetime.now(timezone.utc).isoformat(),
+        "user": {
+            "id": user.id if user else user_id,
+            "username": user.username if user else current_user.get("username"),
+            "email": user.email if user else None,
+            "createdAt": user.createdAt.isoformat() if user and hasattr(user.createdAt, "isoformat") else str(user.createdAt if user else ""),
+        },
+        "character": char.model_dump() if char and hasattr(char, "model_dump") else (char if char else None),
+    }
+    return export_payload
+
+
+@router.delete("/api/auth/account")
+async def delete_user_account(
+    data: AccountDeleteInput,
+    response: Response,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    GDPR/CCPA Right to Erasure. Permanently removes user account and all cascaded data.
+    """
+    user_id = current_user["id"]
+    current_username = current_user.get("username", "")
+
+    if data.username.strip().lower() != current_username.strip().lower():
+        raise HTTPException(status_code=400, detail="Username confirmation does not match account handle.")
+
+    if db.is_connected():
+        user = await db.user.find_unique(where={"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User account not found.")
+
+        if user.password:
+            if not data.password or not verify_password(data.password, user.password):
+                raise HTTPException(status_code=400, detail="Incorrect password verification.")
+
+        # Delete User (Prisma schema relations specify onDelete: Cascade)
+        await db.user.delete(where={"id": user_id})
+
+    # Clear auth cookie
+    response.delete_cookie("ascend_session")
+
+    return {
+        "success": True,
+        "message": "Account and all associated telemetry records permanently erased.",
+        "deletedUserId": user_id
+    }
+

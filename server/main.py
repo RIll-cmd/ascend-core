@@ -1,10 +1,11 @@
 import os
+import asyncio
 from pathlib import Path
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 
-# Auto-detect bundled Prisma query engine binary on Linux/Render
+# Auto-detect bundled Prisma query engine binary in serverless / Linux environments
 server_dir = Path(__file__).resolve().parent
 load_dotenv(server_dir / ".env", override=False)
 for engine_candidate in [
@@ -25,7 +26,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from prisma.errors import RecordNotFoundError
 from db import db
-from routers import auth, character, habits, missions, progression, achievements, analytics, tower, inventory, aira, fitness, skills, bosses, workouts, shop, season_pass, crafting, beasts, integration, automations, calendar
+from routers import auth, character, habits, missions, progression, achievements, analytics, tower, inventory, aira, fitness, skills, bosses, workouts, shop, season_pass, crafting, beasts, integration, automations, calendar, status as status_router, cron
 
 
 @asynccontextmanager
@@ -45,15 +46,13 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"[Startup Warning] Skill seeder error: {e}")
 
+        # Note: Scheduled background sweeps and heartbeats are handled via
+        # authenticated Vercel Cron routes (/api/cron/status-sweep) rather than
+        # in-process daemon loops to ensure stateless serverless compatibility.
+
         yield
     finally:
         # Shutdown: Gracefully disconnect database client
-        if db.is_connected():
-            await db.disconnect()
-
-
-
-limiter = Limiter(key_func=get_remote_address, default_limits=["120/minute"])
 
 app = FastAPI(
     title="Ascend OS Core Server",
@@ -121,6 +120,24 @@ async def add_security_headers_middleware(request: Request, call_next):
     return response
 
 
+MAX_REQUEST_BODY_BYTES = 1024 * 1024  # 1MB limit for serverless execution
+
+@app.middleware("http")
+async def payload_size_limit_middleware(request: Request, call_next):
+    content_length = request.headers.get("content-length")
+    if content_length:
+        try:
+            if int(content_length) > MAX_REQUEST_BODY_BYTES:
+                return JSONResponse(
+                    status_code=413,
+                    content={"detail": "Payload too large. Maximum allowed request size is 1MB."}
+                )
+        except ValueError:
+            pass
+    return await call_next(request)
+
+
+
 @app.middleware("http")
 async def db_connection_lifecycle_middleware(request: Request, call_next):
     from db import ensure_db_connected, db
@@ -176,6 +193,8 @@ app.include_router(beasts.router)
 app.include_router(integration.router)
 app.include_router(automations.router)
 app.include_router(calendar.router)
+app.include_router(status_router.router)
+app.include_router(cron.router)
 
 @app.get("/")
 def read_root():

@@ -12,6 +12,7 @@ from services.aira_domain_adapters import execute_aira_domain_operation
 from services.aira_execution_registry import execute_confirmed_aira_operation
 from services.aira_operation_registry import execute_aira_read_operation
 from services.aira_preview_registry import create_aira_preview
+from services.aira_status import track_aira_operation
 from services.aira_service import (
     generate_aira_response,
     analyze_tower_combat,
@@ -44,7 +45,8 @@ async def read_aira_operation(
     current_user: dict = Depends(get_current_automation_user),
 ):
     """Read owned Core context through AIRA's typed, metadata-only contract."""
-    return await execute_aira_read_operation(payload, current_user)
+    async with track_aira_operation("AIRA read operation"):
+        return await execute_aira_read_operation(payload, current_user)
 
 
 @router.post("/operations/preview")
@@ -53,7 +55,8 @@ async def preview_aira_operation(
     current_user: dict = Depends(get_current_automation_user),
 ):
     """Create a signed, expiring preview; this endpoint never mutates Core."""
-    return await create_aira_preview(payload, current_user)
+    async with track_aira_operation("AIRA preview operation"):
+        return await create_aira_preview(payload, current_user)
 
 
 @router.post("/operations/execute")
@@ -70,12 +73,13 @@ async def execute_aira_operation(
     async def execute_domain_operation(operation: str, character_id: str, arguments: dict):
         return await execute_aira_domain_operation(operation, character_id, arguments, current_user)
 
-    return await execute_confirmed_aira_operation(
-        payload,
-        current_user,
-        execute_domain_operation,
-        audit_store,
-    )
+    async with track_aira_operation("AIRA confirmed operation"):
+        return await execute_confirmed_aira_operation(
+            payload,
+            current_user,
+            execute_domain_operation,
+            audit_store,
+        )
 
 
 async def get_character_context_dict(character_id: str) -> dict:
@@ -127,11 +131,12 @@ async def chat_with_aira(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to access this character.")
     context_dict = await get_character_context_dict(character_id)
 
-    response_data = await generate_aira_response(
-        prompt=payload.prompt,
-        character_context=context_dict,
-        character_id=character_id
-    )
+    async with track_aira_operation("AIRA chat response"):
+        response_data = await generate_aira_response(
+            prompt=payload.prompt,
+            character_context=context_dict,
+            character_id=character_id
+        )
 
     pending_action = response_data.get("pending_action")
     if pending_action:

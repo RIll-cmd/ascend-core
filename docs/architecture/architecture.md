@@ -23,7 +23,7 @@ Ascend OS is built on a scalable, feature-based SaaS architecture separating con
 │  └───────────────────────────┬───────────────────────────┘  │
 │                              │ Prisma ORM                   │
 │  ┌───────────────────────────▼───────────────────────────┐  │
-│  │                  SQLite Database (dev.db)             │  │
+│  │             Neon PostgreSQL (Serverless Pooled)       │  │
 │  └───────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -31,7 +31,8 @@ Ascend OS is built on a scalable, feature-based SaaS architecture separating con
 ## Architectural Principles
 1. **Feature Co-location**: Code specific to a domain feature (components, hooks, utils, services) resides within `/features/<feature-name>`.
 2. **Global State Boundaries**: Zustand handles persistent client-side state slices independently (`AuthStore`, `CharacterStore`, `ThemeStore`, `NavigationStore`).
-3. **Decoupled Backend**: FastAPI provides stateless RESTful JSON endpoints over Python Prisma ORM.
+3. **Decoupled Backend**: FastAPI provides stateless RESTful JSON endpoints over Python Prisma ORM on Vercel Serverless Functions.
+4. **Neon Persistence**: Primary data layer is exclusively Neon PostgreSQL, connected via connection pooler (`-pooler`).
 
 ---
 
@@ -59,7 +60,7 @@ The RPG Game Engine operates via a decoupled, reactive flow separating UI trigge
     [FastAPI Endpoint: POST /api/character/{id}/sync-progression]
                        │
                        ▼
-    [Prisma ORM & SQLite Database Persistence]
+    [Prisma ORM & Neon Serverless PostgreSQL Persistence]
 ```
 
 ### Flow Mechanics:

@@ -1,4 +1,29 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "buildCommand": "npm run build --prefix client",
+  "outputDirectory": "client/.next",
+  "installCommand": "npm install --prefix client",
+  "regions": ["sin1"],
+  "crons": [
+    {
+      "path": "/api/cron/status-sweep",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/midnight-decay",
+      "schedule": "0 0 * * *"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api"
+    }
+  ],
+  "functions": {
+    "api/**/*.py": {
+      "maxDuration": 30
+    }
+  }
 }

@@ -868,3 +868,86 @@ model DailyStepLog {
   date        DateTime  @default(now())
   createdAt   DateTime  @default(now())
 }
+
+// Latest normalized shelf state. This is intentionally not an event or
+// heartbeat-history table: one row exists per live service instance.
+model ServiceStatus {
+  serviceId          String
+  instanceId         String
+  serviceType        String
+  state              String
+  stateSince         DateTime
+  reportedAt         DateTime
+  receivedAt         DateTime
+  lastHeartbeatAt    DateTime?
+  staleAfterSeconds  Int
+  lastEventId        String?
+  lastSequence       Int?
+  activityJson       String?
+  issueJson          String?
+  providerJson       String?
+  capabilitiesJson   String    @default("[]")
+  metadataJson       String    @default("{}")
+  updatedAt          DateTime  @updatedAt
+
+  @@id([serviceId, instanceId])
+}
+
+// A short-lived shared ledger of active work. Rows disappear when the
+// operation completes; this is durable concurrency coordination, not history.
+model StatusActiveOperation {
+  serviceId      String
+  instanceId     String
+  operationId    String
+  serviceType    String
+  startedAt      DateTime
+  lastProgressAt DateTime
+  label          String?
+
+  @@id([serviceId, instanceId, operationId])
+  @@index([lastProgressAt])
+}
+
+// One revocable producer credential per bound service instance. Only its
+// salted hash is stored, never the bearer secret.
+model StatusProducerCredential {
+  id           String    @id @default(uuid())
+  credentialId String    @unique
+  serviceId    String
+  instanceId   String
+  activeKey    String?   @unique
+  secretHash   String
+  revokedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime?
+
+  @@index([serviceId, instanceId])
+}
+
+// A dedicated server-to-server credential for the Hub Shelf proxy. It has no
+// producer binding and cannot be accepted by write routes.
+model StatusShelfReadCredential {
+  id           String    @id @default(uuid())
+  credentialId String    @unique
+  activeKey    String?   @unique
+  secretHash   String
+  revokedAt    DateTime?
+  createdAt    DateTime  @default(now())
+}
+
+model CalendarSchedule {
+  id           String    @id @default(uuid())
+  characterId  String
+  character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  title        String
+  time         String
+  endTime      String?   @map("end_time")
+  scheduleType String    @map("schedule_type")
+  dayOfWeek    Int?      @map("day_of_week")
+  scheduledAt  String?   @map("scheduled_at")
+  completed    Boolean   @default(false)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@index([characterId])
+}

@@ -4,7 +4,7 @@ import json
 import re
 from datetime import datetime, timezone
 from typing import Any, Literal
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from fastapi.responses import JSONResponse
@@ -14,12 +14,13 @@ from auth_utils import get_current_automation_user, get_current_vision_user
 from db import db
 from schemas.vision_contract import VisionQueryRequest, vision_capabilities
 from services.vision_query_service import execute_vision_query
+from schemas.service_status import ServiceStatusEvent
+from services.status_service import get_status_service
 
 
 router = APIRouter(prefix="/api/integration", tags=["integration"])
 
 VISION_CONNECTED_TIMEOUT_SECONDS = 30
-_vision_presence: dict[str, dict[str, Any]] = {}
 
 
 class IntegrationEvent(BaseModel):
@@ -39,6 +40,16 @@ class VisionHeartbeat(BaseModel):
     deviceId: str = Field(min_length=1, max_length=128)
     timestamp: datetime
     version: str | None = Field(default=None, min_length=1, max_length=64)
+    eventId: UUID = Field(default_factory=uuid4)
+    sequence: int | None = Field(default=None, ge=0)
+    state: Literal["idle", "working", "stuck"] = "idle"
+    stateSince: datetime | None = None
+    activityKind: str | None = Field(default=None, max_length=64)
+    activityLabel: str | None = Field(default=None, max_length=160)
+    activityProgress: float | None = Field(default=None, ge=0, le=1)
+    issueCode: str | None = Field(default=None, max_length=64)
+    issueMessage: str | None = Field(default=None, max_length=240)
+    issueRetryable: bool | None = None
 
     @field_validator("timestamp")
     @classmethod
@@ -145,43 +156,33 @@ async def get_owned_vision_character(character_id: str, current_user: dict) -> A
     return character
 
 
-def serialize_vision_presence(character_id: str) -> dict[str, Any]:
-    presence = _vision_presence.get(character_id)
-    if not presence:
-        return {
-            "status": "OFFLINE",
-            "characterId": character_id,
-            "deviceId": None,
-            "source": None,
-            "version": None,
-            "lastSeenAt": None,
-        }
-
-    age_seconds = (datetime.now(timezone.utc) - presence["lastSeenAt"]).total_seconds()
-    return {
-        "status": "CONNECTED" if age_seconds < VISION_CONNECTED_TIMEOUT_SECONDS else "OFFLINE",
-        "characterId": character_id,
-        "deviceId": presence["deviceId"],
-        "source": presence["source"],
-        "version": presence["version"],
-        "lastSeenAt": presence["lastSeenAt"].isoformat(),
-    }
-
-
 @router.post("/vision/heartbeat")
 async def receive_vision_heartbeat(
     heartbeat: VisionHeartbeat,
-    current_user: dict = Depends(get_current_automation_user),
+    x_status_credential: str | None = Header(default=None),
 ):
-    await get_owned_vision_character(heartbeat.characterId, current_user)
-    _vision_presence[heartbeat.characterId] = {
-        "source": heartbeat.source,
-        "deviceId": heartbeat.deviceId,
-        "version": heartbeat.version,
-        # Presence is recorded by Core, not the client-supplied clock.
-        "lastSeenAt": datetime.now(timezone.utc),
-    }
-    return serialize_vision_presence(heartbeat.characterId)
+    if not x_status_credential:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing status producer credential")
+    service = get_status_service()
+    try:
+        producer = await service.authenticate_producer(x_status_credential)
+        service.assert_producer_owns_event(producer, "ascend-vision", heartbeat.deviceId)
+    except PermissionError as error:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid status producer credential") from error
+    activity = None
+    if heartbeat.activityKind:
+        activity = {"kind": heartbeat.activityKind, "label": heartbeat.activityLabel, "startedAt": (heartbeat.stateSince or heartbeat.timestamp).isoformat(), "progress": heartbeat.activityProgress}
+    issue = None
+    if heartbeat.issueCode and heartbeat.issueMessage and heartbeat.issueRetryable is not None:
+        issue = {"code": heartbeat.issueCode, "message": heartbeat.issueMessage, "retryable": heartbeat.issueRetryable}
+    event = ServiceStatusEvent.model_validate({
+        "schemaVersion": 1, "eventId": str(heartbeat.eventId), "sequence": heartbeat.sequence,
+        "serviceId": "ascend-vision", "instanceId": heartbeat.deviceId, "serviceType": "vision",
+        "state": heartbeat.state, "stateSince": (heartbeat.stateSince or heartbeat.timestamp).isoformat(), "reportedAt": heartbeat.timestamp.isoformat(),
+        "activity": activity, "issue": issue, "metadata": {"characterId": heartbeat.characterId, "deviceId": heartbeat.deviceId, "version": heartbeat.version},
+    })
+    result = await service.ingest_event(event)
+    return {"status": "CONNECTED", "characterId": heartbeat.characterId, "deviceId": heartbeat.deviceId, "source": heartbeat.source, "version": heartbeat.version, "lastSeenAt": result.status.last_heartbeat_at.isoformat(), "state": result.status.state}
 
 
 @router.get("/vision/status")
@@ -190,7 +191,9 @@ async def vision_status(
     current_user: dict = Depends(get_current_automation_user),
 ):
     await get_owned_vision_character(characterId, current_user)
-    return serialize_vision_presence(characterId)
+    shelf = await get_status_service().shelf(now=datetime.now(timezone.utc))
+    matching = next((item for item in shelf.services if item.service_id == "ascend-vision" and item.metadata.get("characterId") == characterId), None)
+    return {"status": "CONNECTED" if matching and matching.state != "offline" else "OFFLINE", "characterId": characterId, "deviceId": matching.instance_id if matching else None, "source": "ascend_vision" if matching else None, "version": matching.metadata.get("version") if matching else None, "lastSeenAt": matching.last_heartbeat_at.isoformat() if matching and matching.last_heartbeat_at else None, "state": matching.state if matching else "offline"}
 
 
 @router.get("/vision/capabilities")
