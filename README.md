@@ -544,6 +544,7 @@ Ascend OS is engineered exclusively for **Vercel** compute/hosting and **Neon** 
 1. Push the repository to GitHub.
 2. Import the project into [Vercel](https://vercel.com).
 3. Set the Root Directory to `./` with the **Next.js** preset.
+   Keep the install and build commands from `vercel.json`: install with `npm ci --include=dev && npm ci --prefix client --include=dev`, then build with `npm run build`. Leave Output Directory at the Next.js default. The first install makes Next.js resolvable from the project root; the second installs the frontend's locked dependencies. Commit both the root `package-lock.json` and `client/package-lock.json`. Installing only with `--prefix client` causes Vercel's root-level Next.js version detection to fail even when `next` is declared in the root manifest. Do not change Root Directory to `client`, as this deployment also uses the root Python API and cron configuration.
 4. Configure required environment variables in the Vercel Dashboard:
    - `DATABASE_URL` (Neon pooled endpoint: `postgresql://...-pooler.../neondb?sslmode=require`)
    - `DATABASE_URL_UNPOOLED` (Neon direct endpoint)
