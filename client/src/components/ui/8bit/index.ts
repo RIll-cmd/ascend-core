@@ -42,6 +42,8 @@ export * from "./separator";
 export { default as Separator } from "./separator";
 export * from "./skeleton";
 export { default as Skeleton } from "./skeleton";
+export * from "./accordion";
+export * from "./input-otp";
 export * from "./retro-borders";
 
 // Blocks
@@ -77,3 +79,14 @@ export * from "./blocks/loading-screen";
 export { default as LoadingScreen } from "./blocks/loading-screen";
 export * from "./blocks/not-found2";
 export { default as NotFound2 } from "./blocks/not-found2";
+export * from "./blocks/hero1";
+export { default as Hero1 } from "./blocks/hero1";
+export * from "./blocks/login-form-with-image";
+export { default as LoginForm } from "./blocks/login-form-with-image";
+export * from "./blocks/faq1";
+export { default as FAQ1 } from "./blocks/faq1";
+export * from "./blocks/feature1";
+export { default as Feature1 } from "./blocks/feature1";
+export * from "./carousel";
+export * from "./blocks/feature3";
+export { default as Feature3 } from "./blocks/feature3";

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { ButtonBorderDecorations } from "./retro-borders";
@@ -73,14 +74,16 @@ export const Button = React.forwardRef<HTMLButtonElement, BitButtonProps>(
       variant = "default",
       size = "md",
       borderStyle = "retro-beveled",
+      asChild = false,
       ...props
     },
     ref
   ) => {
     const colorClass = VARIANT_BORDER_COLORS[variant || "default"] || "bg-foreground dark:bg-ring";
+    const Comp = asChild ? Slot : "button";
 
     return (
-      <button
+      <Comp
         ref={ref}
         className={cn(bitButtonVariants({ variant, size, borderStyle, className }))}
         {...props}
@@ -93,7 +96,7 @@ export const Button = React.forwardRef<HTMLButtonElement, BitButtonProps>(
             colorClass={colorClass}
           />
         )}
-      </button>
+      </Comp>
     );
   }
 );

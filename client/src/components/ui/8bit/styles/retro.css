@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
 /* 8-bit Retro Aesthetic Tokens & Utilities */
 .retro {
   font-family: "Press Start 2P", var(--font-pixel), monospace, sans-serif;

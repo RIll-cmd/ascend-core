@@ -529,9 +529,6 @@ export default function CalendarPage() {
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-pixel font-bold text-[#fef08a] tracking-tight uppercase drop-shadow-[0_2px_0_rgba(0,0,0,0.9)] leading-tight">
                 The Clockwork Calendar
               </h1>
-              <p className="text-xs sm:text-sm text-amber-100/90 max-w-xl font-sans font-medium leading-relaxed mt-1">
-                Inspect multi-week habit execution density, turn the gear dials to navigate timeline horizons, schedule deadline rites, and reinforce streak freeze shields.
-              </p>
             </div>
           </div>
 

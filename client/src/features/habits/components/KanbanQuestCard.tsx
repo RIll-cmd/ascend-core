@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { cn } from "@/lib/utils";
 import { CurrencyIcon } from "@/components/CurrencyDisplay";
 import { KanbanQuest, QuestRank, QuestStatus } from "../types/kanban";
 import { useKanbanMissionStore } from "../store/useKanbanMissionStore";
@@ -11,7 +12,6 @@ import { PixelScrollCard } from "@/components/ui/pixel/PixelScrollCard";
 import { CoolMode } from "@/components/ui/cool-mode";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import {
-  PixelCheckIcon,
   PixelCheckSquareIcon,
   PixelSquareIcon,
   PixelPencilIcon,
@@ -56,6 +56,7 @@ export const KanbanQuestCard: React.FC<KanbanQuestCardProps> = ({ quest }) => {
   const { updateQuestStatus, toggleSubtask, deleteQuest } = useKanbanMissionStore();
   const [showSubtasks, setShowSubtasks] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [now] = useState(() => Date.now());
 
   const totalSubtasks = quest.subtasks?.length || 0;
   const completedSubtasks = quest.subtasks ? quest.subtasks.filter((st) => st.isCompleted).length : 0;
@@ -67,20 +68,18 @@ export const KanbanQuestCard: React.FC<KanbanQuestCardProps> = ({ quest }) => {
       ? 100
       : autoProgress;
 
-  let dueDateLabel: string | null = null;
-  let isOverdue = false;
-  if (quest.dueDate) {
+  const { dueDateLabel, isOverdue } = React.useMemo(() => {
+    if (!quest.dueDate) return { dueDateLabel: null, isOverdue: false };
     const dueTime = new Date(quest.dueDate).getTime();
-    const diffHours = Math.round((dueTime - Date.now()) / (1000 * 60 * 60));
+    const diffHours = Math.round((dueTime - now) / (1000 * 60 * 60));
     if (diffHours < 0) {
-      dueDateLabel = `OVERDUE (${Math.abs(diffHours)}h)`;
-      isOverdue = true;
+      return { dueDateLabel: `OVERDUE (${Math.abs(diffHours)}h)`, isOverdue: true };
     } else if (diffHours <= 24) {
-      dueDateLabel = `DUE IN ${diffHours}h`;
+      return { dueDateLabel: `DUE IN ${diffHours}h`, isOverdue: false };
     } else {
-      dueDateLabel = `DUE IN ${Math.round(diffHours / 24)}d`;
+      return { dueDateLabel: `DUE IN ${Math.round(diffHours / 24)}d`, isOverdue: false };
     }
-  }
+  }, [quest.dueDate, now]);
 
   const isCompleted = quest.status === "Completed";
   const rankVariant = RANK_BADGE_VARIANTS[quest.rank] || "cyan";
@@ -243,7 +242,14 @@ export const KanbanQuestCard: React.FC<KanbanQuestCardProps> = ({ quest }) => {
       </div>
 
       {/* Status Transition Navigation Controls */}
-      <div className="mt-2.5 pt-2 border-t border-[#a8743e]/50 flex items-center justify-between">
+      <div
+        className={cn(
+          "mt-2.5 pt-2 border-t border-[#a8743e]/50 w-full items-center",
+          STATUS_PREV[quest.status] && STATUS_NEXT[quest.status]
+            ? "grid grid-cols-2 gap-1"
+            : "flex items-center justify-between"
+        )}
+      >
         {STATUS_PREV[quest.status] ? (
           <PixelButton
             size="sm"
@@ -252,9 +258,9 @@ export const KanbanQuestCard: React.FC<KanbanQuestCardProps> = ({ quest }) => {
               playUIMenuSFX();
               updateQuestStatus(quest.id, STATUS_PREV[quest.status]!);
             }}
-            className="text-[10px] py-1 px-2 min-h-[26px]"
+            className="w-full h-7 min-h-[28px] max-h-[28px] flex items-center justify-center px-1 sm:px-1.5 text-[8px] sm:text-[9.5px] !tracking-tight leading-none whitespace-nowrap overflow-hidden shadow-[2px_2px_0_0_#000]"
           >
-            <PixelChevronLeftIcon className="w-3 h-3 mr-1" />
+            <PixelChevronLeftIcon className="w-2.5 h-2.5 mr-0.5 shrink-0" />
             <span>{STATUS_PREV[quest.status]}</span>
           </PixelButton>
         ) : (
@@ -270,10 +276,10 @@ export const KanbanQuestCard: React.FC<KanbanQuestCardProps> = ({ quest }) => {
                 playUIMenuSFX();
                 updateQuestStatus(quest.id, STATUS_NEXT[quest.status]!);
               }}
-              className="text-[10px] py-1 px-2.5 min-h-[26px]"
+              className="w-full h-7 min-h-[28px] max-h-[28px] flex items-center justify-center px-1 sm:px-1.5 text-[8px] sm:text-[9.5px] !tracking-tight leading-none whitespace-nowrap overflow-hidden shadow-[2px_2px_0_0_#000]"
             >
               <span>{STATUS_NEXT[quest.status]}</span>
-              <PixelChevronRightIcon className="w-3 h-3 ml-1" />
+              <PixelChevronRightIcon className="w-2.5 h-2.5 ml-0.5 shrink-0" />
             </PixelButton>
           </CoolMode>
         ) : (

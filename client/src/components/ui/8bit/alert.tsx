@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import "./styles/retro.css";
 
 export const alertVariants = cva(
-  "relative w-full p-4 border-2 shadow-[2px_2px_0_0_#000] text-xs font-mono",
+  "relative w-full p-4 rounded-none border-none text-xs",
   {
     variants: {
       font: {
@@ -12,44 +12,82 @@ export const alertVariants = cva(
         retro: "retro",
       },
       variant: {
-        default: "bg-[#141a2e]/95 border-[#41517a] text-slate-100",
-        destructive: "bg-[#2d1215]/95 border-[#ef4444] text-[#fca5a5]",
-        success: "bg-[#0d2818]/95 border-[#10b981] text-[#6ee7b7]",
-        warning: "bg-[#291e0a]/95 border-[#f59e0b] text-[#fcd34d]",
-        dungeon: "bg-[#181d17]/95 border-[#8c7a53] text-[#fff8df]",
+        default: "bg-[#141414] text-neutral-100",
+        destructive: "bg-[#2d1215] text-[#fca5a5]",
+        success: "bg-[#0d2818] text-[#6ee7b7]",
+        warning: "bg-[#291e0a] text-[#fcd34d]",
+        gold: "bg-[#1c1917] text-[#fde047]",
+        dungeon: "bg-[#181d17] text-[#fff8df]",
+        cyber: "bg-[#091e2b] text-[#38bdf8]",
       },
     },
     defaultVariants: {
       variant: "default",
-      font: "retro",
+      font: "normal",
     },
   }
 );
 
+const ALERT_BORDER_COLORS: Record<string, string> = {
+  default: "bg-[#f9f4da] dark:bg-[#f9f4da]",
+  destructive: "bg-[#ef4444]",
+  success: "bg-[#10b981]",
+  warning: "bg-[#f59e0b]",
+  gold: "bg-[#fcba28]",
+  dungeon: "bg-[#8c7a53]",
+  cyber: "bg-[#14b6e5]",
+};
+
 export interface BitAlertProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof alertVariants> {}
+    VariantProps<typeof alertVariants> {
+  borderColorClass?: string;
+  showPixelBorders?: boolean;
+}
 
 function Alert({
   children,
   className,
-  font = "retro",
+  font,
   variant = "default",
+  borderColorClass,
+  showPixelBorders = true,
   ...props
 }: BitAlertProps) {
-  return (
-    <div
-      role="alert"
-      className={cn(alertVariants({ variant, font }), className)}
-      {...props}
-    >
-      {children}
+  const borderClass =
+    borderColorClass || ALERT_BORDER_COLORS[variant || "default"] || "bg-foreground dark:bg-ring";
 
-      {/* 8-bit notched corner accents */}
-      <div className="absolute -top-1 w-1/2 left-1 h-1 bg-inherit border-t-2 border-inherit pointer-events-none" />
-      <div className="absolute -top-1 w-1/2 right-1 h-1 bg-inherit border-t-2 border-inherit pointer-events-none" />
-      <div className="absolute -bottom-1 w-1/2 left-1 h-1 bg-inherit border-b-2 border-inherit pointer-events-none" />
-      <div className="absolute -bottom-1 w-1/2 right-1 h-1 bg-inherit border-b-2 border-inherit pointer-events-none" />
+  return (
+    <div className="relative">
+      <div
+        role="alert"
+        className={cn(alertVariants({ variant, font }), className)}
+        {...props}
+      >
+        {children}
+      </div>
+
+      {showPixelBorders && (
+        <span aria-hidden="true" className="pointer-events-none">
+          {/* Top & bottom stepped borders */}
+          <span className={cn("absolute -top-1.5 w-1/2 left-1.5 h-1.5", borderClass)} />
+          <span className={cn("absolute -top-1.5 w-1/2 right-1.5 h-1.5", borderClass)} />
+          <span className={cn("absolute -bottom-1.5 w-1/2 left-1.5 h-1.5", borderClass)} />
+          <span className={cn("absolute -bottom-1.5 w-1/2 right-1.5 h-1.5", borderClass)} />
+          
+          {/* Corner steps */}
+          <span className={cn("absolute top-0 left-0 size-1.5", borderClass)} />
+          <span className={cn("absolute top-0 right-0 size-1.5", borderClass)} />
+          <span className={cn("absolute bottom-0 left-0 size-1.5", borderClass)} />
+          <span className={cn("absolute bottom-0 right-0 size-1.5", borderClass)} />
+          
+          {/* Left & right stepped bars */}
+          <span className={cn("absolute top-1.5 -left-1.5 h-1/2 w-1.5", borderClass)} />
+          <span className={cn("absolute bottom-1.5 -left-1.5 h-1/2 w-1.5", borderClass)} />
+          <span className={cn("absolute top-1.5 -right-1.5 h-1/2 w-1.5", borderClass)} />
+          <span className={cn("absolute bottom-1.5 -right-1.5 h-1/2 w-1.5", borderClass)} />
+        </span>
+      )}
     </div>
   );
 }
@@ -60,7 +98,7 @@ function AlertTitle({
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h5
-      className={cn("mb-1 font-bold leading-none tracking-wider text-xs", className)}
+      className={cn("retro mb-1.5 font-black text-xs sm:text-sm tracking-wider uppercase", className)}
       {...props}
     />
   );
@@ -72,7 +110,7 @@ function AlertDescription({
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
     <div
-      className={cn("text-[10px] leading-relaxed text-slate-300/90", className)}
+      className={cn("text-xs leading-relaxed text-neutral-300", className)}
       {...props}
     />
   );

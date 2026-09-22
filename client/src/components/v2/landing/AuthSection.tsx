@@ -6,9 +6,15 @@ import { Galaxy } from "@/components/v2/auth/Galaxy";
 
 interface AuthSectionProps {
   initialTab?: AuthTabState;
+  onGuestEntry?: () => void;
+  onSuccess?: () => void;
 }
 
-export function AuthSection({ initialTab = "login" }: AuthSectionProps) {
+export function AuthSection({
+  initialTab = "login",
+  onGuestEntry,
+  onSuccess,
+}: AuthSectionProps) {
   return (
     <section
       id="auth-section"
@@ -43,25 +49,29 @@ export function AuthSection({ initialTab = "login" }: AuthSectionProps) {
       {/* Auth Card Container */}
       <div className="relative z-10 flex flex-col items-center gap-6 my-auto w-full max-w-md">
         <div className="flex flex-col items-center text-center gap-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-800 text-zinc-300 text-xs font-mono shadow-sm">
+          <div className="retro inline-flex items-center gap-2 px-3 py-1 bg-zinc-900/90 border border-black text-zinc-300 text-[8px] sm:text-[9px] shadow-[2px_2px_0_0_#000]">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
             <span>TERMINAL ACCESS GATEWAY</span>
           </div>
 
           <h2
             id="auth-section-heading"
-            className="text-2xl sm:text-3xl font-bold tracking-tight text-white"
+            className="retro text-xl sm:text-2xl font-bold tracking-tight text-white uppercase"
           >
             Access Command Deck
           </h2>
 
-          <p className="text-xs text-zinc-400 max-w-sm font-normal">
+          <p className="retro text-[8px] sm:text-[9px] text-zinc-400 max-w-sm font-normal leading-relaxed">
             Authenticate your operative license or explore instantly via Guest Sandbox.
           </p>
         </div>
 
         {/* Core Auth Card */}
-        <AuthCard initialTab={initialTab} />
+        <AuthCard
+          initialTab={initialTab}
+          onGuestEntry={onGuestEntry}
+          onSuccess={onSuccess}
+        />
       </div>
     </section>
   );
