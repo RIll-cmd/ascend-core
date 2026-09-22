@@ -5,7 +5,7 @@ import {
   LandingNavbar,
   StripeHeroSection,
   MetricsMarquee,
-  BentoFeatures,
+  BrutstackFeatures,
   AuthSection,
   LandingFooter,
 } from "@/components/v2/landing";
@@ -39,8 +39,8 @@ export default function LandingPage() {
       {/* 3. Horizontal Magic UI Telemetry Marquee with Peer Greyscale Dimming */}
       <MetricsMarquee />
 
-      {/* 4. Modular Interactive Bento Feature Grid with Modal Expansions */}
-      <BentoFeatures />
+      {/* 4. Extracted Neobrutalism Brutstack Feature Grid with 3D Stack Mechanics */}
+      <BrutstackFeatures />
 
       {/* 5. Centered Floating Auth Card Portal over Galaxy WebGL Shader */}
       <AuthSection initialTab={selectedAuthTab} />

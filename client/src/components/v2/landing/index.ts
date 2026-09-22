@@ -3,6 +3,7 @@ export { StripeHeroSection } from "./StripeHeroSection";
 export { HeroSection } from "./HeroSection";
 export { MetricsMarquee } from "./MetricsMarquee";
 export { BentoFeatures } from "./BentoFeatures";
+export { BrutstackFeatures } from "./BrutstackFeatures";
 export { FeatureGrid } from "./FeatureGrid";
 export { FeatureModal } from "./FeatureModal";
 export { AuthSection } from "./AuthSection";

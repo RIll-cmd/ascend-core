@@ -23,7 +23,17 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export type FeatureType = "habits" | "workouts" | "arsenal" | "aira" | null;
+export type FeatureType =
+  | "habits"
+  | "workouts"
+  | "nutrition"
+  | "combat"
+  | "leveling"
+  | "raids"
+  | "aira"
+  | "recovery"
+  | "arsenal"
+  | null;
 
 interface FeatureModalProps {
   feature: FeatureType;
@@ -37,9 +47,9 @@ export function FeatureModal({ feature, isOpen, onClose }: FeatureModalProps) {
   const contentMap = {
     habits: {
       icon: Flame,
-      color: "text-amber-400",
+      color: "text-rose-500",
       badge: "NEURAL HABIT ENGINE",
-      title: "Habit Adherence & Streak Multipliers",
+      title: "Neural Habit Matrix & Streaks",
       subtitle: "Multi-tiered habit schedules with streak freeze protection",
       description:
         "Ascend OS models daily routines with RPG stakes. Build unbreakable consistency through customizable daily, specific weekday, or weekly completion targets.",
@@ -61,9 +71,9 @@ export function FeatureModal({ feature, isOpen, onClose }: FeatureModalProps) {
     },
     workouts: {
       icon: Dumbbell,
-      color: "text-cyan-400",
+      color: "text-emerald-500",
       badge: "KINETIC WORKOUT TERMINAL",
-      title: "16-Muscle Anatomical Recovery",
+      title: "Heavy Iron Gym & Volume Tracking",
       subtitle: "Set-by-set logging with physiological 48-72h freshness tracking",
       description:
         "Log weight, reps, and RPE with automated 1RM calculations. Exertion directly translates into Gate Boss raid damage and physical stat improvements.",
@@ -82,6 +92,150 @@ export function FeatureModal({ feature, isOpen, onClose }: FeatureModalProps) {
         },
       ],
       ctaText: "Launch Workout Terminal",
+    },
+    nutrition: {
+      icon: Egg,
+      color: "text-purple-500",
+      badge: "MACRONUTRIENT SYNTHESIS",
+      title: "Macro Nutrition & Bio-Fuel",
+      subtitle: "Dynamic caloric surplus/deficit scaling and nutrient logging",
+      description:
+        "Fuel peak cognitive and physical performance. Track protein, carbs, fats, and hydration targets tailored to your muscle hypertrophy or fat-loss goals.",
+      points: [
+        {
+          title: "Bio-Fuel Target Optimization",
+          desc: "Custom grams-per-bodyweight protein and hydration pacing algorithms.",
+        },
+        {
+          title: "Energy & Recovery Multipliers",
+          desc: "Hit caloric targets to boost daily XP multiplier and muscle repair speed.",
+        },
+        {
+          title: "Pacing & Quick Ingestion",
+          desc: "Fast barcode and meal preset logging to eliminate tracking friction.",
+        },
+      ],
+      ctaText: "Fuel Nutrition Deck",
+    },
+    combat: {
+      icon: ShieldCheck,
+      color: "text-sky-400",
+      badge: "HUNTER COMBAT ENGINE",
+      title: "Real-Time RPG Combat Rating",
+      subtitle: "Dynamic overall power score driven by real-world discipline",
+      description:
+        "Your character is a direct mirror of your life. Habit consistency, gym volume, clean nutrition, and sleep combine into a unified Combat Rating score.",
+      points: [
+        {
+          title: "Unified Power Index (CPI)",
+          desc: "Real-time algorithmic synthesis of physical endurance, strength, and discipline.",
+        },
+        {
+          title: "Live Stat Attributes",
+          desc: "Seven core attributes: STR, END, DIS, KNO, REC, FOC, and CNS.",
+        },
+        {
+          title: "Leaderboards & Hunter Ranks",
+          desc: "Compete with fellow Hunters across regional and global discipline ladders.",
+        },
+      ],
+      ctaText: "Check Combat Rating",
+    },
+    leveling: {
+      icon: Award,
+      color: "text-amber-400",
+      badge: "MONARCH AWAKENING",
+      title: "Solo Leveling & Hunter Awakening",
+      subtitle: "From E-Rank initiate to S-Rank Monarch through relentless discipline",
+      description:
+        "Climb from E-Rank initiate to legendary Monarch. Gain skill points, awaken latent class passives, and equip rare titles as you conquer your daily quests.",
+      points: [
+        {
+          title: "Dynamic Rank Up Quests",
+          desc: "Complete promotion trials to unlock higher dungeon tier clearances.",
+        },
+        {
+          title: "Legendary Aura Visuals",
+          desc: "Unlock distinctive aesthetic aura glows and border accents for your profile.",
+        },
+        {
+          title: "Permanent Trait Buffs",
+          desc: "Stack permanent cognitive and physical passive modifiers as you level.",
+        },
+      ],
+      ctaText: "Begin Awakening",
+    },
+    raids: {
+      icon: Zap,
+      color: "text-pink-500",
+      badge: "CO-OP SYNDICATE ENGINE",
+      title: "Guild Raids & Dungeon Bosses",
+      subtitle: "Unite with allies to conquer massive weekly Calamity World Bosses",
+      description:
+        "Discipline is a team sport. Form syndicates with fellow hunters, pool weekly habit adherence, and deal massive elemental raid damage to world bosses.",
+      points: [
+        {
+          title: "Weekly Dungeon Calamities",
+          desc: "Bosses with millions of HP that require coordinated habit strikes.",
+        },
+        {
+          title: "Guild Vault & Loot Drops",
+          desc: "Defeating raid bosses rewards high-tier gear, gems, and rare titles.",
+        },
+        {
+          title: "Squad Accountability",
+          desc: "Live teammate status feeds keep everyone locked in and disciplined.",
+        },
+      ],
+      ctaText: "Join a Syndicate",
+    },
+    aira: {
+      icon: Brain,
+      color: "text-orange-500",
+      badge: "NEURAL LINK AI COMPANION",
+      title: "AIRA AI Discipline Co-Pilot",
+      subtitle: "Autonomous AI intelligence analyzing habits, fatigue, and recovery",
+      description:
+        "AIRA is an autonomous neural companion with real-time access to your habit database, workout volume, and sleep debt curves.",
+      points: [
+        {
+          title: "Daily Tactical Briefing",
+          desc: "Receive customized morning briefings prioritizing your most impactful daily quests.",
+        },
+        {
+          title: "Sleep Debt & Somatic Synthesis",
+          desc: "Synthesizes circadian rhythms with gym intensity to recommend optimal rest windows.",
+        },
+        {
+          title: "High-Agency Motivation",
+          desc: "Authoritative, sharp, and encouraging AI voice inspired by Solo Leveling.",
+        },
+      ],
+      ctaText: "Initiate Neural Link",
+    },
+    recovery: {
+      icon: Activity,
+      color: "text-emerald-400",
+      badge: "BIOMETRIC VAULT",
+      title: "Discipline Vault & Recovery Guards",
+      subtitle: "HRV, sleep debt protection, and automated burnout prevention",
+      description:
+        "Discipline without recovery is self-destruction. The Recovery Guard analyzes sleep debt and CNS load to prescribe strategic deload windows.",
+      points: [
+        {
+          title: "CNS Stress Protection",
+          desc: "Automatically detects high-volume fatigue to prevent overtraining.",
+        },
+        {
+          title: "Deload & Rest Day Pacing",
+          desc: "Strategically schedule rest days that protect your habit streaks from breaking.",
+        },
+        {
+          title: "Sleep Quality Analytics",
+          desc: "Correlate deep and REM sleep with subsequent workout PR achievements.",
+        },
+      ],
+      ctaText: "Inspect Recovery Vault",
     },
     arsenal: {
       icon: Egg,
@@ -106,30 +260,6 @@ export function FeatureModal({ feature, isOpen, onClose }: FeatureModalProps) {
         },
       ],
       ctaText: "Explore Bestiary & Shop",
-    },
-    aira: {
-      icon: Brain,
-      color: "text-cyan-400",
-      badge: "NEURAL LINK AI COMPANION",
-      title: "AIRA Autonomous System Administrator",
-      subtitle: "Strategic intelligence briefing your habits, recovery, and boss raids",
-      description:
-        "AIRA is an autonomous neural companion with real-time access to your habit database, workout volume, and sleep debt curves.",
-      points: [
-        {
-          title: "Daily Tactical Briefing",
-          desc: "Receive customized morning briefings prioritizing your most impactful daily quests.",
-        },
-        {
-          title: "Sleep Debt & Somatic Synthesis",
-          desc: "Synthesizes circadian rhythms with gym intensity to recommend optimal rest windows.",
-        },
-        {
-          title: "High-Agency Motivation",
-          desc: "Authoritative, sharp, and encouraging AI voice inspired by Solo Leveling.",
-        },
-      ],
-      ctaText: "Initiate Neural Link",
     },
   };
 
