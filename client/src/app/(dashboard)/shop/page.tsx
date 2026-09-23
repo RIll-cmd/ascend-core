@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { AscendRouteSkeleton } from "@/components/loading/AscendRouteSkeleton";
+import { AscendPendingSpinner } from "@/components/loading/AscendPendingSpinner";
 import {
-  Loader2,
   PackageOpen,
   RefreshCcw,
 } from "lucide-react";
@@ -139,7 +140,7 @@ export default function ShopPage() {
         <PixelShopTavernBackground />
         <div className={styles.emporium}>
           <div className={styles.statePanel} role="status" aria-live="polite">
-            <Loader2 className={styles.spinner} aria-hidden="true" />
+            <AscendPendingSpinner label="Loading merchant" />
             <h3>Unbolting the shutters…</h3>
             <p>The merchant is preparing the counter and counting the morning till.</p>
           </div>
@@ -238,11 +239,7 @@ export default function ShopPage() {
               (!hasFreeRefreshes && character.gold < REFRESH_GOLD_COST)
             }
           >
-            <RefreshCcw
-              size={16}
-              className={isRefreshing ? styles.spinner : undefined}
-              aria-hidden="true"
-            />
+            {isRefreshing ? <AscendPendingSpinner label="Restocking merchant" /> : <RefreshCcw size={16} aria-hidden="true" />}
             {isRefreshing
               ? "Restocking…"
               : hasFreeRefreshes
@@ -253,11 +250,7 @@ export default function ShopPage() {
 
         <div aria-busy={isLoading || isRefreshing}>
           {isLoading ? (
-            <div className={styles.statePanel} role="status" aria-live="polite">
-              <Loader2 className={styles.spinner} aria-hidden="true" />
-              <h3>Opening the morning crates…</h3>
-              <p>The manifest is being checked against the merchant&apos;s ledger.</p>
-            </div>
+            <AscendRouteSkeleton preset="merchant" label="Loading merchant stock" />
           ) : error ? (
             <div className={styles.statePanel} role="alert">
               <PackageOpen size={34} aria-hidden="true" />

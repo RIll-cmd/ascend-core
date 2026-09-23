@@ -6,6 +6,7 @@ import { API_BASE_URL } from "@/constants";
 import { Sparkles, Check, Lock, Gift, Star, ShieldCheck } from "lucide-react";
 import { playUIMenuSFX, playBuffSFX, playAIRASound } from "@/utils/audio";
 import { Button } from "@/components/ui/button";
+import { AscendRouteSkeleton } from "@/components/loading/AscendRouteSkeleton";
 
 interface SeasonTier {
   id: string;
@@ -82,7 +83,7 @@ export default function SeasonPassPage() {
   };
 
   if (loading) {
-    return <div className="text-center py-20 text-slate-400 font-mono animate-pulse">Loading Season Pass...</div>;
+    return <AscendRouteSkeleton preset="reward-track" label="Loading reward track" />;
   }
 
   if (!seasonData) {

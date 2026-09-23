@@ -8,7 +8,8 @@ export type PixelBorderStyle =
   | "pill-input"
   | "checkbox-square"
   | "switch-track"
-  | "classic-flat";
+  | "classic-flat"
+  | "alert-stepped";
 
 export interface ButtonBorderDecorationsProps {
   variant?: string;
@@ -16,6 +17,35 @@ export interface ButtonBorderDecorationsProps {
   colorClass?: string;
   showShadows?: boolean;
   className?: string;
+}
+
+/**
+ * Authentic @8bitcn/alert stepped pixel border decoration layer.
+ * Renders the 4 corner pixel blocks, 4 top/bottom half-bars, and 4 stepped side bars.
+ */
+export function AlertSteppedBorderDecorations({
+  className,
+  colorClass = "bg-foreground dark:bg-ring",
+}: {
+  className?: string;
+  colorClass?: string;
+}) {
+  return (
+    <span aria-hidden="true" className={cn("pointer-events-none contents", className)}>
+      <span className={cn("absolute -top-1.5 w-1/2 left-1.5 h-1.5", colorClass)} />
+      <span className={cn("absolute -top-1.5 w-1/2 right-1.5 h-1.5", colorClass)} />
+      <span className={cn("absolute -bottom-1.5 w-1/2 left-1.5 h-1.5", colorClass)} />
+      <span className={cn("absolute -bottom-1.5 w-1/2 right-1.5 h-1.5", colorClass)} />
+      <span className={cn("absolute top-0 left-0 size-1.5", colorClass)} />
+      <span className={cn("absolute top-0 right-0 size-1.5", colorClass)} />
+      <span className={cn("absolute bottom-0 left-0 size-1.5", colorClass)} />
+      <span className={cn("absolute right-0 bottom-0 size-1.5", colorClass)} />
+      <span className={cn("absolute top-1.5 -left-1.5 h-1/2 w-1.5", colorClass)} />
+      <span className={cn("absolute bottom-1.5 -left-1.5 h-1/2 w-1.5", colorClass)} />
+      <span className={cn("absolute top-1.5 -right-1.5 h-1/2 w-1.5", colorClass)} />
+      <span className={cn("absolute bottom-1.5 -right-1.5 h-1/2 w-1.5", colorClass)} />
+    </span>
+  );
 }
 
 /**
@@ -262,6 +292,25 @@ export const BORDER_CODE_SNIPPETS: Record<
     tailwindClasses: "border-2 border-black shadow-[3px_3px_0_0_#000]",
     jsxSnippet: `<div className="border-2 border-black shadow-[3px_3px_0_0_#000] p-4 bg-background">
   Content
+</div>`,
+  },
+  "alert-stepped": {
+    name: "Alert Stepped Pixel Border",
+    description: "Authentic @8bitcn/alert frame featuring 4 corner anchors, dual horizontal half-bars, and dual vertical side steps.",
+    tailwindClasses: "relative border-none p-4",
+    jsxSnippet: `<div className="relative p-4 bg-background">
+  <div className="absolute -top-1.5 w-1/2 left-1.5 h-1.5 bg-foreground dark:bg-ring" />
+  <div className="absolute -top-1.5 w-1/2 right-1.5 h-1.5 bg-foreground dark:bg-ring" />
+  <div className="absolute -bottom-1.5 w-1/2 left-1.5 h-1.5 bg-foreground dark:bg-ring" />
+  <div className="absolute -bottom-1.5 w-1/2 right-1.5 h-1.5 bg-foreground dark:bg-ring" />
+  <span className="absolute top-0 left-0 size-1.5 bg-foreground dark:bg-ring" />
+  <span className="absolute top-0 right-0 size-1.5 bg-foreground dark:bg-ring" />
+  <span className="absolute bottom-0 left-0 size-1.5 bg-foreground dark:bg-ring" />
+  <span className="absolute bottom-0 right-0 size-1.5 bg-foreground dark:bg-ring" />
+  <div className="absolute top-1.5 -left-1.5 h-1/2 w-1.5 bg-foreground dark:bg-ring" />
+  <div className="absolute bottom-1.5 -left-1.5 h-1/2 w-1.5 bg-foreground dark:bg-ring" />
+  <div className="absolute top-1.5 -right-1.5 h-1/2 w-1.5 bg-foreground dark:bg-ring" />
+  <div className="absolute bottom-1.5 -right-1.5 h-1/2 w-1.5 bg-foreground dark:bg-ring" />
 </div>`,
   },
 };

@@ -10,8 +10,22 @@ const PUBLIC_ROUTES = [
   "/refund",
 ] as const;
 
-const isPublicRoute = (pathname: string) =>
+const PROTECTED_ROUTE_ROOTS = [
+  "/dashboard", "/missions", "/habits", "/calendar", "/profile",
+  "/workouts", "/sleep", "/learning", "/skills", "/tower",
+  "/bosses", "/inventory", "/crafting", "/shop", "/beasts",
+  "/beasts-and-pets", "/aira", "/achievements", "/automations",
+  "/analytics", "/season-pass", "/character", "/editor", "/settings",
+  "/onboarding",
+] as const;
+
+export const isPublicRoute = (pathname: string) =>
   PUBLIC_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  );
+
+const isProtectedRoute = (pathname: string) =>
+  PROTECTED_ROUTE_ROOTS.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
 
@@ -23,7 +37,7 @@ export function getAuthRedirect(
     return "/dashboard";
   }
 
-  if (!isAuthenticated && !isPublicRoute(pathname) && pathname !== "/") {
+  if (!isAuthenticated && isProtectedRoute(pathname) && !isPublicRoute(pathname)) {
     return "/login";
   }
 

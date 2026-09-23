@@ -1,0 +1,60 @@
+.login {
+  --font-heading: "Jersey 10", "Pixelify Sans", monospace;
+  --font-body: "Pixelify Sans", "Silkscreen", monospace;
+  --font-sans: "Pixelify Sans", "Silkscreen", monospace;
+  --font-mono: "Press Start 2P", "Silkscreen", monospace;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  font-family: var(--font-body);
+  background-color: #101010;
+  background-image:
+    radial-gradient(circle at 50% 35%, rgba(20, 182, 229, 0.1), transparent 38%),
+    linear-gradient(rgba(249, 244, 218, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(249, 244, 218, 0.022) 1px, transparent 1px);
+  background-size: auto, 24px 24px, 24px 24px;
+}
+
+.login[data-login-fonts="8bitcn"],
+.login[data-login-fonts="8bitcn"] * {
+  font-family: var(--font-body) !important;
+}
+
+.login::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  opacity: 0.16;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0,
+    transparent 3px,
+    rgba(0, 0, 0, 0.42) 4px
+  );
+  pointer-events: none;
+}
+
+.login[data-login-fonts="8bitcn"] :is(h1, h2, h3, h4) {
+  font-family: var(--font-heading) !important;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+.login[data-login-fonts="8bitcn"] :is(button, label, input, textarea, select, .retro) {
+  font-family: var(--font-mono) !important;
+}
+
+.login[data-login-fonts="8bitcn"] :is(input, textarea)::placeholder {
+  font-family: var(--font-mono) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login *,
+  .login *::before,
+  .login *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

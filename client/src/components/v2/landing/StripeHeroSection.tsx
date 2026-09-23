@@ -7,11 +7,11 @@ import { Particles } from "./Particles";
 import { MaskedHeading } from "./MaskedHeading";
 
 interface StripeHeroSectionProps {
-  onSelectTab?: (tab: "login" | "register" | "otp") => void;
+  onSelectTab?: (tab: "login" | "register") => void;
 }
 
 export function StripeHeroSection({ onSelectTab }: StripeHeroSectionProps) {
-  const scrollToAuth = (tab: "login" | "register" | "otp" = "register") => {
+  const scrollToAuth = (tab: "login" | "register" = "register") => {
     if (onSelectTab) onSelectTab(tab);
     const el = document.getElementById("auth-section");
     if (el) {

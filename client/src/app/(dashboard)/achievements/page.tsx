@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useCharacterStore } from "@/store/useCharacterStore";
 import { API_BASE_URL } from "@/constants";
+import { AscendRouteSkeleton } from "@/components/loading/AscendRouteSkeleton";
 import {
   Sparkles,
   CheckCircle2,
@@ -691,9 +692,7 @@ export default function AchievementsPage() {
             ACHIEVEMENT SOUL-MONOLITHS GRID WITH MAGICCARDS
             ========================================================= */}
         {loading ? (
-          <div className="py-20 text-center text-purple-300/80 font-pixel tracking-wider text-base animate-pulse bg-[#0a0314]/80 rounded-2xl border border-purple-900/40">
-            Unsealing the Monarch&apos;s Memory Vault...
-          </div>
+          <AscendRouteSkeleton preset="medal-cabinet" label="Loading medal cabinet" />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredAchievements.map((ach) => {

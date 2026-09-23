@@ -29,8 +29,10 @@ import {
   GraphicAchievementsIcon,
   GraphicAutomationsIcon,
 } from "@/components/ui/icons/SidebarGraphicIcons";
-import { CheckCircle2 } from "lucide-react";
+import Image from "next/image";
+import { CheckCircle2, Eye, ListChecks, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import "@/components/ui/8bit/styles/retro.css";
 
 export type FeatureType =
@@ -63,13 +65,155 @@ export type FeatureType =
   | "arsenal"
   | null;
 
-interface FeatureModalProps {
+export const FEATURE_PREVIEWS: Record<
+  string,
+  {
+    imageSrc: string;
+    routePath: string;
+    caption: string;
+  }
+> = {
+  dashboard: {
+    imageSrc: "/previews/main-dashboard.png",
+    routePath: "/dashboard",
+    caption: "Tactical Command HUD with 7-Stat Radar & Beast Companion",
+  },
+  missions: {
+    imageSrc: "/previews/missions.png",
+    routePath: "/missions",
+    caption: "Tiered Kanban Quests & Milestone Bounty Tracker",
+  },
+  habits: {
+    imageSrc: "/previews/habits.png",
+    routePath: "/habits",
+    caption: "Neural Habit Matrix with 365-Day Mathematical Grid",
+  },
+  calendar: {
+    imageSrc: "/previews/calendar.png",
+    routePath: "/calendar",
+    caption: "Circadian Unified Timeline for Habits, Workouts & Deadlines",
+  },
+  profile: {
+    imageSrc: "/previews/profile.png",
+    routePath: "/profile",
+    caption: "Hunter Credentials, Stat Allocation Matrix & Titles",
+  },
+  workouts: {
+    imageSrc: "/previews/workout.png",
+    routePath: "/workouts",
+    caption: "16-Muscle Heatmap & 1RM Heavy Iron Gym Logger",
+  },
+  sleep: {
+    imageSrc: "/previews/sleep.png",
+    routePath: "/sleep",
+    caption: "Circadian Sleep Efficiency Curve & Recovery Scaling",
+  },
+  learning: {
+    imageSrc: "/previews/learning.png",
+    routePath: "/learning",
+    caption: "Pomodoro Deep Work Sanctuary & Ambient Audio Terminal",
+  },
+  skills: {
+    imageSrc: "/previews/skills.png",
+    routePath: "/skills",
+    caption: "Class Specialization Skill Constellations & Passive Nodes",
+  },
+  tower: {
+    imageSrc: "/previews/tower.png",
+    routePath: "/tower",
+    caption: "20-Floor Auto-Combat Simulator & AIRA Defeat Analytics",
+  },
+  bosses: {
+    imageSrc: "/previews/bosses.png",
+    routePath: "/bosses",
+    caption: "World Bosses & Reality Raids Damaged by Real Habits",
+  },
+  "boss-pr": {
+    imageSrc: "/previews/boss-pr.png",
+    routePath: "/workouts/boss-pr",
+    caption: "Boss PR Breakthrough Arena with Compound Lift Battles",
+  },
+  inventory: {
+    imageSrc: "/previews/inventory.png",
+    routePath: "/inventory",
+    caption: "9-Slot PaperDoll Armory Matrix & Gear Inspection",
+  },
+  crafting: {
+    imageSrc: "/previews/crafting.png",
+    routePath: "/crafting",
+    caption: "Blacksmith Forge: Equipment Refinement (+1 to +10) & Salvage",
+  },
+  shop: {
+    imageSrc: "/previews/shop.png",
+    routePath: "/shop",
+    caption: "Armory Merchant: Daily Rotating Stock & Mystery Eggs",
+  },
+  beasts: {
+    imageSrc: "/previews/beasts.png",
+    routePath: "/beasts",
+    caption: "Beast Incubation: Stride Energy Sync for 20 Mythic Dragons",
+  },
+  aira: {
+    imageSrc: "/previews/aira-system.png",
+    routePath: "/aira",
+    caption: "AIRA Tactical Neural Co-Pilot & Autonomous System Admin",
+  },
+  achievements: {
+    imageSrc: "/previews/achievements.png",
+    routePath: "/achievements",
+    caption: "Codex of Feats: Achievement Constellations & Trophy Rewards",
+  },
+  automations: {
+    imageSrc: "/previews/automations.png",
+    routePath: "/automations",
+    caption: "Chrono Matrix: Habit Automations & Trigger Rules",
+  },
+  // Aliases
+  nutrition: {
+    imageSrc: "/previews/workout.png",
+    routePath: "/workouts",
+    caption: "Discipline Fuel & Recovery Telemetry",
+  },
+  combat: {
+    imageSrc: "/previews/tower.png",
+    routePath: "/tower",
+    caption: "Spire Tower Combat Trials",
+  },
+  leveling: {
+    imageSrc: "/previews/skills.png",
+    routePath: "/skills",
+    caption: "Hunter Rank Progression & Skills",
+  },
+  raids: {
+    imageSrc: "/previews/bosses.png",
+    routePath: "/bosses",
+    caption: "World Boss Raids",
+  },
+  recovery: {
+    imageSrc: "/previews/sleep.png",
+    routePath: "/sleep",
+    caption: "Circadian Recovery Protocol",
+  },
+  arsenal: {
+    imageSrc: "/previews/inventory.png",
+    routePath: "/inventory",
+    caption: "RPG Arsenal & Bestiary Equipment",
+  },
+};
+
+export interface FeatureModalProps {
   feature: FeatureType;
   isOpen: boolean;
   onClose: () => void;
+  initialTab?: "specs" | "preview";
 }
 
-export function FeatureModal({ feature, isOpen, onClose }: FeatureModalProps) {
+export function FeatureModal({
+  feature,
+  isOpen,
+  onClose,
+  initialTab = "specs",
+}: FeatureModalProps) {
   if (!feature) return null;
 
   const contentMap: Record<
@@ -728,6 +872,21 @@ export function FeatureModal({ feature, isOpen, onClose }: FeatureModalProps) {
 
   const data = contentMap[feature] || contentMap.habits;
   const Icon = data.icon;
+  const previewInfo = FEATURE_PREVIEWS[feature] || {
+    imageSrc: "/previews/main-dashboard.png",
+    routePath: "/dashboard",
+    caption: `${data.title} Interface Preview`,
+  };
+
+  const [activeTab, setActiveTab] = React.useState<"specs" | "preview">(
+    initialTab || "specs"
+  );
+
+  React.useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab, feature]);
 
   const handleCtaClick = () => {
     onClose();
@@ -737,15 +896,53 @@ export function FeatureModal({ feature, isOpen, onClose }: FeatureModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="eightbitcn-landing-scope max-w-xl bg-zinc-950/95 border border-zinc-800 text-zinc-100 p-6 sm:p-8 rounded-3xl shadow-2xl backdrop-blur-2xl">
+      <DialogContent
+        className={cn(
+          "eightbitcn-landing-scope w-full bg-zinc-950/95 border border-zinc-800 text-zinc-100 p-5 sm:p-7 rounded-3xl shadow-2xl backdrop-blur-2xl transition-all duration-300 max-h-[88vh] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-zinc-700",
+          "[&>button:last-child]:top-3.5 [&>button:last-child]:right-3.5 sm:[&>button:last-child]:top-4 sm:[&>button:last-child]:right-4 [&>button:last-child]:size-7 sm:[&>button:last-child]:size-8 [&>button:last-child]:rounded-lg [&>button:last-child]:bg-zinc-900/90 [&>button:last-child]:border [&>button:last-child]:border-zinc-700 [&>button:last-child]:flex [&>button:last-child]:items-center [&>button:last-child]:justify-center [&>button:last-child]:hover:bg-zinc-800 [&>button:last-child]:hover:border-[#fcba28] [&>button:last-child]:text-zinc-400 [&>button:last-child]:hover:text-white [&>button:last-child]:transition-colors [&>button:last-child]:z-30 [&>button:last-child]:shadow-[2px_2px_0_0_#000]",
+          activeTab === "preview" ? "max-w-3xl sm:max-w-4xl" : "max-w-xl sm:max-w-2xl"
+        )}
+      >
         <DialogHeader className="flex flex-col gap-2 text-left">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center p-1">
-              <Icon className="w-5 h-5" />
+          <div className="flex items-center justify-between gap-3 pr-10 sm:pr-12">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center p-1">
+                <Icon className="w-5 h-5" />
+              </div>
+              <span className="retro text-[8px] sm:text-[9px] font-bold text-zinc-400 uppercase tracking-widest">
+                {data.badge}
+              </span>
             </div>
-            <span className="retro text-[8px] sm:text-[9px] font-bold text-zinc-400 uppercase tracking-widest">
-              {data.badge}
-            </span>
+
+            {/* View Switcher Tabs */}
+            <div className="flex items-center gap-1.5 bg-black/60 p-1 border border-zinc-800 rounded-lg shrink-0">
+              <button
+                type="button"
+                onClick={() => setActiveTab("specs")}
+                className={cn(
+                  "retro px-2.5 py-1 text-[7px] sm:text-[8px] font-bold tracking-wider transition-all cursor-pointer flex items-center gap-1 rounded",
+                  activeTab === "specs"
+                    ? "bg-[#fcba28] text-black shadow-[1px_1px_0_0_#000]"
+                    : "text-zinc-400 hover:text-white"
+                )}
+              >
+                <ListChecks className="w-3 h-3" />
+                <span>SPECS</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("preview")}
+                className={cn(
+                  "retro px-2.5 py-1 text-[7px] sm:text-[8px] font-bold tracking-wider transition-all cursor-pointer flex items-center gap-1 rounded",
+                  activeTab === "preview"
+                    ? "bg-[#fcba28] text-black shadow-[1px_1px_0_0_#000]"
+                    : "text-zinc-400 hover:text-white"
+                )}
+              >
+                <Eye className="w-3 h-3" />
+                <span>PREVIEW</span>
+              </button>
+            </div>
           </div>
 
           <DialogTitle className="retro text-base sm:text-lg font-bold tracking-tight text-white mt-1">
@@ -757,21 +954,66 @@ export function FeatureModal({ feature, isOpen, onClose }: FeatureModalProps) {
           </DialogDescription>
         </DialogHeader>
 
-        {/* Feature Breakdown Points */}
-        <div className="flex flex-col gap-3 py-3 border-y border-zinc-850">
-          {data.points.map((pt, idx) => (
-            <div
-              key={idx}
-              className="p-3.5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 flex items-start gap-3"
-            >
-              <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-              <div className="flex flex-col gap-0.5">
-                <span className="retro text-[9px] sm:text-[10px] font-bold text-zinc-200">{pt.title}</span>
-                <span className="retro text-[8px] text-zinc-400 leading-relaxed">{pt.desc}</span>
+        {/* Tab Content */}
+        {activeTab === "preview" ? (
+          <div className="flex flex-col gap-3 py-2 border-y border-zinc-850">
+            <div className="rounded-xl overflow-hidden border-2 border-black bg-black shadow-[4px_4px_0_0_#000]">
+              {/* Route HUD Monitor Header */}
+              <div className="flex items-center justify-between bg-zinc-900 px-3 py-2 border-b border-zinc-800 text-[8px] sm:text-[9px] font-mono text-zinc-400">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-zinc-200 font-bold">{previewInfo.routePath}</span>
+                  <span className="hidden sm:inline text-zinc-500">// 4K TELEMETRY CAPTURE</span>
+                </div>
+                <a
+                  href={previewInfo.imageSrc}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 font-bold transition-colors cursor-pointer"
+                  title="Open full-resolution 4K screenshot in new tab"
+                >
+                  <Maximize2 className="w-3 h-3" />
+                  <span className="hidden sm:inline">FULLSCREEN</span>
+                </a>
+              </div>
+
+              {/* 4K UI Screenshot View */}
+              <div className="relative aspect-video w-full max-h-[46vh] sm:max-h-[50vh] overflow-hidden bg-black/80 group/preview">
+                <Image
+                  src={previewInfo.imageSrc}
+                  alt={`${data.title} interface preview`}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 896px"
+                  className="object-contain object-top transition-transform duration-300 group-hover/preview:scale-[1.01]"
+                  priority
+                />
               </div>
             </div>
-          ))}
-        </div>
+
+            <p className="retro text-[8px] sm:text-[9px] text-zinc-400 text-center leading-relaxed italic">
+              {previewInfo.caption}
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3 py-3 border-y border-zinc-850">
+            {data.points.map((pt, idx) => (
+              <div
+                key={idx}
+                className="p-3.5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 flex items-start gap-3"
+              >
+                <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="retro text-[9px] sm:text-[10px] font-bold text-zinc-200">
+                    {pt.title}
+                  </span>
+                  <span className="retro text-[8px] text-zinc-400 leading-relaxed">
+                    {pt.desc}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Modal Action CTA */}
         <div className="flex items-center justify-between pt-2">

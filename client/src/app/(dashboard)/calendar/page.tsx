@@ -11,7 +11,6 @@ import {
   PixelFlameIcon,
   PixelShieldIcon,
   PixelAwardIcon,
-  PixelRefreshIcon,
   PixelClockIcon,
   PixelCompassIcon,
   PixelPlusIcon,
@@ -27,6 +26,7 @@ import { CURRENCY_LORE } from "@/features/lore/loreData";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { cn } from "@/lib/utils";
 import { NumberTicker } from "@/components/ui/number-ticker";
+import { AscendPendingSpinner } from "@/components/loading/AscendPendingSpinner";
 import { CalendarSchedulePanel } from "@/features/calendar/components/CalendarSchedulePanel";
 import { useCalendarScheduleStore, StoredCalendarSchedule } from "@/features/calendar/store/useCalendarScheduleStore";
 import { isScheduleOnDate, formatLocalDate } from "@/features/calendar/scheduleUtils";
@@ -521,7 +521,7 @@ export default function CalendarPage() {
                 </span>
                 {isLoading && (
                   <span className="text-xs font-mono text-[#fbbf24] flex items-center gap-1.5 animate-pulse ml-2">
-                    <PixelRefreshIcon className="w-3.5 h-3.5 animate-spin" />
+                    <AscendPendingSpinner label="Syncing calendar telemetry" />
                     <span>Syncing Telemetry...</span>
                   </span>
                 )}
@@ -554,7 +554,7 @@ export default function CalendarPage() {
                   title="Forge Aegis Shield with 300 Gold"
                 >
                   {isBuyingShield ? (
-                    <PixelRefreshIcon className="w-4 h-4 animate-spin text-[#f59e0b]" />
+                    <AscendPendingSpinner label="Forging shield" />
                   ) : (
                     <PixelShieldIcon className={cn("w-4 h-4", streakFreezes >= 3 ? "text-[#10b981]" : "text-[#f59e0b]")} />
                   )}
@@ -572,7 +572,7 @@ export default function CalendarPage() {
                   title="Advance Chronometer to test day rollover"
                 >
                   {isSimulating ? (
-                    <PixelRefreshIcon className="w-4 h-4 animate-spin text-[#fbbf24]" />
+                    <AscendPendingSpinner label="Simulating midnight" />
                   ) : (
                     <PixelMoonSleepIcon className="w-4 h-4 text-[#fbbf24]" />
                   )}

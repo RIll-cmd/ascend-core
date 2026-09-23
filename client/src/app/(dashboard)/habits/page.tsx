@@ -7,6 +7,7 @@ import { useHabitStore } from "@/features/habits/store/useHabitStore";
 import { useCharacterStore } from "@/store/useCharacterStore";
 import { HabitCard } from "@/features/habits/components";
 import { HabitHeatmap } from "@/features/habits/components/HabitHeatmap";
+import { AscendRouteSkeleton } from "@/components/loading/AscendRouteSkeleton";
 import {
   PixelPlusIcon,
   PixelSearchIcon,
@@ -367,13 +368,7 @@ export default function HabitsDashboardPage() {
       {/* ⚔️ 4. ACTIVE HABITS GRID / EMPTY STATE                    */}
       {/* ========================================================= */}
       {isLoading ? (
-        <div className="relative text-center py-16 backdrop-blur-md bg-[#1f1416]/80 border-y-4 border-[#e05344]/30 p-6 shadow-[3px_3px_0_0_#000]">
-          <div className="absolute inset-0 border-x-4 -mx-1 border-[#e05344]/30 pointer-events-none" aria-hidden="true" />
-          <div className="inline-block animate-spin w-8 h-8 border-3 border-[#fba170] border-t-transparent mb-3" />
-          <p className="text-[#c4b5a5] text-xs uppercase font-bold font-mono">
-            Loading Sacred Disciplines...
-          </p>
-        </div>
+        <AscendRouteSkeleton preset="habit-grid" label="Loading habit matrix" />
       ) : filteredHabits.length === 0 ? (
         <div className="relative backdrop-blur-md bg-[linear-gradient(180deg,rgba(30,18,21,0.88)_0%,rgba(20,12,14,0.95)_100%)] border-y-4 border-[#e05344]/50 p-8 text-center flex flex-col items-center justify-center space-y-3 text-[#fdf2e9] shadow-[4px_4px_0_0_#000]">
           <div className="absolute inset-0 border-x-4 -mx-1 border-[#e05344]/50 pointer-events-none" aria-hidden="true" />

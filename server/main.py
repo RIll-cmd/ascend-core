@@ -28,6 +28,8 @@ from prisma.errors import RecordNotFoundError
 from db import db
 from routers import auth, character, habits, missions, progression, achievements, analytics, tower, inventory, aira, fitness, skills, bosses, workouts, shop, season_pass, crafting, beasts, integration, automations, calendar, status as status_router, cron
 
+limiter = Limiter(key_func=get_remote_address)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -53,6 +55,8 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         # Shutdown: Gracefully disconnect database client
+        if db.is_connected():
+            await db.disconnect()
 
 app = FastAPI(
     title="Ascend OS Core Server",

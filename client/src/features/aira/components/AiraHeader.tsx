@@ -5,6 +5,7 @@ import { Sparkles, RefreshCw } from "lucide-react"
 import { Badge } from "@/components/ui/neo/badge"
 import { Button } from "@/components/ui/neo/button"
 import { Switch } from "@/components/ui/neo/switch"
+import { AscendPendingSpinner } from "@/components/loading/AscendPendingSpinner"
 
 interface AiraHeaderProps {
   autoBriefingsEnabled: boolean
@@ -71,7 +72,7 @@ export const AiraHeader: React.FC<AiraHeaderProps> = ({
           disabled={isLoading}
           className="text-xs font-mono uppercase tracking-wider h-8"
         >
-          <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
+          {isLoading ? <AscendPendingSpinner label="Generating briefing" /> : <RefreshCw className="size-3.5" />}
           <span className="hidden sm:inline">Briefing</span>
         </Button>
       </div>

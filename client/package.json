@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "screenshots": "tsx scripts/capture_screenshots.ts",
+    "verify:loading-ui": "tsx scripts/verify_loading_ui.ts",
     "prepare": "husky || true"
   },
   "lint-staged": {

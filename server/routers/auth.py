@@ -4,11 +4,13 @@ from pydantic import BaseModel, Field
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 import re
+import sqlite3
 import uuid
 import secrets
 import os
 from datetime import datetime, timedelta, timezone
 from db import db
+from prisma.errors import UniqueViolationError
 from db_utils import ensure_character_exists
 from auth_utils import (
     VISION_TOKEN_EXPIRE_MINUTES,
@@ -24,6 +26,7 @@ from services.email_service import (
     create_and_store_otp,
     validate_otp_code,
     send_verification_email,
+    is_email_sender_configured,
     get_db_connection
 )
 
@@ -65,10 +68,9 @@ class VerifyOtpInput(BaseModel):
     bot_trap: Optional[str] = Field(None, description="Honeypot field for bot protection")
 
 class RegisterInput(BaseModel):
-    username: Optional[str] = None
-    email: Optional[str] = None
+    username: str
+    email: str
     password: str
-    otp: Optional[str] = None
     bot_trap: Optional[str] = Field(None, description="Honeypot field for bot protection")
 
 class LoginInput(BaseModel):
@@ -76,6 +78,9 @@ class LoginInput(BaseModel):
     username: Optional[str] = None
     password: Optional[str] = ""
     bot_trap: Optional[str] = Field(None, description="Honeypot field for bot protection")
+
+class GuestLoginInput(BaseModel):
+    password: str
 
 
 class AccountDeleteInput(BaseModel):
@@ -98,10 +103,11 @@ class UpdateUsernameInput(BaseModel):
 # =========================================================================
 
 async def get_all_users() -> List[Dict[str, Any]]:
+    all_users: List[Dict[str, Any]] = []
     if db.is_connected():
         try:
             users = await db.user.find_many()
-            return [
+            all_users.extend([
                 {
                     "id": u.id,
                     "username": u.username,
@@ -110,7 +116,7 @@ async def get_all_users() -> List[Dict[str, Any]]:
                     "isEmailVerified": bool(u.isEmailVerified),
                 }
                 for u in users
-            ]
+            ])
         except Exception:
             pass
 
@@ -120,11 +126,13 @@ async def get_all_users() -> List[Dict[str, Any]]:
         try:
             c.execute("SELECT id, username, email, password, isEmailVerified FROM User")
             rows = c.fetchall()
-            return [dict(r) for r in rows]
+            all_users.extend(dict(r) for r in rows)
         finally:
             conn.close()
     except Exception:
-        return []
+        pass
+
+    return all_users
 
 async def get_user_by_id(user_id: str) -> Optional[Dict[str, Any]]:
     if db.is_connected():
@@ -208,19 +216,24 @@ async def insert_user(user_id: str, username: str, email: Optional[str], passwor
                 "email": u.email,
                 "isEmailVerified": bool(u.isEmailVerified),
             }
+        except UniqueViolationError:
+            raise HTTPException(status_code=409, detail="That handle or email is already registered.")
         except Exception:
-            pass
+            raise HTTPException(status_code=503, detail="Account storage is unavailable. Please try again later.")
 
     conn = get_db_connection()
     c = conn.cursor()
     try:
-        c.execute(
-            """
-            INSERT INTO User (id, username, email, password, isEmailVerified, createdAt, updatedAt)
-            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-            """,
-            (user_id, username, email, password_hash, 1 if is_verified else 0)
-        )
+        try:
+            c.execute(
+                """
+                INSERT INTO User (id, username, email, password, isEmailVerified, createdAt, updatedAt)
+                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                """,
+                (user_id, username, email, password_hash, 1 if is_verified else 0)
+            )
+        except sqlite3.IntegrityError:
+            raise HTTPException(status_code=409, detail="That handle or email is already registered.")
         conn.commit()
         return {
             "id": user_id,
@@ -368,13 +381,16 @@ async def send_otp(request: Request, data: SendOtpInput):
 
     email_clean = data.email.strip().lower()
     validate_email_format(email_clean)
+    if not is_email_sender_configured():
+        raise HTTPException(status_code=503, detail="Email verification is temporarily unavailable.")
 
     allowed, rate_msg = await can_request_otp(email_clean)
     if not allowed:
         raise HTTPException(status_code=429, detail=rate_msg)
 
     token_id, otp = await create_and_store_otp(email_clean)
-    send_verification_email(email_clean, otp, context=data.context or "Verification")
+    if not send_verification_email(email_clean, otp, context=data.context or "Verification"):
+        raise HTTPException(status_code=503, detail="Verification email could not be sent. Please try again later.")
 
     return {
         "message": f"Verification cipher successfully transmitted to {email_clean}.",
@@ -405,7 +421,7 @@ async def verify_otp(request: Request, data: VerifyOtpInput):
 
 
 # =========================================================================
-# 3. REGISTRATION FLOW (USERNAME-FIRST OR EMAIL-FIRST WITH OTP)
+# 3. REGISTRATION FLOW (EMAIL VERIFICATION PAUSED)
 # =========================================================================
 
 @router.post("/api/auth/register")
@@ -414,99 +430,43 @@ async def register(request: Request, data: RegisterInput, response: Response):
     if data.bot_trap:
         raise HTTPException(status_code=400, detail="Automated submission blocked.")
 
+    username_clean = data.username.strip()
+    email_clean = data.email.strip().lower()
     password = data.password.strip()
+    validate_username_format(username_clean)
+    validate_email_format(email_clean)
     validate_password_strength(password)
 
     all_users = await get_all_users()
+    if any(u["username"] and u["username"].lower() == username_clean.lower() for u in all_users):
+        raise HTTPException(status_code=409, detail=f"Handle '{username_clean}' is already registered. Please sign in or choose another handle.")
+    if any(u["email"] and u["email"].lower() == email_clean for u in all_users):
+        raise HTTPException(status_code=409, detail=f"Email '{email_clean}' is already registered. Please sign in.")
 
-    # --- PATH B: EMAIL-FIRST WITH OTP ---
-    if data.email:
-        email_clean = data.email.strip().lower()
-        validate_email_format(email_clean)
+    new_user_id = f"user-{str(uuid.uuid4())[:8]}"
+    hashed_pwd = hash_password(password)
+    user = await insert_user(new_user_id, username_clean, email_clean, hashed_pwd, is_verified=False)
 
-        # Check if email is already taken
-        if any(u["email"] and u["email"].lower() == email_clean.lower() for u in all_users):
-            raise HTTPException(status_code=400, detail=f"Email '{email_clean}' is already registered. Please sign in.")
+    character_id = f"char-{user['id']}"
+    character = await ensure_character_exists(character_id, user["id"], user["username"])
 
-        # Validate OTP
-        if not data.otp or len(data.otp.strip()) != 6:
-            raise HTTPException(status_code=400, detail="A 6-digit OTP code is required for email registration.")
+    token = create_access_token(data={"sub": user["id"], "username": user["username"]})
+    set_auth_cookie(response, token)
 
-        is_valid, otp_msg = await validate_otp_code(email_clean, data.otp.strip())
-        if not is_valid:
-            raise HTTPException(status_code=400, detail=otp_msg)
-
-        # Generate default username (e.g. Hunter_XXXX or derived from email handle)
-        email_handle = re.sub(r"[^a-zA-Z0-9_]", "", email_clean.split("@")[0])[:12]
-        if not email_handle or len(email_handle) < 3:
-            email_handle = "Hunter"
-        
-        assigned_username = f"{email_handle}_{str(secrets.randbelow(9000) + 1000)}"
-        while any(u["username"] and u["username"].lower() == assigned_username.lower() for u in all_users):
-            assigned_username = f"{email_handle}_{str(secrets.randbelow(9000) + 1000)}"
-
-        new_user_id = f"user-{str(uuid.uuid4())[:8]}"
-        hashed_pwd = hash_password(password)
-
-        user = await insert_user(new_user_id, assigned_username, email_clean, hashed_pwd, is_verified=True)
-
-        character_id = f"char-{user['id']}"
-        character = await ensure_character_exists(character_id, user["id"], user["username"])
-
-        token = create_access_token(data={"sub": user["id"], "username": user["username"]})
-        set_auth_cookie(response, token)
-
-        return {
-            "message": "Registration successful with verified neural link.",
+    return {
+        "message": "Registration successful. Email verification is pending.",
+        "username": user["username"],
+        "email": email_clean,
+        "isEmailVerified": False,
+        "characterId": character.id,
+        "token": token,
+        "user": {
+            "id": user["id"],
             "username": user["username"],
             "email": email_clean,
-            "isEmailVerified": True,
-            "characterId": character.id,
-            "token": token,
-            "user": {
-                "id": user["id"],
-                "username": user["username"],
-                "email": email_clean,
-                "isEmailVerified": True,
-            }
-        }
-
-    # --- PATH A: USERNAME-FIRST REGISTRATION ---
-    elif data.username:
-        username_clean = data.username.strip()
-        validate_username_format(username_clean)
-
-        if any(u["username"] and u["username"].lower() == username_clean.lower() for u in all_users):
-            raise HTTPException(status_code=400, detail=f"Username '{username_clean}' is already taken. Please choose another username.")
-
-        new_user_id = f"user-{str(uuid.uuid4())[:8]}"
-        hashed_pwd = hash_password(password)
-
-        user = await insert_user(new_user_id, username_clean, None, hashed_pwd, is_verified=False)
-
-        character_id = f"char-{user['id']}"
-        character = await ensure_character_exists(character_id, user["id"], user["username"])
-
-        token = create_access_token(data={"sub": user["id"], "username": user["username"]})
-        set_auth_cookie(response, token)
-
-        return {
-            "message": "Registration successful.",
-            "username": user["username"],
-            "email": None,
             "isEmailVerified": False,
-            "characterId": character.id,
-            "token": token,
-            "user": {
-                "id": user["id"],
-                "username": user["username"],
-                "email": None,
-                "isEmailVerified": False,
-            }
         }
-
-    else:
-        raise HTTPException(status_code=400, detail="Either username or email is required to register.")
+    }
 
 
 # =========================================================================
@@ -530,7 +490,7 @@ async def login(request: Request, data: LoginInput, response: Response):
     if not user:
         raise HTTPException(status_code=404, detail=f"Account '{ident}' not found. Please check your credentials or register.")
 
-    if user["password"] and not verify_password(password, user["password"]):
+    if not user["password"] or not verify_password(password, user["password"]):
         raise HTTPException(status_code=400, detail="Incorrect password. Please verify your access cipher.")
 
     character = await db.character.find_first(where={"userId": user["id"]})
@@ -583,7 +543,13 @@ async def issue_vision_token(current_user: dict = Depends(get_current_user)):
 
 @router.post("/api/auth/guest")
 @limiter.limit("10/minute")
-async def guest_login(request: Request, response: Response):
+async def guest_login(request: Request, response: Response, data: GuestLoginInput):
+    configured_password = os.getenv("GUEST_ACCESS_PASSWORD")
+    if not configured_password:
+        raise HTTPException(status_code=503, detail="Guest access is not configured.")
+    if not secrets.compare_digest(data.password, configured_password):
+        raise HTTPException(status_code=401, detail="Guest access password is incorrect.")
+
     guest_id = f"Guest_{str(uuid.uuid4())[:4]}"
     new_user_id = f"user-{guest_id}"
 
@@ -680,6 +646,8 @@ async def link_email_request_otp(data: LinkEmailRequestInput, current_user: dict
     """
     email_clean = data.email.strip().lower()
     validate_email_format(email_clean)
+    if not is_email_sender_configured():
+        raise HTTPException(status_code=503, detail="Email verification is temporarily unavailable.")
 
     all_users = await get_all_users()
     if any(u["email"] and u["email"].lower() == email_clean and u["id"] != current_user["id"] for u in all_users):
@@ -690,7 +658,8 @@ async def link_email_request_otp(data: LinkEmailRequestInput, current_user: dict
         raise HTTPException(status_code=429, detail=rate_msg)
 
     token_id, otp = await create_and_store_otp(email_clean, user_id=current_user["id"])
-    send_verification_email(email_clean, otp, context="Email Account Linking")
+    if not send_verification_email(email_clean, otp, context="Email Account Linking"):
+        raise HTTPException(status_code=503, detail="Verification email could not be sent. Please try again later.")
 
     return {
         "message": f"Verification cipher dispatched to {email_clean}.",

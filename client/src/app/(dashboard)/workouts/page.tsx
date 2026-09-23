@@ -13,6 +13,8 @@ import {
 } from "@/components/workout";
 import { MuscleGroupKey } from "@/features/workouts/types/muscleRecovery";
 import { useUser } from "@/context/UserContext";
+import { AscendPendingSpinner } from "@/components/loading/AscendPendingSpinner";
+import { AscendRouteSkeleton } from "@/components/loading/AscendRouteSkeleton";
 import { AiraAvatar } from "@/components/ui/AiraAvatar";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
@@ -41,7 +43,6 @@ import {
   Flame,
   Play,
   Bot,
-  Loader2,
   Plus,
   Trash2,
   Sparkles,
@@ -368,7 +369,7 @@ export default function WorkoutsPage() {
               className="flex items-center gap-2"
             >
               {isAnalyzing ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <AscendPendingSpinner label="Generating AI coach insights" />
               ) : (
                 <AiraAvatar mood="ANALYZING" className="w-4 h-4 border-none shadow-none rounded-none" />
               )}
@@ -491,10 +492,7 @@ export default function WorkoutsPage() {
 
           <div className="mt-4">
             {isLoadingRanks ? (
-              <div className="flex items-center justify-center py-10 font-sans text-xs text-stone-300 gap-2">
-                <Loader2 className="w-4 h-4 animate-spin text-[#f59e0b]" />
-                <span>Loading Personal Records...</span>
-              </div>
+              <AscendRouteSkeleton preset="benchmark-table" label="Loading personal records" />
             ) : ranks.length > 0 ? (
               <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 list-none p-0 m-0">
                 {ranks.map((r, i) => (

@@ -18,6 +18,10 @@ describe("getAuthRedirect", () => {
     expect(getAuthRedirect("/inventory", false)).toBe("/login");
   });
 
+  it("lets unknown routes reach the global 404", () => {
+    expect(getAuthRedirect("/does-not-exist", false)).toBeNull();
+  });
+
   it("allows public routes and authenticated internal views", () => {
     expect(getAuthRedirect("/register", false)).toBeNull();
     expect(getAuthRedirect("/privacy", false)).toBeNull();

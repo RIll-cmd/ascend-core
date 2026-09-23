@@ -5,7 +5,6 @@ import {
   Flame,
   Flower2,
   Footprints,
-  Loader2,
   Sparkles,
   Sprout,
   Activity,
@@ -18,6 +17,7 @@ import { SvgOvergrownNest } from "@/components/ui/svg/SvgOvergrownNest";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { MagicCard } from "@/components/ui/magic-card";
 import meadow from "@/features/beasts/styles/MeadowAviary.module.css";
+import { AscendPendingSpinner } from "@/components/loading/AscendPendingSpinner";
 
 interface Props {
   egg: Egg | null;
@@ -231,7 +231,7 @@ export const EggIncubatorWidget = ({ egg, characterId, onSelectEggClick }: Props
                 onClick={addCustom}
                 className="cursor-pointer"
               >
-                {isSimulating ? <Loader2 className="animate-spin w-4 h-4" /> : "Add steps"}
+                {isSimulating ? <AscendPendingSpinner label="Simulating egg progress" /> : "Add steps"}
               </button>
             </div>
           </div>
@@ -243,7 +243,7 @@ export const EggIncubatorWidget = ({ egg, characterId, onSelectEggClick }: Props
             disabled={!ready || isHatching}
             onClick={hatch}
           >
-            {isHatching ? <Loader2 className="animate-spin w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
+            {isHatching ? <AscendPendingSpinner label="Hatching beast" /> : <Sparkles className="w-4 h-4" />}
             <span>{ready ? "Welcome your familiar" : "Keep walking"}</span>
           </button>
         </div>

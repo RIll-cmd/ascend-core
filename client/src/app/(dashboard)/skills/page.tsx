@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSkillStore } from '@/features/skills/store/useSkillStore';
+import { AscendRouteSkeleton } from '@/components/loading/AscendRouteSkeleton';
 import { useCharacterStore } from '@/store/useCharacterStore';
 import { SkillNode } from '@/features/skills/components/SkillNode';
 import { SkillDetailModal } from '@/features/skills/components/SkillDetailModal';
@@ -192,14 +193,7 @@ export default function SkillsPage() {
   };
 
   if (skillsLoading && definitions.length === 0) {
-    return (
-      <div className="p-12 text-center text-[#d4b277] font-pixel flex flex-col items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-2 border-amber-500/40 border-t-amber-300 rounded-none rotate-45 animate-spin mb-4" />
-        <span className="text-xs tracking-widest uppercase text-[#fef08a] animate-pulse">
-          Aligning Astronomical Astrolabe & Constellations...
-        </span>
-      </div>
-    );
+    return <AscendRouteSkeleton preset="skill-tree" label="Loading skill tree" />;
   }
 
   const elements = ['Flame', 'Tempest', 'Earth', 'Tide', 'Ascension'];

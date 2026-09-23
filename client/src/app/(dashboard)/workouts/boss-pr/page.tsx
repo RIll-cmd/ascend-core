@@ -25,7 +25,6 @@ import {
   PixelClockIcon,
   PixelOpenGrimoireIcon,
   PixelCheckIcon,
-  PixelSpinnerIcon,
 } from "@/components/ui/pixel/PixelIcons";
 import { toast } from "sonner";
 import { useWorkoutStore } from "@/features/workouts/store/useWorkoutStore";
@@ -37,6 +36,7 @@ import { MagicCard } from "@/components/ui/magic-card";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { Particles } from "@/components/ui/particles";
 import Link from "next/link";
+import { AscendRouteSkeleton } from "@/components/loading/AscendRouteSkeleton";
 
 export default function BossPRPage() {
   const { user } = useUser();
@@ -88,12 +88,7 @@ export default function BossPRPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex h-[70vh] items-center justify-center font-pixel text-xs text-[#ef4444] gap-3 select-none">
-        <PixelSpinnerIcon className="w-6 h-6 text-[#ef4444]" />
-        <span>LOADING WEEKLY CHALLENGE...</span>
-      </div>
-    );
+    return <AscendRouteSkeleton preset="benchmark-table" label="Loading boss benchmarks" />;
   }
 
   if (!boss) {

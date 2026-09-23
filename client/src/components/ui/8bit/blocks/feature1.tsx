@@ -31,7 +31,7 @@ import {
   GraphicAchievementsIcon,
   GraphicAutomationsIcon,
 } from "@/components/ui/icons/SidebarGraphicIcons";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Eye } from "lucide-react";
 
 import "@/components/ui/8bit/styles/retro.css";
 
@@ -64,6 +64,7 @@ export interface Feature1Props {
   description?: string;
   items?: FeatureItem[];
   onSelectFeature?: (key: string) => void;
+  onPreviewFeature?: (key: string) => void;
 }
 
 export const defaultAscendFeatures: FeatureItem[] = [
@@ -303,6 +304,7 @@ export function Feature1({
   items = defaultAscendFeatures,
   columns = 4,
   onSelectFeature,
+  onPreviewFeature,
   className,
 }: Feature1Props) {
   const [activeTab, setActiveTab] = useState<FeatureCategory>("all");
@@ -452,9 +454,28 @@ export function Feature1({
                   </div>
 
                   {/* Footer Action Strip */}
-                  <div className="mt-4 pt-3 border-t border-neutral-800/80 flex items-center justify-between retro text-[7px] sm:text-[8px] tracking-wider text-neutral-400 group-hover/card:text-[#fcba28] transition-colors">
-                    <span>INSPECT CODEX</span>
-                    <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5" />
+                  <div className="mt-4 pt-3 border-t border-neutral-800/80 flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onPreviewFeature) {
+                          onPreviewFeature(item.key || "");
+                        } else {
+                          onSelectFeature?.(item.key || "");
+                        }
+                      }}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 bg-black/80 hover:bg-[#fcba28] text-neutral-300 hover:text-black border border-neutral-700 hover:border-black retro text-[7px] font-bold tracking-wider rounded-sm transition-all shadow-[1px_1px_0_0_#000] cursor-pointer"
+                      title={`Preview ${item.title} HUD Screenshot`}
+                    >
+                      <Eye className="h-2.5 w-2.5" />
+                      <span>PREVIEW</span>
+                    </button>
+
+                    <div className="flex items-center gap-1 retro text-[7px] sm:text-[8px] tracking-wider text-neutral-400 group-hover/card:text-[#fcba28] transition-colors">
+                      <span>INSPECT CODEX</span>
+                      <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5" />
+                    </div>
                   </div>
                 </Card>
               </div>

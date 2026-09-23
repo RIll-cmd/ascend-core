@@ -21,6 +21,8 @@ export const bitButtonVariants = cva(
           "bg-[#065f46] text-[#6ee7b7] hover:bg-[#047857]",
         dungeon:
           "bg-[#181d17] text-[#fff8df] hover:bg-[#20271f]",
+        cyber:
+          "bg-cyan-600 text-white hover:bg-cyan-500 active:bg-cyan-700",
         outline:
           "bg-transparent text-foreground hover:bg-accent/30",
         ghost:
@@ -54,6 +56,7 @@ const VARIANT_BORDER_COLORS: Record<string, string> = {
   destructive: "bg-foreground dark:bg-ring",
   success: "bg-[#10b981]",
   dungeon: "bg-[#8c7a53]",
+  cyber: "bg-cyan-400 dark:bg-cyan-300",
   outline: "bg-foreground dark:bg-ring",
   ghost: "bg-transparent",
   link: "bg-transparent",

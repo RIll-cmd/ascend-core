@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Bot, Loader2, Plus, RefreshCw, Search, SlidersHorizontal } from "lucide-react";
+import { Bot, Plus, RefreshCw, Search, SlidersHorizontal } from "lucide-react";
+import { AscendPendingSpinner } from "@/components/loading/AscendPendingSpinner";
 import { toast } from "sonner";
 import { useCharacterStore } from "@/store/useCharacterStore";
 import { fetchHabits } from "@/features/habits/services/habit.service";
@@ -30,7 +31,7 @@ import {
 import { Badge } from "@/components/ui/neo/badge";
 import { Button } from "@/components/ui/neo/button";
 import { Input } from "@/components/ui/neo/input";
-import { Skeleton } from "@/components/ui/neo/skeleton";
+import { Skeleton } from "@/components/ui/8bit/skeleton";
 import {
   Select,
   SelectContent,
@@ -374,9 +375,10 @@ export default function AutomationsPage() {
 
       {/* ── Content Area ───────────────────────────────────────────────── */}
       {loading ? (
-        <section className="grid gap-4">
+        <section className="grid gap-4" role="status" aria-live="polite" aria-busy="true">
+          <span className="sr-only">Loading automation rules</span>
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-48 w-full" />
+            <Skeleton key={i} aria-hidden="true" className="h-48 w-full motion-reduce:animate-none" />
           ))}
         </section>
       ) : error ? (
@@ -503,7 +505,7 @@ export default function AutomationsPage() {
             >
               {deleting ? (
                 <>
-                  <Loader2 className="size-4 animate-spin" />
+                  <AscendPendingSpinner label="Deleting automation" />
                   Deleting…
                 </>
               ) : (

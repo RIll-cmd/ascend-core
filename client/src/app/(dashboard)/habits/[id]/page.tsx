@@ -26,6 +26,7 @@ import { HabitIconRenderer } from "@/features/habits/components/HabitIconRendere
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import { AscendRouteSkeleton } from "@/components/loading/AscendRouteSkeleton";
 
 export default function HabitDetailPage() {
   const params = useParams();
@@ -49,12 +50,7 @@ export default function HabitDetailPage() {
   const isCompletedToday = todayMission?.status === "COMPLETED";
 
   if (isLoading && !habit) {
-    return (
-      <div className="flex justify-center items-center h-64 text-[#d1d6dc] font-pixel text-xs">
-        <div className="animate-spin w-8 h-8 border-4 border-[#ffb03a] border-t-transparent mr-3" />
-        Loading Habit Analytics...
-      </div>
-    );
+    return <AscendRouteSkeleton preset="habit-detail" label="Loading habit record" />;
   }
 
   if (!habit) {

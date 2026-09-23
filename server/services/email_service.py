@@ -31,6 +31,9 @@ SMTP_FROM_NAME = os.getenv("SMTP_FROM_NAME", "Ascend OS Neural Gateway")
 
 from db import db
 
+def is_email_sender_configured() -> bool:
+    return bool(SMTP_HOST and SMTP_USER and SMTP_PASSWORD)
+
 def get_db_connection():
     # Ensure directory exists if needed
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
@@ -239,7 +242,11 @@ async def validate_otp_code(email: str, otp: str, user_id: Optional[str] = None)
 
 def send_verification_email(email: str, otp: str, context: str = "Account Verification") -> bool:
     """Send cyberpunk-themed HTML email with 6-digit OTP code."""
-    subject = f"[{context.upper()}] Ascend OS Neural Verification Code: {otp}"
+    if not is_email_sender_configured():
+        logger.warning("Email verification sender is not configured.")
+        return False
+
+    subject = f"[{context.upper()}] Ascend OS Neural Verification Code"
     
     html_content = f"""
     <!DOCTYPE html>
@@ -356,36 +363,23 @@ def send_verification_email(email: str, otp: str, context: str = "Account Verifi
     </html>
     """
 
-    # Always log OTP in server console for local testing and developer visibility
-    print(f"\n========================================================")
-    print(f"🔥 [ASCEND OS EMAIL OTP DISPATCH]")
-    print(f"   Recipient: {email}")
-    print(f"   Context:   {context}")
-    print(f"   OTP Code:  {otp}")
-    print(f"   Expires:   5 Minutes")
-    print(f"========================================================\n")
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = f"{SMTP_FROM_NAME} <{SMTP_FROM_EMAIL}>"
+        msg["To"] = email
 
-    # If SMTP is configured, attempt SMTP transmission
-    if SMTP_HOST and SMTP_USER and SMTP_PASSWORD:
-        try:
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = subject
-            msg["From"] = f"{SMTP_FROM_NAME} <{SMTP_FROM_EMAIL}>"
-            msg["To"] = email
+        part_text = MIMEText(f"Your Ascend OS verification code is: {otp} (Valid for 5 minutes).", "plain")
+        part_html = MIMEText(html_content, "html")
+        msg.attach(part_text)
+        msg.attach(part_html)
 
-            part_text = MIMEText(f"Your Ascend OS verification code is: {otp} (Valid for 5 minutes).", "plain")
-            part_html = MIMEText(html_content, "html")
-            msg.attach(part_text)
-            msg.attach(part_html)
-
-            with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-                server.starttls()
-                server.login(SMTP_USER, SMTP_PASSWORD)
-                server.sendmail(SMTP_FROM_EMAIL, [email], msg.as_string())
-            logger.info(f"Email OTP successfully dispatched via SMTP to {email}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to send email via SMTP: {e}")
-            return True # Fallback logged to console, do not fail operation in dev
-    
-    return True
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+            server.starttls()
+            server.login(SMTP_USER, SMTP_PASSWORD)
+            server.sendmail(SMTP_FROM_EMAIL, [email], msg.as_string())
+        logger.info(f"Email OTP successfully dispatched via SMTP to {email}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send email via SMTP: {e}")
+        return False

@@ -14,7 +14,9 @@ import {
   PixelLockIcon,
   PixelSparklesIcon,
 } from "@/components/ui/pixel/PixelIcons";
-import { Loader2, Check, Sparkles, Trophy, Shield, Flame, Zap, Crown } from "lucide-react";
+import { Check, Sparkles, Trophy, Shield, Flame, Zap, Crown } from "lucide-react";
+import { AscendPendingSpinner } from "@/components/loading/AscendPendingSpinner";
+import { AscendRouteSkeleton } from "@/components/loading/AscendRouteSkeleton";
 
 export interface TitleItem {
   id: string;
@@ -251,10 +253,7 @@ export default function CustomizePage() {
 
       {/* TITLES GRID */}
       {isLoading ? (
-        <div className="flex items-center justify-center p-16 text-[#633a20] font-pixel text-xs gap-2">
-          <Loader2 className="w-4 h-4 animate-spin text-amber-800" />
-          <span>Opening Guild Vault Records...</span>
-        </div>
+        <AscendRouteSkeleton preset="appearance" label="Loading appearance forge" />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredTitles.map((title) => {
@@ -356,7 +355,7 @@ export default function CustomizePage() {
                     >
                       {isEquipping === title.id ? (
                         <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <AscendPendingSpinner label="Saving appearance" />
                           <span>Equipping...</span>
                         </>
                       ) : isLocked ? (

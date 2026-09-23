@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Eye,
@@ -24,13 +24,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/8bit/checkbox";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-  InputOTPSeparator,
-} from "@/components/ui/8bit/input-otp";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
@@ -43,24 +36,31 @@ import {
 import { useAuthStore } from "@/store/useAuthStore";
 import { API_BASE_URL } from "@/constants";
 import { playBuffSFX, playUIMenuSFX } from "@/utils/audio";
+import { AscendPendingSpinner } from "@/components/loading/AscendPendingSpinner";
+import { GuestAccessDialog } from "@/components/auth/GuestAccessDialog";
 import "@/components/ui/8bit/styles/retro.css";
 
-export type AuthTabState = "login" | "register" | "otp" | "forgot";
+export type AuthTabState = "login" | "register" | "forgot";
 
 interface AuthCardProps {
   initialTab?: AuthTabState;
   onSuccess?: () => void;
   onGuestEntry?: () => void;
+  diamondSpinner?: boolean;
 }
 
 export function AuthCard({
   initialTab = "login",
   onSuccess,
   onGuestEntry,
+  diamondSpinner = false,
 }: AuthCardProps) {
   const router = useRouter();
+  const currentUser = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [activeTab, setActiveTab] = useState<AuthTabState>(initialTab);
   const [prevInitialTab, setPrevInitialTab] = useState<AuthTabState>(initialTab);
+  const [isGuestDialogOpen, setIsGuestDialogOpen] = useState(false);
 
   if (prevInitialTab !== initialTab) {
     setPrevInitialTab(initialTab);
@@ -82,11 +82,7 @@ export function AuthCard({
   const [regPassword, setRegPassword] = useState("");
   const [regConfirmPassword, setRegConfirmPassword] = useState("");
   const [showRegPassword, setShowRegPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(true);
-
-  // OTP State
-  const [otpCode, setOtpCode] = useState("");
-  const [resendTimer, setResendTimer] = useState(60);
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   // Forgot State
   const [forgotEmail, setForgotEmail] = useState("");
@@ -96,53 +92,27 @@ export function AuthCard({
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);
 
-  // OTP countdown effect
-  useEffect(() => {
-    if (resendTimer > 0 && activeTab === "otp") {
-      const interval = setInterval(() => setResendTimer((prev) => prev - 1), 1000);
-      return () => clearInterval(interval);
-    }
-  }, [resendTimer, activeTab]);
-
-  const completeAuthSuccess = async (
-    data: {
-      characterId?: string;
-      token?: string;
-      user?: {
-        id: string;
-        username: string;
-        email?: string | null;
-        isEmailVerified?: boolean;
-      };
-      [key: string]: unknown;
-    },
-    fallbackUsername: string
-  ) => {
+  const completeAuthSuccess = async (data: {
+    characterId: string;
+    token: string;
+    user: {
+      id: string;
+      username: string;
+      email?: string | null;
+      isEmailVerified?: boolean;
+    };
+  }) => {
     try {
       playBuffSFX("levelup");
     } catch {}
 
     const charId =
-      data.characterId || (data.user && data.user.id) || fallbackUsername || "hunter";
+      data.characterId || data.user.id;
     try {
       localStorage.setItem("ascend_character_id", charId);
     } catch {}
 
-    if (data.token && data.user) {
-      useAuthStore.getState().setAuth(data.user, data.token);
-    } else {
-      const fallbackToken = data.token || `ascend_jwt_${Date.now()}`;
-      const fallbackUser = data.user || {
-        id: `user-${fallbackUsername}`,
-        username: fallbackUsername,
-        email: fallbackUsername.includes("@") ? fallbackUsername : null,
-        isEmailVerified: false,
-      };
-      try {
-        localStorage.setItem("ascend_session", fallbackToken);
-      } catch {}
-      useAuthStore.getState().setAuth(fallbackUser, fallbackToken);
-    }
+    useAuthStore.getState().setAuth(data.user, data.token);
 
     setAuthSuccess("Authentication verified. Entering Command Deck...");
     if (onSuccess) onSuccess();
@@ -205,6 +175,10 @@ export function AuthCard({
       setAuthError("Operative handle is required.");
       return;
     }
+    if (!regEmail.trim()) {
+      setAuthError("A contact email is required.");
+      return;
+    }
     if (regPassword.length < 8) {
       setAuthError("Passcode must be at least 8 characters.");
       return;
@@ -230,7 +204,7 @@ export function AuthCard({
         credentials: "include",
         body: JSON.stringify({
           username: regUsername.trim(),
-          email: regEmail.trim() || undefined,
+          email: regEmail.trim(),
           password: regPassword,
           bot_trap: botTrap,
         }),
@@ -244,14 +218,6 @@ export function AuthCard({
       }
 
       if (!res.ok) {
-        if (res.status === 404) {
-          // Local fallback
-          await completeAuthSuccess(
-            { characterId: `char-${regUsername}` },
-            regUsername
-          );
-          return;
-        }
         const errorMsg =
           (data.detail as string) ||
           (data.message as string) ||
@@ -261,53 +227,30 @@ export function AuthCard({
         return;
       }
 
-      await completeAuthSuccess(data, regUsername);
-    } catch (err) {
-      console.warn("Register fallback:", err);
-      await completeAuthSuccess(
-        { characterId: `char-${regUsername}` },
-        regUsername
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleOtpSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otpCode.length !== 6) {
-      setAuthError("Please enter the complete 6-digit verification code.");
-      return;
-    }
-
-    setIsLoading(true);
-    setAuthError(null);
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: otpCode, email: regEmail || loginIdentifier }),
-      });
-
-      let data: Record<string, unknown> = {};
-      try {
-        data = (await res.json()) as Record<string, unknown>;
-      } catch {
-        data = {};
-      }
-
-      if (!res.ok && res.status !== 404) {
-        const errorMsg =
-          (data.detail as string) || "Invalid or expired verification cipher.";
-        setAuthError(errorMsg);
-        setIsLoading(false);
+      const registeredUser = data.user as Record<string, unknown> | undefined;
+      if (
+        typeof data.token !== "string" ||
+        !registeredUser ||
+        typeof registeredUser.id !== "string" ||
+        typeof registeredUser.username !== "string"
+      ) {
+        setAuthError("The authentication server returned an invalid registration response.");
         return;
       }
 
-      await completeAuthSuccess(data, regUsername || "Operative");
-    } catch {
-      await completeAuthSuccess({}, regUsername || "Operative");
+      await completeAuthSuccess({
+        characterId: typeof data.characterId === "string" ? data.characterId : registeredUser.id,
+        token: data.token,
+        user: registeredUser as {
+          id: string;
+          username: string;
+          email?: string | null;
+          isEmailVerified?: boolean;
+        },
+      });
+    } catch (err) {
+      console.warn("Registration request failed:", err);
+      setAuthError("Unable to reach the authentication server. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -337,35 +280,35 @@ export function AuthCard({
     }
   };
 
-  const handleGuestEntryTrigger = async () => {
+  const handleGuestEntryTrigger = () => {
     if (onGuestEntry) {
       onGuestEntry();
       return;
     }
-
-    setIsLoading(true);
-    setAuthError(null);
-
-    try {
-      await useAuthStore.getState().loginAsGuest();
-      try {
-        playBuffSFX("levelup");
-      } catch {}
-      setAuthSuccess("Guest session initialized. Entering Command Deck...");
-      if (onSuccess) onSuccess();
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 300);
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error
-          ? err.message
-          : "Failed to initialize guest session.";
-      setAuthError(msg);
-    } finally {
-      setIsLoading(false);
-    }
+    setIsGuestDialogOpen(true);
   };
+
+  if (isAuthenticated && currentUser && !currentUser.username.startsWith("Guest_")) {
+    return (
+      <Card className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900/90 shadow-2xl backdrop-blur-2xl">
+        <CardHeader className="space-y-3 text-center">
+          <UserCheck className="mx-auto size-9 text-cyan-400" aria-hidden="true" />
+          <CardTitle className="retro text-base text-white">SESSION ACTIVE</CardTitle>
+          <CardDescription className="text-zinc-400">
+            You are signed in as <span className="font-semibold text-cyan-300">{currentUser.username}</span>.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="flex flex-col gap-2 pb-6">
+          <Button onClick={() => router.push("/dashboard")} className="retro w-full bg-cyan-500 text-cyan-950 hover:bg-cyan-400">
+            Continue to Command Deck
+          </Button>
+          <Button variant="outline" onClick={() => useAuthStore.getState().logout()} className="retro w-full border-zinc-700 text-zinc-300">
+            Sign out to use another account
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
 
   return (
     <TooltipProvider>
@@ -393,7 +336,7 @@ export function AuthCard({
             }}
             className="w-full"
           >
-            <TabsList className="grid grid-cols-4 w-full bg-zinc-950/80 p-1 border border-zinc-800/80 rounded-2xl h-10">
+            <TabsList className="grid grid-cols-3 w-full bg-zinc-950/80 p-1 border border-zinc-800/80 rounded-2xl h-10">
               <TabsTrigger
                 value="login"
                 className="retro text-[8px] sm:text-[9px] font-semibold rounded-xl data-[state=active]:bg-cyan-500 data-[state=active]:text-cyan-950 data-[state=active]:font-bold transition-all uppercase"
@@ -405,12 +348,6 @@ export function AuthCard({
                 className="retro text-[8px] sm:text-[9px] font-semibold rounded-xl data-[state=active]:bg-cyan-500 data-[state=active]:text-cyan-950 data-[state=active]:font-bold transition-all uppercase"
               >
                 Register
-              </TabsTrigger>
-              <TabsTrigger
-                value="otp"
-                className="retro text-[8px] sm:text-[9px] font-semibold rounded-xl data-[state=active]:bg-cyan-500 data-[state=active]:text-cyan-950 data-[state=active]:font-bold transition-all uppercase"
-              >
-                OTP
               </TabsTrigger>
               <TabsTrigger
                 value="forgot"
@@ -472,6 +409,7 @@ export function AuthCard({
                         type="text"
                         value={loginIdentifier}
                         onChange={(e) => setLoginIdentifier(e.target.value)}
+                        autoComplete="username"
                         required
                         disabled={isLoading}
                         placeholder="hunter@ascend.io"
@@ -506,6 +444,7 @@ export function AuthCard({
                         type={showLoginPassword ? "text" : "password"}
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
+                        autoComplete="current-password"
                         required
                         disabled={isLoading}
                         placeholder="••••••••••••"
@@ -525,11 +464,16 @@ export function AuthCard({
                   {/* Remember Me */}
                   <div className="flex items-center justify-between pt-1">
                     <label className="flex items-center gap-2.5 cursor-pointer select-none group min-h-[32px]">
-                      <Checkbox
+                      <input
                         id="auth-card-remember-me"
+                        type="checkbox"
                         checked={rememberMe}
-                        onCheckedChange={(c) => setRememberMe(Boolean(c))}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="peer sr-only"
                       />
+                      <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center border-4 border-zinc-400 bg-zinc-950 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400">
+                        {rememberMe && <span className="size-2 bg-cyan-400" />}
+                      </span>
                       <span className="text-xs text-zinc-400 group-hover:text-zinc-200 transition-colors">
                         Remember terminal session
                       </span>
@@ -545,7 +489,7 @@ export function AuthCard({
                   >
                     {isLoading ? (
                       <div className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {diamondSpinner ? <AscendPendingSpinner label="Authenticating operative" /> : <Loader2 className="w-4 h-4 animate-spin" />}
                         <span>Verifying Credentials...</span>
                       </div>
                     ) : (
@@ -563,7 +507,7 @@ export function AuthCard({
                   Commission Hunter License
                 </CardTitle>
                 <CardDescription className="retro text-[8px] sm:text-[9px] text-zinc-400 mt-1 leading-relaxed">
-                  Initialize an operative account to unlock the Habit Matrix and Gym Terminal.
+                  Choose a unique handle and email. Email verification is paused while the sender is being set up.
                 </CardDescription>
               </CardHeader>
 
@@ -583,6 +527,10 @@ export function AuthCard({
                         type="text"
                         value={regUsername}
                         onChange={(e) => setRegUsername(e.target.value)}
+                        autoComplete="username"
+                        minLength={3}
+                        maxLength={20}
+                        pattern="[A-Za-z0-9_]+"
                         required
                         disabled={isLoading}
                         placeholder="hunter_tag"
@@ -605,6 +553,7 @@ export function AuthCard({
                         type="email"
                         value={regEmail}
                         onChange={(e) => setRegEmail(e.target.value)}
+                        autoComplete="email"
                         required
                         disabled={isLoading}
                         placeholder="hunter@ascend.io"
@@ -627,6 +576,7 @@ export function AuthCard({
                         type={showRegPassword ? "text" : "password"}
                         value={regPassword}
                         onChange={(e) => setRegPassword(e.target.value)}
+                        autoComplete="new-password"
                         required
                         disabled={isLoading}
                         placeholder="Min. 8 characters"
@@ -653,6 +603,7 @@ export function AuthCard({
                       type={showRegPassword ? "text" : "password"}
                       value={regConfirmPassword}
                       onChange={(e) => setRegConfirmPassword(e.target.value)}
+                      autoComplete="new-password"
                       required
                       disabled={isLoading}
                       placeholder="Repeat passcode"
@@ -662,12 +613,16 @@ export function AuthCard({
 
                   {/* Terms */}
                   <label className="flex items-start gap-2.5 cursor-pointer select-none group pt-1">
-                    <Checkbox
+                    <input
                       id="auth-card-accept-terms"
+                      type="checkbox"
                       checked={acceptTerms}
-                      onCheckedChange={(c) => setAcceptTerms(Boolean(c))}
-                      className="mt-0.5"
+                      onChange={(e) => setAcceptTerms(e.target.checked)}
+                      className="peer sr-only"
                     />
+                    <span aria-hidden="true" className="mt-0.5 flex size-5 shrink-0 items-center justify-center border-4 border-zinc-400 bg-zinc-950 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cyan-400">
+                      {acceptTerms && <span className="size-2 bg-cyan-400" />}
+                    </span>
                     <span className="text-xs text-zinc-400 group-hover:text-zinc-300 leading-tight">
                       I accept the System Hunter Protocol and zero-knowledge data covenant.
                     </span>
@@ -682,7 +637,7 @@ export function AuthCard({
                   >
                     {isLoading ? (
                       <div className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {diamondSpinner ? <AscendPendingSpinner label="Creating account" /> : <Loader2 className="w-4 h-4 animate-spin" />}
                         <span>Commissioning Account...</span>
                       </div>
                     ) : (
@@ -693,78 +648,7 @@ export function AuthCard({
               </form>
             </TabsContent>
 
-            {/* TAB 3: OTP VIEW */}
-            <TabsContent value="otp" className="mt-0 focus-visible:outline-none">
-              <CardHeader className="px-0 pt-4 pb-3">
-                <CardTitle className="retro text-base sm:text-lg font-bold tracking-tight text-white uppercase">
-                  Two-Factor Security Cipher
-                </CardTitle>
-                <CardDescription className="retro text-[8px] sm:text-[9px] text-zinc-400 mt-1 leading-relaxed">
-                  Enter the 6-digit cryptographic verification code sent to your linked device.
-                </CardDescription>
-              </CardHeader>
-
-              <form onSubmit={handleOtpSubmit}>
-                <CardContent className="px-0 py-3 flex flex-col gap-4">
-                  <div className="flex justify-center py-2">
-                    <InputOTP
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={(val) => {
-                        setOtpCode(val.replace(/[^0-9]/g, ""));
-                        if (authError) setAuthError(null);
-                      }}
-                      font="retro"
-                    >
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                      </InputOTPGroup>
-                      <InputOTPSeparator />
-                      <InputOTPGroup>
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs text-zinc-500 pt-1">
-                    <span className="retro text-[8px]">
-                      {resendTimer > 0 ? `Resend cipher in ${resendTimer}s` : "Code expired?"}
-                    </span>
-                    <button
-                      type="button"
-                      disabled={resendTimer > 0}
-                      onClick={() => setResendTimer(60)}
-                      className="retro text-[8px] text-cyan-400 hover:underline disabled:opacity-50 disabled:no-underline font-medium cursor-pointer"
-                    >
-                      Resend Code
-                    </button>
-                  </div>
-                </CardContent>
-
-                <CardFooter className="px-0 pt-2 pb-0 flex flex-col gap-3">
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="retro w-full min-h-[44px] bg-cyan-500 hover:bg-cyan-400 text-cyan-950 font-bold text-[9px] sm:text-[10px] rounded-xl transition-all shadow-lg shadow-cyan-950/40 cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 uppercase"
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Verifying...</span>
-                      </div>
-                    ) : (
-                      <span>Verify Cipher</span>
-                    )}
-                  </Button>
-                </CardFooter>
-              </form>
-            </TabsContent>
-
-            {/* TAB 4: FORGOT VIEW */}
+            {/* TAB 3: FORGOT VIEW */}
             <TabsContent value="forgot" className="mt-0 focus-visible:outline-none">
               <CardHeader className="px-0 pt-4 pb-3">
                 <CardTitle className="retro text-base sm:text-lg font-bold tracking-tight text-white uppercase">
@@ -807,7 +691,7 @@ export function AuthCard({
                   >
                     {isLoading ? (
                       <div className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {diamondSpinner ? <AscendPendingSpinner label="Sending recovery link" /> : <Loader2 className="w-4 h-4 animate-spin" />}
                         <span>Transmitting...</span>
                       </div>
                     ) : (
@@ -858,6 +742,7 @@ export function AuthCard({
           </p>
         </div>
       </Card>
+      <GuestAccessDialog open={isGuestDialogOpen} onOpenChange={setIsGuestDialogOpen} />
     </TooltipProvider>
   );
 }

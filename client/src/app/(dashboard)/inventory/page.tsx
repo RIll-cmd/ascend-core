@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { MagicCard } from '@/components/ui/magic-card';
 import { NumberTicker } from '@/components/ui/number-ticker';
 import { CoolMode } from '@/components/ui/cool-mode';
+import { AscendRouteSkeleton } from '@/components/loading/AscendRouteSkeleton';
 import { Particles } from '@/components/ui/particles';
 import { InventoryBadgeButton, PixelAdventurerPackIcon } from '@/features/inventory/components/InventoryBadgeButton';
 
@@ -262,12 +263,7 @@ export default function InventoryPage() {
                   </CoolMode>
                 </div>
               ) : isLoading ? (
-                <div className={smithy.statePanel}>
-                  <div className={smithy.stateInner}>
-                    <span className={smithy.spinner} aria-hidden="true" />
-                    <span className={smithy.brassBadge}>Unlatching the armory trunk</span>
-                  </div>
-                </div>
+                <AscendRouteSkeleton preset="equipment-grid" label="Loading equipment inventory" />
               ) : filteredItems.length > 0 ? (
                 <div className={smithy.itemGrid}>
                   {filteredItems.map((item) => (

@@ -135,3 +135,19 @@ footer {
   content-visibility: auto;
   contain-intrinsic-size: 1px 900px;
 }
+
+/* =========================================================================
+   Brutstack Typography Tokens
+   ========================================================================= */
+.font-head {
+  font-family: var(--font-space-grotesk), "Space Grotesk", sans-serif !important;
+}
+
+.bs-font-sans {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, -apple-system, sans-serif !important;
+}
+
+.bs-btn {
+  font-family: var(--font-space-grotesk), "Space Grotesk", sans-serif !important;
+  letter-spacing: 0.12em !important;
+}

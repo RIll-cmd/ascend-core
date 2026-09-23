@@ -22,4 +22,12 @@ describe("8bitcn Retro Borders Extraction", () => {
     expect(btn.jsxSnippet).toContain("h-1.5 w-1/2");
     expect(btn.jsxSnippet).toContain("h-[calc(100%-12px)]");
   });
+
+  it("contains authentic 8bitcn alert stepped pixel border anchors in alert-stepped", () => {
+    const alert = BORDER_CODE_SNIPPETS["alert-stepped"];
+    expect(alert).toBeDefined();
+    expect(alert.jsxSnippet).toContain("-top-1.5 w-1/2 left-1.5 h-1.5");
+    expect(alert.jsxSnippet).toContain("size-1.5");
+    expect(alert.jsxSnippet).toContain("top-1.5 -left-1.5 h-1/2 w-1.5");
+  });
 });

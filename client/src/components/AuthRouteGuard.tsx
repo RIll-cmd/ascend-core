@@ -3,7 +3,8 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import { getAuthRedirect } from "@/lib/authRouteGuard";
+import { getAuthRedirect, isPublicRoute } from "@/lib/authRouteGuard";
+import { Spinner } from "@/components/ui/8bit/spinner";
 
 export function AuthRouteGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "/";
@@ -20,7 +21,10 @@ export function AuthRouteGuard({ children }: { children: React.ReactNode }) {
     }
   }, [isAuthenticated, isHydrated, pathname, router]);
 
-  if (!isHydrated) {
+  const isStaticPublic =
+    isPublicRoute(pathname) && pathname !== "/" && pathname !== "/login";
+
+  if (!isHydrated && !isStaticPublic) {
     return <AuthLoadingState />;
   }
 
@@ -32,13 +36,17 @@ export function AuthRouteGuard({ children }: { children: React.ReactNode }) {
   return children;
 }
 
-function AuthLoadingState() {
+export function AuthLoadingState() {
   return (
-    <main className="min-h-screen w-full bg-[#0B1020] text-slate-100 flex items-center justify-center">
-      <div className="flex items-center gap-3 text-xs font-mono tracking-[0.2em] text-blue-300">
-        <span className="h-2 w-2 animate-pulse rounded-full bg-blue-400" />
-        RESTORING SESSION
+    <div
+      role="status"
+      aria-label="Restoring session"
+      className="fixed inset-0 z-[9999] bg-black text-white flex items-center justify-center select-none"
+    >
+      <div className="flex items-center gap-3 text-xs font-mono tracking-[0.25em] text-zinc-300">
+        <Spinner variant="diamond" className="size-4 text-white" />
+        <span>RESTORING SESSION</span>
       </div>
-    </main>
+    </div>
   );
 }

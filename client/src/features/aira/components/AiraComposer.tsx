@@ -4,6 +4,7 @@ import React, { useRef } from "react"
 import { Send } from "lucide-react"
 import { Input } from "@/components/ui/neo/input"
 import { Button } from "@/components/ui/neo/button"
+import { AscendPendingSpinner } from "@/components/loading/AscendPendingSpinner"
 
 interface AiraComposerProps {
   inputPrompt: string
@@ -47,7 +48,7 @@ export const AiraComposer: React.FC<AiraComposerProps> = ({
         className="h-11 px-4 sm:px-6 font-mono font-black uppercase tracking-wider text-xs gap-1.5 shrink-0 rounded-base shadow-shadow"
       >
         <span className="hidden sm:inline">SEND</span>
-        <Send className="size-4" />
+        {isLoading ? <AscendPendingSpinner label="AIRA is responding" /> : <Send className="size-4" />}
       </Button>
     </div>
   )

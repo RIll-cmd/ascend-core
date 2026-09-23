@@ -1,0 +1,10 @@
+@media (prefers-reduced-motion: reduce) {
+  .pending :global(rect),
+  .fullscreen :global(.animate-pulse) {
+    animation: none !important;
+  }
+
+  .pending :global(rect) {
+    opacity: 1 !important;
+  }
+}

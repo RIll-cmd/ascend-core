@@ -13,6 +13,7 @@ import {
   Sword,
 } from "lucide-react";
 import { CurrencyIcon } from "@/components/CurrencyDisplay";
+import { AscendRouteSkeleton } from "@/components/loading/AscendRouteSkeleton";
 import smithy from "@/features/armory/styles/RoyalSmithy.module.css";
 import { CraftSuccessModal } from "@/features/crafting/components/CraftSuccessModal";
 import { ForgeWorkbench } from "@/features/crafting/components/ForgeWorkbench";
@@ -242,12 +243,7 @@ export default function CraftingPage() {
             </div>
           </div>
         ) : isLoading ? (
-          <div className={`${smithy.ironPanel} ${smithy.statePanel}`}>
-            <div className={smithy.stateInner}>
-              <span className={smithy.spinner} aria-hidden="true" />
-              <span className={smithy.brassBadge}>Heating the royal forge</span>
-            </div>
-          </div>
+          <AscendRouteSkeleton preset="forge" label="Preparing forge" />
         ) : filteredRecipes.length > 0 && activeRecipe ? (
           <div className={smithy.blueprintLayout}>
             <aside className={`${smithy.oakPanel} ${smithy.rivets} ${smithy.blueprintRail}`}>

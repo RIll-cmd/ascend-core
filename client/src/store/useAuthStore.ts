@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { fetcher } from "@/lib/api";
 import { useCharacterStore } from "./useCharacterStore";
 import { API_BASE_URL } from "@/constants";
 import type { Character } from "@/features/character/types/character";
@@ -22,7 +21,7 @@ interface AuthStore {
   updateUserProfile: (partial: Partial<UserState>) => void;
   logout: () => void;
   checkAuth: () => Promise<void>;
-  loginAsGuest: () => Promise<{ success: boolean; user: UserState }>;
+  loginAsGuest: (password: string) => Promise<{ success: boolean; user?: UserState; error?: string }>;
   loginWithCredentials: (
     identifier: string,
     password: string
@@ -126,9 +125,40 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   checkAuth: async () => {
+    const restoreLocalGuest = () => {
+      const cachedUser = getStoredUser();
+      const cachedToken = getStoredToken();
+      if (!cachedToken?.startsWith("guest_token_") || !cachedUser?.username?.startsWith("Guest_")) {
+        return false;
+      }
+      set({
+        user: cachedUser,
+        token: cachedToken,
+        isAuthenticated: true,
+        isLoading: false,
+        isHydrated: true,
+      });
+      return true;
+    };
+
     try {
-      const data = await fetcher<{ user: UserState; character: Character | null; token?: string }>("/api/auth/me");
-      if (data && data.user) {
+      const cachedToken = getStoredToken();
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        credentials: "include",
+        headers: cachedToken ? { Authorization: `Bearer ${cachedToken}` } : {},
+      });
+
+      if (response.status === 401 || response.status === 403 || response.status === 404) {
+        if (!restoreLocalGuest()) get().logout();
+        return;
+      }
+      if (!response.ok) {
+        set({ user: null, token: null, isAuthenticated: false, isLoading: false, isHydrated: true });
+        return;
+      }
+
+      const data = (await response.json()) as { user: UserState | null; character: Character | null; token?: string };
+      if (data.user && typeof data.user.id === "string") {
         if (data.token) {
           setCookie(data.token);
           try {
@@ -153,126 +183,46 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           } catch {}
         }
       } else {
-        const cachedUser = getStoredUser();
-        const cachedToken = getStoredToken();
-        if (cachedUser || cachedToken) {
-          set({
-            user: cachedUser,
-            token: cachedToken,
-            isAuthenticated: true,
-            isLoading: false,
-            isHydrated: true,
-          });
-        } else {
-          set({ user: null, token: null, isAuthenticated: false, isLoading: false, isHydrated: true });
-          clearCookie();
-          try {
-            localStorage.removeItem("ascend_session");
-            localStorage.removeItem("ascend_user");
-          } catch {}
-        }
+        if (!restoreLocalGuest()) get().logout();
       }
     } catch {
-      const cachedUser = getStoredUser();
-      const cachedToken = getStoredToken();
-      if (!cachedUser && !cachedToken) {
+      if (!restoreLocalGuest()) {
         set({ user: null, token: null, isAuthenticated: false, isLoading: false, isHydrated: true });
-      } else {
-        set({ isLoading: false, isHydrated: true, isAuthenticated: true });
       }
     }
   },
 
-  loginAsGuest: async () => {
+  loginAsGuest: async (guestPassword: string) => {
     set({ isLoading: true });
-
-    const launchLocalGuest = () => {
-      const fallbackGuestId = `Guest_${Math.floor(1000 + Math.random() * 9000)}`;
-      const fallbackUser: UserState = {
-        id: `user-${fallbackGuestId}`,
-        username: fallbackGuestId,
-        email: null,
-        isEmailVerified: false,
-      };
-      const fallbackToken = `guest_token_${Date.now()}`;
-      const fallbackCharId = `char-${fallbackUser.id}`;
-
-      setCookie(fallbackToken);
-      try {
-        localStorage.setItem("ascend_character_id", fallbackCharId);
-        localStorage.setItem("ascend_session", fallbackToken);
-        localStorage.setItem("ascend_user", JSON.stringify(fallbackUser));
-      } catch {}
-
-      // Initialize guest character in character store
-      useCharacterStore.getState().setCharacter({
-        id: fallbackCharId,
-        userId: fallbackUser.id,
-        name: `${fallbackGuestId}`,
-        avatar: "/Character_sprite_placeholder/walk_down.gif",
-        theme: "dark-rpg",
-        title: "Guest Operative",
-        gender: "M",
-        age: 18,
-        race: "HUMAN",
-        level: 1,
-        exp: 0,
-        power: 97,
-        rank: "E",
-        gold: 500,
-        gems: 50,
-        towerTokens: 0,
-        availableSP: 5,
-        createdAt: new Date().toISOString(),
-        stats: {
-          id: `stats-${fallbackUser.id}`,
-          characterId: fallbackCharId,
-          strength: 1,
-          knowledge: 1,
-          discipline: 1,
-          focus: 1,
-          endurance: 1,
-          recovery: 1,
-          consistency: 1,
-        },
-        history: [],
-      });
-
-      set({
-        user: fallbackUser,
-        token: fallbackToken,
-        isAuthenticated: true,
-        isLoading: false,
-        isHydrated: true,
-      });
-
-      return { success: true, user: fallbackUser };
-    };
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10_000);
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
-
       const res = await fetch(`${API_BASE_URL}/api/auth/guest`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
+        body: JSON.stringify({ password: guestPassword }),
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
 
       if (!res.ok) {
-        return launchLocalGuest();
+        const data = await res.json().catch(() => ({}));
+        set({ isLoading: false });
+        return {
+          success: false,
+          error: typeof data.detail === "string" ? data.detail : "Guest access was denied.",
+        };
       }
 
-      const data = await res.json();
-      const user = data.user || {
-        id: `user-${data.username || "Guest_Hunter"}`,
-        username: data.username || "Guest_Hunter",
-        email: null,
-        isEmailVerified: false,
-      };
-      const token = data.token || `guest_jwt_${Date.now()}`;
+      const data = (await res.json()) as { token?: string; user?: UserState; characterId?: string; character?: Character };
+      if (!data.token || !data.user?.id || !data.user.username?.startsWith("Guest_")) {
+        set({ isLoading: false });
+        return { success: false, error: "The guest session response was invalid." };
+      }
+      const user = data.user;
+      const token = data.token;
       const charId = data.characterId || `char-${user.id}`;
 
       setCookie(token);
@@ -328,41 +278,20 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       });
 
       return { success: true, user };
-    } catch {
-      return launchLocalGuest();
+    } catch (error) {
+      clearTimeout(timeoutId);
+      set({ isLoading: false });
+      return {
+        success: false,
+        error: error instanceof Error && error.name === "AbortError"
+          ? "Guest access timed out. Please try again."
+          : "Guest access is unavailable. Please try again later.",
+      };
     }
   },
 
   loginWithCredentials: async (identifier: string, password: string) => {
     set({ isLoading: true });
-
-    const launchLocalCredentials = () => {
-      const fallbackUser: UserState = {
-        id: `user-${identifier}`,
-        username: identifier,
-        email: identifier.includes("@") ? identifier : null,
-        isEmailVerified: false,
-      };
-      const fallbackToken = `ascend_jwt_${Date.now()}`;
-      const fallbackCharId = `char-${fallbackUser.id}`;
-
-      setCookie(fallbackToken);
-      try {
-        localStorage.setItem("ascend_character_id", fallbackCharId);
-        localStorage.setItem("ascend_session", fallbackToken);
-        localStorage.setItem("ascend_user", JSON.stringify(fallbackUser));
-      } catch {}
-
-      set({
-        user: fallbackUser,
-        token: fallbackToken,
-        isAuthenticated: true,
-        isLoading: false,
-        isHydrated: true,
-      });
-
-      return { success: true, user: fallbackUser };
-    };
 
     try {
       const controller = new AbortController();
@@ -385,9 +314,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
 
       if (!res.ok) {
-        if (res.status === 404 || res.status === 500 || res.status === 502) {
-          return launchLocalCredentials();
-        }
         set({ isLoading: false });
         return {
           success: false,
@@ -395,12 +321,18 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         };
       }
 
-      const user = (data.user as UserState) || {
-        id: `user-${identifier}`,
-        username: identifier,
-        email: identifier.includes("@") ? identifier : null,
-      };
-      const token = (data.token as string) || `jwt_${Date.now()}`;
+      const user = data.user as UserState | undefined;
+      const token = data.token;
+      if (
+        !user ||
+        typeof user.id !== "string" ||
+        typeof user.username !== "string" ||
+        typeof token !== "string" ||
+        !token
+      ) {
+        set({ isLoading: false });
+        return { success: false, error: "Authentication server returned an invalid session." };
+      }
       const charId = (data.characterId as string) || `char-${user.id}`;
 
       setCookie(token);
@@ -426,7 +358,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       return { success: true, user };
     } catch {
-      return launchLocalCredentials();
+      set({ isLoading: false });
+      return {
+        success: false,
+        error: "Authentication service is unavailable. Please try again shortly.",
+      };
     }
   },
 }));
