@@ -737,7 +737,7 @@ export function FeatureModal({ feature, isOpen, onClose }: FeatureModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-xl bg-zinc-950/95 border border-zinc-800 text-zinc-100 p-6 sm:p-8 rounded-3xl shadow-2xl backdrop-blur-2xl">
+      <DialogContent className="eightbitcn-landing-scope max-w-xl bg-zinc-950/95 border border-zinc-800 text-zinc-100 p-6 sm:p-8 rounded-3xl shadow-2xl backdrop-blur-2xl">
         <DialogHeader className="flex flex-col gap-2 text-left">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center p-1">

@@ -16,6 +16,7 @@ import { FeatureModal, FeatureType } from "@/components/v2/landing/FeatureModal"
 import { AuthSection } from "@/components/v2/landing/AuthSection";
 import { AuthTabState } from "@/components/v2/auth/AuthCard";
 import { useAuthStore } from "@/store/useAuthStore";
+import "@/components/v2/landing/brutstack/EightBitScope.css";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -62,7 +63,7 @@ export default function LandingPage() {
   return (
     <div
       suppressHydrationWarning
-      className="relative flex min-h-screen w-full flex-col bg-[#1a1a1a] text-[#f9f4da] font-sans selection:bg-[#14b6e5] selection:text-black overflow-x-clip"
+      className="eightbitcn-landing-scope relative flex min-h-screen w-full flex-col bg-[#1a1a1a] text-[#f9f4da] selection:bg-[#14b6e5] selection:text-black overflow-x-clip"
     >
       {/* 1. Header / Navbar with Ascend Core Identity */}
       <BrutstackNavbar

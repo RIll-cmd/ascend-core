@@ -5,12 +5,13 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Galaxy } from "@/components/v2/auth/Galaxy";
+import "@/components/v2/landing/brutstack/EightBitScope.css";
 
 export function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       suppressHydrationWarning
-      className="min-h-screen w-full bg-zinc-950 text-white flex flex-col items-center justify-between p-4 sm:p-6 relative overflow-x-hidden selection:bg-cyan-500 selection:text-cyan-950"
+      className="eightbitcn-login-scope min-h-screen w-full bg-zinc-950 text-white flex flex-col items-center justify-between p-4 sm:p-6 relative overflow-x-hidden selection:bg-cyan-500 selection:text-cyan-950"
     >
       {/* Interactive Galaxy Background from React Bits */}
       <div

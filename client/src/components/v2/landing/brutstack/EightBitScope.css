@@ -1,0 +1,79 @@
+/* ==========================================================================
+   AUTHENTIC 8BITCN TYPOGRAPHY — EXCLUSIVELY SCOPED TO LANDING & LOGIN
+   Zero global leakage. Does not affect /dashboard, /profile, /missions, etc.
+   ========================================================================== */
+
+/* Scoped exclusively within .eightbitcn-landing-scope and .eightbitcn-login-scope */
+.eightbitcn-landing-scope,
+.eightbitcn-landing-scope *:not(svg):not(path):not(circle):not(rect):not(polygon):not(line):not(canvas),
+.eightbitcn-login-scope,
+.eightbitcn-login-scope *:not(svg):not(path):not(circle):not(rect):not(polygon):not(line):not(canvas) {
+  font-family: "Press Start 2P", monospace !important;
+}
+
+/* Headings scale matching 8bitcn */
+.eightbitcn-landing-scope h1,
+.eightbitcn-login-scope h1 {
+  font-family: "Press Start 2P", monospace !important;
+  line-height: 1.45 !important;
+  letter-spacing: 0.04em !important;
+}
+
+.eightbitcn-landing-scope h2,
+.eightbitcn-login-scope h2 {
+  font-family: "Press Start 2P", monospace !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0.03em !important;
+}
+
+.eightbitcn-landing-scope h3,
+.eightbitcn-landing-scope h4,
+.eightbitcn-landing-scope h5,
+.eightbitcn-landing-scope h6,
+.eightbitcn-login-scope h3,
+.eightbitcn-login-scope h4,
+.eightbitcn-login-scope h5,
+.eightbitcn-login-scope h6 {
+  font-family: "Press Start 2P", monospace !important;
+  line-height: 1.55 !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* Body copy & descriptions in 8bitcn proportions */
+.eightbitcn-landing-scope p,
+.eightbitcn-landing-scope li,
+.eightbitcn-login-scope p,
+.eightbitcn-login-scope li {
+  font-family: "Press Start 2P", monospace !important;
+  line-height: 1.75 !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* Interactive elements */
+.eightbitcn-landing-scope button,
+.eightbitcn-landing-scope a,
+.eightbitcn-login-scope button,
+.eightbitcn-login-scope a {
+  font-family: "Press Start 2P", monospace !important;
+  letter-spacing: 0.03em !important;
+}
+
+.eightbitcn-landing-scope input,
+.eightbitcn-landing-scope textarea,
+.eightbitcn-landing-scope select,
+.eightbitcn-landing-scope label,
+.eightbitcn-login-scope input,
+.eightbitcn-login-scope textarea,
+.eightbitcn-login-scope select,
+.eightbitcn-login-scope label {
+  font-family: "Press Start 2P", monospace !important;
+}
+
+.eightbitcn-landing-scope input::placeholder,
+.eightbitcn-landing-scope textarea::placeholder,
+.eightbitcn-login-scope input::placeholder,
+.eightbitcn-login-scope textarea::placeholder {
+  font-family: "Press Start 2P", monospace !important;
+  opacity: 0.65;
+}
+
