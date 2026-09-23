@@ -248,7 +248,8 @@ export function Galaxy({
 
     function resize() {
       if (!ctn) return;
-      const scale = 1;
+      // Cap scale to 1 (or 0.75 on high-DPI) to eliminate GPU overdraw without loss of visual fidelity
+      const scale = Math.min(window.devicePixelRatio || 1, 1);
       renderer.setSize(ctn.offsetWidth * scale, ctn.offsetHeight * scale);
       if (program) {
         program.uniforms.uResolution.value = new Color(
@@ -293,9 +294,14 @@ export function Galaxy({
     });
 
     const mesh = new Mesh(gl, { geometry, program });
-    let animateId: number;
+    let animateId: number | null = null;
+    let isVisible = false;
 
     function update(t: number) {
+      if (!isVisible) {
+        animateId = null;
+        return;
+      }
       animateId = requestAnimationFrame(update);
       if (!disableAnimation && program) {
         program.uniforms.uTime.value = t * 0.001;
@@ -316,7 +322,33 @@ export function Galaxy({
 
       renderer.render({ scene: mesh });
     }
-    animateId = requestAnimationFrame(update);
+
+    function startAnimation() {
+      if (!animateId) {
+        animateId = requestAnimationFrame(update);
+      }
+    }
+
+    function stopAnimation() {
+      if (animateId) {
+        cancelAnimationFrame(animateId);
+        animateId = null;
+      }
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible) {
+          startAnimation();
+        } else {
+          stopAnimation();
+        }
+      },
+      { threshold: 0.01, rootMargin: "250px" }
+    );
+    observer.observe(ctn);
+
     ctn.appendChild(gl.canvas);
 
     function handleMouseMove(e: MouseEvent) {
@@ -338,7 +370,8 @@ export function Galaxy({
     }
 
     return () => {
-      cancelAnimationFrame(animateId);
+      observer.disconnect();
+      stopAnimation();
       window.removeEventListener("resize", resize);
       if (mouseInteraction) {
         ctn.removeEventListener("mousemove", handleMouseMove);

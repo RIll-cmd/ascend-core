@@ -20,7 +20,7 @@ export function BrutstackNavbar({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b-2 border-black bg-[#1a1a1a]/95 backdrop-blur-sm px-4 md:px-8 text-[#f9f4da] transition-colors">
+    <header className="sticky top-0 z-50 w-full border-b-2 border-black bg-[#161616] px-4 md:px-8 text-[#f9f4da]">
       <div className="flex h-16.5 items-stretch justify-between">
         {/* Brand Logo with Ascend Core Styling */}
         <Link

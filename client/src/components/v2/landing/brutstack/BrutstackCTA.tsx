@@ -15,7 +15,7 @@ export function BrutstackCTA({
   onGuestClick,
 }: BrutstackCTAProps) {
   return (
-    <section className="w-full bg-[#1a1a1a] px-4 py-16 lg:px-12 lg:py-28 text-[#f9f4da]">
+    <section id="cta" className="w-full bg-[#1a1a1a] px-4 py-16 lg:px-12 lg:py-28 text-[#f9f4da]">
       <div className="mx-auto min-h-[34rem] max-w-6xl">
         <div className="relative flex h-full min-h-[34rem] overflow-hidden border-2 border-black bg-[#141414] shadow-[8px_8px_0_0_#000]">
           <div className="grid h-full w-full grid-cols-1 lg:grid-cols-[9rem_1fr_9rem]">

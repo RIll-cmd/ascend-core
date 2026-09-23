@@ -32,7 +32,7 @@ export function BrutstackTestimonials() {
   ];
 
   return (
-    <section className="w-full bg-[#1a1a1a] px-4 py-16 sm:px-6 sm:py-20 lg:px-12 lg:py-28 text-[#f9f4da]">
+    <section id="testimonials" className="w-full bg-[#1a1a1a] px-4 py-16 sm:px-6 sm:py-20 lg:px-12 lg:py-28 text-[#f9f4da]">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-4">
         {/* Badge */}
         <div className="mb-4 flex justify-center">
