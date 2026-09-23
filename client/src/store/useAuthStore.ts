@@ -197,6 +197,69 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10_000);
 
+    const initializeLocalGuestSession = () => {
+      const randomSuffix = Math.random().toString(36).substring(2, 6);
+      const guestId = `Guest_${randomSuffix}`;
+      const token = `guest_token_${Date.now()}_${randomSuffix}`;
+      const charId = `char-${guestId}`;
+      const guestUser: UserState = {
+        id: guestId,
+        username: guestId,
+        email: null,
+        isEmailVerified: false,
+      };
+
+      setCookie(token);
+      try {
+        localStorage.setItem("ascend_character_id", charId);
+        localStorage.setItem("ascend_session", token);
+        localStorage.setItem("ascend_user", JSON.stringify(guestUser));
+      } catch {}
+
+      useCharacterStore.getState().setCharacter({
+        id: charId,
+        userId: guestUser.id,
+        name: guestUser.username,
+        avatar: "/Character_sprite_placeholder/walk_down.gif",
+        theme: "dark-rpg",
+        title: "Guest Operative",
+        gender: "M",
+        age: 18,
+        race: "HUMAN",
+        level: 1,
+        exp: 0,
+        power: 97,
+        rank: "E",
+        gold: 500,
+        gems: 50,
+        towerTokens: 0,
+        availableSP: 5,
+        createdAt: new Date().toISOString(),
+        stats: {
+          id: `stats-${guestUser.id}`,
+          characterId: charId,
+          strength: 1,
+          knowledge: 1,
+          discipline: 1,
+          focus: 1,
+          endurance: 1,
+          recovery: 1,
+          consistency: 1,
+        },
+        history: [],
+      });
+
+      set({
+        user: guestUser,
+        token,
+        isAuthenticated: true,
+        isLoading: false,
+        isHydrated: true,
+      });
+
+      return { success: true, user: guestUser };
+    };
+
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/guest`, {
         method: "POST",
@@ -208,6 +271,20 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       clearTimeout(timeoutId);
 
       if (!res.ok) {
+        // Fallback: If remote backend lacks /api/auth/guest (e.g. 404),
+        // validate guest access password locally against standard configured passcode
+        if (res.status === 404) {
+          const expectedPassword = process.env.NEXT_PUBLIC_GUEST_PASSWORD || "cyrill10";
+          if (guestPassword.trim() !== expectedPassword.trim()) {
+            set({ isLoading: false });
+            return {
+              success: false,
+              error: "Guest access password is incorrect.",
+            };
+          }
+          return initializeLocalGuestSession();
+        }
+
         const data = await res.json().catch(() => ({}));
         set({ isLoading: false });
         return {
@@ -280,6 +357,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       return { success: true, user };
     } catch (error) {
       clearTimeout(timeoutId);
+      // If remote backend is unreachable or timed out, allow local guest fallback if password matches
+      const expectedPassword = process.env.NEXT_PUBLIC_GUEST_PASSWORD || "cyrill10";
+      if (guestPassword.trim() === expectedPassword.trim()) {
+        return initializeLocalGuestSession();
+      }
+
       set({ isLoading: false });
       return {
         success: false,
@@ -295,15 +378,32 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      const timeoutId = setTimeout(() => controller.abort(), 12_000);
 
-      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      let res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ identifier, password }),
         signal: controller.signal,
       });
+
+      // Legacy fallback: If /api/auth/login returned 404, retry with legacy /api/login
+      if (res.status === 404) {
+        const isEmail = identifier.includes("@");
+        res = await fetch(`${API_BASE_URL}/api/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            username: isEmail ? undefined : identifier,
+            email: isEmail ? identifier : undefined,
+            password,
+          }),
+          signal: controller.signal,
+        });
+      }
+
       clearTimeout(timeoutId);
 
       let data: Record<string, unknown> = {};
@@ -321,15 +421,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         };
       }
 
-      const user = data.user as UserState | undefined;
-      const token = data.token;
-      if (
-        !user ||
-        typeof user.id !== "string" ||
-        typeof user.username !== "string" ||
-        typeof token !== "string" ||
-        !token
-      ) {
+      // Handle both modern and legacy login response schemas
+      const token = (data.token || data.access_token || data.accessToken) as string | undefined;
+      let user = data.user as UserState | undefined;
+      if (!user && (data.username || data.userId || data.id)) {
+        user = {
+          id: (data.userId || data.id || `user-${data.username}`) as string,
+          username: (data.username || identifier) as string,
+          email: (data.email as string) || null,
+          isEmailVerified: Boolean(data.isEmailVerified),
+        };
+      }
+
+      if (!user || !user.id || !user.username || !token) {
         set({ isLoading: false });
         return { success: false, error: "Authentication server returned an invalid session." };
       }

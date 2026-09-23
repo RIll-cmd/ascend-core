@@ -425,6 +425,7 @@ async def verify_otp(request: Request, data: VerifyOtpInput):
 # =========================================================================
 
 @router.post("/api/auth/register")
+@router.post("/api/register")
 @limiter.limit("5/minute")
 async def register(request: Request, data: RegisterInput, response: Response):
     if data.bot_trap:
@@ -474,6 +475,7 @@ async def register(request: Request, data: RegisterInput, response: Response):
 # =========================================================================
 
 @router.post("/api/auth/login")
+@router.post("/api/login")
 @limiter.limit("5/minute")
 async def login(request: Request, data: LoginInput, response: Response):
     if data.bot_trap:
@@ -542,6 +544,7 @@ async def issue_vision_token(current_user: dict = Depends(get_current_user)):
 # =========================================================================
 
 @router.post("/api/auth/guest")
+@router.post("/api/guest")
 @limiter.limit("10/minute")
 async def guest_login(request: Request, response: Response, data: GuestLoginInput):
     configured_password = os.getenv("GUEST_ACCESS_PASSWORD")

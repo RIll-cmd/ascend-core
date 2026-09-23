@@ -17,11 +17,11 @@
   "rewrites": [
     {
       "source": "/api",
-      "destination": "/api/index.py"
+      "destination": "https://ai-habit-omega-backend.onrender.com/api"
     },
     {
       "source": "/api/:path*",
-      "destination": "/api/index.py"
+      "destination": "https://ai-habit-omega-backend.onrender.com/api/:path*"
     }
   ]
 }
