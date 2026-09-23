@@ -62,12 +62,6 @@ export function BrutstackNavbar({
           </a>
           <a
             className="retro flex items-center px-4 lg:px-6 text-[9px] lg:text-[10px] font-bold uppercase tracking-wider transition-colors hover:text-[#fcba28]"
-            href="#pricing"
-          >
-            Tiers
-          </a>
-          <a
-            className="retro flex items-center px-4 lg:px-6 text-[9px] lg:text-[10px] font-bold uppercase tracking-wider transition-colors hover:text-[#fcba28]"
             href="#faq"
           >
             FAQ
@@ -134,13 +128,6 @@ export function BrutstackNavbar({
             className="retro text-[9px] sm:text-[10px] font-bold uppercase tracking-wider hover:text-[#fcba28] transition-colors py-1"
           >
             Hunter Codex
-          </a>
-          <a
-            href="#pricing"
-            onClick={() => setMobileMenuOpen(false)}
-            className="retro text-[9px] sm:text-[10px] font-bold uppercase tracking-wider hover:text-[#fcba28] transition-colors py-1"
-          >
-            Membership Tiers
           </a>
           <a
             href="#faq"

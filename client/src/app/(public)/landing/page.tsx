@@ -6,9 +6,7 @@ import {
   BrutstackNavbar,
   BrutstackHero,
   BrutstackFeatures,
-  BrutstackTestimonials,
   BrutstackHowItWorks,
-  BrutstackPricing,
   BrutstackFAQ,
   BrutstackCTA,
   BrutstackFooter,
@@ -52,10 +50,6 @@ export default function LandingPage() {
     }
   };
 
-  const handleSelectPlan = () => {
-    scrollToAuth("register");
-  };
-
   const handleGuestAccess = async () => {
     try {
       await useAuthStore.getState().loginAsGuest();
@@ -87,21 +81,15 @@ export default function LandingPage() {
       {/* 3. 8-Bit Core Disciplines & Guild Features Grid (@8bitcn/feature1) */}
       <BrutstackFeatures onSelectFeature={handleOpenFeature} />
 
-      {/* 5. The Reality-to-RPG Conversion Engine Simulator (@8bitcn/feature1) */}
+      {/* 4. The Reality-to-RPG Conversion Engine Simulator (@8bitcn/feature1) */}
       <div id="engine">
         <Feature1 onSelectFeature={handleOpenFeature} />
       </div>
 
-      {/* 6. Testimonials from Ascending Hunters */}
-      <BrutstackTestimonials />
-
-      {/* 7. Solo Ascension Codex: 3-Phase Reality Pipeline */}
+      {/* 5. Solo Ascension Codex: 3-Phase Reality Pipeline */}
       <BrutstackHowItWorks />
 
-      {/* 8. Hunter Membership Tiers (Initiate, Monarch, Guild Master, Academy) */}
-      <BrutstackPricing onSelectPlan={handleSelectPlan} />
-
-      {/* 9. Hunter Intel & Frequently Asked Questions (FAQ) */}
+      {/* 6. Hunter Intel & Frequently Asked Questions (FAQ) */}
       <BrutstackFAQ />
 
       {/* 10. Hunter Awakening Call To Action */}
