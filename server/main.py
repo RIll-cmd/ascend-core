@@ -90,6 +90,8 @@ origins = [
     "http://127.0.0.1:3002",
     "https://ai-habit-omega.vercel.app",
     "https://ai-habit.vercel.app",
+    "https://ascend-core.vercel.app",
+    "https://ascend-os.vercel.app",
 ]
 
 # Allow dynamic frontend URL overrides from environment
