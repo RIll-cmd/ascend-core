@@ -13,11 +13,5 @@
       "path": "/api/cron/midnight-decay",
       "schedule": "0 0 * * *"
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "/api"
-    }
   ]
 }
