@@ -209,6 +209,15 @@ def read_root():
         "architecture": "SaaS Feature Skeleton"
     }
 
+@app.get("/api")
+def api_root():
+    return {
+        "status": "online",
+        "system": "Ascend OS Core Server",
+        "version": "2.0.0",
+        "entrypoint": "api/index.py"
+    }
+
 @app.get("/api/health")
 def health_check():
     return {
