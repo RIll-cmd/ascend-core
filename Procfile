@@ -1,1 +1,1 @@
-web: uvicorn server.main:app --host 0.0.0.0 --port $PORT --workers 1 --no-access-log
+web: uvicorn server.main:app --host 0.0.0.0 --port $PORT --no-access-log

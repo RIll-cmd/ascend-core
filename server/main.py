@@ -4,6 +4,10 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
+from startup_diagnostics import log_startup_memory
+from startup_options import should_seed_skills_on_startup
+
+log_startup_memory("module_import_start")
 
 # Auto-detect bundled Prisma query engine binary in serverless / Linux environments
 server_dir = Path(__file__).resolve().parent
@@ -28,24 +32,37 @@ from prisma.errors import RecordNotFoundError
 from db import db
 from routers import auth, character, habits, missions, progression, achievements, analytics, tower, inventory, aira, fitness, skills, bosses, workouts, shop, season_pass, crafting, beasts, integration, automations, calendar, status as status_router, cron
 
+log_startup_memory("module_imports_complete")
+
 limiter = Limiter(key_func=get_remote_address)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Connect to database via modern lifespan context manager
+    log_startup_memory("lifespan_start")
     if not db.is_connected():
         try:
+            log_startup_memory("database_connect_start")
             await db.connect()
+            log_startup_memory("database_connect_complete")
         except Exception as e:
+            log_startup_memory("database_connect_failed")
             print(f"[Startup Warning] Prisma DB connection failed ({e}). Proceeding in fallback/local mode.")
     try:
         # Auto-seed baseline skills if table is empty
         try:
             if db.is_connected():
-                from scripts.seed_skills import seed_skills_if_empty
-                await seed_skills_if_empty(db)
+                if should_seed_skills_on_startup(os.environ):
+                    log_startup_memory("skill_seed_start")
+                    from scripts.seed_skills import seed_skills_if_empty
+                    await seed_skills_if_empty(db)
+                    log_startup_memory("skill_seed_complete")
+                else:
+                    print("[Startup] Skill auto-seed skipped; set AUTO_SEED_SKILLS_ON_STARTUP=true to enable.")
+                    log_startup_memory("skill_seed_skipped")
         except Exception as e:
+            log_startup_memory("skill_seed_failed")
             print(f"[Startup Warning] Skill seeder error: {e}")
 
         # Note: Scheduled background sweeps and heartbeats are handled via
