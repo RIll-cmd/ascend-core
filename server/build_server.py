@@ -13,7 +13,8 @@ def main():
     
     # 2. Generate Prisma Python Client
     print("[Build Script] Generating Prisma Python client...")
-    subprocess.run([sys.executable, "-m", "prisma", "generate", "--schema=prisma/schema.prisma"], check=True)
+    schema_path = "prisma/schema.prisma" if os.path.exists("prisma/schema.prisma") else "server/prisma/schema.prisma"
+    subprocess.run([sys.executable, "-m", "prisma", "generate", f"--schema={schema_path}"], check=True)
     
     # 3. Locate downloaded query engine in cache and copy to current working directory
     try:

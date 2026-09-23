@@ -267,12 +267,13 @@ model CalendarSchedule {
   character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
   title        String
   time         String
-  scheduleType String
-  dayOfWeek    Int?
-  scheduledAt  DateTime?
+  endTime      String?   @map("end_time")
+  scheduleType String    @map("schedule_type")
+  dayOfWeek    Int?      @map("day_of_week")
+  scheduledAt  String?   @map("scheduled_at")
   completed    Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
   @@index([characterId])
 }
@@ -933,21 +934,4 @@ model StatusShelfReadCredential {
   secretHash   String
   revokedAt    DateTime?
   createdAt    DateTime  @default(now())
-}
-
-model CalendarSchedule {
-  id           String    @id @default(uuid())
-  characterId  String
-  character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  title        String
-  time         String
-  endTime      String?   @map("end_time")
-  scheduleType String    @map("schedule_type")
-  dayOfWeek    Int?      @map("day_of_week")
-  scheduledAt  String?   @map("scheduled_at")
-  completed    Boolean   @default(false)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-
-  @@index([characterId])
 }
