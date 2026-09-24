@@ -166,7 +166,7 @@ function BossShowcase({ onExploreSystems }: { onExploreSystems: () => void }) {
             tower climbs, boss raids, and the benchmarks that prove your build.
           </p>
 
-          <div className="mt-8 grid grid-cols-3 gap-3">
+          <div data-mobile-stack-grid className="mt-8 grid grid-cols-3 gap-3">
             {[
               ["20+", "TOWER FLOORS", "#14b6e5"],
               ["19", "LINKED SYSTEMS", "#00ff88"],

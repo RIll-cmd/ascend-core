@@ -120,10 +120,11 @@ export function Topbar() {
       />
       <header
         suppressHydrationWarning
+        data-mobile-topbar
         className="h-[74px] px-4 sm:px-6 bg-[#160B29] border-b-4 border-black flex items-center justify-between shrink-0 select-none sticky top-0 z-40 relative shadow-[0_4px_0_0_#2b1045]"
       >
         {/* LEFT: 8-BIT MENU BUTTON (LEFTMOST) + CHARACTER PROFILE BADGE (ON ITS RIGHT) */}
-        <div suppressHydrationWarning className="flex items-center gap-3.5 flex-1 relative z-10">
+        <div suppressHydrationWarning data-mobile-topbar-left className="flex items-center gap-3.5 flex-1 relative z-10">
           {/* Menu Button (Leftmost) */}
           <button
             onClick={() => {
@@ -133,10 +134,12 @@ export function Topbar() {
             type="button"
             className="flex items-center gap-2 px-3 py-2 bg-[#23153C] border-2 border-black font-pixel text-xs text-white uppercase tracking-wider shadow-[2px_2px_0_0_#000] hover:border-[#22c55e] hover:text-[#22c55e] transition-colors cursor-pointer group active:translate-y-0.5 active:shadow-none"
             aria-label="Toggle Navigation Menu"
+            aria-expanded={isMenuOpen}
+            data-mobile-menu-toggle
           >
             <PixelMenuIcon className="w-4 h-4 text-white group-hover:text-[#22c55e] transition-colors" />
-            <span className="font-bold">MENU</span>
-            <span className="text-[#22c55e] font-bold text-xs">{isMenuOpen ? "[-]" : "[+]"}</span>
+            <span data-mobile-menu-label className="font-bold">MENU</span>
+            <span data-mobile-menu-state className="text-[#22c55e] font-bold text-xs">{isMenuOpen ? "[-]" : "[+]"}</span>
           </button>
 
           {/* Interactive 8-Bit Profile Quick-Hub Dropdown (On Menu's Right) */}
@@ -145,6 +148,7 @@ export function Topbar() {
               <button
                 type="button"
                 suppressHydrationWarning
+                data-mobile-profile-trigger
                 className="flex items-center gap-3 px-3 py-1.5 bg-[#23153C] border-2 border-black rounded-none cursor-pointer hover:border-[#22c55e] hover:bg-[#2d1b4c] transition-colors shadow-[2px_2px_0_0_#000] group text-left"
               >
                 {/* 8-bit Avatar Sprite (static, no constant bobbing) */}
@@ -157,7 +161,7 @@ export function Topbar() {
                   />
                 </div>
 
-                <div suppressHydrationWarning className="flex flex-col justify-center gap-1">
+                <div suppressHydrationWarning data-mobile-profile-details className="flex flex-col justify-center gap-1">
                   <div className="flex items-baseline gap-2">
                     <h2 className="text-sm font-bold pixel-text-outlined tracking-wider text-white">
                       {name}
@@ -295,7 +299,7 @@ export function Topbar() {
         </div>
 
         {/* RIGHT: 8-BIT CURRENCIES (GOLD, GEMS, TOKENS) & ACTION CONTROLS */}
-        <div suppressHydrationWarning className="flex items-center gap-3 sm:gap-4 relative z-10">
+        <div suppressHydrationWarning data-mobile-topbar-right className="flex items-center gap-3 sm:gap-4 relative z-10">
           {/* Currencies Counters — static boxes with animated coin GIFs */}
           <div className="hidden lg:flex items-center gap-3">
             {/* Gold */}
@@ -398,7 +402,7 @@ export function Topbar() {
           <div className="h-6 w-0.5 bg-black hidden lg:block" />
 
           {/* Action Icons with 8-bit Buttons */}
-          <div className="flex items-center gap-2">
+          <div data-mobile-topbar-actions className="flex items-center gap-2">
             {/* Focus Engine */}
             <Button
               variant="ghost"

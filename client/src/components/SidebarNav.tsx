@@ -179,7 +179,7 @@ export function SidebarNav() {
     <Dialog.Root open={isMenuOpen} onOpenChange={setMenuOpen}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[70] bg-[#02040a]/80 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=open]:fade-in" />
-        <Dialog.Content className="fixed inset-y-0 left-0 z-[71] flex h-dvh w-[min(22rem,calc(100vw-1rem))] flex-col border-r border-slate-700 bg-[#080b14] text-slate-100 shadow-[18px_0_45px_rgba(0,0,0,.45)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left">
+        <Dialog.Content data-mobile-nav-drawer className="fixed inset-y-0 left-0 z-[71] flex h-dvh w-[min(22rem,calc(100vw-1rem))] flex-col border-r border-slate-700 bg-[#080b14] text-slate-100 shadow-[18px_0_45px_rgba(0,0,0,.45)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left">
           <header className="flex min-h-20 items-center justify-between border-b border-slate-800 px-4">
             <div>
               <Dialog.Title className="font-pixel text-sm tracking-wide text-white">ASCEND OS</Dialog.Title>

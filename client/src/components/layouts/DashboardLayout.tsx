@@ -23,6 +23,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       suppressHydrationWarning
+      data-mobile-shell="dashboard"
       className="flex h-screen h-[100dvh] min-h-screen w-full bg-[#060412] text-zinc-100 overflow-hidden font-sans relative"
     >
       {/* === 16-BIT AUTHENTIC CELESTIAL NIGHT SKY (hidden on routes with scoped backgrounds) === */}
@@ -37,6 +38,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <Topbar />
         <main
           suppressHydrationWarning
+          data-mobile-main
           className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 pb-20 md:pb-6 min-h-0"
         >
           {children}

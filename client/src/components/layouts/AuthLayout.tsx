@@ -11,6 +11,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       suppressHydrationWarning
+      data-mobile-shell="auth"
       className="eightbitcn-login-scope min-h-screen w-full bg-zinc-950 text-white flex flex-col items-center justify-between p-4 sm:p-6 relative overflow-x-hidden selection:bg-cyan-500 selection:text-cyan-950"
     >
       {/* Interactive Galaxy Background from React Bits */}
@@ -41,6 +42,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
       {/* Top Navigation Bar */}
       <header
         suppressHydrationWarning
+        data-mobile-auth-header
         className="relative sm:absolute top-0 sm:top-6 left-0 sm:left-8 right-0 sm:right-8 flex items-center justify-between z-20 w-full max-w-6xl mb-6 sm:mb-0 px-2 sm:px-0"
       >
         <Button
@@ -57,12 +59,14 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 
         <Link
           href="/landing"
+          aria-label="Ascend OS home"
+          data-mobile-auth-brand
           className="flex items-center gap-2.5 text-base font-bold text-white font-sans group"
         >
           <div className="w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-cyan-400 font-mono text-xs font-bold shadow-md">
             &gt;_
           </div>
-          <span className="font-bold text-sm tracking-tight text-zinc-100 group-hover:text-cyan-400 transition-colors">
+          <span data-mobile-auth-brand-label className="font-bold text-sm tracking-tight text-zinc-100 group-hover:text-cyan-400 transition-colors">
             ASCEND OS
           </span>
         </Link>
@@ -71,6 +75,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
       {/* Main Centered Auth Card Container */}
       <main
         suppressHydrationWarning
+        data-mobile-auth-main
         className="relative z-10 w-full max-w-4xl my-auto pt-6 sm:pt-16 pb-8"
       >
         {children}

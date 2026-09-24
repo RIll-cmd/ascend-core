@@ -144,7 +144,7 @@ export function BrutstackHero({
               ATTRIBUTES
             </span>
           </h1>
-          <p className="bs-font-sans max-w-xl text-sm leading-relaxed text-neutral-400 sm:text-base md:text-lg mx-auto">
+          <p data-mobile-readable-copy className="bs-font-sans max-w-xl text-sm leading-relaxed text-neutral-400 sm:text-base md:text-lg mx-auto">
             Forge real-world discipline into RPG combat power. Conquer dungeon gates through physical volume, habit streaks, and sleep telemetry.
           </p>
         </div>

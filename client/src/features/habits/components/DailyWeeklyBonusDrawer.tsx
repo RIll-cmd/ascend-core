@@ -55,6 +55,8 @@ export function DailyWeeklyBonusDrawer() {
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       {/* Draggable and Minimizable Floating Side Trigger */}
       <motion.div
+        data-mobile-bonus-widget
+        data-mobile-bonus-minimized={isMinimized ? "true" : "false"}
         drag="y"
         dragConstraints={{ top: -380, bottom: 380 }}
         dragElastic={0.05}
@@ -78,6 +80,7 @@ export function DailyWeeklyBonusDrawer() {
             {/* Expand toggle on hover */}
             <button
               type="button"
+              data-mobile-bonus-minimize
               onClick={toggleMinimized}
               className="opacity-0 group-hover:opacity-100 transition-none absolute -left-6 top-1/2 -translate-y-1/2 w-5 h-5 bg-[#120824] border border-[#3b1861] flex items-center justify-center text-cyan-300 hover:text-white cursor-pointer active:translate-y-0.5"
               title="Expand Tab"
@@ -88,6 +91,7 @@ export function DailyWeeklyBonusDrawer() {
             {/* Draggable Icon Tab */}
             <button
               type="button"
+              data-mobile-bonus-open
               onClick={handleButtonClick}
               className="bg-[#1A102F] border-y-2 border-l-2 border-black p-2 shadow-[-2px_2px_0_0_#000] flex items-center gap-1 cursor-grab active:cursor-grabbing hover:bg-[#23153C]"
               title="Drag up/down to move. Click to open Daily Bonuses."
@@ -108,6 +112,7 @@ export function DailyWeeklyBonusDrawer() {
             <div className="bg-[#1A102F] border-y-2 border-l-2 border-black p-2 shadow-[-3px_3px_0_0_#000] flex items-center gap-2">
               {/* Drag Grip Handle */}
               <div
+                data-mobile-bonus-drag
                 className="text-white/40 hover:text-cyan-300 cursor-grab active:cursor-grabbing p-0.5"
                 title="Drag up/down to reposition"
               >
@@ -117,6 +122,7 @@ export function DailyWeeklyBonusDrawer() {
               {/* Main Clickable Area */}
               <button
                 type="button"
+                data-mobile-bonus-open
                 onClick={handleButtonClick}
                 className="flex items-center gap-2 cursor-pointer text-left focus:outline-none active:translate-y-0.5"
               >
@@ -126,7 +132,7 @@ export function DailyWeeklyBonusDrawer() {
                 </div>
 
                 {/* Compact Text Label */}
-                <div className="flex flex-col items-start pr-1 text-left">
+                <div data-mobile-bonus-details className="flex flex-col items-start pr-1 text-left">
                   <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1">
                     <span>BONUSES</span>
                     <PixelChevronLeftIcon className="w-3 h-3 text-cyan-400" />
@@ -147,6 +153,7 @@ export function DailyWeeklyBonusDrawer() {
               {/* Minimize to icon toggle button */}
               <button
                 type="button"
+                data-mobile-bonus-minimize
                 onClick={toggleMinimized}
                 className="w-5 h-5 bg-[#120824] border border-[#3b1861] hover:border-cyan-400 flex items-center justify-center text-white/60 hover:text-cyan-300 cursor-pointer active:translate-y-0.5 ml-0.5"
                 title="Minimize side tab"
