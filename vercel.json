@@ -17,11 +17,11 @@
   "rewrites": [
     {
       "source": "/api",
-      "destination": "https://ai-habit-omega-backend.onrender.com/api"
+      "destination": "https://ascend-os-server.onrender.com/api"
     },
     {
       "source": "/api/:path*",
-      "destination": "https://ai-habit-omega-backend.onrender.com/api/:path*"
+      "destination": "https://ascend-os-server.onrender.com/api/:path*"
     }
   ]
 }

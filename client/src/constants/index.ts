@@ -1,14 +1,14 @@
 export const APP_NAME = "Ascend OS";
 
 const getApiBaseUrl = () => {
-  // In the browser (both local dev Next.js rewrite proxy and production),
-  // an empty string routes through relative /api paths on the current origin
-  if (typeof window !== "undefined") {
-    return "";
-  }
-  // Server-side default during SSR/build or explicit env override
+  // Explicit env override takes precedence (e.g. Vercel env or .env.production)
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "");
+  }
+  // In the browser when no explicit URL is configured,
+  // an empty string routes through relative /api paths (handled by Next.js / Vercel rewrites)
+  if (typeof window !== "undefined") {
+    return "";
   }
   return "http://127.0.0.1:8000";
 };

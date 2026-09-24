@@ -183,6 +183,14 @@ export function AuthCard({
       setAuthError("Passcode must be at least 8 characters.");
       return;
     }
+    if (!/[0-9]/.test(regPassword)) {
+      setAuthError("Passcode must contain at least one numeric digit (0-9).");
+      return;
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(regPassword)) {
+      setAuthError("Passcode must contain at least one special character (e.g. !@#$%).");
+      return;
+    }
     if (regPassword !== regConfirmPassword) {
       setAuthError("Passcodes do not match.");
       return;
@@ -232,10 +240,18 @@ export function AuthCard({
       }
 
       if (!res.ok) {
-        const errorMsg =
-          (data.detail as string) ||
-          (data.message as string) ||
-          "Failed to initialize hunter license.";
+        let errorMsg = "Failed to initialize hunter license.";
+        if (typeof data.detail === "string") {
+          errorMsg = data.detail;
+        } else if (Array.isArray(data.detail) && data.detail[0]?.msg) {
+          errorMsg = String(data.detail[0].msg);
+        } else if (typeof data.message === "string") {
+          errorMsg = data.message;
+        } else if (res.status === 404) {
+          errorMsg = "Authentication service endpoint not found (404).";
+        } else if (res.status >= 500) {
+          errorMsg = "Authentication server is currently unavailable. Please try again shortly.";
+        }
         setAuthError(errorMsg);
         setIsLoading(false);
         return;
@@ -593,7 +609,7 @@ export function AuthCard({
                         autoComplete="new-password"
                         required
                         disabled={isLoading}
-                        placeholder="Min. 8 characters"
+                        placeholder="Min. 8 chars (1 number, 1 special)"
                         className="pl-10 pr-10 min-h-[44px] bg-zinc-950/90 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 rounded-xl focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 text-sm font-mono"
                       />
                       <button
