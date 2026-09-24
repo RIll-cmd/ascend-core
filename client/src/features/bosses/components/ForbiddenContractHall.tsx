@@ -54,7 +54,7 @@ export function ForbiddenContractHall() {
   };
 
   return (
-    <div className="relative min-h-screen font-sans -m-3 sm:-m-5 md:-m-6 p-3 sm:p-5 md:p-6 overflow-x-hidden">
+    <div className="relative min-h-0 font-sans -m-3 sm:-m-5 md:min-h-screen md:-m-6 p-3 sm:p-5 md:p-6 overflow-x-hidden">
       {/* 1. Full-Bleed Animated Subterranean Ritual Chamber Background */}
       <RitualChamberBackground isSummonActive={isHoveringSummon} />
 

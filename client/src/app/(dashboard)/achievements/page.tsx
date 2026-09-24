@@ -433,7 +433,7 @@ export default function AchievementsPage() {
           <div className="absolute -top-10 -right-10 w-44 h-44 border border-purple-500/15 rounded-full pointer-events-none" />
 
           <div className="relative z-20 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
+            <div data-mobile-achievement-intro className="flex items-center gap-4">
               <div className="relative p-2.5 rounded-2xl bg-gradient-to-b from-[#240c42]/90 via-[#15072b]/95 to-[#090214]/95 border-2 border-purple-400/60 shadow-[0_0_25px_rgba(192,132,252,0.4)] shrink-0 group">
                 <div className="absolute inset-0 rounded-2xl bg-fuchsia-500/10 blur-md pointer-events-none group-hover:bg-fuchsia-500/20 transition-all" />
                 <ShadowMonarchSigil size={60} className="relative z-10 drop-shadow-[0_0_14px_rgba(232,121,249,0.85)]" />
@@ -454,7 +454,7 @@ export default function AchievementsPage() {
             </div>
 
             {/* High-Contrast Telemetry Stats Pill Box with NumberTicker */}
-            <div className="flex items-center gap-4 bg-[#090314]/95 border border-purple-500/30 p-4 rounded-2xl shadow-2xl backdrop-blur-md shrink-0 relative z-20">
+            <div data-mobile-achievement-summary className="flex items-center gap-4 bg-[#090314]/95 border border-purple-500/30 p-4 rounded-2xl shadow-2xl backdrop-blur-md shrink-0 relative z-20">
               <div className="text-center px-3">
                 <span className="block text-xs font-bold font-pixel text-purple-300/80 uppercase tracking-widest">
                   UNLOCKED

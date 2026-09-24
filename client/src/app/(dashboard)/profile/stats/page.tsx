@@ -223,7 +223,7 @@ export default function StatMatrixPage() {
               />
             </div>
 
-            <div className="flex flex-col space-y-1">
+              <div data-mobile-profile-identity className="flex flex-col space-y-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-base sm:text-lg font-bold font-pixel text-[#221208] flex items-center gap-2">
                   <PixelActivityIcon className="w-4 h-4 text-amber-900" />

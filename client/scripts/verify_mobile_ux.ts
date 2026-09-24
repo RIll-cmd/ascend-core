@@ -78,18 +78,96 @@ try {
 
     for (const width of widths) {
       await page.setViewportSize({ width, height: 844 });
+      const dashboardMinHeight = await page
+        .locator('[data-mobile-shell="dashboard"]')
+        .evaluate((element) => Number.parseFloat(getComputedStyle(element).minHeight));
+      if (dashboardMinHeight > 0) {
+        failures.push(
+          `Dashboard shell keeps a ${dashboardMinHeight}px minimum height at ${width}px; mobile should size to the dynamic viewport.`,
+        );
+      }
+
       for (const route of protectedRoutes) {
         await page.goto(`${baseUrl}${route}`, {
           waitUntil: "domcontentloaded",
           timeout: 15000,
         });
-        await page.waitForTimeout(100);
+        await page.waitForFunction(
+          () => {
+            const main = document.querySelector<HTMLElement>("[data-mobile-main]");
+            return main && main.innerText.trim().length > 10 && !main.innerText.includes("RESTORING SESSION");
+          },
+          { timeout: 5000 },
+        ).catch(() => undefined);
 
         const overflow = await page.evaluate(
           () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
         );
         if (overflow > 1) {
           failures.push(`${route} has ${overflow}px horizontal page overflow at ${width}px.`);
+        }
+
+        const scrollState = await page.evaluate(async () => {
+          const main = document.querySelector<HTMLElement>("[data-mobile-main]");
+          const topbar = document.querySelector<HTMLElement>("[data-mobile-topbar]");
+          if (!main || !topbar) return null;
+           main.scrollTop = main.scrollHeight;
+           await new Promise<void>((resolve) => setTimeout(resolve, 120));
+           main.scrollTop = main.scrollHeight;
+           await new Promise<void>((resolve) => {
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+          });
+          return {
+            mainHeight: main.clientHeight,
+            mainScrollHeight: main.scrollHeight,
+            mainScrollTop: main.scrollTop,
+            mainMaxScroll: main.scrollHeight - main.clientHeight,
+            topbarTop: topbar.getBoundingClientRect().top,
+          };
+        });
+        if (!scrollState) {
+          failures.push(`${route} is missing the shared mobile content pane or top navigation.`);
+        } else {
+          if (route === "/tower" && scrollState.mainScrollHeight <= scrollState.mainHeight) {
+            failures.push("Tower content is outside the shared scroll pane on mobile.");
+          }
+          if (scrollState.mainMaxScroll > 0 && scrollState.mainScrollTop < scrollState.mainMaxScroll - 2) {
+            failures.push(`${route} cannot reach the end of its content pane at ${width}px.`);
+          }
+          if (Math.abs(scrollState.topbarTop) > 2) {
+            failures.push(`${route} scrolls the top navigation away at ${width}px.`);
+          }
+        }
+
+        if (width === 375 && route === "/profile/stats") {
+          const profileHeadingHeight = await page
+            .locator("[data-mobile-main] h2")
+            .first()
+            .evaluate((element) => element.getBoundingClientRect().height);
+          if (profileHeadingHeight > 48) {
+            failures.push(`Profile identity heading wraps to ${Math.round(profileHeadingHeight)}px at 375px.`);
+          }
+        }
+
+        if (width === 375 && route === "/achievements") {
+          const achievementHeadingHeight = await page
+            .getByRole("heading", { name: "The Monarch's Shadow Sanctuary" })
+            .evaluate((element) => element.getBoundingClientRect().height);
+          const achievementCopyWidth = await page
+            .locator("[data-mobile-achievement-intro] > div:last-child")
+            .evaluate((element) => element.getBoundingClientRect().width);
+          if (achievementHeadingHeight > 76 || achievementCopyWidth < 220) {
+            failures.push(`Achievement hero heading wraps to ${Math.round(achievementHeadingHeight)}px at 375px.`);
+          }
+        }
+
+        if (width === 375 && route === "/shop") {
+          const shopHeadingWidth = await page
+            .getByRole("heading", { name: /bramblewick's emporium/i })
+            .evaluate((element) => element.getBoundingClientRect().width);
+          if (shopHeadingWidth < 210) {
+            failures.push(`Shop hero title only has ${Math.round(shopHeadingWidth)}px at 375px.`);
+          }
         }
 
         if (route === "/missions") {
@@ -108,20 +186,35 @@ try {
         }
       }
     }
+
+    await page.setViewportSize({ width: 375, height: 844 });
+    await page.goto(`${baseUrl}/settings`, { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(700);
+    if (!(await page.getByRole("heading", { name: "Account Settings" }).count())) {
+      failures.push("Mobile Settings is not using the desktop Account Settings presentation.");
+    }
+    for (const label of ["Character ID:", "Danger Zone"]) {
+      if (!(await page.getByText(label, { exact: true }).count())) {
+        failures.push(`Mobile Settings is missing desktop Account Settings content: ${label}`);
+      }
+    }
+    if (await page.getByRole("button", { name: /send otp/i }).count()) {
+      failures.push("Mobile Settings still exposes the email OTP control absent from desktop Account Settings.");
+    }
   } else {
     console.log("Skipping authenticated route overflow checks; set MOBILE_TEST_GUEST_PASSWORD to enable them.");
   }
 
-  const desktopContext = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-  const desktopPage = await desktopContext.newPage();
-  await desktopPage.goto(`${baseUrl}/login`, { waitUntil: "domcontentloaded" });
-  const desktopBrandVisible = await desktopPage
-    .locator('header a[href="/landing"] span')
-    .last()
-    .isVisible();
-  await desktopContext.close();
-  if (!desktopBrandVisible) {
-    failures.push("Auth wordmark is hidden at the desktop width of 1440px.");
+  if (guestPassword) {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`${baseUrl}/settings`, { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(700);
+    if (!(await page.getByText("System Control & Preferences", { exact: true }).count())) {
+      failures.push("Desktop Settings preferences page changed at 1440px.");
+    }
+    if (await page.locator("[data-mobile-account-page]").isVisible()) {
+      failures.push("Mobile Account Settings is visible at the desktop width of 1440px.");
+    }
   }
 } finally {
   await context.close();

@@ -114,7 +114,7 @@ export function ShopHeader({
       {/* === STALL INTERIOR (50/50 BALANCED PROPORTION) === */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6 items-stretch p-4 sm:p-6 lg:p-7 bg-[linear-gradient(90deg,rgba(245,158,11,0.035),transparent_46%),repeating-linear-gradient(0deg,rgba(255,255,255,0.025)_0,rgba(255,255,255,0.025)_1px,transparent_1px,transparent_24px)]">
         {/* LEFT COLUMN: MERCHANT AVATAR & SHOP SIGN CARD */}
-        <div className="flex items-center gap-4 sm:gap-5 min-w-0 w-full">
+        <div data-mobile-shop-intro className="flex items-center gap-4 sm:gap-5 min-w-0 w-full">
           {/* Animated Merchant Avatar Portrait Frame */}
           <div
             className="w-[82px] h-[96px] shrink-0 border-4 border-[#17100a] bg-[#201b17] shadow-[inset_0_0_0_2px_#8a5a2c,inset_0_-12px_0_rgba(0,0,0,0.3),5px_7px_18px_rgba(0,0,0,0.35)] flex items-center justify-center relative overflow-hidden group"

@@ -7,6 +7,7 @@ import { useSettingsStore } from "@/store/useSettingsStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useAiraStore } from "@/features/aira/store";
 import { API_BASE_URL } from "@/constants";
+import { AccountSettingsPage } from "@/components/AccountSettingsModal";
 import {
   Card,
   CardContent,
@@ -425,6 +426,8 @@ export default function SettingsPage() {
   };
 
   return (
+    <>
+    <div className="hidden md:block">
     <div className="space-y-8 max-w-5xl pb-16">
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/10">
@@ -1185,5 +1188,10 @@ export default function SettingsPage() {
         </div>
       </form>
     </div>
+    </div>
+    <div className="md:hidden">
+      <AccountSettingsPage username={user?.username || "Hunter"} />
+    </div>
+    </>
   );
 }
