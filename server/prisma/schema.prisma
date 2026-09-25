@@ -16,6 +16,15 @@ enum HabitType {
   NEGATIVE
 }
 
+enum PhoneChatJobStatus {
+  queued
+  claimed
+  processing
+  completed
+  failed
+  expired
+}
+
 
 model User {
   id              String   @id @default(uuid())
@@ -28,6 +37,56 @@ model User {
 
   character       Character?
   emailTokens     EmailVerificationToken[]
+  phoneChatDevices PhoneChatDevice[]
+  phoneChatJobs    PhoneChatJob[]
+}
+
+model PhoneChatDevice {
+  id        String   @id @default(uuid())
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  jobs PhoneChatJob[]
+
+  @@index([ownerId, revokedAt])
+}
+
+model PhoneChatJob {
+  messageId       String             @unique
+  ownerId         String
+  owner           User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  deviceId        String
+  device          PhoneChatDevice    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  sessionId       String
+  text            String
+  status          PhoneChatJobStatus @default(queued)
+  attempt         Int                @default(0)
+  leaseId         String?
+  leaseExpiresAt  DateTime?
+  expiresAt       DateTime
+  reply           String?
+  errorCode       String?
+  createdAt       DateTime           @default(now())
+  completedAt     DateTime?
+  acknowledgedAt  DateTime?
+
+  @@index([ownerId, deviceId, status, createdAt])
+  @@index([status, leaseExpiresAt, expiresAt])
+  @@index([expiresAt])
+}
+
+model PhoneChatTombstone {
+  messageId String             @id
+  ownerId   String
+  deviceId  String
+  status    PhoneChatJobStatus
+  expiresAt DateTime
+  createdAt DateTime           @default(now())
+
+  @@index([ownerId, deviceId])
+  @@index([expiresAt])
 }
 
 model EmailVerificationToken {
