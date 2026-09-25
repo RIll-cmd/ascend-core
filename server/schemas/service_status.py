@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 ServiceState = Literal["idle", "working", "stuck", "offline"]
 ProducerState = Literal["idle", "working", "stuck"]
 ServiceType = Literal["agent", "assistant", "bot", "vision", "provider"]
+OperationPhase = Literal["started", "progress", "succeeded", "failed", "cancelled"]
 
 _PROHIBITED_KEYS = {
     "prompt", "prompts", "code", "patch", "patches", "screenshot", "screenshots",
@@ -73,6 +74,24 @@ class SafeProvider(BaseModel):
     degraded: bool = False
 
 
+class OperationLifecycle(BaseModel):
+    """Explicit operation evidence; no arbitrary result or diagnostic payload."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    operation_id: str = Field(
+        alias="operationId", min_length=1, max_length=128,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+    )
+    phase: OperationPhase
+    label: str | None = Field(default=None, min_length=1, max_length=160)
+
+    @field_validator("operation_id", "label")
+    @classmethod
+    def reject_unsafe_text(cls, value: str | None) -> str | None:
+        return _validate_safe_value(value)
+
+
 class ServiceStatusEvent(BaseModel):
     """The schema-version 1 producer event contract from the status spec."""
 
@@ -90,6 +109,7 @@ class ServiceStatusEvent(BaseModel):
     activity: SafeActivity | None = None
     issue: SafeIssue | None = None
     provider: SafeProvider | None = None
+    lifecycle: OperationLifecycle | None = None
     capabilities: list[str] = Field(default_factory=list, max_length=32)
     metadata: dict[str, str | int | float | bool | None] = Field(default_factory=dict)
 
@@ -113,6 +133,14 @@ class ServiceStatusEvent(BaseModel):
     @classmethod
     def validate_metadata(cls, value: dict[str, str | int | float | bool | None]) -> dict[str, str | int | float | bool | None]:
         return _validate_safe_value(value)
+
+    @model_validator(mode="after")
+    def validate_lifecycle_state(self) -> ServiceStatusEvent:
+        # Terminal evidence is independent of current state: another operation may
+        # still be active. An idle event without lifecycle is never completion.
+        if self.lifecycle and self.lifecycle.phase in ("started", "progress") and self.state != "working":
+            raise ValueError("started/progress lifecycle requires working state")
+        return self
 
 
 class ShelfServiceStatus(BaseModel):
