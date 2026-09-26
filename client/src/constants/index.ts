@@ -10,6 +10,9 @@ const getApiBaseUrl = () => {
   if (typeof window !== "undefined") {
     return "";
   }
+  if (process.env.VERCEL_ENV === "preview") {
+    return "https://ascend-os-server-staging.onrender.com";
+  }
   return "http://127.0.0.1:8000";
 };
 
