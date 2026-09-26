@@ -115,6 +115,16 @@ def test_discord_bridge_requires_dedicated_token_and_rejects_worker_or_browser_t
         assert client.post(path, json=payload, headers={"Authorization": f"Bearer {token}"}).status_code == 403
 
 
+def test_discord_pairing_dependency_rejects_worker_token_reused_as_hmac_secret(monkeypatch):
+    monkeypatch.setenv("ASCEND_PHONE_OWNER_ID", "user-1")
+    monkeypatch.setenv("ASCEND_PHONE_WORKER_TOKEN", "worker-secret")
+    monkeypatch.setenv("ASCEND_DISCORD_BRIDGE_TOKEN", "bridge-secret")
+    monkeypatch.setenv("ASCEND_DISCORD_PAIRING_HMAC_SECRET", "worker-secret")
+    pairing = asyncio.run(phone_chat.get_phone_chat_pairing())
+    with pytest.raises(PermissionError):
+        asyncio.run(pairing.verify_link("123456789012345678"))
+
+
 class _PairingStub:
     def __init__(self):
         self.created_for = None
@@ -156,6 +166,18 @@ def test_discord_browser_routes_bind_authenticated_owner_to_active_device_and_or
     assert client.delete("/api/phone-chat/discord/link", params=params,
                          headers={"Origin": "http://localhost:3000"}).status_code == 204
     assert pairing.revoked_for == "user-1"
+
+
+def test_cookie_auth_cannot_skip_origin_by_adding_a_dummy_bearer_header():
+    pairing = _PairingStub()
+    client, queue = make_client(pairing=pairing)
+    device = asyncio.run(queue.register_device("user-1"))
+    browser_token = auth_utils.create_access_token({"sub": "user-1", "username": "owner"})
+    client.cookies.set("ascend_session", browser_token)
+    headers = {"Authorization": "Bearer dummy", "Origin": "https://evil.example"}
+    params = {"deviceId": device.id}
+    assert client.post("/api/phone-chat/discord/pairing-codes", params=params, headers=headers).status_code == 403
+    assert client.delete("/api/phone-chat/discord/link", params=params, headers=headers).status_code == 403
 
 
 def test_discord_browser_routes_reject_non_owner_even_with_valid_device():

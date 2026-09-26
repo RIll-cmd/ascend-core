@@ -15,15 +15,17 @@ MAX_ATTEMPTS = 5
 
 class PhoneChatPairing:
     def __init__(self, database, *, owner_id: str | None, hmac_secret: str | None,
-                 bridge_token: str | None = None):
+                 bridge_token: str | None = None, worker_token: str | None = None):
         self.db = database
         self.owner_id = owner_id.strip() if owner_id else None
         self.hmac_secret = hmac_secret or ""
         self.bridge_token = bridge_token or ""
+        self.worker_token = worker_token or ""
 
     def _configured(self) -> None:
         if (not self.owner_id or not self.hmac_secret or not self.bridge_token
-                or secrets.compare_digest(self.hmac_secret, self.bridge_token)):
+                or secrets.compare_digest(self.hmac_secret, self.bridge_token)
+                or (self.worker_token and secrets.compare_digest(self.hmac_secret, self.worker_token))):
             raise PermissionError("Discord pairing is unavailable")
 
     def _require_owner(self, owner_id: str) -> None:
@@ -54,7 +56,6 @@ class PhoneChatPairing:
     async def consume_pairing(self, code: str, discord_user_id: str,
                               now: datetime | None = None) -> bool:
         self._configured()
-        now = now or datetime.now(timezone.utc)
         code_hash = self._code_hash(code)
         async with self.db.tx() as tx:
             if not await tx.query_raw('SELECT id FROM "User" WHERE id = $1 FOR UPDATE', self.owner_id):
@@ -70,7 +71,8 @@ class PhoneChatPairing:
             )
             if not getattr(claimed, "count", claimed if isinstance(claimed, int) else 0):
                 return False
-            if challenge.consumedAt is not None or challenge.expiresAt <= now:
+            checked_at = now if now is not None else datetime.now(timezone.utc)
+            if challenge.consumedAt is not None or challenge.expiresAt <= checked_at:
                 return False
             owner_link = await tx.phonediscordlink.find_unique(where={"ownerId": self.owner_id})
             if owner_link and owner_link.revokedAt is None and owner_link.discordUserId:
@@ -80,7 +82,7 @@ class PhoneChatPairing:
             if other_link and other_link.ownerId != self.owner_id:
                 return False
             consumed = await tx.phonediscordpairing.update_many(
-                where={"id": challenge.id, "consumedAt": None}, data={"consumedAt": now},
+                where={"id": challenge.id, "consumedAt": None}, data={"consumedAt": checked_at},
             )
             if not getattr(consumed, "count", consumed if isinstance(consumed, int) else 0):
                 return False
@@ -88,7 +90,7 @@ class PhoneChatPairing:
                 await tx.phonediscordlink.upsert(
                     where={"ownerId": self.owner_id},
                     create={"ownerId": self.owner_id, "discordUserId": discord_user_id,
-                            "createdAt": now},
+                            "createdAt": checked_at},
                     update={"discordUserId": discord_user_id, "revokedAt": None},
                 )
             return True

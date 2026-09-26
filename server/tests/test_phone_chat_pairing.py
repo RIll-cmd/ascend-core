@@ -17,6 +17,7 @@ from schemas.phone_chat import (
     VerifyDiscordLinkRequest,
 )
 from services.phone_chat_pairing import PhoneChatPairing
+from services import phone_chat_pairing as pairing_module
 
 
 SCHEMA = Path(__file__).resolve().parents[1] / "prisma/schema.prisma"
@@ -291,4 +292,38 @@ def test_pairing_fails_closed_without_distinct_secrets_or_configured_owner():
         service, _ = _service()
         with pytest.raises(PermissionError):
             await service.create_pairing("owner-2", now)
+        worker_key_reused = PhoneChatPairing(
+            _PairingDB(), owner_id="owner-1", hmac_secret="worker-secret",
+            bridge_token="bridge-secret", worker_token="worker-secret",
+        )
+        with pytest.raises(PermissionError):
+            await worker_key_reused.create_pairing("owner-1", now)
+    asyncio.run(scenario())
+
+
+def test_waiting_for_owner_lock_cannot_extend_pairing_lifetime(monkeypatch):
+    class Clock:
+        after_lock = False
+
+        @classmethod
+        def now(cls, _timezone):
+            return (datetime(2026, 9, 26, 12, 5, 1, tzinfo=timezone.utc)
+                    if cls.after_lock else datetime(2026, 9, 26, 12, 4, 59, tzinfo=timezone.utc))
+
+    class DelayedLockDB(_PairingDB):
+        async def query_raw(self, statement, owner_id):
+            Clock.after_lock = True
+            return await super().query_raw(statement, owner_id)
+
+    async def scenario():
+        database = DelayedLockDB()
+        service = PhoneChatPairing(database, owner_id="owner-1", hmac_secret="hash-secret",
+                                   bridge_token="bridge-secret")
+        issued_at = datetime(2026, 9, 26, 12, tzinfo=timezone.utc)
+        pairing = await service.create_pairing("owner-1", issued_at)
+        Clock.after_lock = False
+        monkeypatch.setattr(pairing_module, "datetime", Clock)
+        assert not await service.consume_pairing(pairing.code, DISCORD_ID)
+        assert database.phonediscordpairing.rows[0].attempts == 1
+        assert await service.verify_link(DISCORD_ID) is None
     asyncio.run(scenario())

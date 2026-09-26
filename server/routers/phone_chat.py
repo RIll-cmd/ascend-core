@@ -47,6 +47,7 @@ async def get_phone_chat_pairing() -> PhoneChatPairing:
         db, owner_id=os.getenv("ASCEND_PHONE_OWNER_ID"),
         hmac_secret=os.getenv("ASCEND_DISCORD_PAIRING_HMAC_SECRET"),
         bridge_token=os.getenv("ASCEND_DISCORD_BRIDGE_TOKEN"),
+        worker_token=os.getenv("ASCEND_PHONE_WORKER_TOKEN"),
     )
 
 
@@ -62,7 +63,8 @@ def _require_discord_bridge(authorization: str | None) -> None:
 def _require_same_origin(request: Request) -> None:
     # Cookie-authenticated writes require an explicit trusted Origin. Bearer
     # clients are not ambiently authenticated by browsers and use normal CORS.
-    if request.headers.get("authorization", "").lower().startswith("bearer "):
+    if (not request.cookies.get("ascend_session")
+            and request.headers.get("authorization", "").lower().startswith("bearer ")):
         return
     origin = request.headers.get("origin")
     if not origin:
