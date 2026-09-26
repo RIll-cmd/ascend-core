@@ -56,7 +56,7 @@ function DiscordLinkCardForDevice({ deviceId }: { deviceId: string | null }) {
 
   useEffect(() => {
     if (!pairing || pairing.deviceId !== deviceId) return;
-    const timer = window.setInterval(() => {
+    const reconcileExpiry = () => {
       const currentTime = Date.now();
       if (currentTime >= Date.parse(pairing.expiresAt)) {
         setPairing(null);
@@ -64,8 +64,15 @@ function DiscordLinkCardForDevice({ deviceId }: { deviceId: string | null }) {
       } else {
         setNow(currentTime);
       }
-    }, 1_000);
-    return () => window.clearInterval(timer);
+    };
+    const timer = window.setInterval(reconcileExpiry, 1_000);
+    window.addEventListener("focus", reconcileExpiry);
+    document.addEventListener("visibilitychange", reconcileExpiry);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", reconcileExpiry);
+      document.removeEventListener("visibilitychange", reconcileExpiry);
+    };
   }, [pairing, deviceId]);
 
   const visiblePairing = pairing?.deviceId === deviceId && Date.parse(pairing.expiresAt) > now ? pairing : null;

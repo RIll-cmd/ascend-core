@@ -98,6 +98,20 @@ describe("DiscordLinkCard", () => {
     expect(host.textContent).not.toContain(code);
   });
 
+  it("clears an expired code as soon as a suspended tab regains focus", async () => {
+    fetcher.mockResolvedValueOnce(json({ linked: false }))
+      .mockResolvedValueOnce(json({ code, expiresAt: "2026-09-26T12:00:02.000Z" }, 201));
+    await render();
+    await click("Create link code");
+    expect(host.textContent).toContain(code);
+
+    vi.setSystemTime(new Date("2026-09-26T12:10:00.000Z"));
+    expect(host.textContent).toContain(code);
+    await act(async () => window.dispatchEvent(new Event("focus")));
+    expect(host.textContent).not.toContain(code);
+    expect(host.textContent).toContain("Link code expired");
+  });
+
   it("shows only redacted link status and clears the code after refresh confirms a link", async () => {
     fetcher.mockResolvedValueOnce(json({ linked: false, discordUserId: "secret-discord-id" }))
       .mockResolvedValueOnce(json({ code, expiresAt: "2026-09-26T12:05:00.000Z" }, 201))

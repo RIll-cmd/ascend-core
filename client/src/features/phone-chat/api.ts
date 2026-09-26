@@ -87,29 +87,30 @@ export class PhoneChatApi {
 
   async createDiscordPairing(deviceId: string, options: PhoneChatRequestOptions = {}): Promise<DiscordPairingCode> {
     const query = new URLSearchParams({ deviceId });
-    return this.request(`/api/phone-chat/discord/pairing-codes?${query}`, { method: "POST" }, options);
+    return this.request(`/api/phone-chat/discord/pairing-codes?${query}`, { method: "POST" }, options, true);
   }
 
   async getDiscordLink(deviceId: string, options: PhoneChatRequestOptions = {}): Promise<DiscordLinkStatus> {
     const query = new URLSearchParams({ deviceId });
-    return this.request(`/api/phone-chat/discord/link?${query}`, {}, options);
+    return this.request(`/api/phone-chat/discord/link?${query}`, {}, options, true);
   }
 
   async revokeDiscordLink(deviceId: string, options: PhoneChatRequestOptions = {}): Promise<void> {
     const query = new URLSearchParams({ deviceId });
-    await this.request(`/api/phone-chat/discord/link?${query}`, { method: "DELETE" }, options);
+    await this.request(`/api/phone-chat/discord/link?${query}`, { method: "DELETE" }, options, true);
   }
 
   private async request<T = void>(
     path: string,
     init: RequestInit,
     options: PhoneChatRequestOptions,
+    sameOrigin = false,
   ): Promise<T> {
     const token = options.bearerToken === undefined ? this.tokenProvider() : options.bearerToken;
     const headers = new Headers(init.headers);
     if (init.body !== undefined) headers.set("Content-Type", "application/json");
     if (token) headers.set("Authorization", `Bearer ${token}`);
-    const response = await this.fetcher(`${this.baseUrl}${path}`, {
+    const response = await this.fetcher(sameOrigin ? path : `${this.baseUrl}${path}`, {
       ...init,
       cache: "no-store",
       credentials: "include",
