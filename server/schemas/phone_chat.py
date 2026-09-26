@@ -13,6 +13,14 @@ TerminalPhoneChatState = Literal["completed", "failed", "expired"]
 _IDENTIFIER_PATTERN = r"^[A-Za-z0-9_-]{1,128}$"
 
 
+def _require_discord_snowflake(value: str) -> str:
+    if not value.isascii() or not value.isdecimal() or value.startswith("0"):
+        raise ValueError("discordUserId must be a positive decimal snowflake")
+    if int(value) > 2**64 - 1:
+        raise ValueError("discordUserId exceeds the unsigned 64-bit snowflake range")
+    return value
+
+
 class PhoneChatRequestModel(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
@@ -129,8 +137,18 @@ class CreateDiscordPairingResponse(PhoneChatRequestModel):
 
 class ConsumeDiscordPairingRequest(PhoneChatRequestModel):
     code: str = Field(strict=True, min_length=43, max_length=43, pattern=r"^[A-Za-z0-9_-]{43}$")
-    discord_user_id: str = Field(alias="discordUserId", strict=True, pattern=r"^[0-9]{17,20}$")
+    discord_user_id: str = Field(alias="discordUserId", strict=True)
+
+    @field_validator("discord_user_id")
+    @classmethod
+    def require_discord_snowflake(cls, value: str) -> str:
+        return _require_discord_snowflake(value)
 
 
 class VerifyDiscordLinkRequest(PhoneChatRequestModel):
-    discord_user_id: str = Field(alias="discordUserId", strict=True, pattern=r"^[0-9]{17,20}$")
+    discord_user_id: str = Field(alias="discordUserId", strict=True)
+
+    @field_validator("discord_user_id")
+    @classmethod
+    def require_discord_snowflake(cls, value: str) -> str:
+        return _require_discord_snowflake(value)

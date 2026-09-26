@@ -14,10 +14,7 @@ from schemas.phone_chat import (
 )
 
 
-MIGRATION = (
-    Path(__file__).resolve().parents[1]
-    / "prisma/migrations/20260926_phone_discord_pairing/migration.sql"
-)
+SCHEMA = Path(__file__).resolve().parents[1] / "prisma/schema.prisma"
 CODE = "A" * 43
 DISCORD_ID = "123456789012345678"
 
@@ -57,39 +54,44 @@ def test_discord_requests_accept_valid_ids_and_reject_caller_selected_owner(requ
         request_type.model_validate({**payload, "ownerId": "another-user"})
 
 
-@pytest.mark.parametrize("discord_id", ["", "abc", "1234567890123456", "123456789012345678901"])
-def test_discord_requests_require_snowflake_shaped_user_id(discord_id):
+@pytest.mark.parametrize("request_type", [ConsumeDiscordPairingRequest, VerifyDiscordLinkRequest])
+@pytest.mark.parametrize("discord_id", ["1", "1234567890123456", "18446744073709551615"])
+def test_discord_requests_accept_unsigned_64_bit_legacy_and_current_ids(request_type, discord_id):
+    payload = {"discordUserId": discord_id}
+    if request_type is ConsumeDiscordPairingRequest:
+        payload["code"] = CODE
+    assert request_type.model_validate(payload).discord_user_id == discord_id
+
+
+@pytest.mark.parametrize("request_type", [ConsumeDiscordPairingRequest, VerifyDiscordLinkRequest])
+@pytest.mark.parametrize("discord_id", ["", "0", "01", "abc", "-1", " 1", "1.0", "18446744073709551616", 1])
+def test_discord_requests_reject_non_snowflake_numeric_values(request_type, discord_id):
+    payload = {"discordUserId": discord_id}
+    if request_type is ConsumeDiscordPairingRequest:
+        payload["code"] = CODE
     with pytest.raises(ValidationError):
-        VerifyDiscordLinkRequest.model_validate({"discordUserId": discord_id})
+        request_type.model_validate(payload)
 
 
-def test_active_link_unique_indexes_preserve_revoked_history():
-    # Execute the migration's real index statements against a small compatible
-    # table. SQLite and PostgreSQL share the partial-index syntax used here.
-    migration = MIGRATION.read_text(encoding="utf-8")
-    statements = [statement.strip() for statement in migration.split(";")]
-    active_indexes = [
-        statement for statement in statements
-        if statement.startswith("CREATE UNIQUE INDEX") and '"PhoneDiscordLink"' in statement
-    ]
-    assert len(active_indexes) == 2
+def test_prisma_link_contract_uses_unique_nullable_current_slot():
+    schema = SCHEMA.read_text(encoding="utf-8")
+    link_model = schema.split("model PhoneDiscordLink {", 1)[1].split("}", 1)[0]
+    fields = {line.split()[0]: line.split()[1:] for line in link_model.splitlines() if line.strip() and not line.strip().startswith("//")}
+    assert "@unique" in fields["ownerId"]
+    assert fields["discordUserId"][0] == "String?"
+    assert "@unique" in fields["discordUserId"]
 
+
+def test_unique_slot_rejects_duplicate_owner_or_discord_and_allows_relink_after_revoke():
     db = sqlite3.connect(":memory:")
     db.execute(
         'CREATE TABLE "PhoneDiscordLink" ('
-        '"id" TEXT PRIMARY KEY, "ownerId" TEXT NOT NULL, '
-        '"discordUserId" TEXT NOT NULL, "revokedAt" TEXT)'
-    )
-    for statement in active_indexes:
-        db.execute(statement)
-
-    db.execute(
-        'INSERT INTO "PhoneDiscordLink" VALUES (?, ?, ?, ?)',
-        ("old", "owner-1", DISCORD_ID, "2026-09-26T12:00:00Z"),
+        '"id" TEXT PRIMARY KEY, "ownerId" TEXT NOT NULL UNIQUE, '
+        '"discordUserId" TEXT UNIQUE, "revokedAt" TEXT)'
     )
     db.execute(
         'INSERT INTO "PhoneDiscordLink" VALUES (?, ?, ?, ?)',
-        ("current", "owner-1", DISCORD_ID, None),
+        ("slot-1", "owner-1", DISCORD_ID, None),
     )
     with pytest.raises(sqlite3.IntegrityError):
         db.execute(
@@ -101,10 +103,12 @@ def test_active_link_unique_indexes_preserve_revoked_history():
             'INSERT INTO "PhoneDiscordLink" VALUES (?, ?, ?, ?)',
             ("same-discord", "owner-2", DISCORD_ID, None),
         )
-    db.execute('UPDATE "PhoneDiscordLink" SET "revokedAt" = ? WHERE "id" = ?',
-               ("2026-09-26T12:01:00Z", "current"))
+    db.execute('UPDATE "PhoneDiscordLink" SET "discordUserId" = NULL, "revokedAt" = ? WHERE "id" = ?',
+               ("2026-09-26T12:01:00Z", "slot-1"))
     db.execute(
         'INSERT INTO "PhoneDiscordLink" VALUES (?, ?, ?, ?)',
-        ("replacement", "owner-1", DISCORD_ID, None),
+        ("slot-2", "owner-2", DISCORD_ID, None),
     )
-    assert db.execute('SELECT COUNT(*) FROM "PhoneDiscordLink"').fetchone()[0] == 3
+    db.execute('UPDATE "PhoneDiscordLink" SET "discordUserId" = ?, "revokedAt" = NULL WHERE "id" = ?',
+               ("223456789012345678", "slot-1"))
+    assert db.execute('SELECT COUNT(*) FROM "PhoneDiscordLink"').fetchone()[0] == 2

@@ -107,16 +107,13 @@ model PhoneDiscordPairing {
 
 model PhoneDiscordLink {
   id            String    @id @default(uuid())
-  ownerId       String
+  ownerId       String    @unique
   owner         User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  discordUserId String
+  discordUserId String?   @unique
   createdAt     DateTime  @default(now())
   revokedAt     DateTime?
 
-  // Active uniqueness is enforced by partial indexes in the SQL migration.
-  // A Prisma @@unique with nullable revokedAt would allow duplicate active rows.
-  @@index([ownerId, revokedAt])
-  @@index([discordUserId, revokedAt])
+  // One row per owner is the current slot. Revocation clears discordUserId.
 }
 
 model EmailVerificationToken {
