@@ -30,7 +30,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from prisma.errors import RecordNotFoundError
 from db import db
-from routers import auth, character, habits, missions, progression, achievements, analytics, tower, inventory, aira, fitness, skills, bosses, workouts, shop, season_pass, crafting, beasts, integration, automations, calendar, status as status_router, cron
+from routers import auth, character, habits, missions, progression, achievements, analytics, tower, inventory, aira, fitness, skills, bosses, workouts, shop, season_pass, crafting, beasts, integration, automations, calendar, status as status_router, cron, phone_chat
 
 log_startup_memory("module_imports_complete")
 
@@ -217,6 +217,7 @@ app.include_router(integration.router)
 app.include_router(automations.router)
 app.include_router(calendar.router)
 app.include_router(status_router.router)
+app.include_router(phone_chat.router)
 app.include_router(cron.router)
 
 @app.get("/")
