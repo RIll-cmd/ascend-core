@@ -56,8 +56,14 @@ def _require_same_origin(request: Request) -> None:
             "https://ascend-core.vercel.app", "https://ascend-os.vercel.app",
         ] if value.strip()
     }
-    if origin.rstrip("/") not in allowed:
-        raise HTTPException(status_code=403, detail="Origin is not allowed")
+    origin_clean = origin.rstrip("/")
+    if origin_clean in allowed:
+        return
+    if os.getenv("ENVIRONMENT") == "staging" and (
+        origin_clean.startswith("https://ascend-core") and origin_clean.endswith(".vercel.app")
+    ):
+        return
+    raise HTTPException(status_code=403, detail="Origin is not allowed")
 
 
 def _user_id(user: dict) -> str:
