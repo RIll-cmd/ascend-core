@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from uuid import uuid4
 from datetime import datetime, timedelta, timezone
 import asyncio
+import pytest
 
 import auth_utils
 from routers import phone_chat
@@ -10,12 +11,14 @@ from services.phone_chat_queue import PhoneChatQueue
 from services.phone_chat_repository import InMemoryPhoneChatRepository
 
 
-def make_client(*, authenticated_user=None):
+def make_client(*, authenticated_user=None, pairing=None):
     phone_chat.limiter.reset()
     app = FastAPI()
     app.include_router(phone_chat.router)
     queue = PhoneChatQueue(InMemoryPhoneChatRepository(), owner_id="user-1", worker_token="worker-secret")
     app.dependency_overrides[phone_chat.get_phone_chat_queue] = lambda: queue
+    if pairing is not None:
+        app.dependency_overrides[phone_chat.get_phone_chat_pairing] = lambda: pairing
     if authenticated_user is not None:
         app.dependency_overrides[phone_chat.get_current_user] = lambda: authenticated_user
     return TestClient(app), queue
@@ -85,6 +88,120 @@ def test_pwa_device_registration_rejects_worker_bearer_even_if_origin_is_trusted
         "Origin": "http://localhost:3000",
     })
     assert response.status_code == 401
+
+
+@pytest.mark.parametrize("method,path", [
+    ("post", "/api/phone-chat/discord/pairing-codes"),
+    ("get", "/api/phone-chat/discord/link"),
+    ("delete", "/api/phone-chat/discord/link"),
+])
+def test_discord_browser_routes_require_login_and_do_not_accept_bridge_bearer(method, path):
+    client, _ = make_client()
+    params = {"deviceId": "device-1"}
+    assert getattr(client, method)(path, params=params, headers={"Origin": "http://localhost:3000"}).status_code == 401
+    assert getattr(client, method)(path, params=params, headers={
+        "Authorization": "Bearer bridge-secret", "Origin": "http://localhost:3000",
+    }).status_code == 401
+
+
+def test_discord_bridge_requires_dedicated_token_and_rejects_worker_or_browser_token(monkeypatch):
+    monkeypatch.setenv("ASCEND_DISCORD_BRIDGE_TOKEN", "bridge-secret")
+    client, _ = make_client()
+    browser_token = auth_utils.create_access_token({"sub": "user-1", "username": "owner"})
+    payload = {"discordUserId": "123456789012345678"}
+    path = "/api/phone-chat/worker/discord/verify-link"
+    assert client.post(path, json=payload).status_code == 401
+    for token in ("worker-secret", browser_token):
+        assert client.post(path, json=payload, headers={"Authorization": f"Bearer {token}"}).status_code == 403
+
+
+class _PairingStub:
+    def __init__(self):
+        self.created_for = None
+        self.revoked_for = None
+
+    async def create_pairing(self, owner_id):
+        from schemas.phone_chat import CreateDiscordPairingResponse
+        self.created_for = owner_id
+        return CreateDiscordPairingResponse(code="A" * 43, expiresAt=datetime.now(timezone.utc) + timedelta(minutes=5))
+
+    async def link_status(self, owner_id):
+        return owner_id == "user-1"
+
+    async def revoke_link(self, owner_id):
+        self.revoked_for = owner_id
+        return True
+
+    async def consume_pairing(self, code, discord_user_id):
+        return code == "A" * 43 and discord_user_id == "123456789012345678"
+
+    async def verify_link(self, discord_user_id):
+        return "user-1" if discord_user_id == "123456789012345678" else None
+
+
+def test_discord_browser_routes_bind_authenticated_owner_to_active_device_and_origin():
+    pairing = _PairingStub()
+    client, queue = make_client(authenticated_user={"id": "user-1"}, pairing=pairing)
+    path = "/api/phone-chat/discord/pairing-codes"
+    assert client.post(path, params={"deviceId": "missing"}, headers={"Origin": "http://localhost:3000"}).status_code == 403
+    device = asyncio.run(queue.register_device("user-1"))
+    params = {"deviceId": device.id}
+    assert client.post(path, params=params).status_code == 403
+    assert client.post(path, params=params, headers={"Origin": "https://evil.example"}).status_code == 403
+    created = client.post(path, params=params, headers={"Origin": "http://localhost:3000"})
+    assert created.status_code == 201
+    assert pairing.created_for == "user-1"
+    assert client.get("/api/phone-chat/discord/link", params=params).json() == {"linked": True}
+    assert client.delete("/api/phone-chat/discord/link", params=params).status_code == 403
+    assert client.delete("/api/phone-chat/discord/link", params=params,
+                         headers={"Origin": "http://localhost:3000"}).status_code == 204
+    assert pairing.revoked_for == "user-1"
+
+
+def test_discord_browser_routes_reject_non_owner_even_with_valid_device():
+    pairing = _PairingStub()
+    client, _ = make_client(authenticated_user={"id": "other-user"}, pairing=pairing)
+    origin = {"Origin": "http://localhost:3000"}
+    params = {"deviceId": "device-1"}
+    assert client.post("/api/phone-chat/discord/pairing-codes", params=params, headers=origin).status_code == 403
+    assert client.get("/api/phone-chat/discord/link", params=params).status_code == 403
+    assert client.delete("/api/phone-chat/discord/link", params=params, headers=origin).status_code == 403
+
+
+def test_discord_pairing_creation_and_status_checks_are_rate_limited():
+    client, queue = make_client(authenticated_user={"id": "user-1"}, pairing=_PairingStub())
+    device = asyncio.run(queue.register_device("user-1"))
+    params = {"deviceId": device.id}
+    origin = {"Origin": "http://localhost:3000"}
+    create_codes = [client.post("/api/phone-chat/discord/pairing-codes", params=params, headers=origin)
+                    for _ in range(6)]
+    statuses = [client.get("/api/phone-chat/discord/link", params=params) for _ in range(61)]
+    assert any(response.status_code == 429 for response in create_codes)
+    assert any(response.status_code == 429 for response in statuses)
+
+
+def test_discord_bridge_accepts_only_dedicated_token_and_never_accepts_owner_override(monkeypatch):
+    monkeypatch.setenv("ASCEND_DISCORD_BRIDGE_TOKEN", "bridge-secret")
+    pairing = _PairingStub()
+    client, _ = make_client(pairing=pairing)
+    auth = {"Authorization": "Bearer bridge-secret"}
+    path = "/api/phone-chat/worker/discord/consume-link"
+    payload = {"code": "A" * 43, "discordUserId": "123456789012345678"}
+    assert client.post(path, headers=auth, json={**payload, "ownerId": "other-user"}).status_code == 400
+    assert client.post(path, headers=auth, json=payload).json() == {"linked": True}
+    assert client.post(path, headers=auth, json={**payload, "code": "B" * 43}).json() == {"detail": "Pairing unavailable"}
+    malformed = client.post(path, headers=auth, json={**payload, "code": "private-invalid-code"})
+    assert malformed.json() == {"detail": "Pairing unavailable"}
+    verify = "/api/phone-chat/worker/discord/verify-link"
+    assert client.post(verify, headers=auth, json={
+        "discordUserId": payload["discordUserId"], "ownerId": "other-user",
+    }).status_code == 400
+    assert client.post(verify, headers=auth, json={"discordUserId": payload["discordUserId"]}).json() == {
+        "linked": True, "ownerId": "user-1",
+    }
+    assert client.post(verify, headers=auth, json={"discordUserId": "223456789012345678"}).json() == {
+        "linked": False,
+    }
 
 
 def test_message_enqueue_is_rate_limited():

@@ -4,22 +4,26 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import secrets
 from datetime import datetime, timezone
 from typing import AsyncIterator
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, Response
 from fastapi.responses import StreamingResponse
+from pydantic import ValidationError
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from auth_utils import get_current_user
 from db import db
 from schemas.phone_chat import (
+    ConsumeDiscordPairingRequest, CreateDiscordPairingResponse, VerifyDiscordLinkRequest,
     PhoneChatDeviceResponse, PhoneChatMessageAccepted, PhoneChatMessageRequest,
     PhoneChatMessageStatus, PhoneChatTombstoneResponse, PhoneChatWorkerJob,
     PhoneChatWorkerResult,
 )
 from services.phone_chat_queue import PhoneChatQueue
+from services.phone_chat_pairing import PhoneChatPairing
 from services.phone_chat_repository import PhoneChatTombstone, PostgresPhoneChatRepository
 
 router = APIRouter(prefix="/api/phone-chat", tags=["phone-chat"])
@@ -36,6 +40,23 @@ async def get_phone_chat_queue() -> PhoneChatQueue:
         owner_id=os.getenv("ASCEND_PHONE_OWNER_ID"),
         worker_token=os.getenv("ASCEND_PHONE_WORKER_TOKEN"),
     )
+
+
+async def get_phone_chat_pairing() -> PhoneChatPairing:
+    return PhoneChatPairing(
+        db, owner_id=os.getenv("ASCEND_PHONE_OWNER_ID"),
+        hmac_secret=os.getenv("ASCEND_DISCORD_PAIRING_HMAC_SECRET"),
+        bridge_token=os.getenv("ASCEND_DISCORD_BRIDGE_TOKEN"),
+    )
+
+
+def _require_discord_bridge(authorization: str | None) -> None:
+    credential = _worker_credential(authorization)
+    expected = os.getenv("ASCEND_DISCORD_BRIDGE_TOKEN") or ""
+    worker_token = os.getenv("ASCEND_PHONE_WORKER_TOKEN") or ""
+    if (not expected or (worker_token and secrets.compare_digest(expected, worker_token))
+            or not secrets.compare_digest(credential, expected)):
+        raise HTTPException(status_code=403, detail="Discord bridge credential rejected")
 
 
 def _require_same_origin(request: Request) -> None:
@@ -97,6 +118,100 @@ def _worker_credential(authorization: str | None) -> str:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Worker bearer credential required")
     return authorization[7:]
+
+
+@router.post("/discord/pairing-codes", response_model=CreateDiscordPairingResponse, status_code=201)
+@limiter.limit("5/minute")
+async def create_discord_pairing_code(
+    request: Request,
+    response: Response,
+    device_id: str = Query(alias="deviceId"),
+    user: dict = Depends(get_current_user),
+    queue: PhoneChatQueue = Depends(get_phone_chat_queue),
+    pairing: PhoneChatPairing = Depends(get_phone_chat_pairing),
+):
+    _require_same_origin(request)
+    owner_id = _user_id(user)
+    try:
+        await queue._active_device(owner_id, device_id)
+        value = await pairing.create_pairing(owner_id)
+        response.headers["Cache-Control"] = "no-store"
+        return value
+    except PermissionError as error:
+        _raise_http(error)
+
+
+@router.get("/discord/link")
+@limiter.limit("60/minute")
+async def discord_link_status(
+    request: Request,
+    response: Response,
+    device_id: str = Query(alias="deviceId"),
+    user: dict = Depends(get_current_user),
+    queue: PhoneChatQueue = Depends(get_phone_chat_queue),
+    pairing: PhoneChatPairing = Depends(get_phone_chat_pairing),
+):
+    owner_id = _user_id(user)
+    try:
+        await queue._active_device(owner_id, device_id)
+        response.headers["Cache-Control"] = "no-store"
+        return {"linked": await pairing.link_status(owner_id)}
+    except PermissionError as error:
+        _raise_http(error)
+
+
+@router.delete("/discord/link", status_code=204)
+@limiter.limit("10/minute")
+async def revoke_discord_link(
+    request: Request,
+    device_id: str = Query(alias="deviceId"),
+    user: dict = Depends(get_current_user),
+    queue: PhoneChatQueue = Depends(get_phone_chat_queue),
+    pairing: PhoneChatPairing = Depends(get_phone_chat_pairing),
+):
+    _require_same_origin(request)
+    owner_id = _user_id(user)
+    try:
+        await queue._active_device(owner_id, device_id)
+        await pairing.revoke_link(owner_id)
+        return Response(status_code=204)
+    except PermissionError as error:
+        _raise_http(error)
+
+
+@router.post("/worker/discord/consume-link")
+@limiter.limit("30/minute")
+async def consume_discord_link(
+    request: Request,
+    authorization: str | None = Header(default=None),
+    pairing: PhoneChatPairing = Depends(get_phone_chat_pairing),
+):
+    _require_discord_bridge(authorization)
+    try:
+        payload = ConsumeDiscordPairingRequest.model_validate(await request.json())
+        if await pairing.consume_pairing(payload.code, payload.discord_user_id):
+            return {"linked": True}
+    except (PermissionError, ValidationError, ValueError):
+        pass
+    raise HTTPException(status_code=400, detail="Pairing unavailable")
+
+
+@router.post("/worker/discord/verify-link")
+@limiter.limit("120/minute")
+async def verify_discord_link(
+    request: Request,
+    authorization: str | None = Header(default=None),
+    pairing: PhoneChatPairing = Depends(get_phone_chat_pairing),
+):
+    _require_discord_bridge(authorization)
+    try:
+        payload = VerifyDiscordLinkRequest.model_validate(await request.json())
+        owner_id = await pairing.verify_link(payload.discord_user_id)
+        return {"linked": True, "ownerId": owner_id} if owner_id else {"linked": False}
+    except PermissionError:
+        raise HTTPException(status_code=503, detail="Discord pairing unavailable")
+    except (ValidationError, ValueError):
+        raise HTTPException(status_code=400, detail="Invalid verification request")
 
 
 @router.post("/devices", response_model=PhoneChatDeviceResponse, status_code=201)
