@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { useCharacterStore } from "./useCharacterStore";
 import { API_BASE_URL } from "@/constants";
+import { PhoneChatApi } from "@/features/phone-chat/api";
+import { logoutPhoneChat, type PhoneChatStorage } from "@/features/phone-chat/phoneChatSession";
 import type { Character } from "@/features/character/types/character";
 
 export interface UserState {
@@ -114,6 +116,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   logout: () => {
+    const bearerToken = get().token;
+    let tabStorage: PhoneChatStorage | null = null;
+    let durableStorage: PhoneChatStorage | null = null;
+    try { tabStorage = window.sessionStorage; } catch {}
+    try { durableStorage = window.localStorage; } catch {}
+    const phoneChatApi = new PhoneChatApi();
+    void logoutPhoneChat(tabStorage, durableStorage, (deviceId) =>
+      phoneChatApi.revokeDevice(deviceId, { bearerToken }),
+    ).catch(() => undefined);
     clearCookie();
     try {
       localStorage.removeItem("ascend_session");

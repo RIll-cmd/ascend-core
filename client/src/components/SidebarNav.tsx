@@ -1,7 +1,7 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { ChevronRight, X } from "lucide-react";
+import { ChevronRight, MessageCircle, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { playSystemOpen } from "@/features/audio/useSystemAudio";
@@ -107,6 +107,7 @@ export const SIDEBAR_NAV_SECTIONS: SidebarNavSection[] = [
       { id: "aira", index: "17", label: "AI System / AIRA", href: "/aira", ariaLabel: "Open AIRA AI System", icon: GraphicAiraIcon, category: "system" },
       { id: "achievements", index: "18", label: "Achievements", href: "/achievements", ariaLabel: "Open Achievements", icon: GraphicAchievementsIcon, category: "system" },
       { id: "automations", index: "19", label: "Automations", href: "/automations", ariaLabel: "Manage automation rules", icon: GraphicAutomationsIcon, category: "system" },
+      { id: "phone-chat", index: "20", label: "Phone Chat", href: "/phone-chat", ariaLabel: "Chat with Ascend Vision on this phone", icon: MessageCircle, category: "system" },
     ],
   },
 ];
@@ -183,7 +184,7 @@ export function SidebarNav() {
           <header className="flex min-h-20 items-center justify-between border-b border-slate-800 px-4">
             <div>
               <Dialog.Title className="font-pixel text-sm tracking-wide text-white">ASCEND OS</Dialog.Title>
-              <Dialog.Description className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-emerald-300">Command index · 18 routes</Dialog.Description>
+              <Dialog.Description className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-emerald-300">Command index · 20 routes</Dialog.Description>
             </div>
             <Dialog.Close className="grid h-11 w-11 place-items-center border border-slate-700 bg-[#0d121e] text-slate-300 transition-colors hover:border-emerald-500 hover:text-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400" aria-label="Close navigation">
               <X className="h-4 w-4" aria-hidden="true" />

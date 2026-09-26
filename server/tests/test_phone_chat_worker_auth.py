@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from uuid import uuid4
+from datetime import datetime, timedelta, timezone
+import asyncio
 
 import auth_utils
 from routers import phone_chat
@@ -120,9 +122,19 @@ def test_http_queue_flow_claims_completes_reads_and_acknowledges_one_reply():
     assert client.post(f"/api/phone-chat/worker/jobs/{message_id}/start", headers={
         **worker, "X-Phone-Lease": job["leaseId"],
     }).status_code == 204
+
+    def fake_vision_handler(claimed_job):
+        assert claimed_job["text"] == "What is Hub status?"
+        return {"status": "completed", "reply": "Antigravity is idle."}
+
+    result = fake_vision_handler(job)
     assert client.post(f"/api/phone-chat/worker/jobs/{message_id}/complete", headers={
         **worker, "X-Phone-Lease": job["leaseId"],
-    }, json={"status": "completed", "reply": "Antigravity is idle."}).status_code == 204
+    }, json=result).status_code == 204
+    # A repeated identical completion is idempotent: the delivery has one reply.
+    assert client.post(f"/api/phone-chat/worker/jobs/{message_id}/complete", headers={
+        **worker, "X-Phone-Lease": job["leaseId"],
+    }, json=result).status_code == 204
 
     status = client.get(f"/api/phone-chat/messages/{message_id}", params={"deviceId": device})
     assert status.json()["reply"] == "Antigravity is idle."
@@ -132,7 +144,31 @@ def test_http_queue_flow_claims_completes_reads_and_acknowledges_one_reply():
     after_ack = client.get(f"/api/phone-chat/messages/{message_id}", params={"deviceId": device})
     assert after_ack.json()["status"] == "completed"
     assert "reply" not in after_ack.json()
+    assert client.post(f"/api/phone-chat/messages/{message_id}/ack", params={"deviceId": device}, headers=origin).status_code == 200
+    other_device = client.post("/api/phone-chat/devices", headers=origin).json()["deviceId"]
+    assert client.get(f"/api/phone-chat/messages/{message_id}", params={"deviceId": other_device}).status_code == 404
     assert job_is_absent(queue, message_id)
+
+    expired_id = "4bfb3bb8-8ee7-4acd-8f17-cf98119c20fe"
+    assert client.post("/api/phone-chat/messages", headers=origin, json={
+        "deviceId": device, "messageId": expired_id, "sessionId": "tab-1", "text": "Expired private prompt",
+    }).status_code == 202
+    assert asyncio.run(queue.repository.update_job(expired_id, {"status": "queued"}, {
+        "expires_at": datetime.now(timezone.utc) - timedelta(seconds=1),
+    }))
+    assert client.post("/api/phone-chat/worker/claim", headers=worker).status_code == 204
+    expired = client.get(f"/api/phone-chat/messages/{expired_id}", params={"deviceId": device})
+    assert expired.status_code == 200
+    assert expired.json()["status"] == "expired"
+    assert expired.json()["reply"] is None
+    assert asyncio.run(queue.repository.get_job(expired_id)).text == ""
+    assert client.post(f"/api/phone-chat/messages/{expired_id}/ack", params={"deviceId": device}, headers=origin).status_code == 200
+    assert job_is_absent(queue, expired_id)
+    expired_tombstone = client.get(f"/api/phone-chat/messages/{expired_id}", params={"deviceId": device})
+    assert expired_tombstone.json()["status"] == "expired"
+    assert "reply" not in expired_tombstone.json()
+    assert client.delete(f"/api/phone-chat/devices/{device}", headers=origin).status_code == 204
+    assert client.delete(f"/api/phone-chat/devices/{device}", headers=origin).status_code == 204
 
 
 def job_is_absent(queue, message_id):

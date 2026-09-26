@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Target, Flame, User, Menu } from "lucide-react";
+import { LayoutDashboard, Target, Flame, User, Menu, MessageCircle } from "lucide-react";
 import { playUISound } from "@/utils/audio";
 
 export function MobileBottomNav() {
@@ -15,6 +15,7 @@ export function MobileBottomNav() {
     { name: "Missions", href: "/missions", icon: Target },
     { name: "Tower", href: "/tower", icon: Flame },
     { name: "Profile", href: "/character", icon: User },
+    { name: "Chat", href: "/phone-chat", icon: MessageCircle },
     { name: "Settings", href: "/settings", icon: Menu },
   ];
 
