@@ -273,3 +273,32 @@ def test_expiry_and_device_revocation_discard_unfinished_prompts_and_retain_only
             )
 
     asyncio.run(scenario())
+
+
+def test_expired_claim_is_discarded_before_start_or_late_completion():
+    from datetime import datetime, timedelta, timezone
+    import asyncio
+    from schemas.phone_chat import PhoneChatWorkerResult
+    from services.phone_chat_queue import PhoneChatQueue
+    from services.phone_chat_repository import InMemoryPhoneChatRepository
+
+    async def scenario():
+        repo = InMemoryPhoneChatRepository()
+        queue = PhoneChatQueue(repo, owner_id="owner-1", worker_token="worker-secret")
+        device = await queue.register_device("owner-1")
+        now = datetime(2026, 9, 26, 12, tzinfo=timezone.utc)
+        message_id = "4bfb3bb8-8ee7-4acd-8f17-cf98119c20fd"
+        await queue.enqueue("owner-1", device.id, message_id, "session-1", "private", now=now)
+        job = await queue.claim("worker-secret", now=now)
+
+        assert not await queue.start("worker-secret", message_id, job.lease_id, now=now + timedelta(hours=25))
+        expired = await repo.get_job(message_id)
+        assert expired.status == "expired"
+        assert expired.text == ""
+        with pytest.raises(PermissionError, match="lease"):
+            await queue.complete(
+                "worker-secret", message_id, job.lease_id,
+                PhoneChatWorkerResult(status="completed", reply="late"), now=now + timedelta(hours=25),
+            )
+
+    asyncio.run(scenario())

@@ -133,6 +133,12 @@ class PhoneChatQueue:
         job = await self.repository.get_job(message_id)
         if not job:
             return False
+        if job.expires_at <= now and job.status in {"claimed", "processing"} and job.lease_id == lease_id:
+            await self.repository.update_job(message_id, {
+                "status": job.status, "lease_id": lease_id, "lease_expires_at": job.lease_expires_at,
+            }, {"status": "expired", "text": "", "reply": None, "error_code": None,
+                "completed_at": now, "lease_id": None, "lease_expires_at": None})
+            return False
         if job.status == "processing" and job.lease_id == lease_id and job.lease_expires_at and job.lease_expires_at > now:
             return True
         if job.status != "claimed" or job.lease_id != lease_id or not job.lease_expires_at or job.lease_expires_at <= now:
@@ -160,6 +166,13 @@ class PhoneChatQueue:
         job = await self.repository.get_job(message_id)
         if not job:
             raise LookupError("Phone chat job not found")
+        if job.expires_at <= now and job.status in {"claimed", "processing"} and job.lease_id == lease_id:
+            expired = await self.repository.update_job(message_id, {
+                "status": job.status, "lease_id": lease_id, "lease_expires_at": job.lease_expires_at,
+            }, {"status": "expired", "text": "", "reply": None, "error_code": None,
+                "completed_at": now, "lease_id": None, "lease_expires_at": None})
+            if expired:
+                return await self.repository.get_job(message_id)
         if job.status in {"completed", "failed"}:
             if job.reply == result.reply and job.error_code == result.error_code and job.status == result.status:
                 return job
