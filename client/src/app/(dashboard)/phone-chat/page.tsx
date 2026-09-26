@@ -1,12 +1,13 @@
 "use client";
 
 import { PhoneChatPanel } from "@/features/phone-chat/PhoneChatPanel";
+import { DiscordLinkCard } from "@/features/phone-chat/DiscordLinkCard";
 import { usePhoneChat } from "@/features/phone-chat/usePhoneChat";
 
 export default function PhoneChatPage() {
   const chat = usePhoneChat();
   return (
-    <div className="flex min-h-full w-full flex-col justify-center py-2">
+    <div className="flex min-h-full w-full flex-col justify-center gap-3 py-2 sm:flex-col-reverse">
       <PhoneChatPanel
         ready={chat.ready}
         busy={chat.busy}
@@ -18,6 +19,7 @@ export default function PhoneChatPage() {
         onNewChat={chat.newChat}
         onRevokeDevice={chat.revokeDevice}
       />
+      <DiscordLinkCard deviceId={chat.deviceId} />
     </div>
   );
 }

@@ -11,6 +11,15 @@ export interface PhoneChatRequestOptions {
   bearerToken?: string | null;
 }
 
+export interface DiscordPairingCode {
+  code: string;
+  expiresAt: string;
+}
+
+export interface DiscordLinkStatus {
+  linked: boolean;
+}
+
 export class PhoneChatApiError extends Error {
   constructor(readonly status: number) {
     super(`Phone chat request failed (${status})`);
@@ -32,7 +41,7 @@ export class PhoneChatApi {
     this.tokenProvider = options.tokenProvider ?? (() => {
       try { return window.localStorage.getItem("ascend_session"); } catch { return null; }
     });
-    this.fetcher = options.fetcher ?? fetch;
+    this.fetcher = options.fetcher ?? ((input, init) => fetch(input, init));
   }
 
   async registerDevice(options: PhoneChatRequestOptions = {}): Promise<PhoneChatDeviceResponse> {
@@ -74,6 +83,21 @@ export class PhoneChatApi {
     await this.request(`/api/phone-chat/devices/${encodeURIComponent(deviceId)}`, {
       method: "DELETE",
     }, options);
+  }
+
+  async createDiscordPairing(deviceId: string, options: PhoneChatRequestOptions = {}): Promise<DiscordPairingCode> {
+    const query = new URLSearchParams({ deviceId });
+    return this.request(`/api/phone-chat/discord/pairing-codes?${query}`, { method: "POST" }, options);
+  }
+
+  async getDiscordLink(deviceId: string, options: PhoneChatRequestOptions = {}): Promise<DiscordLinkStatus> {
+    const query = new URLSearchParams({ deviceId });
+    return this.request(`/api/phone-chat/discord/link?${query}`, {}, options);
+  }
+
+  async revokeDiscordLink(deviceId: string, options: PhoneChatRequestOptions = {}): Promise<void> {
+    const query = new URLSearchParams({ deviceId });
+    await this.request(`/api/phone-chat/discord/link?${query}`, { method: "DELETE" }, options);
   }
 
   private async request<T = void>(

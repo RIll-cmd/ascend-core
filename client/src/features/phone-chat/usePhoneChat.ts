@@ -283,6 +283,7 @@ export function usePhoneChat() {
 
   return {
     ready,
+    deviceId: ready ? session.deviceId : null,
     busy,
     messages: authenticated ? session.messages : [],
     input: authenticated ? input : "",
