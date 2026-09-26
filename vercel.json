@@ -13,15 +13,5 @@
       "path": "/api/cron/midnight-decay",
       "schedule": "0 0 * * *"
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/api",
-      "destination": "https://ascend-os-server.onrender.com/api"
-    },
-    {
-      "source": "/api/:path*",
-      "destination": "https://ascend-os-server.onrender.com/api/:path*"
-    }
   ]
 }

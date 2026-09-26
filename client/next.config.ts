@@ -38,20 +38,29 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    // In local development or when an external API URL is explicitly configured,
-    // proxy /api requests to the local or remote backend server.
-    // In Vercel production deployment without NEXT_PUBLIC_API_URL, Vercel routes
-    // /api routes directly through the serverless function at /api/index.py.
-    if (process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_API_URL) {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-      return [
-        {
-          source: "/api/:path*",
-          destination: `${backendUrl}/api/:path*`,
-        },
-      ];
-    }
-    return [];
+    // Resolve the backend API URL dynamically based on environment configuration:
+    // 1. Explicit NEXT_PUBLIC_API_URL or CORE_API_URL (e.g. Vercel Preview/Staging or Production override)
+    // 2. Local development fallback (http://127.0.0.1:8000)
+    // 3. Production default (https://ascend-os-server.onrender.com)
+    const backendUrl =
+      process.env.CORE_API_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      (process.env.NODE_ENV === "development"
+        ? "http://127.0.0.1:8000"
+        : "https://ascend-os-server.onrender.com");
+
+    const trimmed = backendUrl.replace(/\/$/, "");
+
+    return [
+      {
+        source: "/api",
+        destination: `${trimmed}/api`,
+      },
+      {
+        source: "/api/:path*",
+        destination: `${trimmed}/api/:path*`,
+      },
+    ];
   },
 };
 
