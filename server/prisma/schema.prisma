@@ -39,6 +39,8 @@ model User {
   emailTokens     EmailVerificationToken[]
   phoneChatDevices PhoneChatDevice[]
   phoneChatJobs    PhoneChatJob[]
+  phoneDiscordPairings PhoneDiscordPairing[]
+  phoneDiscordLinks    PhoneDiscordLink[]
 }
 
 model PhoneChatDevice {
@@ -87,6 +89,34 @@ model PhoneChatTombstone {
 
   @@index([ownerId, deviceId])
   @@index([expiresAt])
+}
+
+model PhoneDiscordPairing {
+  id         String    @id @default(uuid())
+  ownerId    String
+  owner      User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  codeHash   String    @unique
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([ownerId])
+  @@index([expiresAt, consumedAt])
+}
+
+model PhoneDiscordLink {
+  id            String    @id @default(uuid())
+  ownerId       String
+  owner         User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  discordUserId String
+  createdAt     DateTime  @default(now())
+  revokedAt     DateTime?
+
+  // Active uniqueness is enforced by partial indexes in the SQL migration.
+  // A Prisma @@unique with nullable revokedAt would allow duplicate active rows.
+  @@index([ownerId, revokedAt])
+  @@index([discordUserId, revokedAt])
 }
 
 model EmailVerificationToken {

@@ -113,3 +113,24 @@ class PhoneChatTombstoneResponse(PhoneChatRequestModel):
     message_id: UUID = Field(alias="messageId")
     status: TerminalPhoneChatState
     expires_at: datetime = Field(alias="expiresAt")
+
+
+class CreateDiscordPairingResponse(PhoneChatRequestModel):
+    code: str = Field(strict=True, min_length=43, max_length=43, pattern=r"^[A-Za-z0-9_-]{43}$")
+    expires_at: datetime = Field(alias="expiresAt")
+
+    @field_validator("expires_at")
+    @classmethod
+    def require_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("expiresAt must include a timezone offset")
+        return value
+
+
+class ConsumeDiscordPairingRequest(PhoneChatRequestModel):
+    code: str = Field(strict=True, min_length=43, max_length=43, pattern=r"^[A-Za-z0-9_-]{43}$")
+    discord_user_id: str = Field(alias="discordUserId", strict=True, pattern=r"^[0-9]{17,20}$")
+
+
+class VerifyDiscordLinkRequest(PhoneChatRequestModel):
+    discord_user_id: str = Field(alias="discordUserId", strict=True, pattern=r"^[0-9]{17,20}$")
