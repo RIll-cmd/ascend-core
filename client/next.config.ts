@@ -51,9 +51,10 @@ const nextConfig: NextConfig = {
         ? "https://ascend-os-server-staging.onrender.com"
         : "https://ascend-os-server.onrender.com";
 
+    // In Preview environment, always prefer staging backend unless explicitly overridden by CORE_API_URL
     const backendUrl =
       process.env.CORE_API_URL ||
-      process.env.NEXT_PUBLIC_API_URL ||
+      (isPreview ? (process.env.STAGING_CORE_API_URL || "https://ascend-os-server-staging.onrender.com") : process.env.NEXT_PUBLIC_API_URL) ||
       defaultUrl;
 
     const trimmed = backendUrl.replace(/\/$/, "");
