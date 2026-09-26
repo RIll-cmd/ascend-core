@@ -158,13 +158,15 @@ class _Table:
     async def find_unique(self, *, where):
         return next((row for row in self.rows if self._matches(row, where)), None)
 
-    async def upsert(self, *, where, create, update):
+    async def upsert(self, *, where, data):
+        create = data.get("create", {})
+        update = data.get("update", {})
         row = await self.find_unique(where=where)
         if row:
             for key, value in update.items():
                 setattr(row, key, value)
             return row
-        if create["discordUserId"] in [r.discordUserId for r in self.rows if r.discordUserId]:
+        if create.get("discordUserId") in [r.discordUserId for r in self.rows if r.discordUserId]:
             raise ValueError("unique Discord ID")
         return await self.create(data=create)
 

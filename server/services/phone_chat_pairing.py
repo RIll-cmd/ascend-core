@@ -89,9 +89,17 @@ class PhoneChatPairing:
             if not owner_link or owner_link.revokedAt is not None or not owner_link.discordUserId:
                 await tx.phonediscordlink.upsert(
                     where={"ownerId": self.owner_id},
-                    create={"ownerId": self.owner_id, "discordUserId": discord_user_id,
-                            "createdAt": checked_at},
-                    update={"discordUserId": discord_user_id, "revokedAt": None},
+                    data={
+                        "create": {
+                            "ownerId": self.owner_id,
+                            "discordUserId": discord_user_id,
+                            "createdAt": checked_at,
+                        },
+                        "update": {
+                            "discordUserId": discord_user_id,
+                            "revokedAt": None,
+                        },
+                    },
                 )
             return True
 
