@@ -193,9 +193,27 @@ class PostgresPhoneChatRepository:
         row = await self.db.phonechattombstone.find_unique(where={"messageId": message_id})
         return self._tombstone(row) if row else None
 
+    _FIELD_MAP = {
+        "message_id": "messageId",
+        "owner_id": "ownerId",
+        "device_id": "deviceId",
+        "session_id": "sessionId",
+        "lease_id": "leaseId",
+        "lease_expires_at": "leaseExpiresAt",
+        "expires_at": "expiresAt",
+        "error_code": "errorCode",
+        "created_at": "createdAt",
+        "completed_at": "completedAt",
+        "acknowledged_at": "acknowledgedAt",
+    }
+
+    @classmethod
+    def _to_prisma_fields(cls, fields: dict[str, Any]) -> dict[str, Any]:
+        return {cls._FIELD_MAP.get(k, k): v for k, v in fields.items()}
+
     async def update_job(self, message_id: str, expected: dict[str, Any], changes: dict[str, Any]) -> bool:
-        where: dict[str, Any] = {"messageId": message_id, **expected}
-        result = await self.db.phonechatjob.update_many(where=where, data=changes)
+        where: dict[str, Any] = {"messageId": message_id, **self._to_prisma_fields(expected)}
+        result = await self.db.phonechatjob.update_many(where=where, data=self._to_prisma_fields(changes))
         return self._updated(result)
 
     async def list_jobs(self) -> list[PhoneChatJob]:

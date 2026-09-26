@@ -302,3 +302,24 @@ def test_expired_claim_is_discarded_before_start_or_late_completion():
             )
 
     asyncio.run(scenario())
+
+
+def test_postgres_phone_chat_repository_maps_snake_case_fields_for_prisma():
+    from unittest.mock import AsyncMock, MagicMock
+    from services.phone_chat_repository import PostgresPhoneChatRepository
+    import asyncio
+
+    mock_db = MagicMock()
+    mock_db.phonechatjob.update_many = AsyncMock(return_value=1)
+    repo = PostgresPhoneChatRepository(mock_db)
+
+    async def scenario():
+        res = await repo.update_job("msg-1", {"status": "claimed", "lease_id": "l-1"}, {"status": "completed", "lease_id": None, "completed_at": "t"})
+        assert res is True
+        mock_db.phonechatjob.update_many.assert_called_once_with(
+            where={"messageId": "msg-1", "status": "claimed", "leaseId": "l-1"},
+            data={"status": "completed", "leaseId": None, "completedAt": "t"}
+        )
+
+    asyncio.run(scenario())
+
