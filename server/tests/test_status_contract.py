@@ -107,3 +107,31 @@ def test_rejects_unknown_lifecycle_phase():
         ServiceStatusEvent.model_validate(event_payload(
             lifecycle={"operationId": "request-42", "phase": "finished"},
         ))
+
+
+@pytest.mark.parametrize("key", ["operationId", "operation_id"])
+def test_rejects_internal_operation_identity_in_public_metadata(key):
+    with pytest.raises(ValidationError, match="prohibited"):
+        ServiceStatusEvent.model_validate(event_payload(metadata={key: "private-id"}))
+
+
+def test_needs_input_requires_explicit_matching_active_operation_evidence():
+    event = ServiceStatusEvent.model_validate(event_payload(
+        issue={"code": "needs_input", "message": "A decision is needed.", "retryable": False,
+               "operationId": "request-42"},
+        lifecycle={"operationId": "request-42", "phase": "progress", "label": "Deploy preview"},
+    ))
+    assert event.issue.operation_id == "request-42"
+
+
+@pytest.mark.parametrize("overrides", [
+    {"state": "idle", "lifecycle": {"operationId": "request-42", "phase": "progress"}},
+    {"lifecycle": {"operationId": "other-request", "phase": "progress"}},
+    {"lifecycle": None},
+])
+def test_needs_input_cannot_be_inferred_from_idle_or_unrelated_operation(overrides):
+    with pytest.raises(ValidationError):
+        ServiceStatusEvent.model_validate(event_payload(
+            issue={"code": "needs_input", "message": "A decision is needed.", "retryable": False,
+                   "operationId": "request-42"}, **overrides,
+        ))

@@ -7,11 +7,10 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from schemas.service_status import SafeActivity, SafeIssue, SafeProvider, ServiceStatusEvent, ShelfServiceStatus, StatusShelfResponse
+from schemas.service_status import CompletionSummary, SafeActivity, SafeIssue, SafeProvider, ServiceStatusEvent, ShelfServiceStatus, StatusShelfResponse, issue_for_shelf
 from services.status_repository import ActiveOperation, PostgresStatusRepository, ProducerCredential, ShelfReadCredential, StoredStatus, hash_secret, verify_secret
 
 DEFAULT_STALE_AFTER_SECONDS = 30
-STUCK_AFTER_SECONDS = 90
 
 
 @dataclass
@@ -31,75 +30,47 @@ class StatusService:
 
     async def ingest_event(self, event: ServiceStatusEvent, *, received_at: datetime | None = None) -> IngestResult:
         now = received_at or _now()
-        current = await self.repository.get_status(event.service_id, event.instance_id)
         event_id = str(event.event_id)
-        if current and current.last_event_id == event_id:
-            return IngestResult(current, duplicate=True)
-        if current and event.sequence is not None and current.last_sequence is not None and event.sequence <= current.last_sequence:
-            return IngestResult(current, out_of_order=True)
         status = StoredStatus(
             service_id=event.service_id, instance_id=event.instance_id, service_type=event.service_type,
             state=event.state, state_since=event.state_since, reported_at=event.reported_at,
             received_at=now, last_heartbeat_at=now, stale_after_seconds=DEFAULT_STALE_AFTER_SECONDS,
-            last_event_id=event_id, last_sequence=event.sequence if event.sequence is not None else (current.last_sequence if current else None),
+            last_event_id=event_id, last_sequence=event.sequence,
             activity=event.activity.model_dump(mode="json", by_alias=True) if event.activity else None,
             issue=event.issue.model_dump(by_alias=True) if event.issue else None,
             provider=event.provider.model_dump(by_alias=True) if event.provider else None,
             capabilities=event.capabilities, metadata=event.metadata,
         )
-        return IngestResult(await self.repository.upsert_status(status))
-
-    async def _require_status(self, service_id: str, instance_id: str, service_type: str, now: datetime) -> StoredStatus:
-        current = await self.repository.get_status(service_id, instance_id)
-        if current:
-            return current
-        return StoredStatus(service_id, instance_id, service_type, "idle", now, now, now, now, DEFAULT_STALE_AFTER_SECONDS, capabilities=[], metadata={})
+        stored, duplicate, out_of_order = await self.repository.ingest_status_event_atomic(status, event.lifecycle, now)
+        return IngestResult(stored, duplicate=duplicate, out_of_order=out_of_order)
 
     async def start_operation(self, service_id: str, instance_id: str, service_type: str, operation_id: str, *, label: str | None = None, now: datetime | None = None) -> StoredStatus:
         now = now or _now()
-        await self.repository.create_operation(ActiveOperation(service_id, instance_id, operation_id, service_type, now, now, label))
-        status = await self._require_status(service_id, instance_id, service_type, now)
-        active_count = len(await self.repository.list_operations(service_id, instance_id))
-        status.state, status.state_since, status.reported_at, status.received_at, status.last_heartbeat_at = "working", now, now, now, now
-        status.activity = {"kind": "operation", "label": label, "startedAt": now.isoformat()} if label else {"kind": "operation", "startedAt": now.isoformat()}
-        status.metadata = {**(status.metadata or {}), "activeOperationCount": active_count}
-        return await self.repository.upsert_status(status)
+        SafeActivity(kind="operation", label=label)
+        fallback = StoredStatus(service_id, instance_id, service_type, "idle", now, now, now, now, DEFAULT_STALE_AFTER_SECONDS, capabilities=[], metadata={})
+        return await self.repository.start_operation_atomic(ActiveOperation(service_id, instance_id, operation_id, service_type, now, now, label), fallback)
 
     async def touch_operation(self, service_id: str, instance_id: str, operation_id: str, *, now: datetime | None = None) -> None:
         await self.repository.touch_operation(service_id, instance_id, operation_id, now or _now())
 
-    async def finish_operation(self, service_id: str, instance_id: str, operation_id: str, *, now: datetime | None = None) -> StoredStatus:
-        now = now or _now()
-        status = await self._require_status(service_id, instance_id, "agent", now)
-        await self.repository.delete_operation(service_id, instance_id, operation_id)
-        active_count = len(await self.repository.list_operations(service_id, instance_id))
-        status.state = "idle" if active_count == 0 else "working"
-        status.state_since = now
-        status.reported_at = status.received_at = status.last_heartbeat_at = now
-        status.activity = None if active_count == 0 else status.activity
-        status.metadata = {**(status.metadata or {}), "activeOperationCount": active_count}
-        return await self.repository.upsert_status(status)
+    async def finish_operation(self, service_id: str, instance_id: str, operation_id: str, *, outcome: str, now: datetime | None = None) -> StoredStatus:
+        """Complete explicit work with the caller's observed terminal outcome."""
+        if outcome not in {"succeeded", "failed", "cancelled"}:
+            raise ValueError("Invalid terminal outcome")
+        status, _completion = await self.repository.finish_operation_atomic(service_id, instance_id, operation_id, outcome, now or _now())
+        return status
 
     async def record_heartbeat(self, service_id: str, instance_id: str, *, now: datetime | None = None) -> StoredStatus | None:
         now = now or _now()
-        status = await self.repository.get_status(service_id, instance_id)
-        if not status:
-            return None
-        status.received_at = status.last_heartbeat_at = now
-        return await self.repository.upsert_status(status)
+        return await self.repository.record_heartbeat_atomic(service_id, instance_id, now)
 
     async def sweep(self, *, now: datetime | None = None) -> None:
         now = now or _now()
-        for operation in await self.repository.list_all_operations():
-            if now - operation.last_progress_at < timedelta(seconds=STUCK_AFTER_SECONDS):
-                continue
-            status = await self.repository.get_status(operation.service_id, operation.instance_id)
-            if not status or not status.last_heartbeat_at or now - status.last_heartbeat_at >= timedelta(seconds=status.stale_after_seconds):
-                continue
-            status.state, status.state_since, status.reported_at, status.received_at = "stuck", now, now, now
-            status.issue = {"code": "no_progress", "message": "Active operation has not reported progress.", "retryable": True}
-            status.metadata = {**(status.metadata or {}), "activeOperationCount": len(await self.repository.list_operations(operation.service_id, operation.instance_id))}
-            await self.repository.upsert_status(status)
+        identities = {(operation.service_id, operation.instance_id) for operation in await self.repository.list_all_operations()}
+        for service_id, instance_id in identities:
+            status = await self.repository.get_status(service_id, instance_id)
+            if status:
+                await self.repository.mark_stuck_if_needed(service_id, instance_id, now, status.stale_after_seconds)
 
     async def shelf(self, *, now: datetime | None = None) -> StatusShelfResponse:
         now = now or _now()
@@ -108,14 +79,19 @@ class StatusService:
             state = status.state
             if not status.last_heartbeat_at or now - status.last_heartbeat_at >= timedelta(seconds=status.stale_after_seconds):
                 state = "offline"
+            completions = [
+                CompletionSummary(outcome=record.outcome, finishedAt=record.finished_at, label=record.label)
+                for record in await self.repository.list_completions(status.service_id, status.instance_id, limit=5)
+            ]
             services.append(ShelfServiceStatus(
                 serviceId=status.service_id, instanceId=status.instance_id, serviceType=status.service_type, state=state,
                 stateSince=status.state_since, lastHeartbeatAt=status.last_heartbeat_at,
                 staleAfterSeconds=status.stale_after_seconds,
                 activity=SafeActivity.model_validate(status.activity) if status.activity else None,
-                issue=SafeIssue.model_validate(status.issue) if status.issue else None,
+                issue=issue_for_shelf(status.issue),
                 provider=SafeProvider.model_validate(status.provider) if status.provider else None,
                 capabilities=status.capabilities or [], metadata=status.metadata or {},
+                completions=completions,
             ))
         return StatusShelfResponse(schemaVersion=1, generatedAt=now, services=services)
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+import hashlib
 from typing import Any, Literal
 from uuid import UUID
 
@@ -12,12 +13,14 @@ ServiceState = Literal["idle", "working", "stuck", "offline"]
 ProducerState = Literal["idle", "working", "stuck"]
 ServiceType = Literal["agent", "assistant", "bot", "vision", "provider"]
 OperationPhase = Literal["started", "progress", "succeeded", "failed", "cancelled"]
+CompletionOutcome = Literal["succeeded", "failed", "cancelled"]
 
 _PROHIBITED_KEYS = {
     "prompt", "prompts", "code", "patch", "patches", "screenshot", "screenshots",
     "terminal", "terminaloutput", "terminal_output", "rawlog", "rawlogs", "logoutput",
     "token", "tokens", "apikey", "apikeys", "api_key", "secret", "secrets", "password", "cookie", "cookies",
     "authorization", "authheader", "auth_header", "usercontent", "user_content", "usermessage", "messagecontent",
+    "operationid",
     "trace", "stacktrace", "fulltrace", "camera", "image", "images", "biometric", "pii", "personaldata",
 }
 
@@ -59,11 +62,20 @@ class SafeIssue(BaseModel):
     code: str = Field(min_length=1, max_length=64)
     message: str = Field(min_length=1, max_length=240)
     retryable: bool
+    operation_id: str | None = Field(default=None, alias="operationId", min_length=1, max_length=128)
 
     @field_validator("message")
     @classmethod
     def reject_unsafe_message(cls, value: str) -> str:
         return _validate_safe_value(value)
+
+    @model_validator(mode="after")
+    def validate_needs_input_identity(self) -> SafeIssue:
+        if self.code == "needs_input" and not self.operation_id:
+            raise ValueError("needs_input requires an operationId")
+        if self.code != "needs_input" and self.operation_id is not None:
+            raise ValueError("operationId is only valid for needs_input")
+        return self
 
 
 class SafeProvider(BaseModel):
@@ -140,7 +152,61 @@ class ServiceStatusEvent(BaseModel):
         # still be active. An idle event without lifecycle is never completion.
         if self.lifecycle and self.lifecycle.phase in ("started", "progress") and self.state != "working":
             raise ValueError("started/progress lifecycle requires working state")
+        if self.issue and self.issue.code == "needs_input":
+            if (self.state != "working" or self.lifecycle is None
+                    or self.lifecycle.phase not in ("started", "progress")
+                    or self.lifecycle.operation_id != self.issue.operation_id):
+                raise ValueError("needs_input must identify the same active working operation")
         return self
+
+
+class CompletionSummary(BaseModel):
+    """Small, privacy-safe terminal history item exposed on the shelf."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    outcome: CompletionOutcome
+    finished_at: datetime = Field(alias="finishedAt")
+    label: str | None = Field(default=None, max_length=160)
+
+    @field_validator("finished_at")
+    @classmethod
+    def require_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("completion timestamps must include a timezone offset")
+        return value
+
+    @field_validator("label")
+    @classmethod
+    def reject_unsafe_label(cls, value: str | None) -> str | None:
+        return _validate_safe_value(value)
+
+
+class ShelfIssue(BaseModel):
+    """Public issue summary; never exposes the producer's operation identifier."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    code: str = Field(min_length=1, max_length=64)
+    message: str = Field(min_length=1, max_length=240)
+    retryable: bool
+    operation_ref: str | None = Field(default=None, alias="operationRef", pattern=r"^[a-f0-9]{16}$")
+
+    @model_validator(mode="after")
+    def validate_operation_ref(self) -> ShelfIssue:
+        if (self.code == "needs_input") != (self.operation_ref is not None):
+            raise ValueError("operationRef is only present for needs_input")
+        return self
+
+
+def issue_for_shelf(value: dict | None) -> ShelfIssue | None:
+    if value is None:
+        return None
+    issue = SafeIssue.model_validate(value)
+    operation_ref = (hashlib.sha256(issue.operation_id.encode("utf-8")).hexdigest()[:16]
+                     if issue.operation_id else None)
+    return ShelfIssue(code=issue.code, message=issue.message, retryable=issue.retryable,
+                      operationRef=operation_ref)
 
 
 class ShelfServiceStatus(BaseModel):
@@ -154,10 +220,11 @@ class ShelfServiceStatus(BaseModel):
     last_heartbeat_at: datetime | None = Field(alias="lastHeartbeatAt")
     stale_after_seconds: int = Field(alias="staleAfterSeconds")
     activity: SafeActivity | None = None
-    issue: SafeIssue | None = None
+    issue: ShelfIssue | None = None
     provider: SafeProvider | None = None
     capabilities: list[str] = Field(default_factory=list)
     metadata: dict[str, str | int | float | bool | None] = Field(default_factory=dict)
+    completions: list[CompletionSummary] = Field(default_factory=list, max_length=5)
 
 
 class StatusShelfResponse(BaseModel):

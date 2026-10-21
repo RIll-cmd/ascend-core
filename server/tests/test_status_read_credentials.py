@@ -56,3 +56,46 @@ def test_shelf_endpoint_accepts_only_the_dedicated_read_credential(monkeypatch):
 
     assert response.status_code == 200
     assert response.json()["schemaVersion"] == 1
+
+
+def test_lifecycle_events_require_the_producer_bound_instance_and_shelf_hides_operation_id(monkeypatch):
+    service = StatusService(InMemoryStatusRepository())
+    secret = asyncio.run(service.provision_producer_credential(
+        credential_id="codex-default", service_id="codex-cli", instance_id="default"
+    ))
+    reader_secret = asyncio.run(service.provision_shelf_read_credential(credential_id="hub-read"))
+    monkeypatch.setattr(status_router, "get_status_service", lambda: service)
+    app = FastAPI()
+    app.include_router(status_router.router)
+    client = TestClient(app)
+    headers = {"X-Status-Credential": f"codex-default.{secret}"}
+    event = {
+        "schemaVersion": 1,
+        "eventId": "00000000-0000-0000-0000-000000000001",
+        "sequence": 1,
+        "serviceId": "codex-cli",
+        "instanceId": "other-instance",
+        "serviceType": "agent",
+        "state": "working",
+        "stateSince": "2026-09-25T00:00:00Z",
+        "reportedAt": "2026-09-25T00:00:00Z",
+        "lifecycle": {"operationId": "job-1", "phase": "started", "label": "Build"},
+    }
+
+    rejected = client.post("/api/status/events", headers=headers, json=event)
+    assert rejected.status_code == 403
+    event["instanceId"] = "default"
+    assert client.post("/api/status/events", headers=headers, json=event).status_code == 202
+    event["eventId"] = "00000000-0000-0000-0000-000000000002"
+    event["sequence"] = 2
+    event["state"] = "idle"
+    event["lifecycle"] = {"operationId": "job-1", "phase": "succeeded"}
+    assert client.post("/api/status/events", headers=headers, json=event).status_code == 202
+
+    shelf = client.get("/api/status/shelf", headers={"X-Status-Read-Credential": f"hub-read.{reader_secret}"})
+    assert shelf.status_code == 200
+    completion = shelf.json()["services"][0]["completions"][0]
+    assert completion["outcome"] == "succeeded"
+    assert completion["label"] == "Build"
+    assert "finishedAt" in completion
+    assert "operationId" not in completion

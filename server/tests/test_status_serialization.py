@@ -32,6 +32,30 @@ class StatusTable:
         return list(self.rows.values())
 
 
+class EmptyOperationTable:
+    async def find_many(self, **_kwargs):
+        return []
+
+
+class TransactionDatabase:
+    def __init__(self, status_table):
+        self.servicestatus = status_table
+        self.statusactiveoperation = EmptyOperationTable()
+        self.statusoperationcompletion = EmptyOperationTable()
+
+    def tx(self):
+        return self
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *_args):
+        return False
+
+    async def query_raw(self, *_args):
+        return [{"locked": 1}]
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "service_id,service_type,started_at,expected",
@@ -45,7 +69,7 @@ async def test_working_activity_datetime_persists_and_round_trips_v1_shelf(
     service_id, service_type, started_at, expected
 ):
     table = StatusTable()
-    service = StatusService(PostgresStatusRepository(SimpleNamespace(servicestatus=table)))
+    service = StatusService(PostgresStatusRepository(TransactionDatabase(table)))
     event = ServiceStatusEvent.model_validate({
         "schemaVersion": 1,
         "eventId": str(uuid4()),

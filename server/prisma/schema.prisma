@@ -909,6 +909,20 @@ model StatusActiveOperation {
   @@index([lastProgressAt])
 }
 
+// Explicit terminal evidence only; bounded to the newest 20 per instance.
+model StatusOperationCompletion {
+  serviceId   String
+  instanceId  String
+  operationId String
+  outcome     String
+  startedAt   DateTime
+  finishedAt  DateTime
+  label       String?
+
+  @@id([serviceId, instanceId, operationId])
+  @@index([serviceId, instanceId, finishedAt])
+}
+
 // One revocable producer credential per bound service instance. Only its
 // salted hash is stored, never the bearer secret.
 model StatusProducerCredential {
