@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 VISION_CONTRACT_VERSION = "2026-09-09"
 VisionReadIntent = Literal[
     "missions_summary",
+    "mission_completion_history",
     "habits_summary",
     "automations_summary",
     "steps_summary",
@@ -65,6 +66,7 @@ def vision_capabilities() -> dict[str, Any]:
         "version": VISION_CONTRACT_VERSION,
         "reads": {
             "missions_summary": {"availability": "available"},
+            "mission_completion_history": {"availability": "available", "dateRangeDays": 31},
             "habits_summary": {"availability": "available"},
             "automations_summary": {"availability": "available"},
             "steps_summary": {"availability": "available"},

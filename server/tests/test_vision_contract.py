@@ -83,6 +83,51 @@ async def test_service_wraps_existing_missions_in_a_stable_summary(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_mission_completion_history_is_owner_scoped_timestamped_and_excludes_reopened_rows(monkeypatch):
+    from datetime import datetime, timezone
+    captured = {}
+    completed_at = datetime(2026, 9, 27, 3, 0, tzinfo=timezone.utc)
+
+    async def find_many(**kwargs):
+        captured.update(kwargs)
+        return [
+            SimpleNamespace(id="mission-1", completedAt=completed_at,
+                            completionType="NORMAL", habit=SimpleNamespace(name="Morning review")),
+            SimpleNamespace(id="reopened", completedAt=None, completionType=None,
+                            habit=SimpleNamespace(name="Reopened mission")),
+        ]
+
+    monkeypatch.setattr(vision_query_service, "_database", lambda: SimpleNamespace(mission=SimpleNamespace(find_many=find_many)))
+    result = await vision_query_service.execute_vision_query(query(
+        "mission_completion_history",
+        parameters={"startAt": "2026-09-27T00:00:00+00:00", "endAt": "2026-09-28T00:00:00+00:00"},
+    ))
+
+    assert result["data"]["completions"] == [{
+        "id": "mission-1", "name": "Morning review",
+        "completedAt": "2026-09-27T03:00:00+00:00", "completionType": "NORMAL",
+    }]
+    assert captured["where"]["characterId"] == "character-1"
+    assert captured["where"]["status"] == "COMPLETED"
+    assert captured["where"]["completedAt"]["lt"].isoformat() == "2026-09-28T00:00:00+00:00"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("parameters", [
+    {},
+    {"startAt": "2026-09-27T00:00:00", "endAt": "2026-09-28T00:00:00Z"},
+    {"startAt": "2026-09-28T00:00:00Z", "endAt": "2026-09-27T00:00:00Z"},
+    {"startAt": "2026-01-01T00:00:00Z", "endAt": "2026-02-10T00:00:00Z"},
+])
+async def test_mission_history_rejects_invalid_or_overlong_ranges(parameters):
+    result = await vision_query_service.execute_vision_query(
+        query("mission_completion_history", parameters=parameters),
+    )
+    assert result["success"] is False
+    assert result["error"]["code"] == "invalid_request"
+
+
+@pytest.mark.asyncio
 async def test_service_returns_unavailable_data_without_calling_a_reader():
     result = await vision_query_service.execute_vision_query(query("sleep_summary"))
 
@@ -130,17 +175,17 @@ async def test_service_wraps_existing_habits_in_a_stable_summary(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_service_wraps_automations_in_a_stable_summary(monkeypatch):
+    import sys
+    import types
     rule = SimpleNamespace(id="rule-1")
 
     async def find_many(**_kwargs):
         return [rule]
 
-    monkeypatch.setattr(
-        vision_query_service,
-        "db",
-        SimpleNamespace(automationrule=SimpleNamespace(find_many=find_many)),
-    )
-    monkeypatch.setattr(vision_query_service, "serialize_rule", lambda item: {"id": item.id, "name": "Phone automation"})
+    monkeypatch.setattr(vision_query_service, "_database", lambda: SimpleNamespace(automationrule=SimpleNamespace(find_many=find_many)))
+    automations = types.ModuleType("routers.automations")
+    automations.serialize_rule = lambda item: {"id": item.id, "name": "Phone automation"}
+    monkeypatch.setitem(sys.modules, "routers.automations", automations)
 
     result = await vision_query_service.execute_vision_query(query("automations_summary"))
 
@@ -152,11 +197,7 @@ async def test_service_returns_persisted_daily_steps_and_goal(monkeypatch):
     async def find_unique(**_kwargs):
         return SimpleNamespace(dailySteps=4200, dailyStepGoal=8000)
 
-    monkeypatch.setattr(
-        vision_query_service,
-        "db",
-        SimpleNamespace(character=SimpleNamespace(find_unique=find_unique)),
-    )
+    monkeypatch.setattr(vision_query_service, "_database", lambda: SimpleNamespace(character=SimpleNamespace(find_unique=find_unique)))
 
     result = await vision_query_service.execute_vision_query(query("steps_summary"))
 
@@ -165,10 +206,14 @@ async def test_service_returns_persisted_daily_steps_and_goal(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_service_wraps_workout_recovery_without_health_synthesis(monkeypatch):
+    import sys
+    import types
     async def recovery(_character_id):
         return {"summary": {"overallFreshness": 82.5}}
 
-    monkeypatch.setattr(vision_query_service, "compute_muscle_status_dict", recovery)
+    workouts = types.ModuleType("routers.workouts")
+    workouts.compute_muscle_status_dict = recovery
+    monkeypatch.setitem(sys.modules, "routers.workouts", workouts)
 
     result = await vision_query_service.execute_vision_query(query("recovery_summary"))
 

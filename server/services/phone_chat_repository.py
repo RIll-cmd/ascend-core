@@ -31,6 +31,8 @@ class PhoneChatJob:
     error_code: str | None = None
     completed_at: datetime | None = None
     acknowledged_at: datetime | None = None
+    audio_data: bytes | None = None
+    audio_mime_type: str | None = None
 
 
 @dataclass
@@ -72,6 +74,8 @@ class InMemoryPhoneChatRepository:
                 if job.device_id == device_id and job.status in {"queued", "claimed", "processing"}:
                     job.status, job.error_code, job.completed_at = "failed", "device_revoked", now
                     job.text = ""
+                    job.audio_data = None
+                    job.audio_mime_type = None
                     job.lease_id = job.lease_expires_at = None
             return True
 
@@ -122,6 +126,8 @@ class InMemoryPhoneChatRepository:
             for message_id, job in list(self.jobs.items()):
                 if job.expires_at <= now and job.status in {"queued", "claimed", "processing"}:
                     job.status, job.text, job.reply = "expired", "", None
+                    job.audio_data = None
+                    job.audio_mime_type = None
                     job.error_code, job.completed_at = None, now
                     job.lease_id, job.lease_expires_at = None, None
                 if job.completed_at and (job.acknowledged_at or job.completed_at) + timedelta(hours=24) <= now:
@@ -151,7 +157,7 @@ class PostgresPhoneChatRepository:
         return PhoneChatJob(row.messageId, row.ownerId, row.deviceId, row.sessionId, row.text,
                             row.status, row.attempt, row.expiresAt, row.createdAt, row.leaseId,
                             row.leaseExpiresAt, row.reply, row.errorCode, row.completedAt,
-                            row.acknowledgedAt)
+                            row.acknowledgedAt, getattr(row, "audioData", None), getattr(row, "audioMimeType", None))
 
     @staticmethod
     def _tombstone(row) -> PhoneChatTombstone:
@@ -168,19 +174,72 @@ class PostgresPhoneChatRepository:
 
     async def revoke_device(self, owner_id: str, device_id: str, now: datetime) -> bool:
         async with self.db.tx() as tx:
+            if hasattr(tx, "query_raw"):
+                await tx.query_raw('SELECT "id" FROM "User" WHERE "id"=$1 FOR UPDATE', owner_id)
             result = await tx.phonechatdevice.update_many(where={"id": device_id, "ownerId": owner_id, "revokedAt": None}, data={"revokedAt": now})
             if not self._updated(result):
                 existing = await tx.phonechatdevice.find_first(where={"id": device_id, "ownerId": owner_id, "revokedAt": {"not": None}})
                 if not existing:
                     return False
+            if hasattr(tx, "companionpushsubscription"):
+                await tx.companionpushsubscription.update_many(
+                    where={"ownerId": owner_id, "deviceId": device_id, "revokedAt": None},
+                    data={"revokedAt": now},
+                )
             await tx.phonechatjob.update_many(where={"deviceId": device_id, "status": {"in": ["queued", "claimed", "processing"]}},
                 data={"status": "failed", "errorCode": "device_revoked", "text": "", "completedAt": now,
-                      "leaseId": None, "leaseExpiresAt": None})
+                      "audioData": None, "audioMimeType": None, "leaseId": None, "leaseExpiresAt": None})
+            # Browser sessions are revoked in the same transaction as the phone device.
+            # Keep an active lease long enough for the outbound worker to receive Stop;
+            # all user content and review material is erased immediately.
+            await tx.execute_raw(
+                '''UPDATE "BrowserRemoteSession" SET "endedAt"=COALESCE("endedAt",$3)
+                   WHERE "ownerId"=$1 AND "sourceDeviceId"=$2 AND "endedAt" IS NULL''', owner_id, device_id, now,
+            )
+            await tx.execute_raw(
+                '''UPDATE "BrowserTask" SET
+                     "state"=CASE WHEN "state" IN ('queued','claimed') THEN 'cancelled'::"BrowserRemoteTaskState"
+                                   WHEN "state" IN ('running','paused','waiting_for_user') THEN 'stopping'::"BrowserRemoteTaskState"
+                                   ELSE "state" END,
+                     "cancelRequested"=TRUE,"requestedControl"='stop',
+                     "goal"=NULL,"resultJson"=NULL,"terminalReason"='device_revoked',
+                     "completedAt"=CASE WHEN "state" IN ('queued','claimed') THEN $3 ELSE "completedAt" END,
+                     "claimTokenHash"=CASE WHEN "state" IN ('queued','claimed') THEN NULL ELSE "claimTokenHash" END,
+                     "leaseExpiresAt"=CASE WHEN "state" IN ('queued','claimed') THEN NULL ELSE "leaseExpiresAt" END
+                   WHERE "sessionId" IN (SELECT "id" FROM "BrowserRemoteSession" WHERE "ownerId"=$1 AND "sourceDeviceId"=$2)
+                     AND "state" IN ('queued','claimed','running','paused','waiting_for_user','stopping')''',
+                owner_id, device_id, now,
+            )
+            await tx.execute_raw(
+                '''UPDATE "BrowserTask" SET "goal"=NULL,"resultJson"=NULL,"currentProposalId"=NULL,"waitingForUserType"=NULL
+                   WHERE "sessionId" IN (SELECT "id" FROM "BrowserRemoteSession" WHERE "ownerId"=$1 AND "sourceDeviceId"=$2)''', owner_id, device_id,
+            )
+            await tx.execute_raw(
+                '''DELETE FROM "BrowserTaskEvent" WHERE "taskId" IN
+                   (SELECT t."id" FROM "BrowserTask" t JOIN "BrowserRemoteSession" s ON s."id"=t."sessionId"
+                    WHERE s."ownerId"=$1 AND s."sourceDeviceId"=$2)''', owner_id, device_id,
+            )
+            await tx.execute_raw(
+                '''DELETE FROM "BrowserTaskReconciliation" WHERE "taskId" IN
+                   (SELECT t."id" FROM "BrowserTask" t JOIN "BrowserRemoteSession" s ON s."id"=t."sessionId"
+                    WHERE s."ownerId"=$1 AND s."sourceDeviceId"=$2)''', owner_id, device_id,
+            )
+            await tx.execute_raw(
+                '''UPDATE "BrowserActionReview" SET "proposalJson"=NULL,"decision"=NULL WHERE "taskId" IN
+                   (SELECT t."id" FROM "BrowserTask" t JOIN "BrowserRemoteSession" s ON s."id"=t."sessionId"
+                    WHERE s."ownerId"=$1 AND s."sourceDeviceId"=$2)''', owner_id, device_id,
+            )
+            await tx.execute_raw(
+                '''UPDATE "BrowserReviewAccess" SET "revokedAt"=COALESCE("revokedAt",$3) WHERE "taskId" IN
+                   (SELECT t."id" FROM "BrowserTask" t JOIN "BrowserRemoteSession" s ON s."id"=t."sessionId"
+                    WHERE s."ownerId"=$1 AND s."sourceDeviceId"=$2)''', owner_id, device_id, now,
+            )
         return True
 
     async def create_job(self, value: PhoneChatJob) -> PhoneChatJob:
         row = await self.db.phonechatjob.create(data={"messageId": value.message_id, "ownerId": value.owner_id,
             "deviceId": value.device_id, "sessionId": value.session_id, "text": value.text,
+            "audioData": value.audio_data, "audioMimeType": value.audio_mime_type,
             "status": value.status, "attempt": value.attempt, "expiresAt": value.expires_at,
             "createdAt": value.created_at})
         return self._job(row)
@@ -205,6 +264,8 @@ class PostgresPhoneChatRepository:
         "created_at": "createdAt",
         "completed_at": "completedAt",
         "acknowledged_at": "acknowledgedAt",
+        "audio_data": "audioData",
+        "audio_mime_type": "audioMimeType",
     }
 
     @classmethod
@@ -234,7 +295,8 @@ class PostgresPhoneChatRepository:
     async def cleanup(self, now: datetime) -> None:
         await self.db.phonechattombstone.delete_many(where={"expiresAt": {"lte": now}})
         await self.db.phonechatjob.update_many(where={"status": {"in": ["queued", "claimed", "processing"]}, "expiresAt": {"lte": now}},
-            data={"status": "expired", "text": "", "reply": None, "leaseId": None, "leaseExpiresAt": None, "completedAt": now})
+            data={"status": "expired", "text": "", "reply": None, "audioData": None, "audioMimeType": None,
+                  "leaseId": None, "leaseExpiresAt": None, "completedAt": now})
         rows = await self.db.phonechatjob.find_many(where={"completedAt": {"lte": now - timedelta(hours=24)}})
         for row in rows:
             tombstone = PhoneChatTombstone(row.messageId, row.ownerId, row.deviceId, row.status,

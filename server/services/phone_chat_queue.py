@@ -16,6 +16,8 @@ TOMBSTONE_TTL = timedelta(hours=24)
 LEASE_TTL = timedelta(seconds=60)
 MAX_ATTEMPTS = 3
 MAX_OWNER_QUEUE = 100
+MAX_AUDIO_BYTES = 5 * 1024 * 1024
+VOICE_MIME_TYPES = frozenset({"audio/webm", "audio/ogg", "audio/mp4", "audio/m4a", "audio/aac", "audio/wav"})
 
 
 def _now() -> datetime:
@@ -91,6 +93,58 @@ class PhoneChatQueue:
                 return existing
             raise ValueError("Message ID was already used with a different payload")
 
+    async def enqueue_audio(self, owner_id: str, device_id: str, message_id: str, session_id: str,
+                            audio_data: bytes, mime_type: str, *, now: datetime | None = None) -> PhoneChatJob:
+        device = await self._active_device(owner_id, device_id)
+        try:
+            message_id = str(UUID(message_id))
+        except (ValueError, TypeError, AttributeError) as error:
+            raise ValueError("Invalid message ID") from error
+        if not isinstance(session_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", session_id):
+            raise ValueError("Invalid session ID")
+        normalized_mime = mime_type.split(";", 1)[0].strip().lower()
+        if normalized_mime not in VOICE_MIME_TYPES:
+            raise ValueError("Unsupported voice recording format")
+        if not isinstance(audio_data, bytes) or not audio_data or len(audio_data) > MAX_AUDIO_BYTES:
+            raise ValueError("Voice recording must be between 1 byte and 5 MiB")
+        now = now or _now()
+        await self.repository.cleanup(now)
+        existing = await self.repository.get_job(message_id)
+        if existing:
+            if (existing.owner_id, existing.device_id, existing.session_id, existing.audio_data,
+                    existing.audio_mime_type) != (owner_id, device.id, session_id, audio_data, normalized_mime):
+                raise ValueError("Message ID was already used with a different payload")
+            return existing
+        if await self.repository.get_tombstone(message_id):
+            raise ValueError("Message ID was already acknowledged")
+        jobs = await self.repository.list_jobs()
+        if sum(job.owner_id == owner_id and job.status in {"queued", "claimed", "processing"} for job in jobs) >= MAX_OWNER_QUEUE:
+            raise OverflowError("Phone chat queue is full")
+        value = PhoneChatJob(message_id, owner_id, device.id, session_id, "", "queued", 0,
+                             now + JOB_TTL, now, audio_data=audio_data, audio_mime_type=normalized_mime)
+        try:
+            return await self.repository.create_job(value)
+        except Exception as error:
+            existing = await self.repository.get_job(message_id)
+            if existing and (existing.owner_id, existing.device_id, existing.session_id,
+                             existing.audio_data, existing.audio_mime_type) == (
+                    owner_id, device.id, session_id, audio_data, normalized_mime):
+                return existing
+            raise ValueError("Message ID was already used with a different payload") from error
+
+    async def cancel(self, owner_id: str, device_id: str, message_id: str, *, now: datetime | None = None) -> bool:
+        await self._active_device(owner_id, device_id)
+        job = await self.repository.get_job(message_id)
+        if not job or (job.owner_id, job.device_id) != (owner_id, device_id):
+            raise LookupError("Phone chat message not found")
+        if job.status in {"completed", "failed", "expired"}:
+            return False
+        return await self.repository.update_job(message_id, {
+            "status": job.status, "lease_id": job.lease_id, "lease_expires_at": job.lease_expires_at,
+        }, {"status": "failed", "error_code": "cancelled", "text": "", "audio_data": None,
+            "audio_mime_type": None, "lease_id": None, "lease_expires_at": None,
+            "completed_at": now or _now()})
+
     async def claim(self, credential: str, *, now: datetime | None = None) -> PhoneChatJob | None:
         self._require_worker(credential)
         if not self.owner_id:
@@ -104,7 +158,7 @@ class PhoneChatQueue:
             if job.expires_at <= now:
                 await self.repository.update_job(job.message_id, {"status": job.status}, {
                     "status": "expired", "text": "", "lease_id": None, "lease_expires_at": None,
-                    "completed_at": now,
+                    "audio_data": None, "audio_mime_type": None, "completed_at": now,
                 })
                 continue
             reclaimable = job.status == "queued" or (job.lease_expires_at is not None and job.lease_expires_at <= now)
@@ -114,7 +168,7 @@ class PhoneChatQueue:
                 await self.repository.update_job(job.message_id, {
                     "status": job.status, "lease_id": job.lease_id, "lease_expires_at": job.lease_expires_at,
                 }, {"status": "failed", "error_code": "attempts_exhausted", "completed_at": now,
-                    "lease_id": None, "lease_expires_at": None})
+                    "audio_data": None, "audio_mime_type": None, "lease_id": None, "lease_expires_at": None})
                 continue
             lease_id = secrets.token_urlsafe(24)
             lease_expires_at = now + LEASE_TTL
@@ -137,7 +191,7 @@ class PhoneChatQueue:
             await self.repository.update_job(message_id, {
                 "status": job.status, "lease_id": lease_id, "lease_expires_at": job.lease_expires_at,
             }, {"status": "expired", "text": "", "reply": None, "error_code": None,
-                "completed_at": now, "lease_id": None, "lease_expires_at": None})
+                "audio_data": None, "audio_mime_type": None, "completed_at": now, "lease_id": None, "lease_expires_at": None})
             return False
         if job.status == "processing" and job.lease_id == lease_id and job.lease_expires_at and job.lease_expires_at > now:
             return True
@@ -180,7 +234,8 @@ class PhoneChatQueue:
         if job.status != "processing" or job.lease_id != lease_id or not job.lease_expires_at or job.lease_expires_at <= now:
             raise PermissionError("Phone chat lease is no longer active")
         changes = {"status": result.status, "reply": result.reply, "error_code": result.error_code,
-                   "completed_at": now, "lease_id": None, "lease_expires_at": None}
+                   "completed_at": now, "lease_id": None, "lease_expires_at": None,
+                   "audio_data": None, "audio_mime_type": None}
         won = await self.repository.update_job(message_id, {
             "status": "processing", "lease_id": lease_id, "lease_expires_at": job.lease_expires_at,
         }, changes)
@@ -191,9 +246,10 @@ class PhoneChatQueue:
             raise PermissionError("Phone chat lease changed")
         return await self.repository.get_job(message_id)
 
-    async def get_for_device(self, owner_id: str, device_id: str, message_id: str) -> PhoneChatJob | PhoneChatTombstone:
+    async def get_for_device(self, owner_id: str, device_id: str, message_id: str,
+                             *, now: datetime | None = None) -> PhoneChatJob | PhoneChatTombstone:
         await self._active_device(owner_id, device_id)
-        await self.repository.cleanup(_now())
+        await self.repository.cleanup(now or _now())
         job = await self.repository.get_job(message_id)
         if job:
             if job.owner_id != owner_id or job.device_id != device_id:

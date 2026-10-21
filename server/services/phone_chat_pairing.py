@@ -36,6 +36,58 @@ class PhoneChatPairing:
     def _code_hash(self, code: str) -> str:
         return hmac.new(self.hmac_secret.encode(), code.encode(), hashlib.sha256).hexdigest()
 
+    @staticmethod
+    async def _invalidate_browser_generation(tx, link_id: str, generation: int, now: datetime) -> None:
+        # Pairing contract doubles predate the additive browser tables.
+        if not hasattr(tx, "execute_raw"):
+            return
+        await tx.query_raw(
+            '''SELECT "id" FROM "BrowserRemoteSession" WHERE "sourceDiscordLinkId"=$1
+                 AND "discordGeneration"=$2 AND "endedAt" IS NULL FOR UPDATE''', link_id, generation,
+        )
+        await tx.execute_raw(
+            '''UPDATE "BrowserRemoteSession" SET "endedAt"=COALESCE("endedAt",$3)
+               WHERE "sourceDiscordLinkId"=$1 AND "discordGeneration"=$2''', link_id, generation, now,
+        )
+        await tx.execute_raw(
+            '''UPDATE "BrowserTask" SET
+                 "state"=CASE WHEN "state" IN ('queued','claimed') THEN 'cancelled'::"BrowserRemoteTaskState"
+                               WHEN "state" IN ('running','paused','waiting_for_user') THEN 'stopping'::"BrowserRemoteTaskState"
+                               ELSE "state" END,
+                 "cancelRequested"=TRUE,"requestedControl"='stop',"goal"=NULL,"resultJson"=NULL,
+                 "terminalReason"='discord_link_changed',
+                 "completedAt"=CASE WHEN "state" IN ('queued','claimed') THEN $3 ELSE "completedAt" END,
+                 "claimTokenHash"=CASE WHEN "state" IN ('queued','claimed') THEN NULL ELSE "claimTokenHash" END,
+                 "leaseExpiresAt"=CASE WHEN "state" IN ('queued','claimed') THEN NULL ELSE "leaseExpiresAt" END
+               WHERE "sessionId" IN (SELECT "id" FROM "BrowserRemoteSession" WHERE "sourceDiscordLinkId"=$1 AND "discordGeneration"=$2)
+                 AND "state" IN ('queued','claimed','running','paused','waiting_for_user','stopping')''',
+            link_id, generation, now,
+        )
+        await tx.execute_raw(
+            '''UPDATE "BrowserTask" SET "goal"=NULL,"resultJson"=NULL,"currentProposalId"=NULL,"waitingForUserType"=NULL
+               WHERE "sessionId" IN (SELECT "id" FROM "BrowserRemoteSession" WHERE "sourceDiscordLinkId"=$1 AND "discordGeneration"=$2)''', link_id, generation,
+        )
+        await tx.execute_raw(
+            '''DELETE FROM "BrowserTaskEvent" WHERE "taskId" IN
+               (SELECT t."id" FROM "BrowserTask" t JOIN "BrowserRemoteSession" s ON s."id"=t."sessionId"
+                 WHERE s."sourceDiscordLinkId"=$1 AND s."discordGeneration"=$2)''', link_id, generation,
+        )
+        await tx.execute_raw(
+            '''DELETE FROM "BrowserTaskReconciliation" WHERE "taskId" IN
+               (SELECT t."id" FROM "BrowserTask" t JOIN "BrowserRemoteSession" s ON s."id"=t."sessionId"
+                WHERE s."sourceDiscordLinkId"=$1 AND s."discordGeneration"=$2)''', link_id, generation,
+        )
+        await tx.execute_raw(
+            '''UPDATE "BrowserActionReview" SET "proposalJson"=NULL,"decision"=NULL WHERE "taskId" IN
+               (SELECT t."id" FROM "BrowserTask" t JOIN "BrowserRemoteSession" s ON s."id"=t."sessionId"
+                 WHERE s."sourceDiscordLinkId"=$1 AND s."discordGeneration"=$2)''', link_id, generation,
+        )
+        await tx.execute_raw(
+            '''UPDATE "BrowserReviewAccess" SET "revokedAt"=COALESCE("revokedAt",$3) WHERE "taskId" IN
+               (SELECT t."id" FROM "BrowserTask" t JOIN "BrowserRemoteSession" s ON s."id"=t."sessionId"
+                 WHERE s."sourceDiscordLinkId"=$1 AND s."discordGeneration"=$2)''', link_id, generation, now,
+        )
+
     async def create_pairing(self, owner_id: str, now: datetime | None = None) -> CreateDiscordPairingResponse:
         self._require_owner(owner_id)
         now = now or datetime.now(timezone.utc)
@@ -87,17 +139,21 @@ class PhoneChatPairing:
             if not getattr(consumed, "count", consumed if isinstance(consumed, int) else 0):
                 return False
             if not owner_link or owner_link.revokedAt is not None or not owner_link.discordUserId:
+                if owner_link:
+                    await self._invalidate_browser_generation(tx, owner_link.id, owner_link.generation, checked_at)
                 await tx.phonediscordlink.upsert(
                     where={"ownerId": self.owner_id},
                     data={
                         "create": {
                             "ownerId": self.owner_id,
                             "discordUserId": discord_user_id,
+                            "generation": 1,
                             "createdAt": checked_at,
                         },
                         "update": {
                             "discordUserId": discord_user_id,
                             "revokedAt": None,
+                            "generation": {"increment": 1},
                         },
                     },
                 )
@@ -122,9 +178,12 @@ class PhoneChatPairing:
         async with self.db.tx() as tx:
             if not await tx.query_raw('SELECT id FROM "User" WHERE id = $1 FOR UPDATE', owner_id):
                 return False
+            link = await tx.phonediscordlink.find_unique(where={"ownerId": owner_id})
+            if link and link.discordUserId and link.revokedAt is None:
+                await self._invalidate_browser_generation(tx, link.id, link.generation, now)
             changed = await tx.phonediscordlink.update_many(
                 where={"ownerId": owner_id, "discordUserId": {"not": None}, "revokedAt": None},
-                data={"discordUserId": None, "revokedAt": now},
+                data={"discordUserId": None, "revokedAt": now, "generation": {"increment": 1}},
             )
             await tx.phonediscordpairing.update_many(
                 where={"ownerId": owner_id, "consumedAt": None}, data={"consumedAt": now},

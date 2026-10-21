@@ -9,8 +9,34 @@ from typing import Any, Dict
 
 from fastapi import APIRouter, Header, HTTPException, Request, status
 from db import db
+from services.companion_context import CompanionContextService, PostgresCompanionContextRepository
 
 router = APIRouter(prefix="/api/cron", tags=["cron"])
+
+
+@router.api_route("/browser-tasks-sweep", methods=["GET", "POST"], status_code=status.HTTP_200_OK)
+async def browser_tasks_sweep_cron(
+    request: Request,
+    authorization: str | None = Header(default=None),
+    x_cron_secret: str | None = Header(default=None, alias="x-cron-secret"),
+    batch_size: int = 100,
+):
+    """Strictly authenticated bounded cleanup for transient browser payloads."""
+    expected = os.getenv("CRON_SECRET", "").strip()
+    provided = authorization[7:].strip() if authorization and authorization.startswith("Bearer ") else (x_cron_secret or "").strip()
+    worker = os.getenv("ASCEND_BROWSER_WORKER_TOKEN", "").strip()
+    if (not expected or not provided or secrets.compare_digest(expected, worker)
+            or not secrets.compare_digest(provided, expected)):
+        raise HTTPException(status_code=401, detail="Browser task cleanup authentication rejected")
+    if not 1 <= batch_size <= 500:
+        raise HTTPException(status_code=400, detail="batch_size must be between 1 and 500")
+    now = datetime.now(timezone.utc)
+    try:
+        from services.browser_task_repository import PostgresBrowserTaskRepository
+        result = await PostgresBrowserTaskRepository(db).sweep(now=now, batch_size=batch_size)
+        return {"status": "success", "job": "browser-tasks-sweep", "executedAt": now.isoformat(), **result}
+    except Exception as error:
+        raise HTTPException(status_code=500, detail="Browser task cleanup failed") from error
 
 
 def verify_cron_authorization(
@@ -86,6 +112,27 @@ async def run_status_sweep_cron(request: Request, authorization: str | None = He
         }
 
 
+@router.api_route("/companion-context-cleanup", methods=["GET", "POST"], status_code=status.HTTP_200_OK)
+async def cleanup_companion_context(
+    request: Request,
+    authorization: str | None = Header(default=None),
+    x_cron_secret: str | None = Header(default=None, alias="x-cron-secret"),
+) -> Dict[str, Any]:
+    verify_cron_authorization(authorization, x_cron_secret)
+    now = datetime.now(timezone.utc)
+    owner_id = os.getenv("ASCEND_CONTEXT_OWNER_ID", "").strip()
+    device_id = os.getenv("ASCEND_CONTEXT_DEVICE_ID", "").strip()
+    if not owner_id or not device_id:
+        raise HTTPException(status_code=503, detail="Companion context cleanup is not configured")
+    try:
+        service = CompanionContextService(PostgresCompanionContextRepository(db),
+                                          owner_id=owner_id, device_id=device_id)
+        deleted = await service.cleanup(now=now)
+        return {"status": "success", "job": "companion-context-cleanup",
+                "executedAt": now.isoformat(), "expiredRecordsDeleted": deleted}
+    except Exception as error:
+        # Do not return database/provider error text through an unauthenticated cron surface.
+        raise HTTPException(status_code=500, detail="Companion context cleanup failed") from error
 @router.api_route("/midnight-decay", methods=["GET", "POST"], status_code=status.HTTP_200_OK)
 async def run_midnight_decay_cron(request: Request, authorization: str | None = Header(default=None), x_cron_secret: str | None = Header(default=None, alias="x-cron-secret")) -> Dict[str, Any]:
     """

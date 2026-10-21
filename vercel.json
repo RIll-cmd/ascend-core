@@ -12,6 +12,10 @@
     {
       "path": "/api/cron/midnight-decay",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/companion-context-cleanup",
+      "schedule": "0 2 * * *"
     }
   ]
 }

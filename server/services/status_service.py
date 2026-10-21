@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from schemas.service_status import SafeActivity, SafeIssue, SafeProvider, ServiceStatusEvent, ShelfServiceStatus, StatusShelfResponse
+from schemas.service_status import SafeActivity, SafeProvider, ServiceStatusEvent, ShelfServiceStatus, StatusShelfResponse, issue_for_shelf
 from services.status_repository import ActiveOperation, PostgresStatusRepository, ProducerCredential, ShelfReadCredential, StoredStatus, hash_secret, verify_secret
 
 DEFAULT_STALE_AFTER_SECONDS = 30
@@ -31,6 +31,12 @@ class StatusService:
 
     async def ingest_event(self, event: ServiceStatusEvent, *, received_at: datetime | None = None) -> IngestResult:
         now = received_at or _now()
+        if event.issue and event.issue.code == "needs_input":
+            operations = await self.repository.list_operations(event.service_id, event.instance_id)
+            operation = next((item for item in operations if item.operation_id == event.issue.operation_id), None)
+            if (operation is None or event.state != "working" or event.activity is None
+                    or event.activity.kind != "operation" or event.activity.started_at != operation.started_at):
+                raise ValueError("needs_input must reference the matching active operation")
         current = await self.repository.get_status(event.service_id, event.instance_id)
         event_id = str(event.event_id)
         if current and current.last_event_id == event_id:
@@ -78,6 +84,8 @@ class StatusService:
         status.reported_at = status.received_at = status.last_heartbeat_at = now
         status.activity = None if active_count == 0 else status.activity
         status.metadata = {**(status.metadata or {}), "activeOperationCount": active_count}
+        if status.issue and status.issue.get("code") == "needs_input" and status.issue.get("operationId") == operation_id:
+            status.issue = None
         return await self.repository.upsert_status(status)
 
     async def record_heartbeat(self, service_id: str, instance_id: str, *, now: datetime | None = None) -> StoredStatus | None:
@@ -113,7 +121,7 @@ class StatusService:
                 stateSince=status.state_since, lastHeartbeatAt=status.last_heartbeat_at,
                 staleAfterSeconds=status.stale_after_seconds,
                 activity=SafeActivity.model_validate(status.activity) if status.activity else None,
-                issue=SafeIssue.model_validate(status.issue) if status.issue else None,
+                issue=issue_for_shelf(status.issue),
                 provider=SafeProvider.model_validate(status.provider) if status.provider else None,
                 capabilities=status.capabilities or [], metadata=status.metadata or {},
             ))

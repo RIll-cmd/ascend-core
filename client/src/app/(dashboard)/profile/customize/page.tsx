@@ -9,16 +9,13 @@ import { PixelBadge } from "@/components/ui/pixel/PixelBadge";
 import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import {
   PixelPaletteIcon,
-  PixelCrownIcon,
-  PixelAwardIcon,
   PixelLockIcon,
-  PixelSparklesIcon,
 } from "@/components/ui/pixel/PixelIcons";
-import { Check, Sparkles, Trophy, Shield, Flame, Zap, Crown } from "lucide-react";
+import { Check, Sparkles, Crown } from "lucide-react";
 import { AscendPendingSpinner } from "@/components/loading/AscendPendingSpinner";
 import { AscendRouteSkeleton } from "@/components/loading/AscendRouteSkeleton";
 
-export interface TitleItem {
+interface TitleItem {
   id: string;
   name: string;
   description: string;
@@ -32,7 +29,7 @@ export interface TitleItem {
   isEquipped: boolean;
 }
 
-export const DEFAULT_TITLES: TitleItem[] = [
+const DEFAULT_TITLES: TitleItem[] = [
   {
     id: "title-hydration-monarch",
     name: "Hydration Monarch",
@@ -140,9 +137,9 @@ export const DEFAULT_TITLES: TitleItem[] = [
 ];
 
 export default function CustomizePage() {
-  const { character, updateIdentity, refetch } = useCharacterStore();
+  const { character, updateIdentity } = useCharacterStore();
   const [titles, setTitles] = useState<TitleItem[]>(DEFAULT_TITLES);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [isEquipping, setIsEquipping] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
 
@@ -158,7 +155,7 @@ export default function CustomizePage() {
             setTitles(data.titles);
           }
         }
-      } catch (e) {
+      } catch {
         console.warn("Using offline titles registry");
       }
     };
@@ -171,7 +168,7 @@ export default function CustomizePage() {
       // Immediate optimistic update
       updateIdentity({
         title: title.name,
-      } as any);
+      });
 
       setTitles((prev) =>
         prev.map((t) => ({
@@ -193,7 +190,7 @@ export default function CustomizePage() {
         }),
       }).catch(console.error);
 
-    } catch (e) {
+    } catch {
       toast.error("Failed to equip title.");
     } finally {
       setIsEquipping(null);

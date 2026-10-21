@@ -161,6 +161,9 @@ async def receive_vision_heartbeat(
     heartbeat: VisionHeartbeat,
     x_status_credential: str | None = Header(default=None),
 ):
+    if heartbeat.issueCode == "needs_input":
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            detail="needs_input requires the operation-scoped /api/status/events contract")
     if not x_status_credential:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing status producer credential")
     service = get_status_service()

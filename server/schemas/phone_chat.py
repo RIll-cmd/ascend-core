@@ -74,7 +74,9 @@ class PhoneChatWorkerJob(PhoneChatRequestModel):
     owner_id: str = Field(alias="ownerId", min_length=1, max_length=128)
     device_id: str = Field(alias="deviceId", min_length=1, max_length=128, pattern=_IDENTIFIER_PATTERN)
     session_id: str = Field(alias="sessionId", min_length=1, max_length=128, pattern=_IDENTIFIER_PATTERN)
-    text: str = Field(min_length=1, max_length=4_000)
+    text: str | None = Field(default=None, min_length=1, max_length=4_000)
+    audio_base64: str | None = Field(default=None, alias="audioBase64", max_length=7_000_000, pattern=r"^[A-Za-z0-9+/]*={0,2}$")
+    audio_mime_type: str | None = Field(default=None, alias="audioMimeType", max_length=64)
     expires_at: datetime = Field(alias="expiresAt")
     attempt: int = Field(ge=1, le=3)
     lease_id: str = Field(alias="leaseId", min_length=1, max_length=128, pattern=_IDENTIFIER_PATTERN)
@@ -90,9 +92,17 @@ class PhoneChatWorkerJob(PhoneChatRequestModel):
     @field_validator("text")
     @classmethod
     def require_nonblank_text(cls, value: str) -> str:
-        if not value.strip():
+        if value is not None and not value.strip():
             raise ValueError("text must not be blank")
         return value
+
+    @model_validator(mode="after")
+    def require_single_payload(self):
+        if (self.text is None) == (self.audio_base64 is None):
+            raise ValueError("worker job requires either text or audio, but not both")
+        if (self.audio_base64 is None) != (self.audio_mime_type is None):
+            raise ValueError("audioBase64 and audioMimeType must be provided together")
+        return self
 
 
 class PhoneChatWorkerResult(PhoneChatRequestModel):

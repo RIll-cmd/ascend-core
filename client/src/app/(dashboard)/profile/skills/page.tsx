@@ -10,14 +10,22 @@ import { PixelButton } from "@/components/ui/pixel/PixelButton";
 import {
   PixelCrownIcon,
   PixelSparklesIcon,
-  PixelBookIcon,
   PixelLockIcon,
 } from "@/components/ui/pixel/PixelIcons";
-import { Check, X, Shield, Swords, Sparkles, Zap, Flame, Crown } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { AscendPendingSpinner } from "@/components/loading/AscendPendingSpinner";
 import { AscendRouteSkeleton } from "@/components/loading/AscendRouteSkeleton";
 
-export interface Specialization {
+type RequirementStat =
+  | "strength"
+  | "knowledge"
+  | "discipline"
+  | "focus"
+  | "endurance"
+  | "recovery"
+  | "consistency";
+
+interface Specialization {
   id: string;
   name: string;
   baseClass: string;
@@ -33,7 +41,7 @@ export interface Specialization {
   passiveEffect?: string | null;
 }
 
-export const DEFAULT_SPECIALIZATIONS: Specialization[] = [
+const DEFAULT_SPECIALIZATIONS: Specialization[] = [
   {
     id: "spec-adventurer",
     name: "Adventurer",
@@ -179,9 +187,9 @@ export const DEFAULT_SPECIALIZATIONS: Specialization[] = [
 ];
 
 export default function SkillTreePage() {
-  const { character, updateIdentity, refetch } = useCharacterStore();
+  const { character, updateIdentity } = useCharacterStore();
   const [specializations, setSpecializations] = useState<Specialization[]>(DEFAULT_SPECIALIZATIONS);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [isSelecting, setIsSelecting] = useState<string | null>(null);
   const [tierFilter, setTierFilter] = useState<number | "ALL">("ALL");
 
@@ -195,7 +203,7 @@ export default function SkillTreePage() {
             setSpecializations(data.specializations);
           }
         }
-      } catch (e) {
+      } catch {
         console.warn("Using offline specializations fallback");
       }
     };
@@ -224,11 +232,11 @@ export default function SkillTreePage() {
     // Check Stat Requirements
     if (spec.requiredStats) {
       try {
-        const reqStats = JSON.parse(spec.requiredStats);
+        const reqStats = JSON.parse(spec.requiredStats) as Record<string, number>;
         const unmet: string[] = [];
         for (const [statKey, minVal] of Object.entries(reqStats)) {
-          const currVal = (playerStats as any)[statKey] || 1;
-          if (currVal < (minVal as number)) {
+          const currVal = playerStats[statKey as RequirementStat] || 1;
+          if (currVal < minVal) {
             unmet.push(`${statKey.toUpperCase()}: ${currVal}/${minVal}`);
           }
         }
@@ -236,7 +244,7 @@ export default function SkillTreePage() {
           toast.error(`Unmet Stat Requirements: ${unmet.join(", ")}`);
           return;
         }
-      } catch (e) {}
+      } catch {}
     }
 
     setIsSelecting(spec.id);
@@ -245,8 +253,7 @@ export default function SkillTreePage() {
       updateIdentity({
         specializationId: spec.id,
         specialization: spec,
-        class: spec.name,
-      } as any);
+      });
 
       playBuffSFX();
       toast.success(`Awakened Class: ${spec.name}! Passive Perk: ${spec.passivePerk}`);
@@ -261,7 +268,7 @@ export default function SkillTreePage() {
         }),
       }).catch(console.error);
 
-    } catch (e) {
+    } catch {
       toast.error("Error during class awakening.");
     } finally {
       setIsSelecting(null);
@@ -353,17 +360,17 @@ export default function SkillTreePage() {
             const isLevelLocked = currentLevel < spec.requiredLevel;
             
             let isStatsLocked = false;
-            let statRequirementsList: string[] = [];
+            const statRequirementsList: string[] = [];
             if (spec.requiredStats) {
               try {
-                const reqStats = JSON.parse(spec.requiredStats);
+                const reqStats = JSON.parse(spec.requiredStats) as Record<string, number>;
                 for (const [statKey, minVal] of Object.entries(reqStats)) {
-                  const currVal = (playerStats as any)[statKey] || 1;
-                  const meets = currVal >= (minVal as number);
+                  const currVal = playerStats[statKey as RequirementStat] || 1;
+                  const meets = currVal >= minVal;
                   if (!meets) isStatsLocked = true;
                   statRequirementsList.push(`${statKey.toUpperCase()}: ${currVal}/${minVal}`);
                 }
-              } catch (e) {}
+              } catch {}
             }
 
             const isLocked = isLevelLocked || isStatsLocked;
