@@ -57,7 +57,10 @@ async def receive_status_event(
         service.assert_producer_owns_event(producer, event.service_id, event.instance_id)
     except PermissionError as error:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Producer cannot write this service instance") from error
-    result = await service.ingest_event(event)
+    try:
+        result = await service.ingest_event(event)
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from error
     return {"accepted": not result.duplicate and not result.out_of_order, "duplicate": result.duplicate, "outOfOrder": result.out_of_order}
 
 

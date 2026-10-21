@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from contextlib import asynccontextmanager
 from uuid import uuid4
 
@@ -25,6 +26,19 @@ async def track_aira_operation(label: str):
     await service.start_operation(CORE_SERVICE_ID, CORE_INSTANCE_ID, "agent", operation_id, label=label)
     try:
         yield
-        await service.touch_operation(CORE_SERVICE_ID, CORE_INSTANCE_ID, operation_id)
-    finally:
-        await service.finish_operation(CORE_SERVICE_ID, CORE_INSTANCE_ID, operation_id)
+    except asyncio.CancelledError:
+        try:
+            await service.finish_operation(CORE_SERVICE_ID, CORE_INSTANCE_ID, operation_id, outcome="cancelled")
+        except BaseException:
+            # Preserve cancellation even if status persistence is unavailable.
+            pass
+        raise
+    except Exception:
+        try:
+            await service.finish_operation(CORE_SERVICE_ID, CORE_INSTANCE_ID, operation_id, outcome="failed")
+        except BaseException:
+            # Preserve the original operation exception while unwinding.
+            pass
+        raise
+    else:
+        await service.finish_operation(CORE_SERVICE_ID, CORE_INSTANCE_ID, operation_id, outcome="succeeded")

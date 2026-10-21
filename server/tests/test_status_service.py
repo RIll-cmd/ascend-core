@@ -71,13 +71,43 @@ async def test_active_operations_only_return_to_idle_after_final_completion():
 
     await service.start_operation("ascend-core", "core-1", "agent", "op-1", now=now)
     await service.start_operation("ascend-core", "core-1", "agent", "op-2", now=now)
-    after_first = await service.finish_operation("ascend-core", "core-1", "op-1", now=now)
-    after_final = await service.finish_operation("ascend-core", "core-1", "op-2", now=now)
+    after_first = await service.finish_operation("ascend-core", "core-1", "op-1", outcome="succeeded", now=now)
+    after_final = await service.finish_operation("ascend-core", "core-1", "op-2", outcome="succeeded", now=now)
 
     assert after_first.state == "working"
     assert after_first.metadata["activeOperationCount"] == 1
     assert after_final.state == "idle"
     assert after_final.metadata["activeOperationCount"] == 0
+
+
+@pytest.mark.asyncio
+async def test_needs_input_shelf_evidence_is_operation_scoped_and_clears_when_operation_finishes():
+    from uuid import uuid4
+    from schemas.service_status import ServiceStatusEvent
+
+    repository = InMemoryStatusRepository()
+    service = StatusService(repository)
+    now = datetime(2026, 9, 16, tzinfo=timezone.utc)
+    await service.start_operation("ascend-core", "core-1", "agent", "op-private", label="Preview deploy", now=now)
+    event = ServiceStatusEvent.model_validate({
+        "schemaVersion": 1, "eventId": str(uuid4()), "sequence": 1,
+        "serviceId": "ascend-core", "instanceId": "core-1", "serviceType": "agent",
+        "state": "working", "stateSince": now.isoformat(), "reportedAt": now.isoformat(),
+        "lifecycle": {"operationId": "op-private", "phase": "progress", "label": "Preview deploy"},
+        "issue": {"code": "needs_input", "message": "A decision is needed.", "retryable": False,
+                  "operationId": "op-private"},
+    })
+    await service.ingest_event(event, received_at=now)
+
+    first = await service.shelf(now=now)
+    issue = first.services[0].issue.model_dump(by_alias=True)
+    assert issue["code"] == "needs_input"
+    assert issue["operationRef"]
+    assert "op-private" not in str(issue)
+
+    await service.finish_operation("ascend-core", "core-1", "op-private", outcome="succeeded", now=now)
+    after_finish = await service.shelf(now=now)
+    assert after_finish.services[0].issue is None
 
 
 @pytest.mark.asyncio
