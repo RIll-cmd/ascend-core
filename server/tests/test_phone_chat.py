@@ -77,6 +77,16 @@ def test_worker_job_requires_lease_scope_and_timezone_aware_expiry():
             "leaseExpiresAt": "2026-09-26T12:01:00Z",
         })
 
+    import base64
+    audio_job = schemas.PhoneChatWorkerJob.model_validate({
+        "messageId": "4bfb3bb8-8ee7-4acd-8f17-cf98119c20fd", "ownerId": "owner-1",
+        "deviceId": "device-1", "sessionId": "session-1", "text": None,
+        "audioBase64": base64.b64encode(b"audio").decode(), "audioMimeType": "audio/webm",
+        "expiresAt": "2026-09-27T00:00:00Z", "attempt": 1,
+        "leaseId": "lease-1", "leaseExpiresAt": "2026-09-26T12:01:00Z",
+    })
+    assert audio_job.audio_mime_type == "audio/webm"
+
 
 def test_worker_job_rejects_blank_text():
     schemas = _phone_chat_schemas()
@@ -181,6 +191,37 @@ def test_phone_chat_queue_scopes_devices_and_idempotent_enqueue():
     asyncio.run(scenario())
 
 
+def test_audio_jobs_are_bounded_scoped_and_erased_on_cancel_or_completion():
+    from datetime import datetime, timezone
+    from services.phone_chat_queue import PhoneChatQueue
+    from services.phone_chat_repository import InMemoryPhoneChatRepository
+
+    async def scenario():
+        repo = InMemoryPhoneChatRepository()
+        queue = PhoneChatQueue(repo, owner_id="owner-1", worker_token="worker-secret")
+        device = await queue.register_device("owner-1")
+        now = datetime(2026, 9, 26, 12, tzinfo=timezone.utc)
+        clip = b"webm audio bytes"
+        queued = await queue.enqueue_audio("owner-1", device.id, "4bfb3bb8-8ee7-4acd-8f17-cf98119c20fd",
+                                           "tab-1", clip, "audio/webm", now=now)
+        assert queued.audio_data == clip
+        assert queued.audio_mime_type == "audio/webm"
+        assert await queue.cancel("owner-1", device.id, queued.message_id, now=now)
+        cancelled = await repo.get_job(queued.message_id)
+        assert cancelled.status == "failed" and cancelled.error_code == "cancelled"
+        assert cancelled.audio_data is None and cancelled.audio_mime_type is None
+
+        with pytest.raises(ValueError, match="Unsupported"):
+            await queue.enqueue_audio("owner-1", device.id, "c2e72f8a-0b35-49a6-96ee-92b794d1b40e",
+                                      "tab-1", clip, "text/plain", now=now)
+        with pytest.raises(ValueError, match="5 MiB"):
+            await queue.enqueue_audio("owner-1", device.id, "c2e72f8a-0b35-49a6-96ee-92b794d1b40e",
+                                      "tab-1", b"x" * (5 * 1024 * 1024 + 1), "audio/webm", now=now)
+
+    import asyncio
+    asyncio.run(scenario())
+
+
 def test_phone_chat_queue_claim_lease_retry_and_acknowledgement():
     from datetime import datetime, timedelta, timezone
     import asyncio
@@ -212,13 +253,15 @@ def test_phone_chat_queue_claim_lease_retry_and_acknowledgement():
             PhoneChatWorkerResult(status="completed", reply="answer"), now=now + timedelta(seconds=40),
         )
         assert completed.reply == "answer"
-        assert (await queue.get_for_device("owner-1", device.id, message_id)).reply == "answer"
+        assert (await queue.get_for_device(
+            "owner-1", device.id, message_id, now=now + timedelta(seconds=40),
+        )).reply == "answer"
         tombstone = await queue.acknowledge("owner-1", device.id, message_id, now=now + timedelta(seconds=40))
         assert tombstone.status == "completed"
-        assert await queue.get_for_device("owner-1", device.id, message_id) == tombstone
+        assert await queue.get_for_device("owner-1", device.id, message_id, now=now + timedelta(seconds=40)) == tombstone
         assert await repo.get_job(message_id) is None
         with pytest.raises(PermissionError):
-            await queue.get_for_device("owner-1", "other-device", message_id)
+            await queue.get_for_device("owner-1", "other-device", message_id, now=now + timedelta(seconds=40))
 
         retry_id = "4bfb3bb8-8ee7-4acd-8f17-cf98119c20fe"
         await queue.enqueue("owner-1", device.id, retry_id, "session-1", "retry", now=now)

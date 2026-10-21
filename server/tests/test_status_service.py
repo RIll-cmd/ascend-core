@@ -94,6 +94,48 @@ async def test_healthy_active_operation_without_progress_becomes_stuck_after_90_
     assert shelf.services[0].state == "stuck"
 
 
+@pytest.mark.asyncio
+async def test_needs_input_must_match_active_operation_and_shelf_hides_raw_id():
+    repository = InMemoryStatusRepository()
+    service = StatusService(repository)
+    now = datetime(2026, 9, 16, tzinfo=timezone.utc)
+    await service.start_operation("ascend-core", "core-1", "agent", "secret-operation-id", label="Build", now=now)
+    needs_input = event(
+        issue={"code": "needs_input", "message": "Waiting for your choice.", "retryable": False,
+               "operationId": "secret-operation-id"},
+        activity={"kind": "operation", "label": "Build", "startedAt": now},
+    )
+
+    await service.ingest_event(needs_input, received_at=now)
+    shelf_issue = (await service.shelf(now=now)).services[0].issue
+    assert shelf_issue.code == "needs_input"
+    assert shelf_issue.operation_ref is not None
+    assert "secret-operation-id" not in shelf_issue.model_dump_json(by_alias=True)
+
+    completed = await service.finish_operation("ascend-core", "core-1", "secret-operation-id", now=now + timedelta(seconds=1))
+    assert completed.issue is None
+
+
+@pytest.mark.asyncio
+async def test_needs_input_rejects_unknown_or_mismatched_active_operation():
+    service = StatusService(InMemoryStatusRepository())
+    now = datetime(2026, 9, 16, tzinfo=timezone.utc)
+    await service.start_operation("ascend-core", "core-1", "agent", "op-1", now=now)
+    needs_input = event(
+        issue={"code": "needs_input", "message": "Waiting for your choice.", "retryable": False,
+               "operationId": "op-1"},
+        activity={"kind": "operation", "startedAt": now + timedelta(seconds=1)},
+    )
+
+    with pytest.raises(ValueError, match="matching active operation"):
+        await service.ingest_event(needs_input, received_at=now)
+
+
+def test_needs_input_contract_requires_operation_id():
+    with pytest.raises(ValidationError, match="operationId"):
+        event(issue={"code": "needs_input", "message": "Waiting.", "retryable": False})
+
+
 def test_status_contract_rejects_prohibited_payload_material():
     with pytest.raises(ValidationError, match="prohibited"):
         event(metadata={"terminalOutput": "secret output"})

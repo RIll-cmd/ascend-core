@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+import hashlib
 from typing import Any, Literal
 from uuid import UUID
 
@@ -58,11 +59,20 @@ class SafeIssue(BaseModel):
     code: str = Field(min_length=1, max_length=64)
     message: str = Field(min_length=1, max_length=240)
     retryable: bool
+    operation_id: str | None = Field(default=None, alias="operationId", min_length=1, max_length=128)
 
     @field_validator("message")
     @classmethod
     def reject_unsafe_message(cls, value: str) -> str:
         return _validate_safe_value(value)
+
+    @model_validator(mode="after")
+    def validate_needs_input_identity(self) -> SafeIssue:
+        if self.code == "needs_input" and not self.operation_id:
+            raise ValueError("needs_input requires an operationId")
+        if self.code != "needs_input" and self.operation_id is not None:
+            raise ValueError("operationId is only valid for needs_input")
+        return self
 
 
 class SafeProvider(BaseModel):
@@ -114,6 +124,39 @@ class ServiceStatusEvent(BaseModel):
     def validate_metadata(cls, value: dict[str, str | int | float | bool | None]) -> dict[str, str | int | float | bool | None]:
         return _validate_safe_value(value)
 
+    @model_validator(mode="after")
+    def validate_needs_input_evidence(self) -> ServiceStatusEvent:
+        if self.issue and self.issue.code == "needs_input":
+            if (self.state != "working" or self.activity is None
+                    or self.activity.kind != "operation" or self.activity.started_at is None):
+                raise ValueError("needs_input requires a current working operation")
+        return self
+
+
+class ShelfIssue(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    code: str = Field(min_length=1, max_length=64)
+    message: str = Field(min_length=1, max_length=240)
+    retryable: bool
+    operation_ref: str | None = Field(default=None, alias="operationRef", pattern=r"^[a-f0-9]{16}$")
+
+    @model_validator(mode="after")
+    def validate_operation_ref(self) -> ShelfIssue:
+        if (self.code == "needs_input") != (self.operation_ref is not None):
+            raise ValueError("operationRef is only present for needs_input")
+        return self
+
+
+def issue_for_shelf(value: dict | None) -> ShelfIssue | None:
+    if value is None:
+        return None
+    issue = SafeIssue.model_validate(value)
+    operation_ref = (hashlib.sha256(issue.operation_id.encode("utf-8")).hexdigest()[:16]
+                     if issue.operation_id else None)
+    return ShelfIssue(code=issue.code, message=issue.message, retryable=issue.retryable,
+                      operationRef=operation_ref)
+
 
 class ShelfServiceStatus(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
@@ -126,7 +169,7 @@ class ShelfServiceStatus(BaseModel):
     last_heartbeat_at: datetime | None = Field(alias="lastHeartbeatAt")
     stale_after_seconds: int = Field(alias="staleAfterSeconds")
     activity: SafeActivity | None = None
-    issue: SafeIssue | None = None
+    issue: ShelfIssue | None = None
     provider: SafeProvider | None = None
     capabilities: list[str] = Field(default_factory=list)
     metadata: dict[str, str | int | float | bool | None] = Field(default_factory=dict)

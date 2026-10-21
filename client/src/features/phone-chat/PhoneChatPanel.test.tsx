@@ -15,12 +15,16 @@ describe("PhoneChatPanel", () => {
       error={null}
       onInputChange={vi.fn()}
       onSubmit={vi.fn()}
+      onSendAudio={vi.fn().mockResolvedValue(undefined)}
+      onCancelMessage={vi.fn()}
       onNewChat={vi.fn()}
       onRevokeDevice={vi.fn()}
     />);
 
     expect(html).toContain('aria-label="Message Vision"');
     expect(html).toContain('aria-label="Send message to Vision"');
+    expect(html).toContain('aria-label="Record voice message"');
+    expect(html).toContain("Google Gemini for transcription");
     expect(html).toContain("Queued");
     expect(html).toContain("Codex is working.");
     expect(html).toContain("New chat");
@@ -36,6 +40,8 @@ describe("PhoneChatPanel", () => {
       error={null}
       onInputChange={vi.fn()}
       onSubmit={vi.fn()}
+      onSendAudio={vi.fn().mockResolvedValue(undefined)}
+      onCancelMessage={vi.fn()}
       onNewChat={vi.fn()}
       onRevokeDevice={vi.fn()}
     />);

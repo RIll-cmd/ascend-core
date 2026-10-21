@@ -32,6 +32,10 @@ def test_pwa_routes_require_a_user_and_worker_routes_require_worker_bearer():
     assert client.post("/api/phone-chat/worker/claim", headers={
         "Authorization": "Bearer wrong",
     }).status_code == 403
+    assert client.post("/api/phone-chat/worker/notifications/claim?channel=pwa_push").status_code == 401
+    assert client.post("/api/phone-chat/notifications/publish", json={
+        "triggerKey": "agent-input:deadbeef", "category": "Agent attention", "detail": "A private update.",
+    }).status_code == 401
 
 
 def test_cookie_authenticated_pwa_writes_require_an_allowed_origin():

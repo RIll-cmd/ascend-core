@@ -4,6 +4,7 @@ import { ArrowUp, LockKeyhole, MessageCircle, Plus, ShieldCheck, Smartphone, X }
 import type { FormEvent } from "react";
 import type { PhoneChatMessage } from "./types";
 import { accessibleStatus, isPhoneChatPending } from "./types";
+import { VoiceCaptureButton } from "./VoiceCaptureButton";
 
 export interface PhoneChatPanelProps {
   ready: boolean;
@@ -13,12 +14,14 @@ export interface PhoneChatPanelProps {
   error: string | null;
   onInputChange: (value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onSendAudio: (audio: Blob, mimeType: string) => Promise<void>;
+  onCancelMessage: (messageId: string) => void;
   onNewChat: () => void;
   onRevokeDevice: () => void;
 }
 
 export function PhoneChatPanel({
-  ready, busy, messages, input, error, onInputChange, onSubmit, onNewChat, onRevokeDevice,
+  ready, busy, messages, input, error, onInputChange, onSubmit, onSendAudio, onCancelMessage, onNewChat, onRevokeDevice,
 }: PhoneChatPanelProps) {
   return (
     <section aria-label="Ascend Vision phone chat" className="mx-auto flex h-full min-h-[32rem] max-h-[calc(100dvh-11rem)] w-full max-w-5xl flex-col overflow-hidden border border-slate-700 bg-[#080b14]/95 shadow-[0_18px_55px_rgba(0,0,0,.4)]">
@@ -71,7 +74,10 @@ export function PhoneChatPanel({
                   <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-200">{message.reply}</p>
                 </div>
               ) : isPhoneChatPending(message.status) ? (
-                <p role="status" className="flex items-center gap-2 font-mono text-[11px] text-amber-300"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-300" aria-hidden="true" />{accessibleStatus(message)}</p>
+                <div className="flex items-center justify-between gap-2">
+                  <p role="status" className="flex items-center gap-2 font-mono text-[11px] text-amber-300"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-300" aria-hidden="true" />{accessibleStatus(message)}</p>
+                  {message.voice && <button type="button" onClick={() => onCancelMessage(message.messageId)} className="font-mono text-[10px] text-slate-400 underline hover:text-rose-300">Cancel</button>}
+                </div>
               ) : (
                 <p role="status" className={`font-mono text-[11px] ${message.status === "failed" || message.status === "expired" ? "text-rose-300" : "text-slate-400"}`}>
                   {accessibleStatus(message)}
@@ -86,6 +92,7 @@ export function PhoneChatPanel({
 
       <form aria-label="Send message to Vision" onSubmit={onSubmit} className="shrink-0 border-t border-slate-700 bg-[#0c1220] p-3 sm:p-4">
         <div className="flex items-end gap-2 border border-slate-700 bg-[#080b14] p-2 focus-within:border-emerald-600/80">
+          <VoiceCaptureButton ready={ready} busy={busy} onSendAudio={onSendAudio} />
           <label className="sr-only" htmlFor="phone-chat-message">Message Vision</label>
           <textarea
             id="phone-chat-message"
@@ -105,7 +112,7 @@ export function PhoneChatPanel({
             </button>
           </div>
         </div>
-        <p className="px-1 pt-2 text-[10px] text-slate-500">No attachments, voice, tools, or Core actions in this version.</p>
+        <p className="px-1 pt-2 text-[10px] text-slate-500">Voice is optional and foreground-only (30 seconds, 5 MiB). When you tap Send voice, Core receives the recording over HTTPS and temporarily stores it for your Vision worker to send to Google Gemini for transcription (up to 24 hours if not processed); Core clears the job’s audio fields on completion, cancellation, expiry, or device revocation. Database backups may have separate retention. Recording remains in this tab until sent or discarded. Typed chat is always available.</p>
       </form>
     </section>
   );

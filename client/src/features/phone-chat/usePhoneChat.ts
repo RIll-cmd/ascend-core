@@ -263,6 +263,50 @@ export function usePhoneChat() {
     startPolling(current.deviceId, messageId);
   }, [commit, input, revocationsReady, startPolling, updateMessage]);
 
+  const sendAudio = useCallback(async (audio: Blob, mimeType: string) => {
+    const current = sessionRef.current;
+    if (!revocationsReady || !current.deviceId || !current.sessionId || !audio.size
+        || audio.size > 5 * 1024 * 1024
+        || current.messages.some((message) => isPhoneChatPending(message.status))) return;
+    const messageId = newId();
+    const voiceMessage: PhoneChatMessage = {
+      messageId, text: "Voice message · sent to Google Gemini for transcription", status: "queued",
+      createdAt: new Date().toISOString(), voice: true,
+    };
+    commit({ ...current, messages: [...current.messages, voiceMessage] });
+    setError(null);
+    try {
+      await api.enqueueAudio({ deviceId: current.deviceId, messageId, sessionId: current.sessionId, audio, mimeType });
+    } catch (caught) {
+      if (caught instanceof PhoneChatApiError && [401, 403].includes(caught.status)) {
+        updateMessage(messageId, { status: "failed", errorCode: "phone_access_unavailable" });
+        setError("Phone access was revoked or your sign-in expired.");
+        throw caught;
+      }
+      try { await api.getMessage(current.deviceId, messageId); }
+      catch {
+        updateMessage(messageId, { status: "failed", errorCode: "send_unconfirmed" });
+        setError("Core did not confirm this voice request. Check your connection before retrying.");
+        throw caught;
+      }
+    }
+    startPolling(current.deviceId, messageId);
+  }, [commit, revocationsReady, startPolling, updateMessage]);
+
+  const cancelMessage = useCallback(async (messageId: string) => {
+    const current = sessionRef.current;
+    if (!current.deviceId || !isPhoneChatPending(current.messages.find((message) => message.messageId === messageId)?.status ?? "failed")) return;
+    try {
+      await api.cancel(current.deviceId, messageId);
+      pollers.current.get(messageId)?.abort();
+      updateMessage(messageId, { status: "failed", errorCode: "cancelled", acknowledged: false });
+      const message = sessionRef.current.messages.find((item) => item.messageId === messageId);
+      if (message) await acknowledge(current.deviceId, { ...message, status: "failed", errorCode: "cancelled" });
+    } catch {
+      setError("Could not confirm cancellation. The request may still be processing.");
+    }
+  }, [acknowledge, updateMessage]);
+
   const newChat = useCallback(() => {
     if (sessionRef.current.messages.some((message) => isPhoneChatPending(message.status))) return;
     commit(startNewPhoneChat(storageRef.current, newId));
@@ -283,6 +327,7 @@ export function usePhoneChat() {
 
   return {
     ready,
+    sessionId: authenticated ? session.sessionId : "",
     deviceId: ready ? session.deviceId : null,
     busy,
     messages: authenticated ? session.messages : [],
@@ -290,6 +335,8 @@ export function usePhoneChat() {
     error: authenticated ? error : null,
     setInput,
     send,
+    sendAudio,
+    cancelMessage,
     newChat,
     revokeDevice,
   };

@@ -25,6 +25,43 @@ enum PhoneChatJobStatus {
   expired
 }
 
+enum CompanionNotificationChannel {
+  pwa_push
+  discord_dm
+}
+
+enum CompanionNotificationDeliveryStatus {
+  queued
+  claimed
+  retry
+  attempted
+  acknowledged
+  unknown
+  failed
+  expired
+  revoked
+}
+
+enum BrowserRemoteChannel {
+  phone_pwa
+  discord_dm
+}
+
+enum BrowserRemoteTaskState {
+  queued
+  claimed
+  running
+  paused
+  waiting_for_user
+  stopping
+  completed
+  partial
+  failed
+  unknown
+  cancelled
+  expired
+}
+
 
 model User {
   id              String   @id @default(uuid())
@@ -41,6 +78,281 @@ model User {
   phoneChatJobs    PhoneChatJob[]
   phoneDiscordPairings PhoneDiscordPairing[]
   phoneDiscordLinks    PhoneDiscordLink[]
+  companionContexts    CompanionContextRecord[]
+  companionNotificationPreference CompanionNotificationPreference?
+  companionPushSubscriptions CompanionPushSubscription[]
+  companionNotificationIntents CompanionNotificationIntent[]
+  companionNotificationDeliveries CompanionNotificationDelivery[]
+  companionNotificationBudgets CompanionNotificationDailyBudget[]
+  browserLaptops BrowserLaptop[]
+  browserRemoteSessions BrowserRemoteSession[]
+  browserTasks BrowserTask[]
+  decidedBrowserActionReviews BrowserActionReview[]
+}
+
+model BrowserLaptop {
+  id                  String   @id
+  ownerId             String
+  owner               User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  currentBootId       String?
+  lastHeartbeatAt     DateTime?
+  availability        String   @default("offline")
+  descriptorJson      String   @default("{}")
+  revokedAt           DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  sessionLinks        BrowserRemoteSessionLaptop[]
+  tasks               BrowserTask[]
+
+  @@index([ownerId, revokedAt])
+}
+
+model BrowserRemoteSession {
+  id                  String   @id @default(uuid())
+  ownerId             String
+  owner               User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  channel             BrowserRemoteChannel
+  sourceDeviceId      String?
+  sourceDiscordLinkId String?
+  discordGeneration   Int?
+  parentSessionId     String?
+  providerConsent     String
+  expiresAt           DateTime
+  endedAt             DateTime?
+  createdAt           DateTime @default(now())
+  laptopSessions      BrowserRemoteSessionLaptop[]
+  tasks               BrowserTask[]
+
+  @@index([ownerId, channel, expiresAt, endedAt])
+  @@index([sourceDeviceId, expiresAt])
+  @@index([sourceDiscordLinkId, discordGeneration, expiresAt])
+}
+
+model BrowserRemoteSessionLaptop {
+  sessionId String
+  session   BrowserRemoteSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  laptopId  String
+  laptop    BrowserLaptop @relation(fields: [laptopId], references: [id], onDelete: Cascade)
+
+  @@id([sessionId, laptopId])
+}
+
+model BrowserTask {
+  id                String   @id
+  ownerId           String
+  owner             User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  sessionId         String
+  session           BrowserRemoteSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  laptopId          String
+  laptop            BrowserLaptop @relation(fields: [laptopId], references: [id], onDelete: Cascade)
+  scopeId           String
+  scopeVersion      Int
+  goal              String?
+  state             BrowserRemoteTaskState @default(queued)
+  createdAt         DateTime @default(now())
+  queueExpiresAt    DateTime
+  activeExpiresAt   DateTime?
+  claimTokenHash    String?
+  leaseExpiresAt    DateTime?
+  prestartAttempts  Int      @default(0)
+  fence             Int      @default(0)
+  brokerBootId      String?
+  startedAt         DateTime?
+  cancelRequested   Boolean  @default(false)
+  requestedControl  String?
+  currentProposalId String?
+  waitingForUserType String?
+  scopeDescriptorJson String?
+  eventCursor       Int      @default(0)
+  resultJson        String?
+  terminalReason    String?
+  completedAt       DateTime?
+  acknowledgedAt    DateTime?
+  events            BrowserTaskEvent[]
+  reconciliations   BrowserTaskReconciliation[]
+  reviews           BrowserActionReview[]
+  reviewAccess      BrowserReviewAccess[]
+  dispatchAttempts  BrowserDispatchAttempt[]
+
+  @@index([laptopId, state, queueExpiresAt, createdAt])
+  @@index([ownerId, sessionId, createdAt])
+  @@index([state, leaseExpiresAt])
+  @@index([completedAt])
+}
+
+model BrowserDispatchAttempt {
+  taskId         String
+  task           BrowserTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  attemptId      String
+  action         String
+  proposalDigest String?
+  fence          Int
+  createdAt      DateTime @default(now())
+
+  @@id([taskId, attemptId])
+}
+
+model BrowserTaskEvent {
+  taskId    String
+  task      BrowserTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  sequence  Int
+  eventType String
+  summary   String?
+  proposalId String?
+  createdAt DateTime @default(now())
+
+  @@id([taskId, sequence])
+  @@index([createdAt])
+}
+
+model BrowserTaskReconciliation {
+  id                   String   @id @default(uuid())
+  taskId               String
+  task                 BrowserTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  previousBrokerBootId String
+  fence                Int
+  actionId             String
+  action               String
+  proposalDigest       String?
+  outcome              String
+  createdAt            DateTime @default(now())
+
+  @@unique([taskId, actionId])
+  @@index([taskId, createdAt])
+}
+
+model BrowserActionReview {
+  id               String   @id @default(uuid())
+  taskId           String
+  task             BrowserTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  actionId         String
+  proposalJson     String?
+  proposalDigest   String
+  laptopId         String
+  brokerBootId     String
+  fence            Int
+  decision         String?
+  decidedByOwnerId String?
+  reviewerDeviceId String?
+  reviewerSessionId String?
+  decidedByOwner   User?    @relation(fields: [decidedByOwnerId], references: [id], onDelete: SetNull)
+  expiresAt        DateTime
+  permitConsumedAt DateTime?
+  outcome          String?
+  createdAt        DateTime @default(now())
+
+  @@unique([taskId, actionId])
+  @@index([taskId, expiresAt])
+  @@index([expiresAt])
+}
+
+model BrowserReviewAccess {
+  id                String   @id @default(uuid())
+  taskId            String
+  task              BrowserTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tokenHash         String   @unique
+  ownerId           String
+  sourceSessionId   String
+  discordGeneration Int
+  reviewerDeviceId  String?
+  reviewerSessionId String?
+  expiresAt         DateTime
+  consumedAt        DateTime?
+  revokedAt         DateTime?
+  createdAt         DateTime @default(now())
+
+  @@index([taskId, expiresAt])
+  @@index([ownerId, expiresAt])
+}
+
+model CompanionContextRecord {
+  id                   String   @id @default(uuid())
+  ownerId              String
+  owner                User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  deviceId             String
+  bootId               String
+  bootStartedAt        DateTime
+  snapshotRevision     Int
+  sourceSequencesJson  String
+  snapshotJson         String
+  generatedAt          DateTime
+  lastSeenAt           DateTime
+  leaseExpiresAt       DateTime
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@unique([ownerId, deviceId])
+  @@index([leaseExpiresAt])
+}
+
+model CompanionNotificationPreference {
+  ownerId       String   @id
+  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  pwaPushEnabled Boolean @default(false)
+  discordDmEnabled Boolean @default(false)
+  updatedAt     DateTime @updatedAt
+}
+
+model CompanionPushSubscription {
+  id             String   @id @default(uuid())
+  ownerId        String
+  owner          User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  deviceId       String   @unique
+  device         PhoneChatDevice @relation(fields: [ownerId, deviceId], references: [ownerId, id], onDelete: Cascade)
+  endpointHash   String   @unique
+  payloadCiphertext String
+  createdAt      DateTime @default(now())
+  revokedAt      DateTime?
+
+  @@unique([ownerId, deviceId])
+  @@index([ownerId, revokedAt])
+}
+
+model CompanionNotificationIntent {
+  id               String   @id @default(uuid())
+  ownerId          String
+  owner            User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  triggerKey       String
+  category         String
+  detailCiphertext String
+  createdAt        DateTime @default(now())
+  expiresAt        DateTime
+  deliveries       CompanionNotificationDelivery[]
+
+  @@unique([ownerId, triggerKey])
+  @@index([ownerId, createdAt])
+  @@index([expiresAt])
+  @@unique([id, ownerId])
+}
+
+model CompanionNotificationDelivery {
+  id              String   @id @default(uuid())
+  intentId        String
+  intent          CompanionNotificationIntent @relation(fields: [intentId, ownerId], references: [id, ownerId], onDelete: Cascade)
+  ownerId         String
+  owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  channel         CompanionNotificationChannel
+  destinationId   String
+  status          CompanionNotificationDeliveryStatus @default(queued)
+  attempt         Int      @default(0)
+  claimId         String?
+  claimExpiresAt  DateTime?
+  nextAttemptAt   DateTime?
+  outcome         String?
+  createdAt       DateTime @default(now())
+
+  @@unique([intentId, channel, destinationId])
+  @@index([status, claimExpiresAt, nextAttemptAt, createdAt])
+  @@index([ownerId, createdAt])
+}
+
+model CompanionNotificationDailyBudget {
+  ownerId    String
+  owner      User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  day        DateTime
+  used       Int      @default(0)
+
+  @@id([ownerId, day])
 }
 
 model PhoneChatDevice {
@@ -51,8 +363,10 @@ model PhoneChatDevice {
   revokedAt DateTime?
 
   jobs PhoneChatJob[]
+  companionPushSubscription CompanionPushSubscription?
 
   @@index([ownerId, revokedAt])
+  @@unique([ownerId, id])
 }
 
 model PhoneChatJob {
@@ -63,6 +377,8 @@ model PhoneChatJob {
   device          PhoneChatDevice    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   sessionId       String
   text            String
+  audioData       Bytes?
+  audioMimeType   String?
   status          PhoneChatJobStatus @default(queued)
   attempt         Int                @default(0)
   leaseId         String?
@@ -110,6 +426,7 @@ model PhoneDiscordLink {
   ownerId       String    @unique
   owner         User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   discordUserId String?   @unique
+  generation    Int       @default(1)
   createdAt     DateTime  @default(now())
   revokedAt     DateTime?
 
