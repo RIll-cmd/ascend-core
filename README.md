@@ -492,7 +492,6 @@ ascend-core/
 │   ├── main.py                         # FastAPI application factory & CORS configuration
 │   └── requirements.txt                # Python backend dependencies
 ├── docs/                               # System blueprints & architectural documents
-│   └── media/                          # High-resolution documentation screenshots
 ├── vercel.json                         # Vercel deployment configuration
 └── README.md                           # Master Project Documentation
 ```
@@ -506,9 +505,7 @@ ascend-core/
 cd server
 
 # Run domain verification suites
-python -u scripts/test_muscle_recovery.py
 python -u scripts/test_fitness_api.py
-python -u scripts/test_beasts.py
 python -u scripts/test_weekly_boss.py
 ```
 

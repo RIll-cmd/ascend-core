@@ -491,7 +491,7 @@ Returns master Bestiary catalog and Egg Shop pricing tables.
 
 ## Ascend Vision Automation Proposal Routes (`/api/automations`)
 
-These authenticated routes let `D:\ascend-vision` discover Core-owned automation capabilities and validate a transient rule proposal. They require the normal session or Bearer-token user context; `X-Integration-Key` is not user authentication. The existing `POST /api/automations` remains the only route that persists a rule.
+These authenticated routes let Ascend Vision discover Core-owned automation capabilities and validate a transient rule proposal. They require the normal session or Bearer-token user context; `X-Integration-Key` is not user authentication. The existing `POST /api/automations` remains the only route that persists a rule.
 
 ### `GET /api/automations/capabilities`
 Returns a versioned allowlist of supported triggers, match modes, condition fields and operators, condition types, actions, and validation limits. Vision must not invent values outside this contract.
@@ -527,7 +527,7 @@ Vision must obtain explicit user confirmation before sending the normalized payl
 
 ### `POST /api/auth/vision-token`
 
-An already authenticated Core user may mint a short-lived token for `D:\ascend-vision` automation calls. It accepts the normal authenticated Core session cookie or general Bearer token; it does not accept `X-Integration-Key`, a character ID, or a user identity supplied by Vision.
+An already authenticated Core user may mint a short-lived token for Ascend Vision automation calls. It accepts the normal authenticated Core session cookie or general Bearer token; it does not accept `X-Integration-Key`, a character ID, or a user identity supplied by Vision.
 
 ```json
 {

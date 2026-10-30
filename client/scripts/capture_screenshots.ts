@@ -4,7 +4,6 @@ import path from "path";
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 const OUTPUT_DIRS = [
-  path.resolve(__dirname, "../../docs/media"),
   path.resolve(__dirname, "../public/previews"),
 ];
 
