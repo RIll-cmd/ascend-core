@@ -1,5 +1,5 @@
 # ==============================================================================
-# Ascend OS - Root .gitignore
+# Ascend Core - Root .gitignore
 # ==============================================================================
 
 # Node Dependencies
@@ -95,29 +95,28 @@ scratch/
 **/scratch/
 server/debug_imports.py
 
-# Agent, Tooling & IDE Caches
+# Local Tooling & Editor Files
 .worktrees/
 .playwright-mcp/
 .impeccable/
-client/.impeccable/
 .cursor/
-.codex/
-.vscode/
-.idea/
-
-# AI Agent Artifacts & Skill Locks
-skills-lock.json
-.agents/*
-!.agents/skills/
-.agents/skills/*
-!.agents/skills/impeccable/
+.cursorrules
+.claude/
+.codex*
+.superpowers/
+.agents/
 .agent/
 .agentskills/
+skills-lock.json
+CLAUDE.md
+AGENTS.md
+docs/superpowers/
+.vscode/
+.idea/
 
 # Temporary Screenshots & Visual Dumps
 /*.png
 /*.gif
-**/.codex-*
 **/.tmp-*
 
 # OS & System Logs
