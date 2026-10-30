@@ -271,7 +271,7 @@ flowchart TB
         CombatSim["Turn-Based Auto-Combat Simulator"]
         AiraAI["AIRA Neural System Administrator (Gemini AI)"]
         BeastIncubator["Draconic Step & Energy Incubator"]
-        CraftingEngine["Item Refinement & Blacksmith Pipeline"]
+        CraftingEngine["Blacksmith Crafting Pipeline"]
         AutomationsEngine["Event-Driven Automation Rule Engine"]
         EconomyEngine["Dual-Currency Economy"]
     end
@@ -446,7 +446,7 @@ ascend-core/
 │   │   │   │   ├── tower/              # 10. 20-Floor Tower of Ascension
 │   │   │   │   ├── bosses/             # 11. Epic Goal Reality Raids
 │   │   │   │   ├── inventory/          # 13. PaperDoll 9-slot gear grid & vault
-│   │   │   │   ├── crafting/           # 14. Blacksmith recipes & refinement
+│   │   │   │   ├── crafting/           # 14. Blacksmith recipes & crafting
 │   │   │   │   ├── shop/               # 15. Rotating daily market
 │   │   │   │   ├── beasts/             # 16. Beast Incubator & 20-Dragon Bestiary
 │   │   │   │   ├── aira/               # 17. AIRA Conversational Terminal
@@ -482,7 +482,7 @@ ascend-core/
 │   │   ├── tower.py                    # Dungeon combat calculations
 │   │   ├── aira.py                     # Gemini AI coaching & tool calling
 │   │   ├── beasts.py                   # Step sync & egg hatching
-│   │   ├── crafting.py                 # Refinement & forge recipes
+│   │   ├── crafting.py                 # Forge recipes & crafting
 │   │   ├── shop.py                     # Rotating market items
 │   │   ├── automations.py              # Event triggers & daily boosts
 │   │   └── calendar.py                 # Schedule sync & timeline events
