@@ -185,12 +185,16 @@ export function BrutstackHero({
 
         {/* 4-Stat Metrics Bar */}
         <div className="flex flex-wrap justify-center divide-x-2 divide-[#f9f4da] border-2 border-[#f9f4da] bg-[#1a1a1a] shadow-[4px_4px_0_0_#000]">
-          <div className="px-5 py-3 text-center md:px-8">
-            <p className="bs-font-sans text-xl font-black tracking-wide md:text-2xl text-[#00ff88]">
-              99.4%
+          {/* The problem Ascend exists for, sourced: Braze (2026), Day-30 retention for health and fitness apps is 3.4% to 3.9% (docs/architecture/blueprint.md). */}
+          <div
+            className="px-5 py-3 text-center md:px-8"
+            title="Braze (2026): only 3.4% to 3.9% of health and fitness app users are still active on day 30."
+          >
+            <p className="bs-font-sans text-xl font-black tracking-wide md:text-2xl text-[#fcba28]">
+              3.9%
             </p>
             <p className="bs-font-sans mt-1 text-[10px] tracking-widest text-neutral-400 uppercase font-bold md:text-xs">
-              HABIT RETENTION
+              FITNESS APPS&apos; DAY-30 RETENTION
             </p>
           </div>
           <div className="px-5 py-3 text-center md:px-8">
