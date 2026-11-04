@@ -1,11 +1,16 @@
 import { API_BASE_URL } from "@/constants";
 
+// The session token as a Bearer header, for when the API is on another site and the cookie is not sent.
+export function authHeaders(): Record<string, string> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("ascend_session") : null;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function fetcher<T>(
   endpoint: string,
   options?: RequestInit
 ): Promise<T | null> {
   try {
-    const token = typeof window !== "undefined" ? localStorage.getItem("ascend_session") : null;
     const customHeaders = (options?.headers || {}) as Record<string, string>;
 
     const res = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -13,7 +18,7 @@ export async function fetcher<T>(
       ...options,
       headers: {
         "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...authHeaders(),
         ...customHeaders,
       },
     });
