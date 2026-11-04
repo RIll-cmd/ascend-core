@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/constants";
+import { authHeaders } from "@/lib/api";
 import { AIRAChatResponse, AIRADefeatResponse, AIRADailyReportResponse, AIRAPendingAction, AIRASystemStatusResponse } from "../types";
 
 /**
@@ -11,7 +12,8 @@ export async function sendAiraChat(
   try {
     const res = await fetch(`${API_BASE_URL}/api/aira/chat`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ prompt, characterId }),
     });
 
@@ -38,7 +40,8 @@ export async function diagnoseTowerDefeat(
   try {
     const res = await fetch(`${API_BASE_URL}/api/aira/diagnose-defeat`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ battleLogs, characterId, floorNumber }),
     });
 
@@ -63,7 +66,8 @@ export async function fetchDailyReport(
   try {
     const res = await fetch(`${API_BASE_URL}/api/aira/daily-report/${characterId}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
     });
 
     if (!res.ok) {
@@ -91,7 +95,8 @@ export async function executeAiraAction(
     );
     const res = await fetch(`${API_BASE_URL}${isSignedPreview ? "/api/aira/operations/execute" : "/api/aira/execute"}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify(isSignedPreview ? {
         characterId,
         requestId: pendingAction.requestId,
@@ -125,7 +130,8 @@ export async function fetchSystemStatus(
   try {
     const res = await fetch(`${API_BASE_URL}/api/aira/status/${characterId}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
     });
 
     if (!res.ok) {
