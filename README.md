@@ -26,8 +26,8 @@
 
 ## Demo
 
-<p align="center"><a href="docs/demo/core-demo.mp4"><img src="docs/demo/core-demo-poster.jpg" width="720" alt="Watch the 64-second demo" /></a></p>
-<p align="center"><b>▶ <a href="docs/demo/core-demo.mp4">Watch the 64-second demo</a></b><br /><em>On a fresh guest account: the quest board, AIRA, the shop, achievements, the skill tree, the tower and the egg aviary. Voice-over made with ElevenLabs.</em></p>
+<p align="center"><a href="https://cdn.jsdelivr.net/gh/RIll-cmd/ascend-core@main/docs/demo/core-demo.mp4"><img src="docs/demo/core-demo-poster.jpg" width="720" alt="Watch the 64-second demo" /></a></p>
+<p align="center"><b>▶ <a href="https://cdn.jsdelivr.net/gh/RIll-cmd/ascend-core@main/docs/demo/core-demo.mp4">Watch the 64-second demo</a></b><br /><em>On a fresh guest account: the quest board, AIRA, the shop, achievements, the skill tree, the tower and the egg aviary. Voice-over made with ElevenLabs.</em></p>
 
 ## 🖼️ Visual Showcase
 
